@@ -1,0 +1,50 @@
+# Robots.txt for Competitive Exam Platform
+
+User-agent: *
+
+# Allow crawling of public pages
+Allow: /
+Allow: /exams
+Allow: /category/
+Allow: /contact
+Allow: /help
+Allow: /privacy
+Allow: /terms
+
+# Disallow authentication pages
+Disallow: /login
+Disallow: /signup
+Disallow: /forgot-password
+Disallow: /reset-password
+
+# Disallow user-specific pages
+Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /profile
+Disallow: /analysis
+Disallow: /leaderboard
+
+# Disallow exam attempt pages
+Disallow: /exam/
+Disallow: /shift/
+Disallow: /loading/
+
+# Disallow admin pages
+Disallow: /admin-messages
+
+# Sitemap location
+Sitemap: https://yoursite.com/sitemap.xml
+
+# Additional directives for good bots
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Block common bad bots (optional)
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
