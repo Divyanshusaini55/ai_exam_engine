@@ -170,19 +170,24 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
     # -------------------------------------------------
     # SUBMIT EXAM (FINISH)
     # -------------------------------------------------
+    # -------------------------------------------------
+    # SUBMIT EXAM (FINISH)
+    # -------------------------------------------------
     @action(detail=True, methods=['post'])
     def submit_exam(self, request, pk=None):
         """
         Calculates the final score and creates a UserExamResult.
+        Allows GUEST submissions (user=None).
         """
         exam = self.get_object()
         session_id = request.data.get('session_id')
+        
+        # 1. Determine User vs Guest
+        user = request.user if request.user.is_authenticated else None
+        guest_name = request.data.get("name", "Guest")
+        guest_email = request.data.get("email", "")
 
-        if not request.user.is_authenticated:
-             return Response(
-                {'error': 'Authentication required to submit exam.'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
+        print(f"📝 SUBMIT EXAM: User={user}, Session={session_id}, Guest={guest_name}")
 
         if not session_id:
             return Response(
@@ -195,10 +200,15 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
         total_questions = exam.questions.count()
         correct_answers = user_answers.filter(is_correct=True).count()
         
-        # 🛡️ SANITY CHECK: Remove duplicates if they exist (Fixes MultipleObjectsReturned)
-        existing_results = UserExamResult.objects.filter(user=request.user, exam=exam)
+        # 🛡️ SANITY CHECK: Remove duplicates if they exist
+        if user:
+            existing_results = UserExamResult.objects.filter(user=user, exam=exam)
+        else:
+            # For guests, check by session_id to avoid duplicates for same session
+            existing_results = UserExamResult.objects.filter(session_id=session_id, exam=exam)
+            
         if existing_results.count() > 1:
-            print(f"⚠️ Found duplicate results for user {request.user.id} exam {exam.id}. Cleaning up...")
+            print(f"⚠️ Found duplicate results for {user or session_id}. Cleaning up...")
             existing_results.delete()
 
         # Calculate Score
@@ -208,23 +218,38 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
 
         # Create Result
         # We use update_or_create to prevent duplicates if user hits submit twice
-        result, created = UserExamResult.objects.update_or_create(
-            user=request.user,
-            exam=exam,
-            defaults={
-                'score': score,
-                'total_questions': total_questions,
-                'correct_answers': correct_answers,
-                'percentage': round((correct_answers / total_questions * 100) if total_questions > 0 else 0, 2),
-                'session_id': session_id
-            }
-        )
+        # Note: We use 'session_id' as unique identifier for Guests in this context logic
+        
+        defaults = {
+            'score': score,
+            'total_questions': total_questions,
+            'correct_answers': correct_answers,
+            'percentage': round((correct_answers / total_questions * 100) if total_questions > 0 else 0, 2),
+            'guest_name': guest_name if not user else None,
+            'guest_email': guest_email if not user else None,
+        }
+        
+        if user:
+            result, created = UserExamResult.objects.update_or_create(
+                user=user,
+                exam=exam,
+                defaults={**defaults, 'session_id': session_id}
+            )
+        else:
+            # For guests, we rely on session_id + exam to identify the attempt
+            result, created = UserExamResult.objects.update_or_create(
+                session_id=session_id,
+                exam=exam,
+                defaults={**defaults, 'user': None}
+            )
 
         return Response({
             'message': 'Exam submitted successfully!',
             'result_id': result.id,
             'score': score,
-            'percentage': result.percentage
+            'total': total_questions,
+            'percentage': result.percentage,
+            'attempt_id': result.id 
         })
 
     # -------------------------------------------------
@@ -233,24 +258,31 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=True, methods=['get'])
     def results(self, request, pk=None):
         """
-        Get exam results for the authenticated user.
-        🛡️ SECURITY: Results are scoped to user + exam to prevent data leakage.
+        Get exam results for the authenticated user OR guest (via session_id).
+        🛡️ SECURITY: Results are scoped to user/session + exam.
         """
         exam = self.get_object()
+        session_id = request.query_params.get('session_id')
         
-        # 🔒 REQUIRE AUTHENTICATION
-        if not request.user.is_authenticated:
+        # 🔒 AUTH / SESSION CHECK
+        if not request.user.is_authenticated and not session_id:
             return Response(
-                {'error': 'Authentication required to view results'},
+                {'error': 'Authentication or Session ID required to view results'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
         
         # 🔍 CHECK IF USER HAS COMPLETED THIS EXAM
         # Use filter().order_by().first() to avoid MultipleObjectsReturned errors and get the LATEST attempt
-        user_result = UserExamResult.objects.filter(
-            user=request.user,
-            exam=exam
-        ).order_by('-completed_at').first()
+        if request.user.is_authenticated:
+             user_result = UserExamResult.objects.filter(
+                user=request.user, 
+                exam=exam
+            ).order_by('-completed_at').first()
+        else:
+             user_result = UserExamResult.objects.filter(
+                session_id=session_id, 
+                exam=exam
+            ).order_by('-completed_at').first()
 
         if not user_result:
             return Response(

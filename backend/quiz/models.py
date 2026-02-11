@@ -269,7 +269,9 @@ class UserAnswer(models.Model):
 from django.contrib.auth.models import User
 
 class UserExamResult(models.Model):
-    user = models.ForeignKey(User, related_name='exam_results', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='exam_results', on_delete=models.SET_NULL, null=True, blank=True)
+    guest_name = models.CharField(max_length=100, null=True, blank=True)
+    guest_email = models.EmailField(null=True, blank=True)
     exam = models.ForeignKey(Exam, related_name='results', on_delete=models.CASCADE)
     score = models.IntegerField()
     total_questions = models.IntegerField()
