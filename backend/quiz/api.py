@@ -182,75 +182,80 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
         exam = self.get_object()
         session_id = request.data.get('session_id')
         
-        # 1. Determine User vs Guest
-        user = request.user if request.user.is_authenticated else None
-        guest_name = request.data.get("name", "Guest")
-        guest_email = request.data.get("email", "")
+        try:
+            # 1. Determine User vs Guest
+            user = request.user if request.user.is_authenticated else None
+            guest_name = request.data.get("name", "Guest")
+            guest_email = request.data.get("email", "")
 
-        print(f"📝 SUBMIT EXAM: User={user}, Session={session_id}, Guest={guest_name}")
+            print(f"📝 SUBMIT EXAM: User={user}, Session={session_id}, Guest={guest_name}")
 
-        if not session_id:
-            return Response(
-                {'error': 'Session ID required.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            if not session_id:
+                return Response(
+                    {'error': 'Session ID required.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-        # Quick: Calculate answers from DB
-        user_answers = UserAnswer.objects.filter(exam=exam, session_id=session_id)
-        total_questions = exam.questions.count()
-        correct_answers = user_answers.filter(is_correct=True).count()
-        
-        # 🛡️ SANITY CHECK: Remove duplicates if they exist
-        if user:
-            existing_results = UserExamResult.objects.filter(user=user, exam=exam)
-        else:
-            # For guests, check by session_id to avoid duplicates for same session
-            existing_results = UserExamResult.objects.filter(session_id=session_id, exam=exam)
+            # Quick: Calculate answers from DB
+            user_answers = UserAnswer.objects.filter(exam=exam, session_id=session_id)
+            total_questions = exam.questions.count()
+            correct_answers = user_answers.filter(is_correct=True).count()
             
-        if existing_results.count() > 1:
-            print(f"⚠️ Found duplicate results for {user or session_id}. Cleaning up...")
-            existing_results.delete()
+            # 🛡️ SANITY CHECK: Remove duplicates if they exist
+            if user:
+                existing_results = UserExamResult.objects.filter(user=user, exam=exam)
+            else:
+                # For guests, check by session_id to avoid duplicates for same session
+                existing_results = UserExamResult.objects.filter(session_id=session_id, exam=exam)
+                
+            if existing_results.count() > 1:
+                print(f"⚠️ Found duplicate results for {user or session_id}. Cleaning up...")
+                existing_results.delete()
 
-        # Calculate Score
-        score = user_answers.filter(is_correct=True).aggregate(
-            total=models.Sum('question__points')
-        )['total'] or 0
+            # Calculate Score
+            score = user_answers.filter(is_correct=True).aggregate(
+                total=models.Sum('question__points')
+            )['total'] or 0
 
-        # Create Result
-        # We use update_or_create to prevent duplicates if user hits submit twice
-        # Note: We use 'session_id' as unique identifier for Guests in this context logic
-        
-        defaults = {
-            'score': score,
-            'total_questions': total_questions,
-            'correct_answers': correct_answers,
-            'percentage': round((correct_answers / total_questions * 100) if total_questions > 0 else 0, 2),
-            'guest_name': guest_name if not user else None,
-            'guest_email': guest_email if not user else None,
-        }
-        
-        if user:
-            result, created = UserExamResult.objects.update_or_create(
-                user=user,
-                exam=exam,
-                defaults={**defaults, 'session_id': session_id}
+            # Create Result
+            defaults = {
+                'score': score,
+                'total_questions': total_questions,
+                'correct_answers': correct_answers,
+                'percentage': round((correct_answers / total_questions * 100) if total_questions > 0 else 0, 2),
+                'guest_name': guest_name if not user else None,
+                'guest_email': guest_email if not user else None,
+            }
+            
+            if user:
+                result, created = UserExamResult.objects.update_or_create(
+                    user=user,
+                    exam=exam,
+                    defaults={**defaults, 'session_id': session_id}
+                )
+            else:
+                # For guests, we rely on session_id + exam to identify the attempt
+                result, created = UserExamResult.objects.update_or_create(
+                    session_id=session_id,
+                    exam=exam,
+                    defaults={**defaults, 'user': None}
+                )
+
+            return Response({
+                'message': 'Exam submitted successfully!',
+                'result_id': result.id,
+                'score': score,
+                'total': total_questions,
+                'percentage': result.percentage,
+                'attempt_id': result.id 
+            })
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return Response(
+                {'error': f'Submission failed: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-        else:
-            # For guests, we rely on session_id + exam to identify the attempt
-            result, created = UserExamResult.objects.update_or_create(
-                session_id=session_id,
-                exam=exam,
-                defaults={**defaults, 'user': None}
-            )
-
-        return Response({
-            'message': 'Exam submitted successfully!',
-            'result_id': result.id,
-            'score': score,
-            'total': total_questions,
-            'percentage': result.percentage,
-            'attempt_id': result.id 
-        })
 
     # -------------------------------------------------
     # RESULTS (SAVES DATA NOW)
