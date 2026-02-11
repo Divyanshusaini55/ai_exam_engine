@@ -75,6 +75,13 @@ export const examApi = {
     });
   },
 
+  // 🔥 NEW: Submit entire exam to calculate results
+  submitExam: (examId: string, sessionId: string) => {
+    return api.post(`/exams/${examId}/submit_exam/`, {
+      session_id: sessionId
+    });
+  },
+
   // Get Final Results
   getResults: (examId: string) => {
     return api.get(`/exams/${examId}/results/`, {

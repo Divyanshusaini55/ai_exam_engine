@@ -168,6 +168,60 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data)
 
     # -------------------------------------------------
+    # SUBMIT EXAM (FINISH)
+    # -------------------------------------------------
+    @action(detail=True, methods=['post'])
+    def submit_exam(self, request, pk=None):
+        """
+        Calculates the final score and creates a UserExamResult.
+        """
+        exam = self.get_object()
+        session_id = request.data.get('session_id')
+
+        if not request.user.is_authenticated:
+             return Response(
+                {'error': 'Authentication required to submit exam.'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        if not session_id:
+            return Response(
+                {'error': 'Session ID required.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Quick: Calculate answers from DB
+        user_answers = UserAnswer.objects.filter(exam=exam, session_id=session_id)
+        total_questions = exam.questions.count()
+        correct_answers = user_answers.filter(is_correct=True).count()
+        
+        # Calculate Score
+        score = user_answers.filter(is_correct=True).aggregate(
+            total=models.Sum('question__points')
+        )['total'] or 0
+
+        # Create Result
+        # We use update_or_create to prevent duplicates if user hits submit twice
+        result, created = UserExamResult.objects.update_or_create(
+            user=request.user,
+            exam=exam,
+            defaults={
+                'score': score,
+                'total_questions': total_questions,
+                'correct_answers': correct_answers,
+                'percentage': round((correct_answers / total_questions * 100) if total_questions > 0 else 0, 2),
+                'session_id': session_id
+            }
+        )
+
+        return Response({
+            'message': 'Exam submitted successfully!',
+            'result_id': result.id,
+            'score': score,
+            'percentage': result.percentage
+        })
+
+    # -------------------------------------------------
     # RESULTS (SAVES DATA NOW)
     # -------------------------------------------------
     @action(detail=True, methods=['get'])

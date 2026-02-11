@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { QuestionNavigator } from "./question-navigator"
 import { MobileQuestionNavigator } from "./mobile-question-navigator"
-import { examApi } from "@/lib/api"
+import { examApi, getSessionId } from "@/lib/api"
 import ReactMarkdown from 'react-markdown'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
@@ -101,8 +101,23 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
         }
     }
 
-    const handleSubmit = () => {
-        onSubmit?.()
+    const handleSubmit = async () => {
+        setLoading(true)
+        try {
+            const sessionId = getSessionId()
+            console.log("📝 Submitting Exam...", { examId, sessionId })
+
+            const res = await examApi.submitExam(examId, sessionId)
+            console.log("✅ Exam Submitted:", res.data)
+
+            if (onSubmit) {
+                onSubmit()
+            }
+        } catch (error) {
+            console.error("❌ Submission Failed:", error)
+            alert("Failed to submit exam. Please check your connection and try again.")
+            setLoading(false)
+        }
     }
 
     if (loading) return <div className="h-screen flex items-center justify-center font-bold text-xl text-slate-500">Loading Exam Environment...</div>
