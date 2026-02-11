@@ -237,13 +237,14 @@ class ExamAdmin(admin.ModelAdmin):
     actions = [generate_questions]
 
     def save_model(self, request, obj, form, change):
-        super().save_model(request, obj, form, change)
-        # Auto-generate questions if PDF is uploaded and no questions exist
-        if obj.pdf_file and not change:
-            try:
-                generate_questions_from_pdf(obj)
-            except Exception as e:
-                self.message_user(request, f"Error generating questions: {str(e)}", level='WARNING')
+        import traceback
+        try:
+            super().save_model(request, obj, form, change)
+            print(f"✅ Exam '{obj.title}' saved via admin. Skipping automatic AI processing to prevent timeouts.")
+        except Exception as e:
+            print(f"❌ ADMIN SAVE ERROR for Exam '{obj.title}':", str(e))
+            traceback.print_exc()
+            raise e
 
 
 @admin.register(Question)
