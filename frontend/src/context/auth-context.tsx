@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { apiClient } from "@/lib/apiClient"
 
 interface User {
     id: number
@@ -40,11 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const fetchUser = async (token: string) => {
         try {
-            const res = await fetch("http://127.0.0.1:8000/api/auth/user/", {
-                headers: {
-                    "Authorization": `Token ${token}`
-                }
-            })
+            const res = await apiClient.get('/auth/user/')
 
             if (res.ok) {
                 const data = await res.json()

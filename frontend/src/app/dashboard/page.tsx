@@ -6,6 +6,7 @@ import { useRouter, usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Navbar } from "@/components/navbar"
 import Link from "next/link"
+import { apiClient } from "@/lib/apiClient"
 
 interface Activity {
     id: number
@@ -42,12 +43,7 @@ export default function DashboardPage() {
 
     const fetchStats = async () => {
         try {
-            const token = localStorage.getItem("auth_token")
-            const res = await fetch("http://127.0.0.1:8000/api/exams/dashboard_stats/", {
-                headers: {
-                    "Authorization": `Token ${token}`
-                }
-            })
+            const res = await apiClient.get('/exams/dashboard_stats/')
             if (res.ok) {
                 const data = await res.json()
                 setStats(data)

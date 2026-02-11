@@ -5,6 +5,7 @@ import { useState, Suspense } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Navbar } from "@/components/navbar"
+import { apiClient } from "@/lib/apiClient"
 
 
 function ResetPasswordForm() {
@@ -45,14 +46,10 @@ function ResetPasswordForm() {
         setMessage("")
 
         try {
-            const res = await fetch("http://127.0.0.1:8000/api/auth/password-reset/confirm/", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    uid,
-                    token,
-                    password
-                }),
+            const res = await apiClient.post('/auth/password-reset/confirm/', {
+                uid,
+                token,
+                password
             })
 
             const data = await res.json()

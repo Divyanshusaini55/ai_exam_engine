@@ -3,6 +3,7 @@ import { useNoIndex } from "@/hooks/useNoIndex"
 
 import { useState, Suspense } from "react"
 import { useAuth } from "@/context/auth-context"
+import { apiClient } from "@/lib/apiClient"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 
@@ -25,10 +26,9 @@ function LoginForm() {
         setLoading(true)
 
         try {
-            const res = await fetch("http://127.0.0.1:8000/api/auth/login/", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password }),
+            const res = await apiClient.post('/auth/login/', {
+                username,
+                password
             })
 
             const data = await res.json()

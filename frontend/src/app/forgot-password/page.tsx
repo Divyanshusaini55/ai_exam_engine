@@ -4,6 +4,7 @@ import { useNoIndex } from "@/hooks/useNoIndex"
 import { useState } from "react"
 import Link from "next/link"
 import { Navbar } from "@/components/navbar"
+import { apiClient } from "@/lib/apiClient"
 
 
 export default function ForgotPasswordPage() {
@@ -18,11 +19,7 @@ export default function ForgotPasswordPage() {
         setMessage("")
 
         try {
-            const res = await fetch("http://127.0.0.1:8000/api/auth/password-reset/", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email }),
-            })
+            const res = await apiClient.post('/auth/password-reset/', { email })
 
             const data = await res.json()
 

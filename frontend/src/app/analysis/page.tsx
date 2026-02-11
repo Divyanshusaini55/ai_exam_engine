@@ -21,6 +21,7 @@ import {
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Navbar } from "@/components/navbar"
+import { apiClient } from "@/lib/apiClient"
 
 
 export default function AnalysisPage() {
@@ -39,12 +40,7 @@ export default function AnalysisPage() {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const token = localStorage.getItem('auth_token')
-                const res = await fetch('http://127.0.0.1:8000/api/exams/dashboard_stats/', {
-                    headers: {
-                        'Authorization': `Token ${token}`
-                    }
-                })
+                const res = await apiClient.get('/exams/dashboard_stats/')
                 if (res.ok) {
                     const data = await res.json()
                     setStats({

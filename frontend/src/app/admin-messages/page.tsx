@@ -3,6 +3,7 @@ import { useNoIndex } from "@/hooks/useNoIndex"
 
 import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { apiClient } from "@/lib/apiClient"
 
 
 interface ContactMessage {
@@ -27,17 +28,7 @@ export default function AdminContactMessagesPage() {
 
     const fetchMessages = async () => {
         try {
-            const token = localStorage.getItem('token')
-            if (!token) {
-                router.push('/login')
-                return
-            }
-
-            const res = await fetch('http://127.0.0.1:8000/api/admin/contact-messages/', {
-                headers: {
-                    'Authorization': `Token ${token}`
-                }
-            })
+            const res = await apiClient.get('/admin/contact-messages/')
 
             if (res.status === 403 || res.status === 401) {
                 alert('You do not have permission to access this page.')
@@ -59,12 +50,8 @@ export default function AdminContactMessagesPage() {
     const updateMessageStatus = async (messageId: number, newStatus: "read" | "unread") => {
         try {
             const token = localStorage.getItem('token')
-            const res = await fetch(`http://127.0.0.1:8000/api/admin/contact-messages/${messageId}/status/`, {
+            const res = await apiClient.fetch(`/admin/contact-messages/${messageId}/status/`, {
                 method: 'PATCH',
-                headers: {
-                    'Authorization': `Token ${token}`,
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify({ status: newStatus })
             })
 
@@ -84,12 +71,7 @@ export default function AdminContactMessagesPage() {
 
         try {
             const token = localStorage.getItem('token')
-            const res = await fetch(`http://127.0.0.1:8000/api/admin/contact-messages/${messageId}/`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Token ${token}`
-                }
-            })
+            const res = await apiClient.delete(`/admin/contact-messages/${messageId}/`)
 
             if (res.ok || res.status === 204) {
                 fetchMessages()

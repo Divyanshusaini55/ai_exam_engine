@@ -3,6 +3,7 @@ import { useNoIndex } from "@/hooks/useNoIndex"
 
 import { useState } from "react"
 import { useAuth } from "@/context/auth-context"
+import { apiClient } from "@/lib/apiClient"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
@@ -27,11 +28,7 @@ export default function SignupPage() {
         setLoading(true)
 
         try {
-            const res = await fetch("http://127.0.0.1:8000/api/auth/register/", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
-            })
+            const res = await apiClient.post('/auth/register/', formData)
 
             const data = await res.json()
 
