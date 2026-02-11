@@ -195,6 +195,12 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
         total_questions = exam.questions.count()
         correct_answers = user_answers.filter(is_correct=True).count()
         
+        # 🛡️ SANITY CHECK: Remove duplicates if they exist (Fixes MultipleObjectsReturned)
+        existing_results = UserExamResult.objects.filter(user=request.user, exam=exam)
+        if existing_results.count() > 1:
+            print(f"⚠️ Found duplicate results for user {request.user.id} exam {exam.id}. Cleaning up...")
+            existing_results.delete()
+
         # Calculate Score
         score = user_answers.filter(is_correct=True).aggregate(
             total=models.Sum('question__points')
@@ -240,12 +246,13 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
             )
         
         # 🔍 CHECK IF USER HAS COMPLETED THIS EXAM
-        try:
-            user_result = UserExamResult.objects.get(
-                user=request.user,
-                exam=exam
-            )
-        except UserExamResult.DoesNotExist:
+        # Use filter().order_by().first() to avoid MultipleObjectsReturned errors and get the LATEST attempt
+        user_result = UserExamResult.objects.filter(
+            user=request.user,
+            exam=exam
+        ).order_by('-completed_at').first()
+
+        if not user_result:
             return Response(
                 {'error': 'No results found for this exam. Please complete the exam first.'},
                 status=status.HTTP_404_NOT_FOUND
