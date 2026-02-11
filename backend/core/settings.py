@@ -191,6 +191,9 @@ DEFAULT_FROM_EMAIL = 'noreply@examplatform.com'
 
 # Production Security Settings (Only active when DEBUG=False)
 if not DEBUG:
+    # Tell Django that we are behind a proxy that handles SSL (Render/Heroku/etc)
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
