@@ -104,7 +104,7 @@ export default function LeaderboardPage() {
                                     Be the first pioneer to take a test and claim the top spot on the leaderboard!
                                 </p>
                                 <Link
-                                    href="/exams"
+                                    href="/"
                                     className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/30 transition-all hover:-translate-y-1 active:scale-95"
                                 >
                                     Take a Challenge
