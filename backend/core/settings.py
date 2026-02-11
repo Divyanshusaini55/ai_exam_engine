@@ -136,9 +136,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CORS settings - configured via environment variable
 # For local development, defaults to localhost:3000
 # For production, set CORS_ALLOWED_ORIGINS env var to your frontend URLs (comma-separated)
+# CORS settings
 cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000')
 CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_origins.split(',')]
 CORS_ALLOW_CREDENTIALS = True
+
+# CSRF settings - Django 4.0+ requires trusted origins for cross-origin POST requests
+CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
 
 # Only allow all origins in development
 CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only True when DEBUG=True
