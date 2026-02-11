@@ -238,9 +238,22 @@ class ExamAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         import traceback
+        import threading
+        from .services import extract_questions_async
+
         try:
             super().save_model(request, obj, form, change)
-            print(f"✅ Exam '{obj.title}' saved via admin. Skipping automatic AI processing to prevent timeouts.")
+            print(f"✅ Exam '{obj.title}' saved via admin.")
+            
+            # Auto-generate questions if PDF is uploaded and no questions exist (ASYNC)
+            if obj.pdf_file and not change:
+                print(f"🧵 Spawning background thread for Gemini extraction on Exam ID: {obj.id}")
+                threading.Thread(
+                    target=extract_questions_async,
+                    args=(obj.id,),
+                    daemon=True
+                ).start()
+                
         except Exception as e:
             print(f"❌ ADMIN SAVE ERROR for Exam '{obj.title}':", str(e))
             traceback.print_exc()
