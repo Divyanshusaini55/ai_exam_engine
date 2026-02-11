@@ -173,7 +173,7 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
     # -------------------------------------------------
     # SUBMIT EXAM (FINISH)
     # -------------------------------------------------
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def submit_exam(self, request, pk=None):
         """
         Calculates the final score and creates a UserExamResult.
@@ -242,6 +242,7 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
                 )
 
             return Response({
+                'success': True,
                 'message': 'Exam submitted successfully!',
                 'result_id': result.id,
                 'score': score,

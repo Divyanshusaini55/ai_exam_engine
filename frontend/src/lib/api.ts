@@ -26,6 +26,7 @@ export const getSessionId = () => {
 
 const api = axios.create({
   baseURL: API_URL,
+  withCredentials: true, // ✅ Send cookies with requests
   headers: {
     'Content-Type': 'application/json',
   },

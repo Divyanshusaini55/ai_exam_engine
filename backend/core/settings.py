@@ -142,7 +142,11 @@ CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_origins.split(',')]
 CORS_ALLOW_CREDENTIALS = True
 
 # CSRF settings - Django 4.0+ requires trusted origins for cross-origin POST requests
-CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
+CSRF_TRUSTED_ORIGINS = [
+    'https://ai-exam-engine.vercel.app',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+] + CORS_ALLOWED_ORIGINS
 
 # Only allow all origins in development
 CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only True when DEBUG=True
