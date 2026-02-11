@@ -3,6 +3,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000/api';
 
+if (typeof window !== 'undefined') {
+  console.log('🚀 API_URL Configured as:', API_URL);
+  if (window.location.hostname.includes('vercel.app') && (API_URL.includes('127.0.0.1') || API_URL.includes('localhost'))) {
+    console.error('❌ CRITICAL ERROR: Production App is trying to connect to Localhost! Check NEXT_PUBLIC_API_BASE_URL in Vercel Settings.');
+    alert('Configuration Error: App is trying to connect to localhost. Please report this.');
+  }
+}
+
 // Helper: Get or create a unique session ID for the user
 export const getSessionId = () => {
   if (typeof window !== 'undefined') {
