@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
 from django.db.models import Count, Sum
-from django.db import models # ✅ Added missing import
+from django.db import models 
 from django.contrib.auth.models import User
 
 from .ai import generate_explanation_for_question, parse_exam_paper_with_ai
@@ -98,7 +98,7 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
             })
             
         except Exception as e:
-            print(f"❌ Parse Error: {e}")
+            print(f"Parse Error: {e}")
             return Response(
                 {'error': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -167,12 +167,7 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = UserAnswerSerializer(user_answer)
         return Response(serializer.data)
 
-    # -------------------------------------------------
-    # SUBMIT EXAM (FINISH)
-    # -------------------------------------------------
-    # -------------------------------------------------
-    # SUBMIT EXAM (FINISH)
-    # -------------------------------------------------
+
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def submit_exam(self, request, pk=None):
         """
@@ -188,7 +183,7 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
             guest_name = request.data.get("name", "Guest")
             guest_email = request.data.get("email", "")
 
-            print(f"📝 SUBMIT EXAM: User={user}, Session={session_id}, Guest={guest_name}")
+            print(f"SUBMIT EXAM: User={user}, Session={session_id}, Guest={guest_name}")
 
             if not session_id:
                 return Response(
@@ -201,7 +196,7 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
             total_questions = exam.questions.count()
             correct_answers = user_answers.filter(is_correct=True).count()
             
-            # 🛡️ SANITY CHECK: Remove duplicates if they exist
+            # SANITY CHECK: Remove duplicates if they exist
             if user:
                 existing_results = UserExamResult.objects.filter(user=user, exam=exam)
             else:
@@ -209,7 +204,7 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
                 existing_results = UserExamResult.objects.filter(session_id=session_id, exam=exam)
                 
             if existing_results.count() > 1:
-                print(f"⚠️ Found duplicate results for {user or session_id}. Cleaning up...")
+                print(f"Found duplicate results for {user or session_id}. Cleaning up...")
                 existing_results.delete()
 
             # Calculate Score
@@ -265,19 +260,19 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
     def results(self, request, pk=None):
         """
         Get exam results for the authenticated user OR guest (via session_id).
-        🛡️ SECURITY: Results are scoped to user/session + exam.
+        SECURITY: Results are scoped to user/session + exam.
         """
         exam = self.get_object()
         session_id = request.query_params.get('session_id')
         
-        # 🔒 AUTH / SESSION CHECK
+        # AUTH / SESSION CHECK
         if not request.user.is_authenticated and not session_id:
             return Response(
                 {'error': 'Authentication or Session ID required to view results'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
         
-        # 🔍 CHECK IF USER HAS COMPLETED THIS EXAM
+        # CHECK IF USER HAS COMPLETED THIS EXAM
         # Use filter().order_by().first() to avoid MultipleObjectsReturned errors and get the LATEST attempt
         if request.user.is_authenticated:
              user_result = UserExamResult.objects.filter(
@@ -296,7 +291,7 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
         
-        # ✅ FETCH USER'S ANSWERS using the session_id from their result
+        # FETCH USER'S ANSWERS using the session_id from their result
         user_answers = UserAnswer.objects.filter(
             exam=exam,
             session_id=user_result.session_id
@@ -319,7 +314,7 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
             2
         )
 
-        # ✅ SUMMARY DATA (using saved result)
+        # SUMMARY DATA (using saved result)
         summary_data = {
             'exam_id': exam.id,
             'exam_title': exam.title,
@@ -335,13 +330,13 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
 
         summary_serializer = ExamResultSerializer(summary_data)
 
-        # ✅ ANSWERS SERIALIZED SEPARATELY
+        # ANSWERS SERIALIZED SEPARATELY
         answers_data = UserAnswerSerializer(
             user_answers,
             many=True
         ).data
 
-        # 🔥 FULL QUESTIONS WITH CORRECT ANSWERS (FOR REVIEW)
+        # FULL QUESTIONS WITH CORRECT ANSWERS (FOR REVIEW)
         all_questions = exam.questions.all().prefetch_related('answers')
         questions_data = QuestionSerializer(
             all_questions,
@@ -352,7 +347,7 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
         return Response({
             **summary_serializer.data,
             "answers": answers_data,
-            "questions": questions_data # ✅ New Field
+            "questions": questions_data # New Field
         })
 
     # -------------------------------------------------
@@ -360,7 +355,7 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
     # -------------------------------------------------
     @action(detail=False, methods=['get'])
     def dashboard_stats(self, request):
-        print(f"📊 DASHBOARD DEBUG: User={request.user}, Auth={request.auth}")
+        print(f"DASHBOARD DEBUG: User={request.user}, Auth={request.auth}")
         if not request.user.is_authenticated:
             return Response(
                 {'error': 'Authentication required'}, 
@@ -437,7 +432,7 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
         leaderboard_data = []
 
         if exam_id:
-            # 🏆 Per-Exam Leaderboard (Highest Score per User)
+            # Per-Exam Leaderboard (Highest Score per User)
             # We want each user to appear only once with their BEST score for this exam.
             
             # Subquery to find the best score for each user for this exam
@@ -471,7 +466,7 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
                 rank += 1
                 
         else:
-            # 🌍 Global Leaderboard (Reputation / Total Score sum)
+            # Global Leaderboard (Reputation / Total Score sum)
             # Sum of all scores for each user
             users = User.objects.annotate(
                 total_score=Sum('exam_results__score'),

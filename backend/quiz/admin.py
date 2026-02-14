@@ -1,93 +1,3 @@
-# from django.contrib import admin
-# from .models import Exam, Question, Answer, UserAnswer
-# from .ai import generate_questions_from_pdf
-
-
-# @admin.action(description='Generate questions from PDF using AI')
-# def generate_questions(modeladmin, request, queryset):
-#     for exam in queryset:
-#         if exam.pdf_file:
-#             try:
-#                 generate_questions_from_pdf(exam)
-#                 modeladmin.message_user(request, f"Questions generated successfully for {exam.title}")
-#             except Exception as e:
-#                 modeladmin.message_user(request, f"Error generating questions for {exam.title}: {str(e)}", level='ERROR')
-
-
-# class AnswerInline(admin.TabularInline):
-#     model = Answer
-#     extra = 1
-#     fields = ('answer_text', 'is_correct', 'order')
-
-
-# class QuestionInline(admin.StackedInline):
-#     model = Question
-#     extra = 0
-#     fields = (
-#         'question_text',
-#         'image',           # 🔥 ADD
-#         'is_image_based',  # 🔥 ADD
-#         'question_type',
-#         'order',
-#         'points',
-#     )
-#     show_change_link = True
-
-
-
-# @admin.register(Exam)
-# class ExamAdmin(admin.ModelAdmin):
-#     list_display = ('title', 'duration_minutes', 'total_questions', 'created_at', 'is_active')
-#     list_filter = ('is_active', 'created_at')
-#     search_fields = ('title', 'description')
-#     fields = ('title', 'description', 'pdf_file', 'duration_minutes', 'total_questions', 'is_active')
-#     inlines = [QuestionInline]
-#     actions = [generate_questions]
-
-#     def save_model(self, request, obj, form, change):
-#         super().save_model(request, obj, form, change)
-#         # Auto-generate questions if PDF is uploaded and no questions exist
-#         if obj.pdf_file and not change:
-#             try:
-#                 generate_questions_from_pdf(obj)
-#             except Exception as e:
-#                 self.message_user(request, f"Error generating questions: {str(e)}", level='WARNING')
-
-
-# @admin.register(Question)
-# class QuestionAdmin(admin.ModelAdmin):
-#     list_display = ('__str__', 'question_type', 'points', 'order')
-#     list_filter = ('question_type', 'exam')
-#     search_fields = ('question_text', 'exam__title')
-#     ordering = ('exam', 'order')
-
-#     fields = (
-#         'exam',
-#         'question_text',
-#         'image',           # 🔥 ADD
-#         'is_image_based',  # 🔥 ADD
-#         'question_type',
-#         'order',
-#         'points',
-#     )
-
-#     inlines = [AnswerInline]
-
-
-
-# @admin.register(Answer)
-# class AnswerAdmin(admin.ModelAdmin):
-#     list_display = ('__str__', 'question', 'is_correct', 'order')
-#     list_filter = ('is_correct', 'question__exam')
-#     search_fields = ('answer_text', 'question__question_text')
-
-
-# @admin.register(UserAnswer)
-# class UserAnswerAdmin(admin.ModelAdmin):
-#     list_display = ('session_id', 'question', 'is_correct', 'answered_at')
-#     list_filter = ('is_correct', 'answered_at', 'exam')
-#     search_fields = ('session_id', 'question__question_text')
-#     readonly_fields = ('answered_at',)
 
 
 from django.contrib import admin
@@ -243,11 +153,11 @@ class ExamAdmin(admin.ModelAdmin):
 
         try:
             super().save_model(request, obj, form, change)
-            print(f"✅ Exam '{obj.title}' saved via admin.")
+            print(f"Exam '{obj.title}' saved via admin.")
             
             # Auto-generate questions if PDF is uploaded and no questions exist (ASYNC)
             if obj.pdf_file and not change:
-                print(f"🧵 Spawning background thread for Gemini extraction on Exam ID: {obj.id}")
+                print(f"Spawning background thread for Gemini extraction on Exam ID: {obj.id}")
                 threading.Thread(
                     target=extract_questions_async,
                     args=(obj.id,),
@@ -255,7 +165,7 @@ class ExamAdmin(admin.ModelAdmin):
                 ).start()
                 
         except Exception as e:
-            print(f"❌ ADMIN SAVE ERROR for Exam '{obj.title}':", str(e))
+            print(f" ADMIN SAVE ERROR for Exam '{obj.title}':", str(e))
             traceback.print_exc()
             raise e
 

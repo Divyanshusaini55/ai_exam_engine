@@ -4,9 +4,9 @@ import { v4 as uuidv4 } from 'uuid';
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://ai-exam-engine-backend.onrender.com/api';
 
 if (typeof window !== 'undefined') {
-  console.log('🚀 API_URL Configured as:', API_URL);
+  console.log(' API_URL Configured as:', API_URL);
   if (window.location.hostname.includes('vercel.app') && (API_URL.includes('127.0.0.1') || API_URL.includes('localhost'))) {
-    console.error('❌ CRITICAL ERROR: Production App is trying to connect to Localhost! Check NEXT_PUBLIC_API_BASE_URL in Vercel Settings.');
+    console.error(' CRITICAL ERROR: Production App is trying to connect to Localhost! Check NEXT_PUBLIC_API_BASE_URL in Vercel Settings.');
     alert('Configuration Error: App is trying to connect to localhost. Please report this.');
   }
 }
@@ -26,7 +26,7 @@ export const getSessionId = () => {
 
 const api = axios.create({
   baseURL: API_URL,
-  withCredentials: true, // ✅ Send cookies with requests
+  withCredentials: true, // Send cookies with requests
   headers: {
     'Content-Type': 'application/json',
   },
@@ -34,7 +34,7 @@ const api = axios.create({
   timeout: 10000,
 });
 
-// ✅ Add Request Interceptor to include Auth Token
+// Add Request Interceptor to include Auth Token
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem("auth_token")
@@ -48,11 +48,11 @@ api.interceptors.request.use((config) => {
 // Add response interceptor for debugging
 api.interceptors.response.use(
   (response) => {
-    console.log('✅ API Response:', response.config.url, response.status, response.data);
+    console.log('API Response:', response.config.url, response.status, response.data);
     return response;
   },
   (error) => {
-    console.error('❌ API Error:', error.config?.url, error.response?.status, error.message);
+    console.error('API Error:', error.config?.url, error.response?.status, error.message);
     return Promise.reject(error);
   }
 );
@@ -76,7 +76,7 @@ export const examApi = {
     });
   },
 
-  // 🔥 NEW: Submit entire exam to calculate results
+  // NEW: Submit entire exam to calculate results
   submitExam: (examId: string, sessionId: string) => {
     return api.post(`/exams/${examId}/submit_exam/`, {
       session_id: sessionId
@@ -90,14 +90,14 @@ export const examApi = {
     });
   },
 
-  // 🔥 NEW: Request AI explanation for a specific question
+  // NEW: Request AI explanation for a specific question
   explainQuestion: (questionId: number) => {
     return api.post(`/exams/explain_question/`, {
       question_id: questionId
     });
   },
 
-  // 🏆 NEW: Get Leaderboard
+  // NEW: Get Leaderboard
   getLeaderboard: (examId?: string) => {
     return api.get('/exams/leaderboard/', {
       params: { exam_id: examId }

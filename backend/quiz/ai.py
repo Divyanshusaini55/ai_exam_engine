@@ -98,10 +98,10 @@ def extract_json_from_text(text):
 
 
 # ---------------------------------
-# 🔥 MAIN: PDF → QUESTIONS (FLASH LITE)
+#  MAIN: PDF → QUESTIONS (FLASH LITE)
 # ---------------------------------
 def generate_questions_from_pdf(exam: Exam):
-    print("🔥 Gemini Question Generator CALLED")
+    print(" Gemini Question Generator CALLED")
 
     pdf_text = extract_text_from_pdf(exam.pdf_file)
     if not pdf_text.strip():
@@ -114,14 +114,14 @@ def generate_questions_from_pdf(exam: Exam):
     configure_gemini()
     # Using 'models/' prefix as seen in list_models() output
     MODEL_NAME = "models/gemini-flash-lite-latest"
-    print("🚀 USING MODEL:", MODEL_NAME)
+    print(" USING MODEL:", MODEL_NAME)
     
     model = genai.GenerativeModel(MODEL_NAME)
 
     all_questions = []
 
     for i, chunk in enumerate(chunks):
-        print(f"⚙️ Chunk {i+1}/{len(chunks)}")
+        print(f" Chunk {i+1}/{len(chunks)}")
         prompt = build_prompt(chunk, questions_per_chunk, i + 1)
 
         data = None
@@ -136,15 +136,15 @@ def generate_questions_from_pdf(exam: Exam):
                 if data:
                     break
                 else:
-                    print(f"⚠️ Invalid JSON (chunk {i+1}) retry {attempt+1}")
+                    print(f" Invalid JSON (chunk {i+1}) retry {attempt+1}")
 
             except Exception as e:
                 wait = 5 + attempt * 5
-                print(f"⏳ Rate limited or Error. Waiting {wait}s... Error: {e}")
+                print(f" Rate limited or Error. Waiting {wait}s... Error: {e}")
                 time.sleep(wait)
 
         if not data:
-            print(f"❌ Skipping chunk {i+1}")
+            print(f" Skipping chunk {i+1}")
             continue
 
         all_questions.extend(data.get("questions", []))
@@ -181,12 +181,12 @@ def generate_questions_from_pdf(exam: Exam):
                 order=a_idx,
             )
 
-    print("✅ Question generation completed")
+    print(" Question generation completed")
     return True
 
 
 # ---------------------------------
-# 🔥 ON-DEMAND AI EXPLANATION (PRO MODEL)
+# ON-DEMAND AI EXPLANATION (PRO MODEL)
 # ---------------------------------
 def generate_explanation_for_question(question: Question):
     """
@@ -212,12 +212,12 @@ Keep it extremely concise and direct.
         response = model.generate_content(prompt)
         return response.text.strip()
     except Exception as e:
-        print("❌ Explanation error:", e)
+        print(" Explanation error:", e)
         return "Explanation could not be generated at this time."
 
 
 # ---------------------------------
-# 🔥 AI EXAM PARSER (FULL PAPER)
+# AI EXAM PARSER (FULL PAPER)
 # ---------------------------------
 def parse_exam_paper_with_ai(exam: Exam):
     """
@@ -241,7 +241,7 @@ def parse_exam_paper_with_ai(exam: Exam):
     all_parsed_questions = []
 
     for i, chunk in enumerate(chunks):
-        print(f"🧩 Processing Chunk {i+1}/{len(chunks)}...")
+        print(f" Processing Chunk {i+1}/{len(chunks)}...")
         
         prompt = f"""
         You are an expert exam question parser.
@@ -290,14 +290,14 @@ def parse_exam_paper_with_ai(exam: Exam):
             if data and isinstance(data, list):
                 all_parsed_questions.extend(data)
             else:
-                print(f"⚠️ Chunk {i+1} returned invalid data format.")
+                print(f" Chunk {i+1} returned invalid data format.")
 
         except Exception as e:
-            print(f"❌ Error processing chunk {i+1}: {e}")
+            print(f" Error processing chunk {i+1}: {e}")
             time.sleep(2) # Backoff
 
     # 3. Save to Database
-    print(f"💾 Saving {len(all_parsed_questions)} questions to database...")
+    print(f"Saving {len(all_parsed_questions)} questions to database...")
     
     # Optional: Clear existing questions if re-parsing
     exam.questions.all().delete()
@@ -334,5 +334,5 @@ def parse_exam_paper_with_ai(exam: Exam):
                 order=opt_idx
             )
 
-    print("✅ Exam Parsing Completed!")
+    print("Exam Parsing Completed!")
     return len(all_parsed_questions)

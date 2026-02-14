@@ -1,143 +1,146 @@
 # AI Exam Engine
 
-A full-stack application for generating and conducting AI-powered exams from PDF documents using Google's Gemini AI.
+A powerful, full-stack **AI-powered Exam Platform** that automatically generates quizzes and exams from PDF documents using **Google's Gemini AI**. 
 
-## Project Structure
+It features a modern **Next.js frontend** and a robust **Django backend**, supporting both guest and authenticated users, real-time performance analysis, and a competitive leaderboard.
 
+---
+
+## Key Features
+
+### AI-Powered Generation
+-   **PDF to Exam**: Upload any PDF (textbooks, notes, papers) and instantly generate a structured exam.
+-   **Smart Question Parsing**: Uses Gemini AI to create Multiple Choice, True/False, and Short Answer questions.
+-   **Auto-Grading**: Instant results with detailed explanations for every answer.
+
+### User Experience
+-   **Guest Mode**: Take exams instantly without creating an account (results saved via session).
+-   **User Accounts**: Sign up to track history, view analytics, and save progress.
+-   **Responsive Design**: Fully optimized unique interface for Mobile, Tablet, and Desktop.
+
+### Analytics & Gamification
+-   **Performance Dashboard**: Detailed breakdown of accuracy, time spent, and weak areas.
+-   **Leaderboard**: Compare scores with other users globally or per exam.
+-   **History**: Review past attempts and learn from mistakes.
+
+---
+
+## Tech Stack
+
+### **Frontend**
+-   **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
+-   **Language**: TypeScript
+-   **Styling**: Tailwind CSS + Shadcn UI (Radix Primitives)
+-   **State/Fetching**: React Hooks, Axios
+-   **Icons**: Lucide React
+
+### **Backend**
+-   **Framework**: [Django 4.2](https://www.djangoproject.com/)
+-   **API**: Django REST Framework (DRF)
+-   **AI Engine**: Google Gemini Pro (`google-generativeai`)
+-   **Database**: PostgreSQL (Production) / SQLite (Development)
+-   **PDF Processing**: PyPDF2
+-   **Caching**: Redis (Optional for production)
+
+---
+
+## Getting Started
+
+Follow these instructions to set up the project locally.
+
+### **Prerequisites**
+-   Python 3.9+
+-   Node.js 18+
+-   Google Gemini API Key ([Get it here](https://makersuite.google.com/app/apikey))
+
+### **1. Backend Setup (Django)**
+
+```bash
+# 1. Navigate to backend
+cd backend
+
+# 2. Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Create .env file
+# Create a file named .env in the backend/ folder and add:
+echo "GEMINI_API_KEY=your_api_key_here" > .env
+echo "DEBUG=True" >> .env
+echo "SECRET_KEY=dev_secret_key" >> .env
+
+# 5. Run Migrations
+python manage.py makemigrations
+python manage.py migrate
+
+# 6. Create Superuser (Admin)
+python manage.py createsuperuser
+
+# 7. Start Server
+python manage.py runserver
 ```
-ai-exam-engine/
-├── backend/                # Django (Port 8000)
-│   ├── manage.py
-│   ├── core/               # Project Settings (settings.py, urls.py)
-│   ├── quiz/               # The App Logic
-│   │   ├── models.py       # DB Schema
-│   │   ├── ai.py           # Gemini AI Script
-│   │   ├── api.py          # API Views (DRF)
-│   │   └── admin.py        # Admin Panel to upload PDF
-│   └── media/              # Folder for uploaded PDFs
-│
-└── frontend/               # Next.js (Port 3000)
-    ├── package.json
-    ├── src/
-    │   ├── app/
-    │   │   ├── page.tsx          # List of Exams
-    │   │   └── test/
-    │   │       └── [id]/page.tsx # The Test Interface
-    │   └── components/
-    │       ├── Timer.tsx
-    │       └── QuestionCard.tsx
+*Backend runs on `http://localhost:8000`*
+
+### **2. Frontend Setup (Next.js)**
+
+```bash
+# 1. Navigate to frontend
+cd frontend
+
+# 2. Install dependencies
+npm install
+
+# 3. Configure Environment
+# Create .env.local file
+echo "NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api" > .env.local
+
+# 4. Start Dev Server
+npm run dev
 ```
+*Frontend runs on `http://localhost:3000`*
 
-## Setup Instructions
+---
 
-### Backend Setup (Django)
+## Usage Guide
 
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
+### **Creating an Exam (Admin)**
+1.  Go to `http://localhost:8000/admin`.
+2.  Login with your superuser account.
+3.  Navigate to **Exams** > **Add Exam**.
+4.  Fill in details (Title, Duration).
+5.  **Upload a PDF** in the "PDF File" field.
+6.  Click **Save**. The AI will process the PDF in the background and generate questions.
 
-2. Create a virtual environment (recommended):
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+### **Taking an Exam**
+1.  Go to `http://localhost:3000`.
+2.  Browse available exams.
+3.  Click **Start Exam**.
+4.  Submit answers and view your instant score!
 
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+---
 
-4. Set up environment variables:
-   ```bash
-   export GEMINI_API_KEY="your-gemini-api-key-here"
-   ```
-   Or create a `.env` file in the backend directory with:
-   ```
-   GEMINI_API_KEY=your-gemini-api-key-here
-   ```
+## Deployment
 
-5. Run migrations:
-   ```bash
-   python manage.py makemigrations
-   python manage.py migrate
-   ```
+### **Backend (Render/Railway)**
+1.  Set `DEBUG=False`.
+2.  Add environment variables (`GEMINI_API_KEY`, `DATABASE_URL`, `SECRET_KEY`).
+3.  Ensure `ALLOWED_HOSTS` includes your domain.
+4.  Run `gunicorn core.wsgi:application`.
 
-6. Create a superuser:
-   ```bash
-   python manage.py createsuperuser
-   ```
+### **Frontend (Vercel)**
+1.  Import repository to Vercel.
+2.  Set `NEXT_PUBLIC_API_BASE_URL` to your production backend URL.
+3.  Deploy!
 
-7. Run the development server:
-   ```bash
-   python manage.py runserver
-   ```
+---
 
-   The backend will be available at `http://localhost:8000`
+## Contributing
 
-8. Access the admin panel at `http://localhost:8000/admin` to upload PDFs and generate exams.
+Contributions are welcome! Please fork the repository and submit a pull request for any improvements, bug fixes, or new features.
 
-### Frontend Setup (Next.js)
+## License
 
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Run the development server:
-   ```bash
-   npm run dev
-   ```
-
-   The frontend will be available at `http://localhost:3000`
-
-## Usage
-
-1. **Create an Exam:**
-   - Go to `http://localhost:8000/admin`
-   - Log in with your superuser credentials
-   - Navigate to "Exams"
-   - Click "Add Exam"
-   - Fill in the exam details (title, description, duration, number of questions)
-   - Upload a PDF file
-   - Save the exam
-   - Questions will be automatically generated using Gemini AI
-
-2. **Take an Exam:**
-   - Go to `http://localhost:3000`
-   - Select an exam from the list
-   - Answer the questions
-   - Submit your exam when finished
-
-## API Endpoints
-
-- `GET /api/exams/` - List all active exams
-- `GET /api/exams/{id}/` - Get exam details
-- `GET /api/exams/{id}/questions/` - Get questions for an exam
-- `POST /api/exams/{id}/submit_answer/` - Submit an answer
-- `GET /api/exams/{id}/results/?session_id={session_id}` - Get exam results
-
-## Technologies Used
-
-### Backend:
-- Django 4.2
-- Django REST Framework
-- Google Gemini AI
-- PyPDF2
-- SQLite (default, can be changed to PostgreSQL)
-
-### Frontend:
-- Next.js 14
-- React 18
-- TypeScript
-
-## Notes
-
-- Make sure to set your `GEMINI_API_KEY` environment variable before running the backend
-- The PDFs should contain readable text (not scanned images)
-- Questions are generated automatically when a PDF is uploaded via the admin panel
+This project is open-source and available under the [MIT License](LICENSE).

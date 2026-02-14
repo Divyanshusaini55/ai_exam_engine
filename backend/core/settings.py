@@ -164,9 +164,6 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20
 }
 
-# -----------------------------------------------------------------
-# SECURE API KEY HANDLING
-# -----------------------------------------------------------------
 
 # Get key from .env file. Do NOT provide a fallback value here.
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
@@ -181,8 +178,6 @@ if not GEMINI_API_KEY:
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 20000
 
-
-print("🔥 ACTIVE GEMINI KEY:", os.environ.get("GEMINI_API_KEY"))
 
 # Email Backend for Development (Prints to Console)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

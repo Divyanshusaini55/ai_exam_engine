@@ -9,7 +9,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8
 // Strict Check for Production
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
     if (API_BASE_URL.includes('localhost') || API_BASE_URL.includes('127.0.0.1')) {
-        console.error("🚨 CRITICAL: Production App is trying to connect to Localhost!");
+        console.error("CRITICAL: Production App is trying to connect to Localhost!");
     }
 }
 
@@ -92,7 +92,7 @@ export const apiClient = {
                 if (typeof window !== 'undefined') {
                     const pathname = window.location.pathname;
                     if (!pathname.includes('/login') && !pathname.includes('/signup')) {
-                        console.warn("🔒 Unauthorized: Token might be expired.");
+                        console.warn("Unauthorized: Token might be expired.");
                         // Optional: clean up token
                         // localStorage.removeItem('auth_token');
                     }
@@ -102,7 +102,7 @@ export const apiClient = {
             return response;
 
         } catch (error) {
-            console.error(`❌ API Request Failed for ${url}:`, error);
+            console.error(`API Request Failed for ${url}:`, error);
             throw error;
         }
     },
