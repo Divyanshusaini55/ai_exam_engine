@@ -6,6 +6,7 @@ import { useAuth } from "@/context/auth-context"
 import { apiClient } from "@/lib/apiClient"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { AuthInput } from "@/components/AuthInput"
 
 
 export default function SignupPage() {
@@ -15,6 +16,7 @@ export default function SignupPage() {
         email: "",
         password: ""
     })
+    const [confirmPassword, setConfirmPassword] = useState("")
     const [error, setError] = useState("")
     const [success, setSuccess] = useState("")
     const [loading, setLoading] = useState(false)
@@ -25,6 +27,13 @@ export default function SignupPage() {
         e.preventDefault()
         setError("")
         setSuccess("")
+
+        // Simple client-side check for confirm password without altering main logic flow significantly
+        if (confirmPassword && formData.password !== confirmPassword) {
+            setError("Passwords do not match")
+            return
+        }
+
         setLoading(true)
 
         try {
@@ -60,97 +69,105 @@ export default function SignupPage() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950 px-4">
-            <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-xl shadow-lg p-8 border border-slate-200 dark:border-slate-800">
-                <div className="flex justify-center mb-6">
-                    <div className="size-12 bg-green-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-green-500/30">
-                        <span className="material-symbols-outlined text-2xl">person_add</span>
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950 px-4 py-8 relative">
+            <div className="absolute top-6 left-6 md:top-8 md:left-8">
+                <Link
+                    href="/"
+                    className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm font-medium"
+                >
+                    <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+                    Back to Home
+                </Link>
+            </div>
+
+            <div className="max-w-[480px] w-full">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none p-8 md:p-10 border border-slate-100 dark:border-slate-800/50">
+                    <div className="flex justify-center mb-6">
+                        <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-500">
+                            <span className="material-symbols-outlined text-3xl">psychology</span>
+                            <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">AI Exam Engine</span>
+                        </div>
                     </div>
-                </div>
 
-                <h2 className="text-3xl font-bold text-center text-slate-900 dark:text-white mb-2">
-                    Create Account
-                </h2>
-                <p className="text-center text-slate-500 dark:text-slate-400 mb-8">
-                    Join thousands of students preparing smarter
-                </p>
-
-                {error && (
-                    <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm flex items-center gap-2 border border-red-100 dark:border-red-900/30">
-                        <span className="material-symbols-outlined text-lg">error</span>
-                        {error}
+                    <div className="text-center mb-8">
+                        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
+                            Create Account
+                        </h2>
+                        <p className="text-slate-500 dark:text-slate-400">
+                            Join thousands of students preparing smarter
+                        </p>
                     </div>
-                )}
 
-                {success && (
-                    <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg text-sm flex items-center gap-2 border border-green-100 dark:border-green-900/30">
-                        <span className="material-symbols-outlined text-lg">check_circle</span>
-                        {success}
-                    </div>
-                )}
+                    {error && (
+                        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-sm flex items-center gap-2 border border-red-100 dark:border-red-900/30">
+                            <span className="material-symbols-outlined text-lg">error</span>
+                            {error}
+                        </div>
+                    )}
 
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                            Username
-                        </label>
-                        <input
-                            type="text"
+                    {success && (
+                        <div className="mb-6 p-4 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-xl text-sm flex items-center gap-2 border border-emerald-100 dark:border-emerald-900/30">
+                            <span className="material-symbols-outlined text-lg">check_circle</span>
+                            {success}
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                        <AuthInput
+                            label="Username"
                             value={formData.username}
                             onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                            className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all"
                             placeholder="Pick a username"
                             required
                         />
-                    </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                            Email Address
-                        </label>
-                        <input
+                        <AuthInput
+                            label="Email Address"
                             type="email"
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all"
                             placeholder="you@example.com"
                             required
                         />
-                    </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                            Password
-                        </label>
-                        <input
+                        <AuthInput
+                            label="Password"
                             type="password"
                             value={formData.password}
                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                            className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all"
                             placeholder="Create a strong password"
                             required
                         />
-                    </div>
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all mt-4 shadow-lg shadow-green-500/20 disabled:opacity-70 disabled:cursor-not-allowed flex justify-center"
-                    >
-                        {loading ? (
-                            <span className="size-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        ) : (
-                            "Create Account"
-                        )}
-                    </button>
-                </form>
+                        <AuthInput
+                            label="Confirm Password"
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="Confirm your password"
+                            required
+                        />
 
-                <p className="mt-8 text-center text-sm text-slate-600 dark:text-slate-400">
-                    Already have an account?{" "}
-                    <Link href="/login" className="text-green-600 font-medium hover:underline">
-                        Sign in
-                    </Link>
-                </p>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full py-3.5 bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white font-semibold rounded-xl transition-all mt-2 shadow-lg shadow-emerald-500/25 disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
+                        >
+                            {loading ? (
+                                <span className="size-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            ) : (
+                                "Create Account"
+                            )}
+                        </button>
+                    </form>
+
+                    <p className="mt-8 text-center text-sm text-slate-600 dark:text-slate-400">
+                        Already have an account?{" "}
+                        <Link href="/login" className="text-emerald-600 dark:text-emerald-500 font-semibold hover:underline">
+                            Sign in
+                        </Link>
+                    </p>
+                </div>
             </div>
         </div>
     )

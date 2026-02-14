@@ -4,6 +4,9 @@ import React, { useState } from "react"
 import { apiClient } from "@/lib/apiClient"
 
 
+import Link from "next/link"
+import { AuthInput } from "@/components/AuthInput"
+
 export default function ContactPage() {
     const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle")
 
@@ -37,85 +40,98 @@ export default function ContactPage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-12 px-4 md:px-8">
-            <div className="max-w-2xl mx-auto">
-                <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Contact Support</h1>
-                <p className="text-slate-500 mb-8">We'd love to hear from you. Send us a message below.</p>
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950 px-4 relative py-12 md:py-0">
+            {/* Back to Home Button */}
+            <div className="absolute top-6 left-6 md:top-8 md:left-8">
+                <Link
+                    href="/"
+                    className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm font-medium"
+                >
+                    <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+                    Back to Home
+                </Link>
+            </div>
 
-                {status === "success" ? (
-                    <div className="bg-green-50 border border-green-200 rounded-xl p-8 text-center animate-fade-in">
-                        <span className="material-symbols-outlined text-green-600 text-5xl mb-4">check_circle</span>
-                        <h2 className="text-2xl font-bold text-green-800 mb-2">Message Sent!</h2>
-                        <p className="text-green-700">Thank you for contacting us. We will get back to you shortly.</p>
-                        <button
-                            onClick={() => setStatus("idle")}
-                            className="mt-6 text-green-800 font-bold underline hover:no-underline"
-                        >
-                            Send another message
-                        </button>
-                    </div>
-                ) : (
-                    <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
-                        <div>
-                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Name</label>
-                            <input
-                                type="text"
-                                name="name"
-                                required
-                                className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                                placeholder="John Doe"
-                            />
+            <div className="max-w-[480px] w-full">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none p-8 md:p-10 border border-slate-100 dark:border-slate-800/50">
+
+                    {/* Header */}
+                    <div className="text-center mb-8">
+                        <div className="inline-flex items-center justify-center size-12 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 mb-4 ring-4 ring-blue-50 dark:ring-blue-900/10">
+                            <span className="material-symbols-outlined text-2xl">support_agent</span>
                         </div>
+                        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
+                            Contact Support
+                        </h2>
+                        <p className="text-slate-500 dark:text-slate-400">
+                            We'd love to hear from you. Send us a message below.
+                        </p>
+                    </div>
 
-                        <div>
-                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Email</label>
-                            <input
+                    {status === "success" ? (
+                        <div className="bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800 rounded-xl p-8 text-center animate-fade-in">
+                            <div className="inline-flex items-center justify-center size-16 bg-green-100 dark:bg-green-900/30 rounded-full mb-4">
+                                <span className="material-symbols-outlined text-green-600 dark:text-green-400 text-3xl">check</span>
+                            </div>
+                            <h2 className="text-xl font-bold text-green-800 dark:text-green-300 mb-2">Message Sent!</h2>
+                            <p className="text-green-700 dark:text-green-400 text-sm mb-6">Thank you for contacting us. We will get back to you shortly.</p>
+                            <button
+                                onClick={() => setStatus("idle")}
+                                className="px-6 py-2 bg-white dark:bg-slate-800 text-green-700 dark:text-green-400 font-semibold rounded-lg border border-green-200 dark:border-green-800 shadow-sm hover:shadow-md transition-all text-sm"
+                            >
+                                Send another message
+                            </button>
+                        </div>
+                    ) : (
+                        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                            <AuthInput
+                                label="Full Name"
+                                name="name"
+                                placeholder="John Doe"
+                                required
+                            />
+
+                            <AuthInput
+                                label="Email Address"
                                 type="email"
                                 name="email"
-                                required
-                                className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                                 placeholder="john@example.com"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Message</label>
-                            <textarea
-                                name="message"
                                 required
-                                rows={5}
-                                className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none"
-                                placeholder="How can we help you?"
                             />
-                        </div>
 
-                        <div className="flex justify-center">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">
+                                    Message
+                                </label>
+                                <textarea
+                                    name="message"
+                                    required
+                                    rows={5}
+                                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-sm resize-none"
+                                    placeholder="How can we help you today?"
+                                />
+                            </div>
+
                             <button
                                 type="submit"
                                 disabled={status === "submitting"}
-                                className="group relative w-full md:w-auto px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-[1.02] active:scale-95 transition-all duration-300 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                className="w-full py-3.5 mt-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-blue-500/25 disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2 group"
                             >
-                                <span className="relative z-10 flex items-center gap-2">
-                                    {status === "submitting" ? (
-                                        <>
-                                            <span className="size-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                                            Sending...
-                                        </>
-                                    ) : (
-                                        <>
-                                            Send Message
-                                            <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">send</span>
-                                        </>
-                                    )}
-                                </span>
-
-                                {/* Glossy Overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
-                                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 pointer-events-none" />
+                                {status === "submitting" ? (
+                                    <>
+                                        <span className="size-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        Sending...
+                                    </>
+                                ) : (
+                                    <>
+                                        Send Message
+                                        <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">send</span>
+                                    </>
+                                )}
                             </button>
-                        </div>
-                    </form>
-                )}
+                        </form>
+                    )}
+                </div>
             </div>
         </div>
     )

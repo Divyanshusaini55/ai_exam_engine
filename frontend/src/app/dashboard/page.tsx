@@ -55,6 +55,19 @@ export default function DashboardPage() {
         }
     }
 
+    // Set noindex meta tag for SEO
+    useEffect(() => {
+        const metaRobots = document.querySelector('meta[name="robots"]')
+        if (metaRobots) {
+            metaRobots.setAttribute('content', 'noindex, nofollow')
+        } else {
+            const meta = document.createElement('meta')
+            meta.name = 'robots'
+            meta.content = 'noindex, nofollow'
+            document.head.appendChild(meta)
+        }
+    }, [])
+
     // Don't render anything while checking auth
     if (loading) {
         return null
@@ -81,19 +94,6 @@ export default function DashboardPage() {
         if (diffInSeconds < 172800) return 'Yesterday'
         return `${Math.floor(diffInSeconds / 86400)} days ago`
     }
-
-    // Set noindex meta tag for SEO
-    useEffect(() => {
-        const metaRobots = document.querySelector('meta[name="robots"]')
-        if (metaRobots) {
-            metaRobots.setAttribute('content', 'noindex, nofollow')
-        } else {
-            const meta = document.createElement('meta')
-            meta.name = 'robots'
-            meta.content = 'noindex, nofollow'
-            document.head.appendChild(meta)
-        }
-    }, [])
 
     return (
         <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 font-sans transition-colors duration-500">

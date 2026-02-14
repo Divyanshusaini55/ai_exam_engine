@@ -18,7 +18,7 @@ export function Footer() {
                                 <span className="material-symbols-outlined text-lg">school</span>
                             </div>
                             <span className="text-xl font-semibold text-slate-900 tracking-tight">
-                                Exam Platform
+                                AI Exam Engine
                             </span>
                         </div>
                         <p className="text-slate-500 text-sm leading-relaxed max-w-xs">
@@ -77,7 +77,7 @@ export function Footer() {
                 {/* 4. Bottom Strip */}
                 <div className="pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-slate-400 text-sm text-center md:text-left">
-                        © {currentYear} Exam Platform. All rights reserved.
+                        © {currentYear} AI Exam Engine. All rights reserved.
                     </p>
                     <div className="flex gap-6">
                         {/* Socials / Extra Links if needed (kept minimal as requested) */}

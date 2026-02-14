@@ -67,12 +67,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const logout = () => {
         localStorage.removeItem("auth_token")
         setUser(null)
-        // Redirect to login with current path (if not already on login)
-        if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
-            router.push(`/login?redirectTo=${encodeURIComponent(window.location.pathname)}`)
-        } else {
-            router.push("/login")
-        }
+        // We do NOT redirect here anymore. 
+        // Protected pages (Dashboard, Profile) will handle redirect via useAuthGuard or useEffect.
+        // Public pages (Home) will just show the non-logged-in state.
     }
 
     return (

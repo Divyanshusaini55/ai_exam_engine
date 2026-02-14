@@ -46,7 +46,7 @@ export function Navbar() {
                             <span className="material-symbols-outlined text-xl">school</span>
                         </div>
                         <h2 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors duration-300">
-                            Exam Platform
+                            AI Exam Engine
                         </h2>
                     </div>
 
@@ -103,9 +103,13 @@ export function Navbar() {
                                 {/* Avatar Trigger */}
                                 <button
                                     onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                    className="size-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white dark:border-slate-700 shadow-md cursor-pointer hover:ring-2 hover:ring-primary/40 transition-all duration-300 flex items-center justify-center text-white font-bold active:scale-95"
+                                    className="group relative size-10 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[2px] shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all duration-300 hover:scale-105 active:scale-95"
                                 >
-                                    {user.username[0].toUpperCase()}
+                                    <div className="flex h-full w-full items-center justify-center rounded-full bg-white dark:bg-slate-900 backface-hidden">
+                                        <span className="text-sm font-bold bg-gradient-to-br from-indigo-600 to-pink-600 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
+                                            {user.username[0].toUpperCase()}
+                                        </span>
+                                    </div>
                                 </button>
 
                                 {/* Responsive Mobile Dropdown Menu */}

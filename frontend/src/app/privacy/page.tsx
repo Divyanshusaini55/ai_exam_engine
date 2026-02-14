@@ -69,7 +69,7 @@ export default function PrivacyPage() {
                 {/* Introduction */}
                 <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 md:p-10 shadow-sm border border-slate-100 dark:border-slate-800 mb-10 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
                     <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
-                        Your privacy is important to us. It is Exam Platform's policy to respect your privacy regarding any information we may collect from you across our website.
+                        Your privacy is important to us. It is AI Exam Engine's policy to respect your privacy regarding any information we may collect from you across our website.
                     </p>
                 </div>
 

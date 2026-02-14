@@ -431,6 +431,11 @@ export default function ExamPage() {
     <div className="min-h-screen flex flex-col items-center justify-center gap-4">
       <h2 className="text-xl font-bold">Exam Not Found</h2>
       <p className="text-slate-500">The requested exam ID or category "{id}" does not exist.</p>
+      {/* Show API URL for debugging */}
+      <p className="text-xs text-slate-400 font-mono bg-slate-100 p-2 rounded">
+        API: {process.env.NEXT_PUBLIC_API_BASE_URL || 'Using Default (Prod)'}
+      </p>
+      <button onClick={() => window.location.reload()} className="px-4 py-2 bg-blue-600 text-white rounded-lg">Try Reloading</button>
       <button onClick={() => router.push('/')} className="text-blue-500 underline">Back to Home</button>
     </div>
   )
