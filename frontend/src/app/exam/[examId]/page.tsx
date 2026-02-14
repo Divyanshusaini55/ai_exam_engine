@@ -468,8 +468,8 @@ export default function ExamPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 flex flex-col items-center justify-center py-8 px-4">
-      {/* Main Card - Max 900px, Centered */}
-      <div className="w-full max-w-[900px] bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden opacity-0 translate-y-8 transition-all duration-500 ease-out animate-in">
+      {/* Main Card - Max Width Constrained */}
+      <div className="w-full max-w-4xl mx-auto bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden opacity-0 translate-y-8 transition-all duration-500 ease-out animate-in">
 
         {/* Header Section - Sticky */}
         <div className="sticky top-0 z-10 bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm border-b border-gray-100 dark:border-slate-700 px-6 sm:px-8 py-4">

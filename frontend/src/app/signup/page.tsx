@@ -69,7 +69,7 @@ export default function SignupPage() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950 px-4 py-8 relative">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950 px-4 py-12 md:py-20 relative">
             <div className="absolute top-6 left-6 md:top-8 md:left-8">
                 <Link
                     href="/"

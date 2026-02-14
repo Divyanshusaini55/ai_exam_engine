@@ -16,7 +16,7 @@ export function QuestionNavigator({
     visitedQuestions,
 }: QuestionNavigatorProps) {
     return (
-        <aside className="hidden md:flex flex-col w-72 shrink-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden sticky top-24 max-h-[calc(100vh-8rem)]">
+        <aside className="hidden md:flex flex-col w-72 shrink-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden sticky top-24 max-h-[calc(100vh-120px)]">
             <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
                 <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
                     <span className="material-symbols-outlined text-blue-600">grid_view</span>
