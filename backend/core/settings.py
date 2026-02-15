@@ -121,7 +121,34 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+
+# Logging Configuration for Cloud Run
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}
 
 # Media files (For PDF Uploads)
 MEDIA_URL = '/media/'
@@ -146,6 +173,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://ai-exam-engine.vercel.app',
     'http://localhost:3000',
     'http://127.0.0.1:3000',
+    'https://*.run.app', 
 ] + CORS_ALLOWED_ORIGINS
 
 # Only allow all origins in development

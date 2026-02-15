@@ -102,6 +102,25 @@ npm run dev
 ```
 *Frontend runs on `http://localhost:3000`*
 
+### **3. Docker Setup (Recommended)**
+
+If you have Docker installed, you can run the entire stack with a single command:
+
+```bash
+# Build and start services
+docker-compose up --build
+```
+
+- **Backend**: `http://localhost:8000`
+- **Frontend**: `http://localhost:3000`
+- **PostgreSQL**: `localhost:5435`
+- **Redis**: `localhost:6379`
+
+To stop the services:
+```bash
+docker-compose down
+```
+
 ---
 
 ## Usage Guide
