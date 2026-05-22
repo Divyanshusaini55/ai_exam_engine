@@ -46,36 +46,6 @@
 │   ├── manage.py
 │   ├── media
 │   │   ├── pdfs
-│   │   │   ├── RRB_NTPC_CBT2_Question_Paper_13-10-2025-Shift-1.pdf
-│   │   │   ├── RRB_NTPC_G.pdf
-│   │   │   ├── RRB_NTPC_G_Answer_Key_Compilation_English-5-6-2025-Shift-I.pdf
-│   │   │   ├── SSC-CGL-Tier-1-Question-Paper-9-September-2024-Shift-1.pdf
-│   │   │   ├── SSC-CGL-Tier-1-Question-Paper-9-September-2024-Shift-1_Z1iwdUt.pdf
-│   │   │   ├── SSC-CGL-Tier-1-Question-Paper-9-September-2024-Shift-1_oiepPKq.pdf
-│   │   │   ├── UP-Police-SI-1st-December-2021-Shift-1-Paper.pdf
-│   │   │   ├── UP-Police-SI-1st-December-2021-Shift-1-Paper_0rdFhVJ.pdf
-│   │   │   ├── UP-Police-SI-1st-December-2021-Shift-1-Paper_3lZNcHd.pdf
-│   │   │   ├── UP-Police-SI-1st-December-2021-Shift-1-Paper_YifQ3X7.pdf
-│   │   │   ├── UP-Police-SI-1st-December-2021-Shift-1-Paper_a7xMZ53.pdf
-│   │   │   ├── UP-Police-SI-1st-December-2021-Shift-1-Paper_kftLfHP.pdf
-│   │   │   ├── UP-Police-SI-1st-December-2021-Shift-1-Paper_uJFcNTO.pdf
-│   │   │   ├── UP-Police-SI-1st-December-2021-Shift-1-Paper_yNM7Rx8.pdf
-│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper.pdf
-│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_22daPSF.pdf
-│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_5yxzw9R.pdf
-│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_64sbZVm.pdf
-│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_DIiE6NY.pdf
-│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_Dh14rXM.pdf
-│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_I7HiTbt.pdf
-│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_XSruBKe.pdf
-│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_asPmzw8.pdf
-│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_cdKT0AY.pdf
-│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_h1tMrfR.pdf
-│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_k5CVAWN.pdf
-│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_kBG26dX.pdf
-│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_mDFF7CQ.pdf
-│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_p7xQoR4.pdf
-│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_rSU0dBm.pdf
 │   │   │   ├── test.pdf
 │   │   │   └── test_exam.pdf
 │   │   ├── question_images
