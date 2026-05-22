@@ -73,7 +73,7 @@ export default function PrivacyPage() {
                 {/* Introduction Card */}
                 <div className="card-premium p-8 md:p-10 mb-10 animate-fade-in" style={{ animationDelay: "0.1s" }}>
                     <p className="text-[18px] text-primary leading-relaxed font-medium">
-                        Your privacy is important to us. It is AI Exam Engine's policy to respect your privacy regarding any information we may collect from you across our website.
+                        Your privacy is important to us. It is ExamIntel's policy to respect your privacy regarding any information we may collect from you across our website.
                     </p>
                 </div>
 

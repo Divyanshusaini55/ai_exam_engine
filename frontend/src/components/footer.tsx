@@ -30,11 +30,11 @@ export function Footer() {
                     {/* 1. Brand Section */}
                     <div className="flex flex-col gap-5 md:col-span-2 pr-8">
                         <div className="flex items-center gap-3">
-                            <div className="size-10 flex items-center justify-center bg-primary rounded-xl text-primary-foreground shadow-sm">
-                                <GraduationCap className="size-6" />
+                            <div className="size-10 flex items-center justify-center bg-primary rounded-xl text-primary-foreground shadow-sm select-none">
+                                <span className="font-extrabold text-xl tracking-tighter leading-none mt-[2px]">ei.</span>
                             </div>
                             <span className="text-[22px] font-bold font-heading text-primary tracking-tight">
-                                AI Exam Engine
+                                ExamIntel
                             </span>
                         </div>
                         <p className="text-muted-foreground text-[15px] leading-relaxed max-w-sm font-medium">
@@ -90,7 +90,7 @@ export function Footer() {
                 {/* 4. Bottom Strip */}
                 <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-muted-foreground text-[14px] text-center md:text-left font-medium">
-                        © {currentYear} AI Exam Engine. All rights reserved.
+                        © {currentYear} ExamIntel. All rights reserved.
                     </p>
                     <div className="flex gap-6 text-[14px] font-medium text-muted-foreground">
                         <span>A premium SaaS experience.</span>

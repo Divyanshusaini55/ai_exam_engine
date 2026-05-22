@@ -13,8 +13,8 @@ export const metadata: Metadata = {
   // Add this metadataBase line
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://your-production-domain.com'),
   title: {
-    default: "AI Exam Engine",
-    template: "%s | AI Exam Engine"
+    default: "ExamIntel",
+    template: "%s | ExamIntel"
   },
   description: "Competitive Exam Preparation",
   // Optional: add openGraph defaults if you have a site-wide logo/og-image

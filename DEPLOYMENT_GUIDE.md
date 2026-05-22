@@ -1,6 +1,6 @@
 # Google Cloud Run Deployment Guide
 
-This guide details how to deploy the **AI Exam Engine** (Django + Next.js + PostgreSQL) to Google Cloud Run.
+This guide details how to deploy the **ExamIntel** (Django + Next.js + PostgreSQL) to Google Cloud Run.
 
 ## Prerequisites
 1.  **Google Cloud Account** (Free tier is sufficient for testing).

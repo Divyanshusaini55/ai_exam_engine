@@ -53,10 +53,10 @@ export type TopicResourceHubProps = {
 
 // ─── Status config ──────────────────────────────────────────────────────────────
 const STATUS_MAP: Record<TopicStatus, { label: string; dot: string; badge: string }> = {
-  pending:     { label: "Pending",     dot: "bg-muted-foreground", badge: "bg-muted text-muted-foreground" },
-  in_progress: { label: "In Progress", dot: "bg-yellow-500",       badge: "bg-yellow-100 text-yellow-700" },
-  done:        { label: "Done",        dot: "bg-emerald-500",       badge: "bg-emerald-100 text-emerald-700" },
-  skip:        { label: "Skip",        dot: "bg-slate-400",         badge: "bg-slate-100 text-slate-600" },
+  pending:     { label: "Pending",     dot: "bg-muted-foreground", badge: "bg-muted text-muted-foreground border-border shadow-sm" },
+  in_progress: { label: "In Progress", dot: "bg-yellow-500",       badge: "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400 border-yellow-200 dark:border-yellow-500/30 shadow-sm" },
+  done:        { label: "Done",        dot: "bg-emerald-500",       badge: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30 shadow-sm" },
+  skip:        { label: "Skip",        dot: "bg-secondary-foreground",         badge: "bg-secondary text-secondary-foreground border-border shadow-sm" },
 }
 
 // ─── Tab config ────────────────────────────────────────────────────────────────
@@ -72,29 +72,29 @@ const TABS = [
   { key: "quiz",          label: "Practice", icon: FlaskConical },
 ] as const
 
-const TYPE_EMOJI: Record<string, string> = {
-  article: "📄", markdown_note: "📝", html_note: "🌐", latex_note: "∑",
-  video: "▶️", pdf: "📋", external_link: "🔗", ai_note: "🤖",
-  formula_sheet: "📐", quiz: "🧪",
+const TYPE_ICON: Record<string, any> = {
+  article: FileText, markdown_note: FileText, html_note: Link2, latex_note: Calculator,
+  video: Video, pdf: FileText, external_link: Link2, ai_note: Zap,
+  formula_sheet: Calculator, quiz: FlaskConical,
 }
 
 const TYPE_BG: Record<string, string> = {
-  article:       "bg-blue-50 text-blue-700 border-blue-100",
-  markdown_note: "bg-purple-50 text-purple-700 border-purple-100",
-  html_note:     "bg-teal-50 text-teal-700 border-teal-100",
-  latex_note:    "bg-amber-50 text-amber-700 border-amber-100",
-  video:         "bg-red-50 text-red-700 border-red-100",
-  pdf:           "bg-violet-50 text-violet-700 border-violet-100",
-  external_link: "bg-slate-50 text-slate-700 border-slate-100",
-  ai_note:       "bg-sky-50 text-sky-700 border-sky-100",
-  formula_sheet: "bg-green-50 text-green-700 border-green-100",
-  quiz:          "bg-orange-50 text-orange-700 border-orange-100",
+  article:       "bg-cyan-50 text-cyan-700 border-cyan-100 dark:bg-cyan-900/50 dark:text-cyan-300 dark:border-cyan-800/50",
+  markdown_note: "bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-900/50 dark:text-purple-300 dark:border-purple-800/50",
+  html_note:     "bg-teal-50 text-teal-700 border-teal-100 dark:bg-teal-900/50 dark:text-teal-300 dark:border-teal-800/50",
+  latex_note:    "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/50 dark:text-amber-300 dark:border-amber-800/50",
+  video:         "bg-red-50 text-red-700 border-red-100 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800/50",
+  pdf:           "bg-violet-50 text-violet-700 border-violet-100 dark:bg-violet-900/50 dark:text-violet-300 dark:border-violet-800/50",
+  external_link: "bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-800/50 dark:text-zinc-300 dark:border-zinc-700/50",
+  ai_note:       "bg-sky-50 text-sky-700 border-sky-100 dark:bg-sky-900/50 dark:text-sky-300 dark:border-sky-800/50",
+  formula_sheet: "bg-green-50 text-green-700 border-green-100 dark:bg-green-900/50 dark:text-green-300 dark:border-green-800/50",
+  quiz:          "bg-orange-50 text-orange-700 border-orange-100 dark:bg-orange-900/50 dark:text-orange-300 dark:border-orange-800/50",
 }
 
 const DIFFICULTY_STYLE: Record<string, string> = {
-  beginner:     "text-emerald-700 bg-emerald-50",
-  intermediate: "text-amber-700 bg-amber-50",
-  advanced:     "text-red-700 bg-red-50",
+  beginner:     "text-emerald-700 bg-emerald-50 dark:bg-emerald-900/50 dark:text-emerald-300",
+  intermediate: "text-amber-700 bg-amber-50 dark:bg-amber-900/50 dark:text-amber-300",
+  advanced:     "text-red-700 bg-red-50 dark:bg-red-900/50 dark:text-red-300",
 }
 
 // ─── Status Dropdown ──────────────────────────────────────────────────────────
@@ -122,7 +122,7 @@ function StatusDropdown({
     <div ref={ref} className="relative shrink-0">
       <button
         onClick={() => setOpen(o => !o)}
-        className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold transition-colors ${info.badge} border-transparent hover:opacity-80`}
+        className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-bold transition-colors ${info.badge} hover:shadow-md hover:opacity-90`}
       >
         <span className={`w-2 h-2 rounded-full ${info.dot} shrink-0`} />
         {info.label}
@@ -183,8 +183,11 @@ function ResourceCard({
       <div className="p-5 flex flex-col gap-3 flex-1">
         {/* Badges */}
         <div className="flex items-center gap-2 flex-wrap">
-          <span className={`flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-md border ${TYPE_BG[resource.resource_type] ?? "bg-muted text-muted-foreground border-border"}`}>
-            <span>{TYPE_EMOJI[resource.resource_type] ?? "📄"}</span>
+          <span className={`flex items-center gap-1.5 text-xs font-bold px-2 py-0.5 rounded-md border ${TYPE_BG[resource.resource_type] ?? "bg-muted text-muted-foreground border-border"}`}>
+            {(() => {
+              const Icon = TYPE_ICON[resource.resource_type] ?? FileText
+              return <Icon className="size-3.5" />
+            })()}
             {resource.resource_type_display}
           </span>
           <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${DIFFICULTY_STYLE[resource.difficulty] ?? ""}`}>
@@ -255,7 +258,7 @@ function ResourceCard({
 
         <button
           onClick={handleOpen}
-          className="ml-auto flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-90 active:scale-95 transition-all"
+          className="ml-auto flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-primary text-primary-foreground hover:opacity-90 active:scale-95 transition-all"
         >
           {isExternal ? (<><ExternalLink className="size-3.5" /> Open</>) : (<>Read <ChevronRight className="size-3.5" /></>)}
         </button>
@@ -267,9 +270,13 @@ function ResourceCard({
 // ─── Empty State ──────────────────────────────────────────────────────────────
 function EmptyState({ tab }: { tab: string }) {
   const label = TABS.find(t => t.key === tab)?.label ?? "resources"
+  const Icon = tab === "all" ? BookOpen : (TYPE_ICON[tab] ?? FileText)
+  
   return (
     <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
-      <div className="text-5xl opacity-40">{tab === "all" ? "📭" : TYPE_EMOJI[tab] ?? "📭"}</div>
+      <div className="p-4 rounded-full bg-muted/50 mb-2">
+        <Icon className="size-12 text-muted-foreground/40" strokeWidth={1.5} />
+      </div>
       <p className="text-muted-foreground text-sm max-w-xs">
         No {label.toLowerCase()} available for this topic yet. Check back later!
       </p>
@@ -359,7 +366,7 @@ export function TopicResourceHub({
       />
 
       {/* Modal panel */}
-      <div className="relative w-full sm:max-w-3xl max-h-[92svh] sm:max-h-[88vh] flex flex-col bg-background rounded-t-3xl sm:rounded-3xl border border-border shadow-2xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300 overflow-hidden">
+      <div className="relative w-full sm:max-w-3xl h-[92svh] sm:h-[88vh] flex flex-col bg-background rounded-t-3xl sm:rounded-3xl border border-border shadow-2xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300 overflow-hidden">
 
         {/* ── Header ── */}
         <div className="px-6 pt-5 pb-4 border-b border-border shrink-0">
@@ -437,7 +444,7 @@ export function TopicResourceHub({
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`flex items-center gap-1.5 whitespace-nowrap px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 ${
+                  className={`flex items-center gap-1.5 whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold transition-all shrink-0 ${
                     activeTab === tab.key
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
@@ -445,7 +452,7 @@ export function TopicResourceHub({
                 >
                   <Icon className="size-3.5" />
                   {tab.label}
-                  <span className={`text-xs px-1.5 py-0.5 rounded-md font-bold ${activeTab === tab.key ? "bg-white/20" : "bg-muted-foreground/10"}`}>
+                  <span className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${activeTab === tab.key ? "bg-white/20" : "bg-muted-foreground/10"}`}>
                     {count}
                   </span>
                 </button>

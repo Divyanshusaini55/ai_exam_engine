@@ -118,11 +118,11 @@ export function Navbar() {
                 <div className="flex items-center justify-between">
                     {/* Logo (Left) */}
                     <div className="flex items-center gap-3 group cursor-pointer" onClick={() => router.push('/')}>
-                        <div className="size-9 flex items-center justify-center bg-primary rounded-[10px] text-primary-foreground shadow-premium transition-all duration-300 group-hover:-translate-y-1">
-                            <GraduationCap className="size-5" />
+                        <div className="size-9 flex items-center justify-center bg-primary rounded-[10px] text-primary-foreground shadow-premium transition-all duration-300 group-hover:-translate-y-1 select-none">
+                            <span className="font-extrabold text-lg tracking-tighter leading-none mt-[2px]">ei.</span>
                         </div>
                         <h2 className="text-[20px] font-bold font-heading text-primary group-hover:opacity-80 transition-opacity duration-300 tracking-tight">
-                            AI Exam Engine
+                            ExamIntel
                         </h2>
                     </div>
 

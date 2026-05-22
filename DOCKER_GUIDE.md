@@ -1,6 +1,6 @@
 # Docker Run Guide
 
-This guide explains how to run the AI Exam Engine using Docker.
+This guide explains how to run the ExamIntel using Docker.
 
 ## Prerequisites
 - **Docker Desktop** installed and running.

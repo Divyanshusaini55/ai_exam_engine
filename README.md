@@ -1,4 +1,4 @@
-# AI Exam Engine
+# ExamIntel
 
 A powerful, full-stack **AI-powered Exam Platform** that automatically generates quizzes and exams from PDF documents using **Google's Gemini AI**. 
 

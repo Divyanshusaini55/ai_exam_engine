@@ -26,25 +26,25 @@ export default function TermsPage() {
             id: 1,
             title: "License to Use",
             icon: ShieldCheck,
-            content: "Permission is granted to temporarily use the materials (information or software) on AI Exam Engine's website for personal, non-commercial transitory viewing only."
+            content: "Permission is granted to temporarily use the materials (information or software) on ExamIntel's website for personal, non-commercial transitory viewing only."
         },
         {
             id: 2,
             title: "Disclaimer",
             icon: AlertTriangle,
-            content: "The materials on AI Exam Engine's website are provided on an 'as is' basis. AI Exam Engine makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability."
+            content: "The materials on ExamIntel's website are provided on an 'as is' basis. ExamIntel makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability."
         },
         {
             id: 3,
             title: "Limitations",
             icon: Ban,
-            content: "In no event shall AI Exam Engine or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on AI Exam Engine's website."
+            content: "In no event shall ExamIntel or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on ExamIntel's website."
         },
         {
             id: 4,
             title: "Governing Law",
             icon: Gavel,
-            content: "Any claim relating to AI Exam Engine's website shall be governed by the laws of the service provider's home jurisdiction without regard to its conflict of law provisions."
+            content: "Any claim relating to ExamIntel's website shall be governed by the laws of the service provider's home jurisdiction without regard to its conflict of law provisions."
         }
     ]
 

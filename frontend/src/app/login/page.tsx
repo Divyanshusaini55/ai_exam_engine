@@ -187,7 +187,7 @@ export function AuthForm({ defaultMode = "login" }: { defaultMode?: "login" | "r
 
           {/* FOOTER */}
           <div className="mt-8 border-t border-border pt-6 text-center flex justify-between items-center px-1">
-            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">AI Exam Engine API</p>
+            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">ExamIntel API</p>
             {mode === "login" && (
                 <Link prefetch={false} href="/forgot-password" className="text-xs text-muted-foreground hover:text-primary transition-colors underline decoration-dotted underline-offset-4 font-semibold">
                     Forgot password?

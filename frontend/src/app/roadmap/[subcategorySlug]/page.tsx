@@ -11,9 +11,9 @@ import { TopicResourceHub, type TopicResourceItem, type TopicStatus } from "@/co
 // Define a mapping for status styles and labels
 const STATUS_MAP = {
     pending: { label: "Pending", color: "text-muted-foreground", bg: "bg-muted", dot: "bg-muted-foreground" },
-    in_progress: { label: "In Progress", color: "text-yellow-600", bg: "bg-yellow-100", dot: "bg-yellow-500" },
-    done: { label: "Done", color: "text-green-600", bg: "bg-green-100", dot: "bg-green-500" },
-    skip: { label: "Skip", color: "text-slate-800", bg: "bg-slate-200", dot: "bg-slate-800" },
+    in_progress: { label: "In Progress", color: "text-yellow-600 dark:text-yellow-400", bg: "bg-yellow-100 dark:bg-yellow-500/20", dot: "bg-yellow-500" },
+    done: { label: "Done", color: "text-green-600 dark:text-green-400", bg: "bg-green-100 dark:bg-green-500/20", dot: "bg-green-500" },
+    skip: { label: "Skip", color: "text-secondary-foreground opacity-70", bg: "bg-secondary border border-border", dot: "bg-secondary-foreground" },
 }
 
 
@@ -508,11 +508,11 @@ export default function RoadmapPage() {
                                                 onClick={() => openTopicHub(topic)}
                                                 className={`p-3 rounded-xl border transition-all cursor-pointer flex gap-3 ${
                                                     currentStatus === 'done'
-                                                        ? "bg-green-50 border-green-200 hover:bg-green-100" 
+                                                        ? "bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-900/50 hover:bg-green-100 dark:hover:bg-green-900/50" 
                                                         : currentStatus === 'in_progress'
-                                                        ? "bg-yellow-50 border-yellow-200 hover:bg-yellow-100"
+                                                        ? "bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-900/50 hover:bg-yellow-100 dark:hover:bg-yellow-900/50"
                                                         : currentStatus === 'skip'
-                                                        ? "bg-slate-50 border-slate-200 hover:bg-slate-100"
+                                                        ? "bg-secondary/20 border-border hover:bg-secondary/40"
                                                         : "bg-background border-border hover:border-primary/50"
                                                 }`}
                                             >
@@ -520,15 +520,15 @@ export default function RoadmapPage() {
                                                     {currentStatus === 'done' ? (
                                                         <CheckCircle2 className={`size-5 ${statusInfo.color}`} />
                                                     ) : currentStatus === 'in_progress' ? (
-                                                        <Circle className={`size-5 ${statusInfo.color} fill-yellow-100`} />
+                                                        <Circle className={`size-5 ${statusInfo.color} fill-yellow-100 dark:fill-yellow-900/50`} />
                                                     ) : currentStatus === 'skip' ? (
-                                                        <Circle className={`size-5 ${statusInfo.color} fill-slate-200`} />
+                                                        <Circle className={`size-5 ${statusInfo.color} fill-secondary`} />
                                                     ) : (
                                                         <Circle className="size-5 text-muted-foreground" />
                                                     )}
                                                 </div>
                                                 <div className="flex-1">
-                                                    <h4 className={`text-sm font-semibold ${currentStatus === 'done' ? "text-green-800 line-through opacity-70" : "text-foreground"}`}>
+                                                    <h4 className={`text-sm font-semibold ${currentStatus === 'done' ? "text-green-800 dark:text-green-400 line-through opacity-70" : "text-foreground"}`}>
                                                         {topic.title}
                                                     </h4>
                                                     {topic.description && (

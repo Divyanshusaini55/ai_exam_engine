@@ -9,7 +9,7 @@
  * stays a React Server Component.
  */
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { apiClient } from '@/lib/apiClient'
 import ResourceHeader from '@/components/resource-header'
@@ -41,6 +41,11 @@ export default function ResourceActions({
   const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked)
   const [markingDone, setMarkingDone] = useState(false)
   const [bookmarking, setBookmarking] = useState(false)
+
+  // Force scroll to top on mount because modal unmounts can lock scroll state
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
 
   // ── Mark done toggle ────────────────────────────────────────────────────────
   const handleMarkDone = async () => {
