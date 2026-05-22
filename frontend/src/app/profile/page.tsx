@@ -2,7 +2,9 @@
 
 import { useAuth } from "@/context/auth-context"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
+import { useTheme } from "next-themes"
+import { ActivityCalendar } from "react-activity-calendar"
 import { Navbar } from "@/components/navbar"
 import { communityApi } from "@/lib/api"
 import { XPGuideModal } from "@/components/xp-guide-modal"
@@ -39,6 +41,28 @@ export default function ProfilePage() {
     const [userComments, setUserComments] = useState<any[]>([])
     const [statsLoading, setStatsLoading] = useState(true)
     const [isXPModalOpen, setIsXPModalOpen] = useState(false)
+    const { theme } = useTheme()
+
+    const heatmapData = useMemo(() => {
+        if (!profileData) return []
+        const data = [...(profileData.heatmap_activity || [])]
+        const today = new Date()
+        const oneYearAgo = new Date()
+        oneYearAgo.setFullYear(today.getFullYear() - 1)
+        
+        const dataMap = new Map(data.map(d => [d.date, d]))
+        const startDateStr = oneYearAgo.toISOString().split('T')[0]
+        const endDateStr = today.toISOString().split('T')[0]
+        
+        if (!dataMap.has(startDateStr)) {
+            data.push({ date: startDateStr, count: 0, level: 0 })
+        }
+        if (!dataMap.has(endDateStr)) {
+            data.push({ date: endDateStr, count: 0, level: 0 })
+        }
+        
+        return data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    }, [profileData])
 
     useEffect(() => {
         if (!loading && !user) {
@@ -120,15 +144,17 @@ export default function ProfilePage() {
                                     </div>
 
                                     {/* Header Stats */}
-                                    <div className="flex items-center gap-8 md:gap-12 bg-secondary/30 px-8 py-4 rounded-2xl border border-border/50 mb-1">
+                                    <div className="flex items-center justify-between md:justify-start gap-4 md:gap-12 bg-secondary/30 px-4 md:px-8 py-4 rounded-2xl border border-border/50 mb-1 w-full overflow-x-auto no-scrollbar">
                                         <div 
                                             className="text-center group/xp cursor-pointer relative"
                                             onClick={() => setIsXPModalOpen(true)}
                                         >
-                                            <p className="text-xl font-bold text-amber-600 font-heading">{profileData?.xp || 0}</p>
-                                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center justify-center gap-1">
+                                            <p className="text-xl md:text-2xl font-bold text-amber-600 font-heading">{profileData?.xp || 0}</p>
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest relative">
                                                 XP 
-                                                <span className="text-[8px] bg-amber-500/10 text-amber-600 px-1 rounded opacity-0 group-hover/xp:opacity-100 transition-opacity">How to earn</span>
+                                                <span className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 px-2 py-0.5 rounded opacity-0 group-hover/xp:opacity-100 transition-opacity pointer-events-none hidden md:block shadow-sm">
+                                                    How to earn
+                                                </span>
                                             </p>
                                         </div>
                                         <div className="text-center">
@@ -279,6 +305,32 @@ export default function ProfilePage() {
                     {/* RIGHT CONTENT (8/12) */}
                     <div className="lg:col-span-8 flex flex-col gap-6">
                         
+                        {/* Activity Heatmap */}
+                        <div className="card-premium p-6 bg-card border border-border shadow-sm flex flex-col">
+                            <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-[0.1em] mb-4">Contribution Activity</h3>
+                            <div className="w-full overflow-x-auto pb-4 custom-scrollbar pl-2">
+                                {!statsLoading && heatmapData.length > 0 && (
+                                    <div className="min-w-max">
+                                        <ActivityCalendar 
+                                            data={heatmapData}
+                                            theme={{
+                                                light: ['#f1f5f9', '#bae6fd', '#7dd3fc', '#38bdf8', '#0284c7'],
+                                                dark: ['#1e293b', '#0c4a6e', '#0369a1', '#0284c7', '#38bdf8'],
+                                            }}
+                                            colorScheme={theme === 'dark' ? 'dark' : 'light'}
+                                            labels={{
+                                                totalCount: '{{count}} contributions in the last year',
+                                            }}
+                                            showWeekdayLabels
+                                            blockSize={12}
+                                            blockMargin={5}
+                                            fontSize={12}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
                         {/* Tabs Navigation */}
                         <div className="bg-secondary/30 p-1.5 rounded-2xl border border-border flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar">
                             <button 

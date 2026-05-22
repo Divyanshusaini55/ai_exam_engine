@@ -13,11 +13,6 @@ from .models import (
 )
 from .ai import generate_questions_from_pdf
 
-
-# --------------------------------------------------
-# HELPERS
-# --------------------------------------------------
-
 def _status_badge(status):
     """Return a styled HTML pill badge for a given status string."""
     BADGE_MAP = {
@@ -69,10 +64,6 @@ def _resource_type_badge(resource_type):
     )
 
 
-# --------------------------------------------------
-# ADMIN ACTIONS
-# --------------------------------------------------
-
 @admin.action(description='Generate questions from PDF using AI')
 def generate_questions(modeladmin, request, queryset):
     for exam in queryset:
@@ -84,7 +75,7 @@ def generate_questions(modeladmin, request, queryset):
                 modeladmin.message_user(request, f"Error generating questions for {exam.title}: {str(e)}", level='ERROR')
 
 
-@admin.action(description='✅ Publish selected resources')
+@admin.action(description='Publish selected resources')
 def publish_resources(modeladmin, request, queryset):
     count = queryset.update(is_published=True)
     modeladmin.message_user(request, f"{count} resource(s) published successfully.")
@@ -96,13 +87,13 @@ def unpublish_resources(modeladmin, request, queryset):
     modeladmin.message_user(request, f"{count} resource(s) unpublished.")
 
 
-@admin.action(description='⭐ Mark selected as featured')
+@admin.action(description='Mark selected as featured')
 def feature_resources(modeladmin, request, queryset):
     count = queryset.update(is_featured=True)
     modeladmin.message_user(request, f"{count} resource(s) marked as featured.")
 
 
-@admin.action(description='🤖 Generate AI Summary via Gemini')
+@admin.action(description='Generate AI Summary via Gemini')
 def generate_ai_summary(modeladmin, request, queryset):
     import google.generativeai as genai
     import os
@@ -133,11 +124,6 @@ def generate_ai_summary(modeladmin, request, queryset):
             modeladmin.message_user(request, f"Error for '{resource.title}': {e}", level='WARNING')
 
     modeladmin.message_user(request, "AI summaries generated for selected resources.")
-
-
-# --------------------------------------------------
-# INLINES
-# --------------------------------------------------
 
 class AnswerInline(admin.TabularInline):
     model = Answer
@@ -210,22 +196,22 @@ class TopicResourceInline(admin.StackedInline):
     }
 
     fieldsets = (
-        ('📌 Identity', {
+        ('Identity', {
             'fields': ('title', 'short_description', 'tags'),
         }),
-        ('🏷 Type & Format', {
+        ('Type & Format', {
             'fields': ('resource_type', 'content_format', 'external_url'),
         }),
-        ('📝 Content', {
+        ('Content', {
             'description': 'Fill only the field that matches your Content Format above.',
             'fields': ('markdown_content', 'html_content', 'latex_content'),
             'classes': ('collapse',),
         }),
-        ('🖼 Media & Metadata', {
+        ('Media & Metadata', {
             'fields': ('thumbnail', 'estimated_read_minutes', 'difficulty', 'order'),
             'classes': ('collapse',),
         }),
-        ('🤖 AI & State', {
+        ('AI & State', {
             'fields': ('is_published', 'is_featured', 'is_ai_generated', 'ai_summary'),
             'classes': ('collapse',),
         }),
@@ -233,10 +219,6 @@ class TopicResourceInline(admin.StackedInline):
 
     readonly_fields = ('view_count',)
 
-
-# --------------------------------------------------
-# CATEGORY & SUBCATEGORY ADMINS
-# --------------------------------------------------
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -298,10 +280,6 @@ class SubCategoryAdmin(admin.ModelAdmin):
     exam_count.short_description = 'Published Exams'
 
 
-# --------------------------------------------------
-# EXAM ADMIN
-# --------------------------------------------------
-
 @admin.register(Exam)
 class ExamAdmin(admin.ModelAdmin):
     list_display = ('title', 'subcategory', 'year', 'shift', 'status_badge', 'duration_minutes', 'total_questions', 'active_badge', 'created_at')
@@ -348,10 +326,6 @@ class ExamAdmin(admin.ModelAdmin):
             raise e
 
 
-# --------------------------------------------------
-# QUESTION & ANSWER ADMINS
-# --------------------------------------------------
-
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'question_type', 'points', 'order')
@@ -386,10 +360,6 @@ class UserAnswerAdmin(admin.ModelAdmin):
     search_fields = ('session_id', 'question__question_text')
     readonly_fields = ('answered_at',)
 
-
-# --------------------------------------------------
-# CONTACT / UPLOAD / CORRECTION ADMINS
-# --------------------------------------------------
 
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
@@ -463,13 +433,9 @@ class CurrentAffairAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('title',)}
 
 
-# --------------------------------------------------
-# ROADMAP ADMINS
-# --------------------------------------------------
-
 @admin.register(ExamRoadmap)
 class ExamRoadmapAdmin(admin.ModelAdmin):
-    list_display = ('title', 'subcategory', 'created_at')
+    list_display = ('title', 'subcategory', 'created_at')   
     search_fields = ('title', 'subcategory__name')
     inlines = [RoadmapPhaseInline]
 
@@ -497,7 +463,7 @@ class RoadmapTopicAdmin(admin.ModelAdmin):
             'fields': ('resources',),
             'classes': ('collapse',),
             'description': (
-                '⚠️ This is the old raw JSON resource field. '
+                'This is the old raw JSON resource field. '
                 'Use the Topic Resources inline editor below instead. '
                 'This field is kept only for backward compatibility.'
             ),
@@ -514,7 +480,7 @@ class RoadmapTopicAdmin(admin.ModelAdmin):
             '<span style="color:#94A3B8;font-size:12px;"> / {} total</span>',
             count, total
         )
-    resource_count.short_description = '✅ Published Resources'
+    resource_count.short_description = 'Published Resources'
 
 
 @admin.register(UserTopicProgress)
@@ -523,10 +489,6 @@ class UserTopicProgressAdmin(admin.ModelAdmin):
     list_filter = ('status', 'topic__phase__roadmap')
     search_fields = ('user__username', 'topic__title')
 
-
-# --------------------------------------------------
-# RESOURCE CMS ADMINS
-# --------------------------------------------------
 
 @admin.register(ResourceTag)
 class ResourceTagAdmin(admin.ModelAdmin):
@@ -583,45 +545,45 @@ class TopicResourceAdmin(admin.ModelAdmin):
     }
 
     fieldsets = (
-        ('📌 Identity', {
+        ('Identity', {
             'fields': ('topic', 'title', 'slug', 'short_description', 'tags'),
         }),
-        ('🏷 Type & Format', {
+        ('Type & Format', {
             'fields': ('resource_type', 'content_format', 'external_url'),
         }),
-        ('📝 Markdown Content', {
+        ('Markdown Content', {
             'description': (
-                '✍️ Write in Markdown. Supports <strong>GFM tables</strong>, '
+                'Write in Markdown. Supports <strong>GFM tables</strong>, '
                 '<code>```python</code> fenced code blocks, '
                 '<code>$$...$$</code> block equations (KaTeX), '
                 '<code>$...$</code> inline equations, and <code>&gt; [!NOTE]</code> callouts.'
             ),
             'fields': ('markdown_content',),
         }),
-        ('🌐 HTML Content', {
+        ('HTML Content', {
             'description': 'Raw HTML. Sanitized via DOMPurify on the frontend before rendering.',
             'fields': ('html_content',),
             'classes': ('collapse',),
         }),
-        ('∑ LaTeX Content', {
+        ('LaTeX Content', {
             'description': 'Pure LaTeX source for formula sheets. Rendered with KaTeX on the frontend.',
             'fields': ('latex_content',),
             'classes': ('collapse',),
         }),
-        ('🖼 Media', {
+        ('Media', {
             'fields': ('thumbnail',),
             'classes': ('collapse',),
         }),
-        ('📊 Metadata', {
+        ('Metadata', {
             'fields': ('estimated_read_minutes', 'difficulty', 'order', 'created_by'),
         }),
-        ('🤖 AI & State', {
+        ('AI & State', {
             'fields': (
                 'is_published', 'is_featured', 'is_ai_generated',
                 'ai_summary',
             ),
         }),
-        ('📈 Analytics & Timestamps', {
+        ('Analytics & Timestamps', {
             'fields': ('view_count', 'created_at', 'updated_at'),
             'classes': ('collapse',),
         }),
@@ -657,11 +619,11 @@ class TopicResourceAdmin(admin.ModelAdmin):
         if obj.is_featured:
             return format_html('<span style="color:#F59E0B;font-size:16px;" title="Featured">★</span>')
         return format_html('<span style="color:#E2E8F0;font-size:16px;">☆</span>')
-    featured_badge.short_description = '⭐'
+    featured_badge.short_description = 'Featured'
 
     def ai_badge(self, obj):
         if obj.is_ai_generated:
-            return format_html('<span style="color:#0369A1;font-weight:700;font-size:12px;">🤖 AI</span>')
+            return format_html('<span style="color:#0369A1;font-weight:700;font-size:12px;">AI</span>')
         return format_html('<span style="color:#CBD5E1;font-size:12px;">—</span>')
     ai_badge.short_description = 'AI'
 

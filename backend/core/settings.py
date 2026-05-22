@@ -209,10 +209,6 @@ if not GEMINI_API_KEY:
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 20000
 
-# =============================================
-# JAZZMIN — PREMIUM ADMIN UI CONFIGURATION
-# =============================================
-
 JAZZMIN_SETTINGS = {
     # ---- Branding ----
     'site_title': 'Aspirant AI',

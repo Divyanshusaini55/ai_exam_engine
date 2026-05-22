@@ -6,10 +6,6 @@ from .models import Exam, Question, Answer
 import google.generativeai as genai
 import PyPDF2
 
-
-# ---------------------------------
-# PDF TEXT EXTRACTION
-# ---------------------------------
 def extract_text_from_pdf(pdf_file):
     pdf_file.seek(0)
     reader = PyPDF2.PdfReader(pdf_file)
@@ -19,9 +15,6 @@ def extract_text_from_pdf(pdf_file):
     return text
 
 
-# ---------------------------------
-# TEXT CHUNKING (ANTI-REPEAT CORE)
-# ---------------------------------
 def chunk_text(text, chunk_size=5000, overlap=200):
     chunks = []
     start = 0
@@ -34,9 +27,6 @@ def chunk_text(text, chunk_size=5000, overlap=200):
     return chunks
 
 
-# ---------------------------------
-# GEMINI CONFIGURATION
-# ---------------------------------
 def configure_gemini():
     api_key = settings.GEMINI_API_KEY
     if not api_key:
@@ -44,9 +34,7 @@ def configure_gemini():
     genai.configure(api_key=api_key)
 
 
-# ---------------------------------
-# PROMPT BUILDER (QUESTION GENERATION)
-# ---------------------------------
+
 def build_prompt(chunk, questions_per_chunk, part_no):
     return f"""
 You are generating exam questions from PART {part_no} of a syllabus.
@@ -79,9 +67,7 @@ Return ONLY valid JSON:
   ]
 }}
 """
-# ---------------------------------
-# SAFE JSON PARSER
-# ---------------------------------
+
 def extract_json_from_text(text):
     if not text:
         return None
@@ -97,9 +83,6 @@ def extract_json_from_text(text):
         return None
 
 
-# ---------------------------------
-#  MAIN: PDF → QUESTIONS (FLASH LITE)
-# ---------------------------------
 def generate_questions_from_pdf(exam: Exam):
     print(" Gemini Question Generator CALLED")
 
@@ -149,9 +132,7 @@ def generate_questions_from_pdf(exam: Exam):
 
         all_questions.extend(data.get("questions", []))
 
-    # ---------------------------------
-    # DEDUPLICATION
-    # ---------------------------------
+
     unique_questions = {}
     for q in all_questions:
         key = q.get("question_text", "").strip().lower()
@@ -160,9 +141,6 @@ def generate_questions_from_pdf(exam: Exam):
 
     final_questions = list(unique_questions.values())[:total_questions]
 
-    # ---------------------------------
-    # SAVE TO DATABASE
-    # ---------------------------------
     exam.questions.all().delete()
 
     for idx, q in enumerate(final_questions):
@@ -184,10 +162,6 @@ def generate_questions_from_pdf(exam: Exam):
     print(" Question generation completed")
     return True
 
-
-# ---------------------------------
-# ON-DEMAND AI EXPLANATION (PRO MODEL)
-# ---------------------------------
 def generate_explanation_for_question(question: Question):
     """
     Called ONLY when user clicks 'AI Explanation'
@@ -215,16 +189,12 @@ Keep it extremely concise and direct.
         print(" Explanation error:", e)
         return "Explanation could not be generated at this time."
 
-
-# ---------------------------------
-# AI EXAM PARSER (FULL PAPER)
-# ---------------------------------
 def parse_exam_paper_with_ai(exam: Exam):
     """
     Parses a full exam paper PDF into structued questions with 
     Subject, Topic, and Difficulty classification.
     """
-    print(f"📄 Parsing Exam: {exam.title} (ID: {exam.id})")
+    print(f" Parsing Exam: {exam.title} (ID: {exam.id})")
 
     # 1. Extract Text
     pdf_text = extract_text_from_pdf(exam.pdf_file)

@@ -1,15 +1,3 @@
-"""
-resources/serializers.py
-────────────────────────
-DRF serializers for the Resource CMS models.
-
-Hierarchy
----------
-ResourceTagSerializer
-TopicResourceListSerializer          ← list / card view (no raw content)
-    └── TopicResourceDetailSerializer  ← single-resource reader view
-"""
-
 from __future__ import annotations
 
 from rest_framework import serializers

@@ -1,16 +1,3 @@
-"""
-resources/views.py
-──────────────────
-API views for the Resource CMS.
-
-Endpoints
----------
-GET  /api/resources/topic/<topic_slug>/   → TopicResourceListView
-GET  /api/resources/<slug>/               → TopicResourceDetailView
-POST /api/resources/<slug>/mark-done/     → MarkResourceDoneView
-POST /api/resources/<slug>/bookmark/      → BookmarkResourceView
-"""
-
 from __future__ import annotations
 
 from django.db.models import F

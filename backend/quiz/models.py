@@ -137,16 +137,13 @@ class Question(models.Model):
     points = models.IntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
 
-        # ... existing fields ...
     question_text = models.TextField()
     
-    # 🔥 Add this new field
     explanation = models.TextField(blank=True, null=True) 
 
-    # 🔥 AI Classification Fields
-    subject = models.CharField(max_length=100, blank=True, null=True) # e.g. "Reasoning"
-    topic = models.CharField(max_length=100, blank=True, null=True)   # e.g. "Blood Relations"
-    difficulty = models.CharField(max_length=20, blank=True, null=True) # e.g. "Easy", "Medium", "Hard"
+    subject = models.CharField(max_length=100, blank=True, null=True) 
+    topic = models.CharField(max_length=100, blank=True, null=True)   
+    difficulty = models.CharField(max_length=20, blank=True, null=True) 
 
     def __str__(self):
         return f"{self.exam.title} - Q{self.order + 1}"
@@ -302,10 +299,6 @@ class CurrentAffair(models.Model):
         ordering = ['-published_date', '-created_at']
         verbose_name_plural = "Current Affairs"
 
-# --------------------------------------------------
-# ROADMAP MODELS
-# --------------------------------------------------
-
 class ExamRoadmap(models.Model):
     subcategory = models.OneToOneField(SubCategory, on_delete=models.CASCADE, related_name='roadmap')
     title = models.CharField(max_length=200, help_text="e.g. 'Complete Syllabus for SSC CGL'")
@@ -361,11 +354,6 @@ class UserTopicProgress(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.topic.title} - {self.get_status_display()}"
-
-
-# --------------------------------------------------
-# RESOURCE CMS MODELS
-# --------------------------------------------------
 
 class ResourceTag(models.Model):
     """Simple tag for categorising TopicResources."""

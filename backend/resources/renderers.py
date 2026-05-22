@@ -1,14 +1,3 @@
-"""
-resources/renderers.py
-─────────────────────
-Utilities for converting and sanitising resource content before it is
-sent to the frontend.
-
-Dependencies
-------------
-- pandoc  (system binary)  – required only when rendering LaTeX content
-- bleach  (pip)            – used by sanitize_html()
-"""
 
 from __future__ import annotations
 

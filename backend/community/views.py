@@ -162,6 +162,28 @@ class MyStatsView(APIView):
             ).count()
             weekly.append({'day': day.strftime('%a'), 'date': day.isoformat(), 'contributions': cnt})
 
+        # Full year heatmap activity
+        from django.db.models.functions import TruncDate
+        one_year_ago = today - timedelta(days=365)
+        daily_counts = (
+            ContributorActivity.objects.filter(
+                user=request.user, created_at__date__gte=one_year_ago
+            )
+            .annotate(date=TruncDate('created_at'))
+            .values('date')
+            .annotate(count=Count('id'))
+            .order_by('date')
+        )
+        heatmap_activity = []
+        for item in daily_counts:
+            count = item['count']
+            level = 1 if count == 1 else 2 if count <= 3 else 3 if count <= 5 else 4
+            heatmap_activity.append({
+                'date': item['date'].isoformat(),
+                'count': count,
+                'level': level
+            })
+
         badges = UserBadge.objects.filter(user=request.user).select_related('badge')
 
         return Response({
@@ -185,6 +207,7 @@ class MyStatsView(APIView):
             'avg_score':        round(avg_score, 1),
             'roadmap_topics_done': roadmap_done,
             'weekly_activity':  weekly,
+            'heatmap_activity': heatmap_activity,
             'badges': [
                 {
                     'name':           ub.badge.name,
@@ -329,6 +352,32 @@ class ContributorProfileView(APIView):
         badges  = UserBadge.objects.filter(user=user).select_related('badge')
         recent  = Solution.objects.filter(user=user).order_by('-created_at')[:5]
 
+        from django.db.models.functions import TruncDate
+        from django.db.models import Count
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        today = timezone.now().date()
+        one_year_ago = today - timedelta(days=365)
+        daily_counts = (
+            ContributorActivity.objects.filter(
+                user=user, created_at__date__gte=one_year_ago
+            )
+            .annotate(date=TruncDate('created_at'))
+            .values('date')
+            .annotate(count=Count('id'))
+            .order_by('date')
+        )
+        heatmap_activity = []
+        for item in daily_counts:
+            count = item['count']
+            level = 1 if count == 1 else 2 if count <= 3 else 3 if count <= 5 else 4
+            heatmap_activity.append({
+                'date': item['date'].isoformat(),
+                'count': count,
+                'level': level
+            })
+
         return Response({
             'username':         user.username,
             'name':             user.get_full_name() or user.username,
@@ -343,6 +392,7 @@ class ContributorProfileView(APIView):
             'reputation_score': profile.reputation_score,
             'community_rank':   profile.community_rank,
             'percentile':       profile.percentile,
+            'heatmap_activity': heatmap_activity,
             'badges': [
                 {'name': ub.badge.name, 'slug': ub.badge.slug, 'color_gradient': ub.badge.color_gradient}
                 for ub in badges

@@ -1,9 +1,3 @@
-"""
-resources/urls.py
-─────────────────
-URL patterns for the Resource CMS app.
-Mounted at /api/resources/ in core/urls.py.
-"""
 
 from django.urls import path
 

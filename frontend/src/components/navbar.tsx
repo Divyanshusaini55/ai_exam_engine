@@ -211,7 +211,7 @@ export function Navbar() {
                         {loading ? (
                             <div className="size-10 bg-secondary rounded-full animate-pulse" />
                         ) : !user ? (
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 md:gap-4">
                                 <Link prefetch={false}
                                     href="/login"
                                     className="text-sm font-medium text-secondary-foreground hover:text-primary transition-colors hidden md:block"
@@ -226,10 +226,43 @@ export function Navbar() {
                                 </Link>
                                 <Link prefetch={false}
                                     href="/login"
-                                    className="md:hidden px-5 py-2.5 text-sm font-semibold bg-primary text-primary-foreground rounded-xl shadow-premium hover:-translate-y-[2px] transition-all duration-300"
+                                    className="md:hidden px-4 py-2 text-sm font-semibold bg-primary text-primary-foreground rounded-xl shadow-premium hover:-translate-y-[2px] transition-all duration-300"
                                 >
-                                    Login
+                                    Sign In
                                 </Link>
+                                
+                                {/* Mobile Menu for Unauthenticated Users */}
+                                <div className="relative md:hidden" ref={menuRef}>
+                                    <button
+                                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                        className="p-2 text-muted-foreground hover:text-primary rounded-xl hover:bg-secondary transition-all duration-300"
+                                    >
+                                        {isMenuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
+                                    </button>
+                                    
+                                    {isMenuOpen && (
+                                        <div className="absolute right-0 top-14 w-64 bg-card rounded-premium shadow-premium border border-border p-2 transform origin-top-right animate-in fade-in zoom-in-95 duration-200 z-[60]">
+                                            <div className="space-y-1">
+                                                {mainNavItems.map((item) => {
+                                                    const Icon = item.icon
+                                                    return (
+                                                        <Link prefetch={false}
+                                                            key={item.label}
+                                                            href={item.href}
+                                                            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${pathname === item.href
+                                                                ? "bg-secondary text-primary font-bold"
+                                                                : "text-muted-foreground hover:bg-secondary hover:text-primary font-medium"
+                                                                }`}
+                                                        >
+                                                            <Icon className="size-5" />
+                                                            {item.label}
+                                                        </Link>
+                                                    )
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         ) : (
                             <div className="relative" ref={menuRef}>

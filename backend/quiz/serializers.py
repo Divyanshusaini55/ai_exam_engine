@@ -7,9 +7,6 @@ from .models import (
 )
 
 
-# --------------------------------------------------
-# CATEGORY & SUBCATEGORY SERIALIZERS
-# --------------------------------------------------
 class CategorySerializer(serializers.ModelSerializer):
     exam_count = serializers.SerializerMethodField()
     subcategory_count = serializers.SerializerMethodField()
@@ -40,9 +37,6 @@ class SubCategorySerializer(serializers.ModelSerializer):
         return obj.exams.filter(status='published', is_active=True).count()
 
 
-# --------------------------------------------------
-# ANSWER SERIALIZERS
-# --------------------------------------------------
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
@@ -57,9 +51,6 @@ class AnswerSerializerWithCorrect(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 
-# --------------------------------------------------
-# QUESTION SERIALIZER (WITH IMAGE SUPPORT)
-# --------------------------------------------------
 class QuestionSerializer(serializers.ModelSerializer):
     answers = serializers.SerializerMethodField()
     image = serializers.SerializerMethodField()
@@ -100,9 +91,6 @@ class QuestionSerializer(serializers.ModelSerializer):
         return None
 
 
-# --------------------------------------------------
-# EXAM SERIALIZER
-# --------------------------------------------------
 class ExamSerializer(serializers.ModelSerializer):
     question_count = serializers.IntegerField(read_only=True)
     subcategory_name = serializers.CharField(source='subcategory.name', read_only=True)
@@ -134,9 +122,6 @@ class ExamSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at']
 
 
-# --------------------------------------------------
-# USER ANSWER SERIALIZER
-# --------------------------------------------------
 class UserAnswerSerializer(serializers.ModelSerializer):
     question_text = serializers.CharField(
         source='question.question_text',
@@ -171,9 +156,6 @@ class UserAnswerSerializer(serializers.ModelSerializer):
         correct_ans = obj.question.answers.filter(is_correct=True).first()
         return correct_ans.answer_text if correct_ans else "Unknown"
 
-# --------------------------------------------------
-# EXAM RESULT SERIALIZER (FIXED)
-# --------------------------------------------------
 class ExamResultSerializer(serializers.Serializer):
     exam_id = serializers.IntegerField()
     exam_title = serializers.CharField()
@@ -187,10 +169,6 @@ class ExamResultSerializer(serializers.Serializer):
 
     answers = UserAnswerSerializer(many=True, required=False)
 
-
-# --------------------------------------------------
-# AUTH SERIALIZERS
-# --------------------------------------------------
 from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
@@ -245,17 +223,8 @@ class CurrentAffairSerializer(serializers.ModelSerializer):
         model = CurrentAffair
         fields = ['id', 'title', 'slug', 'content', 'summary', 'category', 'category_name', 'image_url', 'source_name', 'source_url', 'published_date', 'created_at']
 
-# --------------------------------------------------
-# ROADMAP SERIALIZERS
-# --------------------------------------------------
 
 from .models import ExamRoadmap, RoadmapPhase, RoadmapTopic, UserTopicProgress
-
-
-# --------------------------------------------------
-# RESOURCE CMS SERIALIZERS
-# --------------------------------------------------
-
 class ResourceTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = ResourceTag
@@ -373,11 +342,6 @@ class TopicResourceListSerializer(serializers.ModelSerializer):
         if obj.thumbnail and request:
             return request.build_absolute_uri(obj.thumbnail.url)
         return None
-
-
-# --------------------------------------------------
-# ROADMAP SERIALIZERS
-# --------------------------------------------------
 
 class RoadmapTopicSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField()

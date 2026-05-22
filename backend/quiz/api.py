@@ -77,9 +77,6 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
             
         return queryset
 
-    # -------------------------------------------------
-    # PARSE EXAM PDF (AI)
-    # -------------------------------------------------
     @action(detail=True, methods=['post'])
     def parse_pdf(self, request, pk=None):
         exam = self.get_object()
@@ -112,9 +109,6 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-    # -------------------------------------------------
-    # GET QUESTIONS (NO CORRECT ANSWERS)
-    # -------------------------------------------------
     @action(detail=True, methods=['get'])
     def questions(self, request, pk=None):
         exam = self.get_object()
@@ -130,9 +124,6 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
         )
         return Response(serializer.data)
 
-    # -------------------------------------------------
-    # SUBMIT ANSWER
-    # -------------------------------------------------
     @action(detail=True, methods=['post'])
     def submit_answer(self, request, pk=None):
         exam = self.get_object()
@@ -175,9 +166,6 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = UserAnswerSerializer(user_answer)
         return Response(serializer.data)
 
-    # -------------------------------------------------
-    # GET CURRENT PROGRESS (RESTORE ON REFRESH)
-    # -------------------------------------------------
     @action(detail=True, methods=['get'])
     def progress(self, request, pk=None):
         exam = self.get_object()
@@ -276,9 +264,6 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-    # -------------------------------------------------
-    # RESULTS (SAVES DATA NOW)
-    # -------------------------------------------------
     @action(detail=True, methods=['get'])
     def results(self, request, pk=None):
         """
@@ -373,9 +358,6 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
             "questions": questions_data # New Field
         })
 
-    # -------------------------------------------------
-    # DASHBOARD STATS
-    # -------------------------------------------------
     @action(detail=False, methods=['get'])
     def dashboard_stats(self, request):
         print(f"DASHBOARD DEBUG: User={request.user}, Auth={request.auth}")
@@ -446,9 +428,6 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
         
         return Response({'explanation': explanation})
 
-    # -------------------------------------------------
-    # LEADERBOARD (Global & Per-Exam)
-    # -------------------------------------------------
     @action(detail=False, methods=['get'])
     def leaderboard(self, request):
         exam_id = request.query_params.get('exam_id')
@@ -510,10 +489,6 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
 
         return Response(leaderboard_data)
 
-
-# ==================================================
-# CONTACT SUPPORT API ENDPOINTS
-# ==================================================
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -641,9 +616,6 @@ class CurrentAffairViewSet(viewsets.ReadOnlyModelViewSet):
             return self.queryset.filter(category__slug=category_slug)
         return self.queryset
 
-# --------------------------------------------------
-# ROADMAP VIEWS
-# --------------------------------------------------
 
 from .models import ExamRoadmap, RoadmapTopic, UserTopicProgress
 from .serializers import ExamRoadmapSerializer
@@ -690,10 +662,6 @@ class ExamRoadmapViewSet(viewsets.ReadOnlyModelViewSet):
         except RoadmapTopic.DoesNotExist:
             return Response({'error': 'Topic not found'}, status=404)
 
-
-# --------------------------------------------------
-# TOPIC RESOURCE VIEWSET
-# --------------------------------------------------
 
 class TopicResourceViewSet(viewsets.ReadOnlyModelViewSet):
     """
