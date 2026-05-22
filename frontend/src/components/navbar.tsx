@@ -4,96 +4,229 @@ import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/context/auth-context"
 import { useState, useRef, useEffect } from "react"
+import { communityApi } from "@/lib/api"
+import { ModeToggle } from "./mode-toggle"
+import { 
+    Home, 
+    LayoutDashboard, 
+    BarChart3, 
+    Trophy, 
+    Upload, 
+    Users, 
+    CircleUserRound, 
+    Bell, 
+    LogOut, 
+    GraduationCap,
+    Menu,
+    X,
+    Settings,
+    HelpCircle,
+    Newspaper
+} from "lucide-react"
+
+// Main navigation items shown in the top bar (Desktop)
+const mainNavItems = [
+    { label: "Home", href: "/", icon: Home },
+    { label: "Daily Dose", href: "/daily-dose", icon: Newspaper },
+    { label: "Analysis", href: "/analysis", icon: BarChart3 },
+    { label: "Leaderboard", href: "/leaderboard", icon: Trophy },
+    { label: "Upload QP", href: "/upload", icon: Upload },
+    { label: "Contributors", href: "/contributors", icon: Users },
+]
+
+// Items shown in the profile dropdown menu
+const userMenuItems = [
+    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { label: "Profile", href: "/profile", icon: CircleUserRound },
+    { label: "Settings", href: "/settings", icon: Settings },
+    { label: "Help Center", href: "/help", icon: HelpCircle },
+]
 
 export function Navbar() {
     const { user, loading, logout } = useAuth()
     const router = useRouter()
     const pathname = usePathname()
     const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
+    const [notifications, setNotifications] = useState<any[]>([])
     const menuRef = useRef<HTMLDivElement>(null)
+    const notifRef = useRef<HTMLDivElement>(null)
 
-    // Close menu when clicking outside
+    // Fetch notifications
+    const fetchNotifications = async (signal?: AbortSignal) => {
+        if (!user) return
+        try {
+            const res = await communityApi.getNotifications({ signal })
+            setNotifications(res.data.results || res.data || [])
+        } catch (error: any) {
+            if (error.name === 'CanceledError' || error.name === 'AbortError') return;
+            console.error("Failed to fetch notifications:", error)
+        }
+    }
+
+    const markAsRead = async (id: number) => {
+        try {
+            await communityApi.readNotification(id)
+            setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n))
+        } catch (error) {
+            console.error("Failed to mark as read:", error)
+        }
+    }
+
+    const markAllRead = async () => {
+        const unread = notifications.filter(n => !n.is_read)
+        if (unread.length === 0) return
+        
+        try {
+            await Promise.all(unread.map(n => markAsRead(n.id)))
+        } catch (error) {
+            console.error("Failed to mark all as read:", error)
+        }
+    }
+
+    // Close menu/notif when clicking outside
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
                 setIsMenuOpen(false)
+            }
+            if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+                setIsNotificationsOpen(false)
             }
         }
         document.addEventListener("mousedown", handleClickOutside)
         return () => document.removeEventListener("mousedown", handleClickOutside)
     }, [])
 
+    useEffect(() => {
+        const controller = new AbortController()
+        if (user) {
+            fetchNotifications(controller.signal)
+        }
+        return () => controller.abort()
+    }, [user])
+
     // Close menu on route change
     useEffect(() => {
         setIsMenuOpen(false)
+        setIsNotificationsOpen(false)
     }, [pathname])
 
-    const navItems = [
-        { label: "Home", href: "/", icon: "home" },
-        { label: "Dashboard", href: "/dashboard", icon: "dashboard" },
-        { label: "Analysis", href: "/analysis", icon: "analytics" },
-        { label: "Leaderboard", href: "/leaderboard", icon: "leaderboard" },
-        { label: "Profile", href: "/profile", icon: "person" }
-    ]
-
     return (
-        <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/50 dark:border-slate-800/50 transition-all duration-300">
+        <header className="sticky top-0 z-50 backdrop-blur-xl bg-card/70 border-b border-border transition-all duration-300 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 md:px-8 py-4">
                 <div className="flex items-center justify-between">
                     {/* Logo (Left) */}
                     <div className="flex items-center gap-3 group cursor-pointer" onClick={() => router.push('/')}>
-                        <div className="size-9 flex items-center justify-center bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg text-white shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-all duration-300 group-hover:scale-110">
-                            <span className="material-symbols-outlined text-xl">school</span>
+                        <div className="size-9 flex items-center justify-center bg-primary rounded-[10px] text-primary-foreground shadow-premium transition-all duration-300 group-hover:-translate-y-1">
+                            <GraduationCap className="size-5" />
                         </div>
-                        <h2 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors duration-300">
+                        <h2 className="text-[20px] font-bold font-heading text-primary group-hover:opacity-80 transition-opacity duration-300 tracking-tight">
                             AI Exam Engine
                         </h2>
                     </div>
 
                     {/* Desktop Navigation (Center) - Hidden on Mobile */}
                     <nav className="hidden md:flex items-center gap-8">
-                        {navItems.map((item, idx) => {
+                        {mainNavItems.map((item) => {
                             const isActive = pathname === item.href
                             return (
-                                <Link
+                                <Link prefetch={false}
                                     key={item.label}
                                     href={item.href}
-                                    className={`text-sm font-medium transition-colors duration-300 relative group ${isActive ? "text-primary dark:text-primary" : "text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary"}`}
+                                    className={`text-sm transition-all duration-300 relative group py-1 ${isActive ? "text-primary font-semibold" : "text-muted-foreground font-medium hover:text-primary"}`}
                                 >
                                     {item.label}
-                                    <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-300 ${isActive ? "w-full" : "w-0 group-hover:w-full"}`} />
+                                    <span className={`absolute bottom-0 left-0 h-[2px] bg-primary transition-all duration-300 rounded-t-full ${isActive ? "w-full" : "w-0 group-hover:w-full opacity-50"}`} />
                                 </Link>
                             )
                         })}
                     </nav>
 
-                    {/* Right Actions (Notification + Profile/Menu) */}
-                    <div className="flex items-center gap-4">
-                        <button className="relative p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 group">
-                            <span className="material-symbols-outlined">notifications</span>
-                            <span className="absolute top-1 right-1 size-2 bg-red-500 rounded-full animate-pulse" />
-                        </button>
+                    {/* Right Actions */}
+                    <div className="flex items-center gap-3">
+                        {/* Dark / Light toggle */}
+                        <ModeToggle className="size-9" />
+
+                        {/* Notification bell */}
+                        {user && (
+                            <div className="relative" ref={notifRef}>
+                                <button 
+                                    onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                                    className="relative p-2 text-muted-foreground hover:text-primary rounded-full hover:bg-secondary transition-all duration-300"
+                                >
+                                    <Bell className="size-5" />
+                                    {notifications.some(n => !n.is_read) && (
+                                        <span className="absolute top-1.5 right-1.5 size-2 bg-red-500 rounded-full animate-pulse ring-2 ring-background" />
+                                    )}
+                                </button>
+
+                                {isNotificationsOpen && (
+                                    <div className="absolute right-0 top-12 w-[380px] bg-card rounded-3xl shadow-premium border border-border p-4 transform origin-top-right animate-in fade-in slide-in-from-top-2 duration-200 z-[60]">
+                                        <div className="flex items-center justify-between mb-4 px-2">
+                                            <h3 className="text-sm font-bold text-primary">Notifications</h3>
+                                            <button 
+                                                onClick={markAllRead}
+                                                className="text-[11px] font-bold text-primary hover:underline"
+                                            >
+                                                Mark all as read
+                                            </button>
+                                        </div>
+
+                                        <div className="max-h-[400px] overflow-y-auto space-y-2 scrollbar-hide">
+                                            {notifications.length === 0 ? (
+                                                <div className="py-12 text-center">
+                                                    <Bell className="size-10 mx-auto text-muted-foreground/20 mb-3" />
+                                                    <p className="text-sm font-bold text-muted-foreground/60">No notifications yet</p>
+                                                </div>
+                                            ) : (
+                                                notifications.map((notif) => (
+                                                    <div 
+                                                        key={notif.id}
+                                                        className={`p-4 rounded-2xl border transition-all cursor-pointer ${notif.is_read ? 'bg-secondary/5 border-border/30 opacity-70' : 'bg-primary/5 border-primary/10 hover:bg-primary/10'}`}
+                                                        onClick={() => markAsRead(notif.id)}
+                                                    >
+                                                        <div className="flex gap-4">
+                                                            <div className={`size-10 rounded-xl flex items-center justify-center shrink-0 ${notif.type === 'REWARD' ? 'bg-amber-500/10 text-amber-600' : 'bg-primary/10 text-primary'}`}>
+                                                                <Trophy className="size-5" />
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-[13px] font-bold text-primary mb-0.5 line-clamp-1">{notif.title}</p>
+                                                                <p className="text-xs text-muted-foreground leading-snug line-clamp-2">{notif.message}</p>
+                                                                <p className="text-[9px] text-muted-foreground/50 mt-2 font-medium">
+                                                                    {new Date(notif.created_at).toLocaleString()}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
                         {/* Profile Avatar / Auth Buttons */}
                         {loading ? (
-                            <div className="size-10 bg-slate-100 rounded-full animate-pulse" />
+                            <div className="size-10 bg-secondary rounded-full animate-pulse" />
                         ) : !user ? (
-                            <div className="flex items-center gap-3">
-                                <Link
+                            <div className="flex items-center gap-4">
+                                <Link prefetch={false}
                                     href="/login"
-                                    className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary transition-colors hidden md:block"
+                                    className="text-sm font-medium text-secondary-foreground hover:text-primary transition-colors hidden md:block"
                                 >
                                     Sign In
                                 </Link>
-                                <Link
+                                <Link prefetch={false}
                                     href="/signup"
-                                    className="hidden md:block px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20"
+                                    className="hidden md:block px-5 py-2.5 text-sm font-semibold bg-primary text-primary-foreground rounded-xl shadow-premium hover:-translate-y-[2px] hover:shadow-[0_15px_30_rgba(0,0,0,0.12)] transition-all duration-300"
                                 >
                                     Register
                                 </Link>
-                                <Link
+                                <Link prefetch={false}
                                     href="/login"
-                                    className="md:hidden px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20"
+                                    className="md:hidden px-5 py-2.5 text-sm font-semibold bg-primary text-primary-foreground rounded-xl shadow-premium hover:-translate-y-[2px] transition-all duration-300"
                                 >
                                     Login
                                 </Link>
@@ -103,10 +236,10 @@ export function Navbar() {
                                 {/* Avatar Trigger */}
                                 <button
                                     onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                    className="group relative size-10 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[2px] shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all duration-300 hover:scale-105 active:scale-95"
+                                    className="group relative size-10 rounded-full border border-border p-[3px] shadow-sm hover:shadow-premium transition-all duration-300 hover:-translate-y-[2px]"
                                 >
-                                    <div className="flex h-full w-full items-center justify-center rounded-full bg-white dark:bg-slate-900 backface-hidden">
-                                        <span className="text-sm font-bold bg-gradient-to-br from-indigo-600 to-pink-600 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
+                                    <div className="flex h-full w-full items-center justify-center rounded-full bg-secondary">
+                                        <span className="text-sm font-bold text-primary transition-transform duration-300 group-hover:scale-110">
                                             {user.username[0].toUpperCase()}
                                         </span>
                                     </div>
@@ -114,59 +247,69 @@ export function Navbar() {
 
                                 {/* Responsive Mobile Dropdown Menu */}
                                 {isMenuOpen && (
-                                    <div className="absolute right-0 top-14 w-72 bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-slate-900/50 border border-slate-100 dark:border-slate-800 p-2 transform origin-top-right animate-in fade-in zoom-in-95 duration-200">
-
+                                    <div className="absolute right-0 top-14 w-72 bg-card rounded-premium shadow-premium border border-border p-2 transform origin-top-right animate-in fade-in zoom-in-95 duration-200">
                                         {/* User Info Header */}
-                                        <div className="p-4 border-b border-slate-100 dark:border-slate-800 mb-2">
+                                        <div className="p-4 border-b border-border mb-2">
                                             <div className="flex items-center gap-3">
-                                                <div className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-lg font-bold text-slate-600 dark:text-slate-300">
+                                                <div className="size-10 rounded-full bg-secondary flex items-center justify-center text-lg font-bold text-primary">
                                                     {user.username[0].toUpperCase()}
                                                 </div>
                                                 <div className="overflow-hidden">
-                                                    <p className="font-bold text-slate-900 dark:text-white truncate">{user.username}</p>
-                                                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user.email}</p>
+                                                    <p className="font-bold font-heading text-primary truncate">{user.username}</p>
+                                                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {/* Mobile Navigation Links (Hidden on Desktop) */}
+                                        {/* Mobile Navigation Links (Combined) */}
                                         <div className="md:hidden space-y-1 mb-2">
-                                            {navItems.map((item) => (
-                                                <Link
-                                                    key={item.label}
-                                                    href={item.href}
-                                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${pathname === item.href
-                                                        ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-bold"
-                                                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium"
-                                                        }`}
-                                                >
-                                                    <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
-                                                    {item.label}
-                                                </Link>
-                                            ))}
-                                            <div className="h-px bg-slate-100 dark:bg-slate-800 my-2 mx-2"></div>
+                                            {/* Show Main Nav items on mobile inside the menu */}
+                                            {mainNavItems.map((item) => {
+                                                const Icon = item.icon
+                                                return (
+                                                    <Link prefetch={false}
+                                                        key={item.label}
+                                                        href={item.href}
+                                                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${pathname === item.href
+                                                            ? "bg-secondary text-primary font-bold"
+                                                            : "text-muted-foreground hover:bg-secondary hover:text-primary font-medium"
+                                                            }`}
+                                                    >
+                                                        <Icon className="size-5" />
+                                                        {item.label}
+                                                    </Link>
+                                                )
+                                            })}
+                                            <div className="h-px bg-border my-2 mx-2"></div>
                                         </div>
 
-                                        {/* Actions */}
+                                        {/* User Menu Items (Dashboard, Profile, etc.) */}
                                         <div className="space-y-1">
-                                            {/* Desktop-only Profile Link (since it's in main nav on mobile, but redundant is fine) 
-                                                Actually, user asked for "Profile" in the menu list. 
-                                                I included it in navItems above, so it renders on mobile.
-                                                For desktop, we might want "Profile" here too.
-                                            */}
-                                            <Link
-                                                href="/profile"
-                                                className="hidden md:flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium transition-colors"
-                                            >
-                                                <span className="material-symbols-outlined text-[20px]">person</span>
-                                                Profile
-                                            </Link>
+                                            {userMenuItems.map((item) => {
+                                                const Icon = item.icon
+                                                const isActive = pathname === item.href
+                                                return (
+                                                    <Link prefetch={false}
+                                                        key={item.label}
+                                                        href={item.href}
+                                                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${isActive
+                                                            ? "bg-secondary text-primary font-bold"
+                                                            : "text-muted-foreground hover:bg-secondary hover:text-primary font-medium"
+                                                            }`}
+                                                    >
+                                                        <Icon className="size-5" />
+                                                        {item.label}
+                                                    </Link>
+                                                )
+                                            })}
+
+                                            <div className="h-px bg-border my-2 mx-2"></div>
 
                                             <button
                                                 onClick={logout}
-                                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 font-medium transition-colors text-left"
+                                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-destructive hover:bg-destructive/10 font-bold transition-all duration-200 text-left"
                                             >
-                                                <span className="material-symbols-outlined text-[20px]">logout</span>
+                                                <LogOut className="size-5" />
                                                 Sign Out
                                             </button>
                                         </div>

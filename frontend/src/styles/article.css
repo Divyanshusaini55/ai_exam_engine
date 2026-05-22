@@ -1,0 +1,402 @@
+/* ============================================================
+   PREMIUM ARTICLE STYLES
+   Notion × Khan Academy × Stripe Docs aesthetic
+   ============================================================ */
+
+/* ── Google Font import (loaded via next/font in layout, fallback here) ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ── Base article wrapper ── */
+.article-body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 17px;
+  line-height: 1.85;
+  color: #1a1a1a;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.dark .article-body {
+  color: #e8e8e8;
+}
+
+/* ── Headings ── */
+.article-body h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+  color: #0f0f0f;
+  margin-top: 0;
+  margin-bottom: 1.2rem;
+}
+
+.dark .article-body h1 { color: #f5f5f5; }
+
+.article-body h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.03em;
+  color: #111111;
+  margin-top: 3rem;
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #f0f0f0;
+  scroll-margin-top: 6rem;
+}
+
+.dark .article-body h2 {
+  color: #f0f0f0;
+  border-bottom-color: rgba(255,255,255,0.08);
+}
+
+.article-body h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #1a1a1a;
+  margin-top: 2.4rem;
+  margin-bottom: 0.6rem;
+  scroll-margin-top: 6rem;
+}
+
+.dark .article-body h3 { color: #e8e8e8; }
+
+.article-body h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #2a2a2a;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+  scroll-margin-top: 6rem;
+}
+
+.dark .article-body h4 { color: #d8d8d8; }
+
+/* ── Paragraphs ── */
+.article-body p {
+  margin-top: 0;
+  margin-bottom: 1.4rem;
+  color: #2d2d2d;
+}
+
+.dark .article-body p { color: #c8c8c8; }
+
+/* ── Horizontal rules ── */
+.article-body hr {
+  border: none;
+  border-top: 1.5px solid #ebebeb;
+  margin: 3rem 0;
+}
+
+.dark .article-body hr { border-top-color: rgba(255,255,255,0.08); }
+
+/* ── Lists ── */
+.article-body ul,
+.article-body ol {
+  margin: 0 0 1.5rem 0;
+  padding-left: 1.6rem;
+}
+
+.article-body li {
+  margin-bottom: 0.55rem;
+  color: #2d2d2d;
+  line-height: 1.8;
+}
+
+.dark .article-body li { color: #c8c8c8; }
+
+.article-body ul li::marker {
+  color: #888;
+}
+
+.article-body ol li::marker {
+  color: #888;
+  font-weight: 600;
+}
+
+/* ── Links ── */
+.article-body a {
+  color: #1a1a1a;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(0,0,0,0.25);
+  transition: text-decoration-color 0.15s ease;
+}
+
+.article-body a:hover {
+  text-decoration-color: rgba(0,0,0,0.75);
+}
+
+.dark .article-body a { color: #e0e0e0; text-decoration-color: rgba(255,255,255,0.3); }
+.dark .article-body a:hover { text-decoration-color: rgba(255,255,255,0.8); }
+
+/* ── Inline code ── */
+.article-body code:not(pre code) {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 0.84em;
+  font-weight: 500;
+  background: #f4f4f5;
+  color: #c2185b;
+  padding: 0.18em 0.45em;
+  border-radius: 5px;
+  border: 1px solid #e8e8e8;
+  letter-spacing: 0;
+}
+
+.dark .article-body code:not(pre code) {
+  background: rgba(255,255,255,0.07);
+  color: #f0a0c0;
+  border-color: rgba(255,255,255,0.08);
+}
+
+/* ── Code blocks ── */
+.article-body pre {
+  background: #0f0f12 !important;
+  border-radius: 14px;
+  padding: 1.5rem 1.75rem;
+  overflow-x: auto;
+  margin: 1.75rem 0;
+  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  position: relative;
+}
+
+.article-body pre code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.88em;
+  line-height: 1.75;
+  color: #e2e8f0;
+  background: transparent;
+  border: none;
+  padding: 0;
+  letter-spacing: 0;
+}
+
+/* Language badge on code blocks */
+.article-body pre[data-language]::before {
+  content: attr(data-language);
+  position: absolute;
+  top: 0.75rem;
+  right: 1rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Blockquotes / Callouts ── */
+.article-body blockquote {
+  background: #fafaf9;
+  border-left: 4px solid #d4b896;
+  border-radius: 0 12px 12px 0;
+  padding: 1.1rem 1.5rem;
+  margin: 1.75rem 0;
+  color: #4a4a4a;
+  font-style: normal;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+
+.dark .article-body blockquote {
+  background: rgba(255,255,255,0.04);
+  border-left-color: #8a7560;
+  color: #b0a898;
+}
+
+.article-body blockquote p {
+  margin: 0;
+  color: inherit;
+}
+
+.article-body blockquote p + p {
+  margin-top: 0.75rem;
+}
+
+/* ── Example blocks (> styled as callout) ── */
+.article-body blockquote p strong:first-child {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #a0856a;
+}
+
+/* ── Tables ── */
+.article-body table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e8e8e8;
+  margin: 2rem 0;
+  font-size: 0.93em;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+
+.dark .article-body table {
+  border-color: rgba(255,255,255,0.08);
+}
+
+.article-body thead tr {
+  background: #f5f4f2;
+}
+
+.dark .article-body thead tr {
+  background: rgba(255,255,255,0.06);
+}
+
+.article-body th {
+  padding: 0.85rem 1.2rem;
+  text-align: left;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #666;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.dark .article-body th {
+  color: #999;
+  border-bottom-color: rgba(255,255,255,0.08);
+}
+
+.article-body td {
+  padding: 0.85rem 1.2rem;
+  color: #2d2d2d;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+  line-height: 1.6;
+}
+
+.dark .article-body td {
+  color: #c0c0c0;
+  border-bottom-color: rgba(255,255,255,0.05);
+}
+
+.article-body tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.article-body tbody tr:hover td {
+  background: #fafaf9;
+}
+
+.dark .article-body tbody tr:hover td {
+  background: rgba(255,255,255,0.03);
+}
+
+/* ── KaTeX Math Blocks ── */
+.article-body .math-display,
+.article-body .katex-display {
+  background: linear-gradient(135deg, #fafaf9 0%, #f5f4f1 100%);
+  border: 1px solid #e8e4dc;
+  border-radius: 14px;
+  padding: 1.6rem 2rem;
+  margin: 2rem 0;
+  overflow-x: auto;
+  text-align: center;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+.dark .article-body .katex-display {
+  background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%);
+  border-color: rgba(255,255,255,0.08);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+}
+
+.article-body .katex-display > .katex {
+  font-size: 1.15em;
+}
+
+.article-body .katex {
+  font-size: 1.05em;
+  letter-spacing: 0;
+}
+
+/* ── Strong / Bold ── */
+.article-body strong {
+  font-weight: 700;
+  color: #111;
+}
+
+.dark .article-body strong { color: #f0f0f0; }
+
+/* ── Images ── */
+.article-body img {
+  border-radius: 12px;
+  border: 1px solid #e8e8e8;
+  max-width: 100%;
+  height: auto;
+  margin: 1.5rem 0;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+
+.dark .article-body img {
+  border-color: rgba(255,255,255,0.08);
+}
+
+/* ── First paragraph lead text ── */
+.article-body > p:first-of-type {
+  font-size: 1.1em;
+  color: #4a4a4a;
+  line-height: 1.9;
+}
+
+.dark .article-body > p:first-of-type { color: #aaa; }
+
+/* ── Section heading number decoration ── */
+.article-body h2 .heading-anchor,
+.article-body h3 .heading-anchor {
+  opacity: 0;
+  margin-left: 0.5rem;
+  font-size: 0.8em;
+  color: #bbb;
+  transition: opacity 0.15s;
+}
+
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor {
+  opacity: 1;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .article-body {
+    font-size: 16px;
+    line-height: 1.8;
+  }
+
+  .article-body h1 { font-size: 1.9rem; }
+  .article-body h2 { font-size: 1.4rem; margin-top: 2.4rem; }
+  .article-body h3 { font-size: 1.1rem; }
+
+  .article-body pre {
+    border-radius: 10px;
+    padding: 1.2rem;
+    font-size: 0.82em;
+  }
+
+  .article-body .katex-display {
+    padding: 1.2rem 1rem;
+    font-size: 0.9em;
+  }
+
+  .article-body table {
+    font-size: 0.85em;
+  }
+
+  .article-body th,
+  .article-body td {
+    padding: 0.7rem 0.9rem;
+  }
+}

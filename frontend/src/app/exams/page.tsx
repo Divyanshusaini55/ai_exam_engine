@@ -1,7 +1,9 @@
 "use client"
 
 import Link from "next/link"
-
+import { ArrowRight } from "lucide-react"
+import { Navbar } from "@/components/navbar"
+import { CategoryHomeIcon } from "@/components/category-home-icon"
 
 export default function ExamsPage() {
     const categories = [
@@ -12,29 +14,55 @@ export default function ExamsPage() {
     ]
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-12 px-4 md:px-8">
-            <div className="max-w-6xl mx-auto">
+        <div className="min-h-screen bg-background">
+            <Navbar />
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <header className="mb-10">
-                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">All Exams</h1>
-                    <p className="text-slate-500">Choose a category to start your preparation.</p>
+                    <h1 className="text-3xl font-bold text-primary mb-2 tracking-tight">All Exams</h1>
+                    <p className="text-muted-foreground font-medium">Choose a category to start your preparation.</p>
                 </header>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {categories.map((cat) => (
                         <Link
+                            prefetch={false}
                             key={cat.id}
                             href={`/exam/${cat.id}`}
-                            className="group bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-blue-500 dark:hover:border-blue-500 shadow-sm hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300"
+                            className="block h-full"
                         >
-                            <div className="size-12 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                <span className="material-symbols-outlined text-2xl">{cat.icon}</span>
+                            <div className="group card-premium relative flex h-full cursor-pointer flex-col gap-5 overflow-hidden p-6">
+                                <div className="absolute inset-0 bg-gradient-to-br from-secondary/50 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+
+                                <div className="relative z-10 flex h-full flex-col gap-5">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <CategoryHomeIcon
+                                            iconName={cat.icon}
+                                            categoryLabel={cat.name}
+                                        />
+                                        <span className="rounded-full border border-border bg-secondary/50 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-primary">
+                                            {cat.count} {cat.count === 1 ? "Exam" : "Exams"}
+                                        </span>
+                                    </div>
+
+                                    <div className="mt-2 flex-grow space-y-2">
+                                        <h3 className="font-heading text-[22px] font-bold leading-tight text-primary">
+                                            {cat.name}
+                                        </h3>
+                                        <p className="line-clamp-2 text-[15px] font-medium leading-relaxed text-muted-foreground">
+                                            Explore {cat.name.toLowerCase()} and test series
+                                        </p>
+                                    </div>
+
+                                    <div className="mt-auto border-t border-border pt-4">
+                                        <div className="flex items-center justify-between rounded-xl border border-border bg-background p-3 transition-all duration-300 group-hover:border-primary group-hover:bg-primary">
+                                            <span className="text-sm font-semibold text-primary transition-colors duration-300 group-hover:text-primary-foreground">
+                                                View Details
+                                            </span>
+                                            <ArrowRight className="size-5 text-primary transition-all duration-300 group-hover:translate-x-2 group-hover:text-primary-foreground" />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1 group-hover:text-blue-600 transition-colors">
-                                {cat.name}
-                            </h3>
-                            <p className="text-sm text-slate-400 font-medium">
-                                {cat.count} Active Exams
-                            </p>
                         </Link>
                     ))}
                 </div>

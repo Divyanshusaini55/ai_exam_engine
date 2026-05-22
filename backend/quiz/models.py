@@ -68,6 +68,7 @@ class Exam(models.Model):
 
     title = models.CharField(max_length=200, help_text="Exam title")
     description = models.TextField(blank=True)
+    ai_summary = models.TextField(blank=True, null=True, help_text="Markdown formatted AI summary")
     
     # Exam metadata
     year = models.IntegerField(null=True, blank=True, help_text="Exam year (e.g., 2024)")
@@ -225,3 +226,378 @@ class ContactMessage(models.Model):
         ordering = ['-created_at']
         verbose_name = "Contact Message"
         verbose_name_plural = "Contact Messages"
+class QuestionPaperUpload(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending Review'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('processed', 'Processed'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
+    subject = models.CharField(max_length=200)
+    exam_date = models.DateField()
+    file = models.FileField(upload_to='question_papers/')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.exam.title if self.exam else 'Unknown'} - {self.subject} ({self.status})"
+
+    class Meta:
+        ordering = ['-created_at']
+
+class CorrectionSuggestion(models.Model):
+    TYPE_CHOICES = [
+        ('question_text', 'Question Text'),
+        ('correct_answer', 'Correct Answer'),
+        ('option_text', 'Option Text'),
+    ]
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='suggestions')
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='suggestions')
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    
+    # Payload stores the suggested changes
+    # e.g., {"question_text": "new text"} or {"correct_answer_id": 123}
+    suggestion_data = models.JSONField()
+    note = models.TextField(blank=True)
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    upvotes = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Suggestion by {self.user.username} for Q{self.question.id}"
+
+    class Meta:
+        ordering = ['-created_at']
+
+class CurrentAffair(models.Model):
+    title = models.CharField(max_length=500)
+    slug = models.SlugField(unique=True, max_length=600)
+    content = models.TextField(help_text="Full summarized content from AI")
+    summary = models.TextField(blank=True, help_text="Short 2-sentence summary for list view")
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    image_url = models.URLField(max_length=1000, blank=True, null=True)
+    source_name = models.CharField(max_length=200, blank=True)
+    source_url = models.URLField(max_length=1000, blank=True)
+    published_date = models.DateField(default=timezone.now)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.published_date} - {self.title}"
+
+    class Meta:
+        ordering = ['-published_date', '-created_at']
+        verbose_name_plural = "Current Affairs"
+
+# --------------------------------------------------
+# ROADMAP MODELS
+# --------------------------------------------------
+
+class ExamRoadmap(models.Model):
+    subcategory = models.OneToOneField(SubCategory, on_delete=models.CASCADE, related_name='roadmap')
+    title = models.CharField(max_length=200, help_text="e.g. 'Complete Syllabus for SSC CGL'")
+    description = models.TextField(blank=True)
+    bookmarks = models.ManyToManyField(User, related_name='bookmarked_roadmaps', blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Roadmap: {self.title}"
+
+class RoadmapPhase(models.Model):
+    roadmap = models.ForeignKey(ExamRoadmap, on_delete=models.CASCADE, related_name='phases')
+    title = models.CharField(max_length=200, help_text="e.g. 'Phase 1: Basic Numeracy'")
+    description = models.TextField(blank=True)
+    order = models.IntegerField(default=0, help_text="Order in the timeline")
+
+    def __str__(self):
+        return f"{self.roadmap.title} - {self.title}"
+
+    class Meta:
+        ordering = ['order', 'id']
+
+class RoadmapTopic(models.Model):
+    phase = models.ForeignKey(RoadmapPhase, on_delete=models.CASCADE, related_name='topics')
+    title = models.CharField(max_length=200, help_text="e.g. 'Percentage Basics'")
+    description = models.TextField(blank=True)
+    estimated_minutes = models.IntegerField(default=60, help_text="Estimated study time in minutes")
+    order = models.IntegerField(default=0)
+    resources = models.JSONField(default=list, blank=True, help_text="List of resources e.g. [{'type': 'video', 'url': '...', 'title': '...'}]")
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        ordering = ['order', 'id']
+
+class UserTopicProgress(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('in_progress', 'In Progress'),
+        ('done', 'Done'),
+        ('skip', 'Skip'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='roadmap_progress')
+    topic = models.ForeignKey(RoadmapTopic, on_delete=models.CASCADE, related_name='progress')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    completed_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'topic')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.topic.title} - {self.get_status_display()}"
+
+
+# --------------------------------------------------
+# RESOURCE CMS MODELS
+# --------------------------------------------------
+
+class ResourceTag(models.Model):
+    """Simple tag for categorising TopicResources."""
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(unique=True)
+    color = models.CharField(
+        max_length=20,
+        default='gray',
+        help_text="Tailwind color name e.g. 'blue', 'green', 'purple'"
+    )
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['name']
+
+
+class TopicResource(models.Model):
+    """
+    A rich, structured learning resource attached to a RoadmapTopic.
+    Replaces the raw JSON blob in RoadmapTopic.resources.
+    Supports markdown, HTML, LaTeX, video, PDF, external links, AI notes, etc.
+    """
+
+    RESOURCE_TYPE_CHOICES = [
+        ('article',        'Article'),
+        ('markdown_note',  'Markdown Note'),
+        ('html_note',      'HTML Note'),
+        ('latex_note',     'LaTeX Note'),
+        ('video',          'Video'),
+        ('pdf',            'PDF'),
+        ('external_link',  'External Link'),
+        ('ai_note',        'AI Note'),
+        ('formula_sheet',  'Formula Sheet'),
+        ('quiz',           'Quiz / Practice Set'),
+    ]
+
+    CONTENT_FORMAT_CHOICES = [
+        ('markdown',  'Markdown'),
+        ('html',      'HTML'),
+        ('latex',     'LaTeX'),
+        ('plaintext', 'Plain Text'),
+        ('url',       'URL Only'),
+    ]
+
+    DIFFICULTY_CHOICES = [
+        ('beginner',     'Beginner'),
+        ('intermediate', 'Intermediate'),
+        ('advanced',     'Advanced'),
+    ]
+
+    # ---- Relationships ----
+    topic = models.ForeignKey(
+        RoadmapTopic,
+        on_delete=models.CASCADE,
+        related_name='topic_resources',
+        help_text="The roadmap topic this resource belongs to"
+    )
+    tags = models.ManyToManyField(ResourceTag, blank=True, related_name='resources')
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='created_resources',
+        help_text="Admin/staff who created this resource"
+    )
+
+    # ---- Identity ----
+    title = models.CharField(max_length=500)
+    slug = models.SlugField(max_length=550, blank=True, help_text="Auto-generated from title")
+    short_description = models.TextField(
+        blank=True,
+        help_text="One-line summary shown in resource cards"
+    )
+
+    # ---- Type & Format ----
+    resource_type = models.CharField(
+        max_length=30,
+        choices=RESOURCE_TYPE_CHOICES,
+        default='article',
+        db_index=True,
+        help_text="What kind of content is this?"
+    )
+    content_format = models.CharField(
+        max_length=20,
+        choices=CONTENT_FORMAT_CHOICES,
+        default='markdown',
+        help_text="Primary content format for the reader to render"
+    )
+
+    # ---- Content Fields (fill only the relevant one) ----
+    markdown_content = models.TextField(
+        blank=True,
+        help_text="Markdown source. Supports GFM, math ($$…$$), fenced code blocks, tables."
+    )
+    html_content = models.TextField(
+        blank=True,
+        help_text="Raw HTML content. Will be sanitized via DOMPurify on the frontend."
+    )
+    latex_content = models.TextField(
+        blank=True,
+        help_text="LaTeX source for formula sheets or derivation notes."
+    )
+    external_url = models.URLField(
+        blank=True,
+        max_length=2000,
+        help_text="External link (YouTube, PDF URL, article URL, etc.)"
+    )
+
+    # ---- Media ----
+    thumbnail = models.ImageField(
+        upload_to='resource_thumbnails/',
+        null=True, blank=True,
+        help_text="Optional thumbnail image for resource cards"
+    )
+
+    # ---- Metadata ----
+    estimated_read_minutes = models.PositiveIntegerField(
+        default=5,
+        help_text="Estimated reading/watching time in minutes"
+    )
+    difficulty = models.CharField(
+        max_length=20,
+        choices=DIFFICULTY_CHOICES,
+        default='beginner',
+        db_index=True
+    )
+    order = models.PositiveIntegerField(
+        default=0,
+        help_text="Display order within the topic (lower = first)"
+    )
+
+    # ---- State Flags ----
+    is_featured = models.BooleanField(
+        default=False,
+        help_text="Pinned/highlighted at top of the resource hub"
+    )
+    is_published = models.BooleanField(
+        default=False,
+        db_index=True,
+        help_text="Only published resources appear on the frontend"
+    )
+    is_ai_generated = models.BooleanField(
+        default=False,
+        help_text="True if content was generated by AI"
+    )
+
+    # ---- AI ----
+    ai_summary = models.TextField(
+        blank=True,
+        help_text="Short AI-generated summary shown as a callout in the article reader"
+    )
+
+    # ---- Analytics ----
+    view_count = models.PositiveIntegerField(
+        default=0,
+        editable=False,
+        help_text="Auto-incremented on each API read"
+    )
+
+    # ---- Timestamps ----
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"[{self.get_resource_type_display()}] {self.title}"
+
+    def save(self, *args, **kwargs):
+        """Auto-generate slug from title if not set."""
+        if not self.slug and self.title:
+            from django.utils.text import slugify
+            base_slug = slugify(self.title)[:500]
+            slug = base_slug
+            counter = 1
+            while TopicResource.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['order', 'created_at']
+        verbose_name = "Topic Resource"
+        verbose_name_plural = "Topic Resources"
+
+
+class ResourceProgress(models.Model):
+    """Tracks whether a logged-in user has read/completed a resource."""
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='resource_progress'
+    )
+    resource = models.ForeignKey(
+        TopicResource,
+        on_delete=models.CASCADE,
+        related_name='user_progress'
+    )
+    is_completed = models.BooleanField(default=False)
+    last_viewed_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'resource')
+        verbose_name = "Resource Progress"
+        verbose_name_plural = "Resource Progress"
+
+    def __str__(self):
+        status = "✓" if self.is_completed else "○"
+        return f"{status} {self.user.username} — {self.resource.title}"
+
+
+class ResourceBookmark(models.Model):
+    """Allows users to bookmark individual resources."""
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='resource_bookmarks'
+    )
+    resource = models.ForeignKey(
+        TopicResource,
+        on_delete=models.CASCADE,
+        related_name='bookmarks'
+    )
+    bookmarked_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'resource')
+        ordering = ['-bookmarked_at']
+        verbose_name = "Resource Bookmark"
+        verbose_name_plural = "Resource Bookmarks"
+
+    def __str__(self):
+        return f"♥ {self.user.username} — {self.resource.title}"
+

@@ -1,6 +1,10 @@
 
 from rest_framework import serializers
-from .models import Exam, Question, Answer, UserAnswer, Category, SubCategory, ContactMessage
+from .models import (
+    Exam, Question, Answer, UserAnswer, Category, SubCategory,
+    ContactMessage, QuestionPaperUpload, CorrectionSuggestion, CurrentAffair,
+    ResourceTag, TopicResource, ResourceProgress, ResourceBookmark,
+)
 
 
 # --------------------------------------------------
@@ -59,6 +63,7 @@ class AnswerSerializerWithCorrect(serializers.ModelSerializer):
 class QuestionSerializer(serializers.ModelSerializer):
     answers = serializers.SerializerMethodField()
     image = serializers.SerializerMethodField()
+    comment_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Question
@@ -73,9 +78,13 @@ class QuestionSerializer(serializers.ModelSerializer):
             'difficulty', 
             'explanation', 
             'image',      
-            'answers'
+            'answers',
+            'comment_count'
         ]
         read_only_fields = ['id']
+
+    def get_comment_count(self, obj):
+        return obj.community_comments.count()
 
     def get_answers(self, obj):
         hide_correct = self.context.get('hide_correct', False)
@@ -106,6 +115,7 @@ class ExamSerializer(serializers.ModelSerializer):
             'id',
             'title',
             'description',
+            'ai_summary',
             'subcategory',
             'subcategory_name',
             'category_name',
@@ -211,3 +221,212 @@ class ContactMessageSerializer(serializers.ModelSerializer):
         model = ContactMessage
         fields = ['id', 'name', 'email', 'message', 'status', 'created_at']
         read_only_fields = ['id', 'created_at', 'status']
+class QuestionPaperUploadSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+    exam_title = serializers.CharField(source='exam.title', read_only=True)
+
+    class Meta:
+        model = QuestionPaperUpload
+        fields = ['id', 'user', 'username', 'exam', 'exam_title', 'subject', 'exam_date', 'file', 'status', 'created_at']
+        read_only_fields = ['id', 'user', 'status', 'created_at']
+
+class CorrectionSuggestionSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+    
+    class Meta:
+        model = CorrectionSuggestion
+        fields = ['id', 'user', 'username', 'question', 'type', 'suggestion_data', 'note', 'status', 'upvotes', 'created_at']
+        read_only_fields = ['user', 'status', 'upvotes', 'created_at']
+
+class CurrentAffairSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source='category.name', read_only=True)
+    
+    class Meta:
+        model = CurrentAffair
+        fields = ['id', 'title', 'slug', 'content', 'summary', 'category', 'category_name', 'image_url', 'source_name', 'source_url', 'published_date', 'created_at']
+
+# --------------------------------------------------
+# ROADMAP SERIALIZERS
+# --------------------------------------------------
+
+from .models import ExamRoadmap, RoadmapPhase, RoadmapTopic, UserTopicProgress
+
+
+# --------------------------------------------------
+# RESOURCE CMS SERIALIZERS
+# --------------------------------------------------
+
+class ResourceTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ResourceTag
+        fields = ['id', 'name', 'slug', 'color']
+
+
+class TopicResourceSerializer(serializers.ModelSerializer):
+    tags = ResourceTagSerializer(many=True, read_only=True)
+    is_bookmarked = serializers.SerializerMethodField()
+    is_completed = serializers.SerializerMethodField()
+    resource_type_display = serializers.CharField(source='get_resource_type_display', read_only=True)
+    difficulty_display = serializers.CharField(source='get_difficulty_display', read_only=True)
+    content_format_display = serializers.CharField(source='get_content_format_display', read_only=True)
+    thumbnail_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TopicResource
+        fields = [
+            'id',
+            'topic',
+            'title',
+            'slug',
+            'short_description',
+            'resource_type',
+            'resource_type_display',
+            'content_format',
+            'content_format_display',
+            # Content (all three fields — frontend picks the right one based on content_format)
+            'markdown_content',
+            'html_content',
+            'latex_content',
+            'external_url',
+            # Media
+            'thumbnail_url',
+            # Metadata
+            'estimated_read_minutes',
+            'difficulty',
+            'difficulty_display',
+            'order',
+            # State
+            'is_featured',
+            'is_published',
+            'is_ai_generated',
+            'ai_summary',
+            # User state (computed)
+            'is_bookmarked',
+            'is_completed',
+            # Analytics
+            'view_count',
+            # Relations
+            'tags',
+            # Timestamps
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['id', 'slug', 'view_count', 'created_at', 'updated_at']
+
+    def get_is_bookmarked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return ResourceBookmark.objects.filter(user=request.user, resource=obj).exists()
+        return False
+
+    def get_is_completed(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            progress = ResourceProgress.objects.filter(user=request.user, resource=obj).first()
+            return progress.is_completed if progress else False
+        return False
+
+    def get_thumbnail_url(self, obj):
+        request = self.context.get('request')
+        if obj.thumbnail and request:
+            return request.build_absolute_uri(obj.thumbnail.url)
+        return None
+
+
+class TopicResourceListSerializer(serializers.ModelSerializer):
+    """Lightweight serializer for list views — omits heavy content fields."""
+    tags = ResourceTagSerializer(many=True, read_only=True)
+    is_bookmarked = serializers.SerializerMethodField()
+    is_completed = serializers.SerializerMethodField()
+    resource_type_display = serializers.CharField(source='get_resource_type_display', read_only=True)
+    difficulty_display = serializers.CharField(source='get_difficulty_display', read_only=True)
+    thumbnail_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TopicResource
+        fields = [
+            'id', 'topic', 'title', 'slug', 'short_description',
+            'resource_type', 'resource_type_display',
+            'content_format', 'difficulty', 'difficulty_display',
+            'external_url', 'thumbnail_url',
+            'estimated_read_minutes', 'order',
+            'is_featured', 'is_published', 'is_ai_generated',
+            'ai_summary', 'is_bookmarked', 'is_completed',
+            'view_count', 'tags', 'created_at',
+        ]
+
+    def get_is_bookmarked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return ResourceBookmark.objects.filter(user=request.user, resource=obj).exists()
+        return False
+
+    def get_is_completed(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            progress = ResourceProgress.objects.filter(user=request.user, resource=obj).first()
+            return progress.is_completed if progress else False
+        return False
+
+    def get_thumbnail_url(self, obj):
+        request = self.context.get('request')
+        if obj.thumbnail and request:
+            return request.build_absolute_uri(obj.thumbnail.url)
+        return None
+
+
+# --------------------------------------------------
+# ROADMAP SERIALIZERS
+# --------------------------------------------------
+
+class RoadmapTopicSerializer(serializers.ModelSerializer):
+    status = serializers.SerializerMethodField()
+    topic_resources = serializers.SerializerMethodField()
+
+    class Meta:
+        model = RoadmapTopic
+        fields = ['id', 'title', 'description', 'estimated_minutes', 'order', 'status', 'resources', 'topic_resources']
+
+    def get_status(self, obj):
+        user = self.context.get('request').user if self.context.get('request') else None
+        if user and user.is_authenticated:
+            progress = UserTopicProgress.objects.filter(user=user, topic=obj).first()
+            if progress:
+                return progress.status
+        return 'pending'
+
+    def get_topic_resources(self, obj):
+        """Return published resources for this topic (list view — no heavy content)."""
+        qs = obj.topic_resources.filter(is_published=True).order_by('order', 'created_at')
+        return TopicResourceListSerializer(qs, many=True, context=self.context).data
+
+class RoadmapPhaseSerializer(serializers.ModelSerializer):
+    topics = RoadmapTopicSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = RoadmapPhase
+        fields = ['id', 'title', 'description', 'order', 'topics']
+
+class ExamRoadmapSerializer(serializers.ModelSerializer):
+    phases = RoadmapPhaseSerializer(many=True, read_only=True)
+    subcategory_name = serializers.CharField(source='subcategory.name', read_only=True)
+    is_bookmarked = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ExamRoadmap
+        fields = ['id', 'subcategory', 'subcategory_name', 'title', 'description', 'phases', 'is_bookmarked', 'created_at', 'updated_at']
+
+    def get_is_bookmarked(self, obj):
+        user = self.context.get('request').user if self.context.get('request') else None
+        if user and user.is_authenticated:
+            return obj.bookmarks.filter(id=user.id).exists()
+        return False
+
+class BookmarkedRoadmapSerializer(serializers.ModelSerializer):
+    subcategory_name = serializers.CharField(source='subcategory.name', read_only=True)
+    subcategory_slug = serializers.CharField(source='subcategory.slug', read_only=True)
+    subcategory_icon = serializers.CharField(source='subcategory.icon', read_only=True)
+
+    class Meta:
+        model = ExamRoadmap
+        fields = ['id', 'title', 'description', 'subcategory_name', 'subcategory_slug', 'subcategory_icon']

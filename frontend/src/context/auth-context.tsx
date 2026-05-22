@@ -31,17 +31,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const router = useRouter()
 
     useEffect(() => {
+        const controller = new AbortController()
         const token = localStorage.getItem("auth_token")
         if (token) {
-            fetchUser(token)
+            fetchUser(token, controller.signal)
         } else {
             setLoading(false)
         }
+        return () => controller.abort()
     }, [])
 
-    const fetchUser = async (token: string) => {
+    const fetchUser = async (token: string, signal?: AbortSignal) => {
         try {
-            const res = await apiClient.get('/auth/user/')
+            const res = await apiClient.get('/auth/user/', { signal })
 
             if (res.ok) {
                 const data = await res.json()
@@ -50,7 +52,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 // Invalid token
                 logout()
             }
-        } catch (error) {
+        } catch (error: any) {
+            if (error.name === 'AbortError') {
+                return; // Do nothing on abort
+            }
             console.error("Auth check failed", error)
             logout()
         } finally {

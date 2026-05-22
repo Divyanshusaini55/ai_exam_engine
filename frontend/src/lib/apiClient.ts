@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { logApi, logAbort } from './debug';
 
 // -----------------------------------------------------------------------------
 // Configuration
@@ -80,11 +81,13 @@ export const apiClient = {
 
         // 5. Execute Request
         try {
+            logApi(url, options.method || 'GET', 'START');
             const response = await fetch(url, {
                 ...restOptions,
                 headers: mergedHeaders,
                 credentials: 'include', // Needed for session cookies
             });
+            logApi(url, options.method || 'GET', `END - Status: ${response.status}`);
 
             // 6. Handle 401 Unauthorized
             if (response.status === 401 && requireAuth) {
@@ -101,7 +104,10 @@ export const apiClient = {
 
             return response;
 
-        } catch (error) {
+        } catch (error: any) {
+            if (error.name === 'AbortError') {
+                logAbort(url);
+            }
             console.error(`API Request Failed for ${url}:`, error);
             throw error;
         }

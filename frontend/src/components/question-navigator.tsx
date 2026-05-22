@@ -1,11 +1,18 @@
 "use client"
 
+import { Sparkles, Lock, LayoutGrid, Download } from "lucide-react"
+
 interface QuestionNavigatorProps {
     currentQuestion: number
     totalQuestions: number
     onNavigate: (index: number) => void
     answeredQuestions: number[]
     visitedQuestions: number[]
+    mode: 'exam' | 'learning'
+    onModeChange: (mode: 'exam' | 'learning') => void
+    pdfUrl?: string
+    isLoggedIn: boolean
+    onViewSummary: () => void
 }
 
 export function QuestionNavigator({
@@ -14,22 +21,75 @@ export function QuestionNavigator({
     onNavigate,
     answeredQuestions,
     visitedQuestions,
+    mode,
+    onModeChange,
+    pdfUrl,
+    isLoggedIn,
+    onViewSummary
 }: QuestionNavigatorProps) {
+    const handleDownload = () => {
+        if (!isLoggedIn) {
+            alert("Please login to download the question paper PDF.")
+            return
+        }
+        if (pdfUrl) {
+            window.open(pdfUrl, '_blank')
+        } else {
+            alert("PDF not available for this exam.")
+        }
+    }
     return (
-        <aside className="hidden md:flex flex-col w-72 shrink-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden sticky top-24 max-h-[calc(100vh-120px)]">
-            <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-                <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                    <span className="material-symbols-outlined text-blue-600">grid_view</span>
+        <aside className="hidden md:flex flex-col w-72 shrink-0 bg-card border border-border rounded-2xl shadow-sm overflow-hidden sticky top-24 max-h-[calc(100vh-120px)]">
+            {/* Top Action Buttons */}
+            <div className="p-4 flex flex-col gap-3 border-b border-border">
+                {/* Mode Toggle */}
+                <div className="flex bg-secondary p-1 rounded-[14px]">
+                    <button 
+                        onClick={() => onModeChange('exam')}
+                        className={`flex-1 py-1.5 text-xs font-bold rounded-[12px] transition-all ${mode === 'exam' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-primary'}`}
+                    >
+                        Exam Mode
+                    </button>
+                    <button 
+                        onClick={() => onModeChange('learning')}
+                        className={`flex-1 py-1.5 text-xs font-bold rounded-[12px] transition-all ${mode === 'learning' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-primary'}`}
+                    >
+                        Learning Mode
+                    </button>
+                </div>
+
+                {/* Summary Button */}
+                <button 
+                    onClick={onViewSummary}
+                    className="w-full mt-1 py-2 bg-primary text-primary-foreground rounded-[14px] text-[13px] font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-sm"
+                >
+                    <Sparkles className="size-4" />
+                    View Question Paper Summary
+                </button>
+                
+                {/* Download Button */}
+                <button 
+                    onClick={handleDownload}
+                    className="w-full py-2 bg-card text-primary border border-border rounded-[14px] text-[13px] font-bold flex items-center justify-center gap-2 hover:bg-secondary transition-all active:scale-95 shadow-sm"
+                >
+                    {isLoggedIn ? <Download className="size-4" /> : <Lock className="size-4" />}
+                    Download PDF
+                </button>
+            </div>
+
+            <div className="p-4 border-b border-border bg-background/30">
+                <h3 className="font-bold text-primary flex items-center gap-2">
+                    <LayoutGrid className="size-4 text-primary" />
                     navigator
                 </h3>
                 <div className="flex justify-between items-center mt-2">
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-muted-foreground">
                         {answeredQuestions.length}/{totalQuestions} Attempted
                     </p>
                     <div className="flex gap-1">
-                        <span className="size-2 rounded-full bg-emerald-500" title="Answered" />
-                        <span className="size-2 rounded-full bg-orange-400" title="Skipped" />
-                        <span className="size-2 rounded-full bg-slate-300" title="Not Visited" />
+                        <span className="size-2 rounded-full bg-success" title="Answered" />
+                        <span className="size-2 rounded-full bg-orange-500" title="Skipped" />
+                        <span className="size-2 rounded-full bg-muted" title="Not Visited" />
                     </div>
                 </div>
             </div>
@@ -44,15 +104,14 @@ export function QuestionNavigator({
                         const isSkipped = isVisited && !isAnswered && !isCurrent // Skipped if visited but not answered (and not current) - simple logic
 
                         // Determine Style
-                        let buttonStyle = "bg-slate-50 text-slate-500 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
+                        let buttonStyle = "bg-background text-muted-foreground border border-border hover:bg-secondary"
 
                         if (isCurrent) {
-                            buttonStyle = "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/30 scale-110 z-10"
+                            buttonStyle = "bg-primary text-primary-foreground border-primary shadow-premium scale-105 z-10 ring-4 ring-primary/20"
                         } else if (isAnswered) {
-                            buttonStyle = "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800 hover:bg-emerald-200"
+                            buttonStyle = "bg-success/10 text-success border-success/20 hover:bg-success/20"
                         } else if (isSkipped) {
-                            // Skipped Style: Light red/orange tint/border
-                            buttonStyle = "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800 hover:bg-orange-100"
+                            buttonStyle = "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20 hover:bg-orange-500/20"
                         }
 
                         return (
@@ -60,14 +119,14 @@ export function QuestionNavigator({
                                 key={qNum}
                                 onClick={() => onNavigate(qNum)}
                                 className={`
-                                    relative size-10 rounded-full text-sm font-bold transition-all duration-200
+                                    relative size-9 rounded-full text-[13px] font-bold transition-all duration-200
                                     flex items-center justify-center shrink-0
                                     ${buttonStyle}
                                 `}
                             >
                                 {qNum}
-                                {isAnswered && !isCurrent && (
-                                    <span className="absolute -top-0.5 -right-0.5 size-2.5 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900"></span>
+                                {(isAnswered || isCurrent) && (
+                                    <span className={`absolute -top-1 left-1/2 -translate-x-1/2 size-1.5 rounded-full ${isCurrent ? (isAnswered ? 'bg-success' : 'bg-primary') : 'bg-success'}`}></span>
                                 )}
                             </button>
                         )
@@ -75,19 +134,21 @@ export function QuestionNavigator({
                 </div>
             </div>
 
-            <div className="p-4 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 flex flex-col gap-2 font-medium">
-                <div className="grid grid-cols-2 gap-2">
+            <div className="p-4 bg-background/30 border-t border-border text-[11px] text-muted-foreground flex flex-col gap-2 font-medium">
+                <div className="grid grid-cols-2 gap-y-3 gap-x-2">
                     <div className="flex items-center gap-2">
-                        <span className="size-3 rounded-full bg-blue-600"></span> Current
+                        <span className="size-3 rounded-full bg-primary"></span> Current
                     </div>
                     <div className="flex items-center gap-2">
-                        <span className="size-3 rounded-full bg-emerald-100 border border-emerald-200"></span> Answered
+                        <span className="size-3 rounded-full bg-success/10 border border-success/20 flex items-center justify-center">
+                            <span className="size-1 rounded-full bg-success"></span>
+                        </span> Answered
                     </div>
                     <div className="flex items-center gap-2">
-                        <span className="size-3 rounded-full bg-orange-50 border border-orange-200"></span> Skipped
+                        <span className="size-3 rounded-full bg-orange-500/10 border border-orange-500/20"></span> Skipped
                     </div>
                     <div className="flex items-center gap-2">
-                        <span className="size-3 rounded-full bg-slate-50 border border-slate-200"></span> Not Visited
+                        <span className="size-3 rounded-full bg-background border border-border"></span> Not Visited
                     </div>
                 </div>
             </div>

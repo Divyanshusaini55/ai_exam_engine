@@ -18,7 +18,7 @@ interface CircularProgressProps {
             r={radius}
             stroke="currentColor"
             strokeWidth="4"
-            className="text-slate-200 dark:text-slate-700"
+            className="text-secondary"
           />
   
           {/* Progress Circle */}
@@ -32,7 +32,7 @@ interface CircularProgressProps {
             strokeDasharray={circumference}
             strokeDashoffset={offset}
             strokeLinecap="round"
-            className="text-green-600 dark:text-green-400 transition-all duration-1000"
+            className={`${percentage >= 40 ? 'text-success' : 'text-destructive'} transition-all duration-1000`}
           />
   
           {/* Percentage Text */}
@@ -40,7 +40,7 @@ interface CircularProgressProps {
             x="50"
             y="55"
             textAnchor="middle"
-            className="fill-slate-900 dark:fill-white font-bold text-2xl"
+            className="fill-primary font-bold text-2xl"
             fontSize="24"
             fontWeight="bold"
           >

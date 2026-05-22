@@ -11,7 +11,9 @@ def home(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('quiz.urls')),
-    path('', home), # <--- Add this line for the root URL
+    path('api/community/', include('community.urls')),
+    path('api/resource-hub/', include('resources.urls')),
+    path('', home),
 ]
 
 if settings.DEBUG:

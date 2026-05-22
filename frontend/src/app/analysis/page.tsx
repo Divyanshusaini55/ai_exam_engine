@@ -22,6 +22,15 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Navbar } from "@/components/navbar"
 import { apiClient } from "@/lib/apiClient"
+import { 
+    ClipboardList, 
+    BarChart3, 
+    CheckCircle2, 
+    Clock, 
+    Sparkles, 
+    Info, 
+    ArrowRight 
+} from "lucide-react"
 
 
 export default function AnalysisPage() {
@@ -51,7 +60,7 @@ export default function AnalysisPage() {
                     setHistoryData(data.history || [])
 
                     // Map subject performance to chart format with colors
-                    const colors = ['#4F46E5', '#F59E0B', '#0EA5E9', '#EF4444', '#10B981', '#8B5CF6']
+                    const colors = ['var(--primary)', 'var(--muted-foreground)', '#D6B97B', '#8A8A8A', '#5F5F5F']
                     const mappedSubjects = (data.subject_performance || []).map((subj: any, index: number) => ({
                         name: subj.name || 'Unknown',
                         score: subj.score,
@@ -84,34 +93,34 @@ export default function AnalysisPage() {
     // Only show loading stats spinner for authenticated users
     if (loadingStats) {
         return (
-            <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 flex items-center justify-center">
+            <div className="min-h-screen bg-background  flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="size-10 border-4 border-indigo-500/30 border-t-indigo-600 rounded-full animate-spin"></div>
-                    <p className="text-slate-400 font-medium animate-pulse">Gathering insights...</p>
+                    <div className="size-10 border-4 border-border border-t-primary rounded-full animate-spin"></div>
+                    <p className="text-muted-foreground font-medium animate-pulse">Gathering insights...</p>
                 </div>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 transition-colors duration-500 font-sans">
+        <div className="min-h-screen bg-background  transition-colors duration-500 font-sans">
             <Navbar />
             <div className="max-w-7xl mx-auto px-4 md:px-8 py-12">
 
                 {/* Header Section */}
                 <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-                    <div className="animate-fade-in-up">
-                        <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-2">
+                    <div className="animate-fade-in">
+                        <h1 className="text-3xl md:text-4xl font-extrabold text-primary tracking-tight mb-2">
                             Performance Analysis
                         </h1>
-                        <p className="text-slate-500 dark:text-slate-400 text-lg max-w-2xl leading-relaxed">
-                            Welcome back, <span className="text-indigo-600 font-semibold">{user?.username}</span>. Here’s a breakdown of your learning journey and growth.
+                        <p className="text-muted-foreground text-lg max-w-2xl leading-relaxed">
+                            Welcome back, <span className="text-primary font-semibold">{user?.username}</span>. Here’s a breakdown of your learning journey and growth.
                         </p>
                     </div>
 
                     <button
                         onClick={() => router.push('/')}
-                        className="animate-fade-in-up md:self-center px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 active:scale-95"
+                        className="animate-fade-in md:self-center px-6 py-3 bg-primary text-primary-foreground font-bold rounded-xl shadow-premium hover:-translate-y-0.5 transition-all duration-300 active:scale-95"
                         style={{ animationDelay: '0.1s' }}
                     >
                         Start New Test
@@ -126,33 +135,36 @@ export default function AnalysisPage() {
                         {/* Key Metrics Grid */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             {[
-                                { label: "Tests Taken", value: stats.total_tests, icon: "assignment", color: "blue", delay: 0.1 },
-                                { label: "Avg. Score", value: `${stats.average_score}%`, icon: "analytics", color: "indigo", delay: 0.2 },
-                                { label: "Tests Passed", value: stats.tests_passed, icon: "check_circle", color: "emerald", delay: 0.3 }, // Changed from Accuracy to Tests Passed
-                                { label: "Study Time", value: "12h", icon: "schedule", color: "amber", delay: 0.4 }, // Mock for now
-                            ].map((stat) => (
-                                <div
-                                    key={stat.label}
-                                    className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 group animate-fade-in-up"
-                                    style={{ animationDelay: `${stat.delay}s` }}
-                                >
-                                    <div className={`size-10 rounded-xl bg-${stat.color}-50 dark:bg-${stat.color}-900/20 text-${stat.color}-600 dark:text-${stat.color}-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                                        <span className="material-symbols-outlined">{stat.icon}</span>
+                                { label: "Tests Taken", value: stats.total_tests, icon: ClipboardList, delay: 0.1 },
+                                { label: "Avg. Score", value: `${stats.average_score}%`, icon: BarChart3, delay: 0.2 },
+                                { label: "Tests Passed", value: stats.tests_passed, icon: CheckCircle2, delay: 0.3 },
+                                { label: "Study Time", value: "12h", icon: Clock, delay: 0.4 },
+                            ].map((stat) => {
+                                const Icon = stat.icon
+                                return (
+                                    <div
+                                        key={stat.label}
+                                        className="bg-card p-6 rounded-2xl border border-border shadow-sm hover:shadow-md transition-all duration-300 group animate-fade-in"
+                                        style={{ animationDelay: `${stat.delay}s` }}
+                                    >
+                                        <div className="size-10 rounded-xl bg-secondary text-primary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                            <Icon className="size-5" />
+                                        </div>
+                                        <p className="text-muted-foreground text-xs font-bold uppercase tracking-wider mb-1">{stat.label}</p>
+                                        <p className="text-2xl font-bold text-primary">{stat.value}</p>
                                     </div>
-                                    <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">{stat.label}</p>
-                                    <p className="text-2xl font-bold text-slate-900 dark:text-white">{stat.value}</p>
-                                </div>
-                            ))}
+                                )
+                            })}
                         </div>
 
                         {/* Main Chart Card */}
-                        <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+                        <div className="bg-card p-8 rounded-3xl shadow-sm border border-border animate-fade-in" style={{ animationDelay: '0.5s' }}>
                             <div className="flex items-center justify-between mb-8">
                                 <div>
-                                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">Score History</h3>
-                                    <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Your performance over the last 7 tests.</p>
+                                    <h3 className="text-xl font-bold text-primary">Score History</h3>
+                                    <p className="text-muted-foreground text-sm mt-1">Your performance over the last 7 tests.</p>
                                 </div>
-                                <select className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                <select className="bg-background dark:bg-secondary border border-border text-primary text-sm font-medium rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/10">
                                     <option>Last 7 Tests</option>
                                     <option>Last 30 Days</option>
                                     <option>All Time</option>
@@ -164,8 +176,8 @@ export default function AnalysisPage() {
                                     <AreaChart data={historyData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
                                         <defs>
                                             <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                                                <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                                                <stop offset="5%" stopColor="#111111" stopOpacity={0.25} />
+                                                <stop offset="95%" stopColor="#111111" stopOpacity={0} />
                                             </linearGradient>
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -182,13 +194,13 @@ export default function AnalysisPage() {
                                             tick={{ fill: '#94a3b8', fontSize: 12 }}
                                         />
                                         <Tooltip
-                                            contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                            cursor={{ stroke: '#6366f1', strokeWidth: 2 }}
+                                            contentStyle={{ backgroundColor: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', color: 'var(--foreground)' }}
+                                            cursor={{ stroke: 'var(--primary)', strokeWidth: 2 }}
                                         />
                                         <Area
                                             type="monotone"
                                             dataKey="score"
-                                            stroke="#6366f1"
+                                            stroke="var(--primary)"
                                             strokeWidth={3}
                                             fillOpacity={1}
                                             fill="url(#colorScore)"
@@ -205,34 +217,33 @@ export default function AnalysisPage() {
                     <div className="space-y-8">
 
                         {/* AI Insight Card */}
-                        <div className="relative overflow-hidden rounded-3xl p-[1px] bg-gradient-to-br from-indigo-500/30 to-purple-500/30 shadow-xl shadow-indigo-500/10 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/95 to-purple-700/95 backdrop-blur-xl"></div>
+                        <div className="relative overflow-hidden rounded-premium shadow-premium animate-fade-in bg-primary" style={{ animationDelay: '0.6s' }}>
 
                             {/* Content Container */}
-                            <div className="relative h-full bg-gradient-to-br from-indigo-950/20 to-purple-900/20 rounded-[23px] p-8 flex flex-col items-start text-white">
+                            <div className="relative h-full rounded-premium p-8 flex flex-col items-start text-primary-foreground">
 
                                 {/* Ambient Background Glow */}
-                                <div className="absolute -top-24 -right-24 w-64 h-64 bg-purple-500/30 rounded-full blur-3xl pointer-events-none"></div>
-                                <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-500/30 rounded-full blur-3xl pointer-events-none"></div>
+                                <div className="absolute -top-24 -right-24 w-64 h-64 bg-secondary/20 rounded-full blur-3xl pointer-events-none"></div>
+                                <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-secondary/20 rounded-full blur-3xl pointer-events-none"></div>
 
                                 {/* Badge & Header */}
                                 <div className="flex items-center gap-3 mb-6">
-                                    <div className="p-2.5 bg-white/10 rounded-xl border border-white/20 backdrop-blur-md shadow-lg shadow-indigo-500/20">
-                                        <span className="material-symbols-outlined text-indigo-300">auto_awesome</span>
+                                    <div className="p-2.5 bg-primary-foreground/10 rounded-xl border border-primary-foreground/20">
+                                        <Sparkles className="size-5 text-primary-foreground" />
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-bold tracking-tight text-white">AI Learning Insight</h3>
-                                        <p className="text-xs text-indigo-200 font-medium tracking-wide uppercase">Personalized Recommendation</p>
+                                        <h3 className="text-lg font-bold tracking-tight text-primary-foreground">AI Learning Insight</h3>
+                                        <p className="text-xs text-primary-foreground/60 font-medium tracking-wide uppercase">Personalized Recommendation</p>
                                     </div>
                                 </div>
 
                                 {/* Insight Text */}
                                 <div className="mb-8 relative z-10">
-                                    <p className="text-xl md:text-2xl font-medium leading-relaxed text-indigo-50 mb-3">
-                                        Focus on <span className="text-white font-bold decoration-indigo-400/50 underline decoration-2 underline-offset-4">General Awareness</span> to boost your overall rank.
+                                    <p className="text-xl md:text-2xl font-medium leading-relaxed text-primary-foreground mb-3">
+                                        Focus on <span className="text-primary-foreground font-bold underline decoration-2 underline-offset-4 decoration-primary-foreground/40">General Awareness</span> to boost your overall rank.
                                     </p>
-                                    <p className="flex items-start gap-2 text-sm text-indigo-200/80 leading-relaxed font-light">
-                                        <span className="material-symbols-outlined text-sm mt-0.5 shrink-0">info</span>
+                                    <p className="flex items-start gap-2 text-sm text-primary-foreground/60 leading-relaxed font-medium">
+                                        <Info className="size-4 mt-0.5 shrink-0" />
                                         Your accuracy in GA (45%) is significantly lower than your average accuracy (78%), impacting your total percentile.
                                     </p>
                                 </div>
@@ -245,7 +256,7 @@ export default function AnalysisPage() {
                                             if (btn) {
                                                 const originalText = btn.innerText;
                                                 btn.innerHTML = `
-                                                    <span class="inline-block w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mr-2"></span>
+                                                    <span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin mr-2"></span>
                                                     Preparing personalized practice...
                                                 `;
                                                 btn.classList.add('cursor-not-allowed', 'opacity-90');
@@ -256,16 +267,16 @@ export default function AnalysisPage() {
                                             }
                                         }}
                                         id="practice-ga-btn"
-                                        className="relative group w-full py-3.5 px-6 bg-white text-indigo-700 font-bold rounded-xl shadow-[0_0_20px_-5px_theme('colors.indigo.500')] hover:shadow-[0_0_25px_-5px_theme('colors.indigo.400')] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 flex items-center justify-center overflow-hidden"
+                                        className="relative group w-full py-3.5 px-6 bg-card text-primary font-bold rounded-xl shadow-premium hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 flex items-center justify-center overflow-hidden"
                                     >
                                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer"></div>
                                         <span className="relative z-10">Practice General Awareness</span>
                                     </button>
 
                                     <div className="text-center">
-                                        <button className="text-xs md:text-sm font-medium text-indigo-200 hover:text-white transition-colors flex items-center justify-center gap-1 mx-auto hover:gap-2 duration-300 group">
+                                        <button className="text-xs md:text-sm font-medium text-primary-foreground/60 hover:text-primary-foreground transition-colors flex items-center justify-center gap-1 mx-auto hover:gap-2 duration-300 group">
                                             View weak General Awareness topics
-                                            <span className="material-symbols-outlined text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+                                            <ArrowRight className="size-4 group-hover:translate-x-0.5 transition-transform" />
                                         </button>
                                     </div>
                                 </div>
@@ -273,8 +284,8 @@ export default function AnalysisPage() {
                         </div>
 
                         {/* Subject Performance */}
-                        <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">Subject Proficiency</h3>
+                        <div className="bg-card p-8 rounded-3xl shadow-sm border border-border animate-fade-in" style={{ animationDelay: '0.7s' }}>
+                            <h3 className="text-xl font-bold text-primary mb-6">Subject Proficiency</h3>
                             <div className="h-[250px] w-full">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart data={subjectData} layout="vertical" margin={{ top: 0, right: 30, left: 0, bottom: 0 }}>
@@ -302,11 +313,11 @@ export default function AnalysisPage() {
                         </div>
 
                         {/* Empty State / CTA (Supportive) */}
-                        <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 text-center animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
-                            <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">
+                        <div className="p-6 bg-secondary/30 rounded-2xl border border-dashed border-border text-center animate-fade-in" style={{ animationDelay: '0.8s' }}>
+                            <p className="text-muted-foreground text-sm mb-4">
                                 "Success is the sum of small efforts, repeated day in and day out."
                             </p>
-                            <button className="text-indigo-600 font-bold text-sm hover:underline">
+                            <button className="text-primary font-bold text-sm hover:underline">
                                 Read Study Tips →
                             </button>
                         </div>

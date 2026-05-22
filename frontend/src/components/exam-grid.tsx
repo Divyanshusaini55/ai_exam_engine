@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react"
 import { ExamCard } from "@/components/exam-card"
 import { examApi } from "@/lib/api"
+import { Search, SearchX } from "lucide-react"
 
 // Interface matching your Django Serializer
 interface Exam {
@@ -11,7 +12,10 @@ interface Exam {
   description: string
   duration_minutes: number
   total_questions: number
-  category: string
+  /** Legacy / optional — API exposes category_slug */
+  category?: string
+  category_slug?: string
+  category_name?: string
 }
 
 export function ExamGrid() {
@@ -41,16 +45,20 @@ export function ExamGrid() {
       const matchesSearch = exam.title.toLowerCase().includes(searchQuery.toLowerCase())
       
       // Map Django categories to Filter IDs
-      const matchesFilter = 
-        activeFilter === "all" || 
-        exam.category === activeFilter
+      const catSlug = (exam.category_slug || exam.category || "").toLowerCase()
+      const matchesFilter =
+        activeFilter === "all" || catSlug === activeFilter
       
       return matchesSearch && matchesFilter
     })
   }, [searchQuery, activeFilter, exams])
 
   if (loading) {
-    return <div className="py-20 text-center text-slate-500">Loading exams...</div>
+    return (
+        <div className="py-20 text-center text-muted-foreground font-medium animate-pulse">
+            Loading exams...
+        </div>
+    )
   }
 
   return (
@@ -59,20 +67,18 @@ export function ExamGrid() {
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 animate-fade-in">
         {/* Search Input */}
         <div className="relative w-full md:w-96 group">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined">
-            search
-          </span>
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
           <input
             type="text"
             placeholder="Search for exams..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all shadow-sm"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-card text-sm focus:ring-2 focus:ring-primary/10 focus:border-primary/30 outline-none transition-all shadow-sm font-medium"
           />
         </div>
 
         {/* Filter Buttons */}
-        <div className="flex gap-3 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+        <div className="flex gap-3 w-full md:w-auto overflow-x-auto pb-1 md:pb-0 px-1">
           {[
             { label: "All", value: "all" },
             { label: "SSC", value: "ssc" },
@@ -83,10 +89,10 @@ export function ExamGrid() {
             <button
               key={filter.value}
               onClick={() => setActiveFilter(filter.value)}
-              className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 shadow-sm ${
+              className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-sm border ${
                 activeFilter === filter.value
-                  ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900"
-                  : "bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50"
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-card border-border text-muted-foreground hover:bg-secondary hover:text-primary"
               }`}
             >
               {filter.label}
@@ -106,17 +112,17 @@ export function ExamGrid() {
               description={exam.description}
               duration={exam.duration_minutes}
               questions={exam.total_questions}
-              category={exam.category}
+              category={exam.category_slug || exam.category || exam.category_name || ""}
             />
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-12 animate-fade-in">
-          <div className="size-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
-            <span className="material-symbols-outlined text-2xl text-slate-400">search_off</span>
+        <div className="flex flex-col items-center justify-center py-20 animate-fade-in bg-card rounded-3xl border border-dashed border-border shadow-sm">
+          <div className="size-16 rounded-2xl bg-secondary flex items-center justify-center mb-4">
+            <SearchX className="size-8 text-muted-foreground/60" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No exams found</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Try adjusting your search or filters</p>
+          <h3 className="text-xl font-bold text-primary mb-2">No exams found</h3>
+          <p className="text-sm text-muted-foreground font-medium">Try adjusting your search or filters</p>
         </div>
       )}
     </div>

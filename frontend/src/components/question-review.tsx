@@ -5,6 +5,7 @@ import { examApi } from "@/lib/api"
 import ReactMarkdown from 'react-markdown'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
+import { Sparkles } from "lucide-react"
 
 interface QuestionReviewProps {
   number: number
@@ -39,7 +40,6 @@ export function QuestionReview({
       setIsVisible(true)
       return
     }
-
     setLoading(true)
     try {
       const res = await examApi.explainQuestion(questionId)
@@ -52,37 +52,36 @@ export function QuestionReview({
     }
   }
 
-  // Define Badge Styles
+  // Status badge — uses semantic tokens, works in both themes
   const badgeStyle = isCorrect
-    ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800"
+    ? "bg-success/10 text-success border-success/30"
     : isSkipped
-      ? "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"
-      : "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800"
+      ? "bg-secondary text-muted-foreground border-border"
+      : "bg-destructive/10 text-destructive border-destructive/30"
 
   const statusText = isCorrect ? "CORRECT" : isSkipped ? "SKIPPED" : "INCORRECT"
 
   return (
-    <div className="glass-panel rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm transition-all duration-300">
+    <div id={`question-${questionId}`} className="card-premium rounded-xl overflow-hidden scroll-mt-24">
       <div className="p-6 flex flex-col gap-6">
 
-        {/* ROW 1: Header (Subject + Status) */}
+        {/* ROW 1: Header (Subject tag + Status badge) */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             {subject && (
-              <span className="px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300 text-[10px] font-bold uppercase tracking-wider border border-blue-100 dark:border-blue-800">
+              <span className="px-2.5 py-1 rounded-md bg-secondary text-primary text-[10px] font-bold uppercase tracking-wider border border-border">
                 {subject}
               </span>
             )}
-            <span className="text-sm font-bold text-slate-400">Question {number}</span>
+            <span className="text-sm font-bold text-muted-foreground">Question {number}</span>
           </div>
-
           <span className={`px-3 py-1 rounded-full text-xs font-bold border ${badgeStyle}`}>
             {statusText}
           </span>
         </div>
 
         {/* ROW 2: Question Text */}
-        <div className="text-base md:text-lg font-medium text-slate-900 dark:text-white leading-relaxed">
+        <div className="text-base md:text-lg font-medium text-primary leading-relaxed">
           <ReactMarkdown
             remarkPlugins={[remarkMath]}
             rehypePlugins={[rehypeKatex]}
@@ -97,62 +96,71 @@ export function QuestionReview({
         {/* ROW 3: Answers Comparison */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* User Answer */}
-          <div className={`flex flex-col gap-1 p-3 rounded-lg border-l-4 ${isCorrect ? "bg-green-50 border-green-500 dark:bg-green-900/10" :
-              isSkipped ? "bg-slate-50 border-slate-400 dark:bg-slate-900/50" :
-                "bg-red-50 border-red-500 dark:bg-red-900/10"
+          <div className={`flex flex-col gap-1 p-4 rounded-xl border-l-4 ${
+            isCorrect
+              ? "bg-success/5 border-success"
+              : isSkipped
+                ? "bg-secondary/50 border-muted-foreground/30"
+                : "bg-destructive/5 border-destructive"
+          }`}>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
+              Your Answer
+            </span>
+            <span className={`text-sm font-semibold ${
+              isCorrect
+                ? "text-success"
+                : isSkipped
+                  ? "text-muted-foreground italic"
+                  : "text-destructive"
             }`}>
-            <span className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">Your Answer</span>
-            <span className={`text-sm font-medium ${isCorrect ? "text-green-700 dark:text-green-400" :
-                isSkipped ? "text-slate-500 dark:text-slate-500 italic" :
-                  "text-red-700 dark:text-red-400"
-              }`}>
               {userAnswer.value}
             </span>
           </div>
 
-          {/* Correct Answer */}
-          <div className="flex flex-col gap-1 p-3 rounded-lg border-l-4 bg-emerald-50 border-emerald-500 dark:bg-emerald-900/10">
-            <span className="text-xs font-bold uppercase text-emerald-600 dark:text-emerald-500 mb-1">Correct Answer</span>
-            <span className="text-sm font-medium text-emerald-800 dark:text-emerald-400">
+          {/* Correct Answer — always on-brand success green */}
+          <div className="flex flex-col gap-1 p-4 rounded-xl border-l-4 bg-success/5 border-success">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-success mb-1">
+              Correct Answer
+            </span>
+            <span className="text-sm font-semibold text-success">
               {correctAnswer?.value || "—"}
             </span>
           </div>
         </div>
 
         {/* ROW 4: AI Explanation */}
-        <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+        <div className="pt-4 border-t border-border">
           {!isVisible ? (
             <button
               onClick={handleExplainClick}
               disabled={loading}
-              className="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400 rounded-lg text-sm font-bold hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors disabled:opacity-50"
+              className="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2.5 bg-secondary text-primary rounded-xl text-sm font-bold hover:bg-secondary/70 transition-colors disabled:opacity-50 border border-border"
             >
               {loading ? (
                 <>
-                  <span className="size-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+                  <span className="size-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                   Generating Explanation...
                 </>
               ) : (
                 <>
-                  <span className="material-symbols-outlined text-sm">auto_awesome</span>
+                  <Sparkles className="size-4" />
                   {explanation ? "Show AI Explanation" : "AI Explain This Question"}
                 </>
               )}
             </button>
           ) : (
-            <div className="animate-fade-in bg-indigo-50/50 dark:bg-indigo-900/10 p-5 rounded-xl border border-indigo-100 dark:border-indigo-800/50">
+            <div className="animate-fade-in bg-secondary/40 p-5 rounded-xl border border-border">
               <div className="flex items-center gap-2 mb-3 px-1">
-                <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400 text-xl">auto_awesome</span>
-                <span className="text-sm font-bold text-indigo-700 dark:text-indigo-300">AI Explanation</span>
+                <Sparkles className="size-5 text-primary" />
+                <span className="text-sm font-bold text-primary">AI Explanation</span>
                 <button
                   onClick={() => setIsVisible(false)}
-                  className="ml-auto text-xs text-slate-400 hover:text-slate-600 hover:underline"
+                  className="ml-auto text-xs text-muted-foreground hover:text-primary hover:underline"
                 >
                   Hide
                 </button>
               </div>
-
-              <div className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed prose prose-indigo dark:prose-invert max-w-none">
+              <div className="text-sm text-primary leading-relaxed prose prose-neutral dark:prose-invert max-w-none">
                 <ReactMarkdown
                   remarkPlugins={[remarkMath]}
                   rehypePlugins={[rehypeKatex]}

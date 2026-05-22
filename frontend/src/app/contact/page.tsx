@@ -2,10 +2,9 @@
 
 import React, { useState } from "react"
 import { apiClient } from "@/lib/apiClient"
-
-
 import Link from "next/link"
 import { AuthInput } from "@/components/AuthInput"
+import { ArrowLeft, Headphones, Check, Send, Loader2 } from "lucide-react"
 
 export default function ContactPage() {
     const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle")
@@ -23,7 +22,6 @@ export default function ContactPage() {
 
         try {
             const res = await apiClient.post('/contact/submit/', data)
-
             const responseData = await res.json()
 
             if (responseData.success === true) {
@@ -40,50 +38,55 @@ export default function ContactPage() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950 px-4 relative py-12 md:py-0">
+        <div className="min-h-screen flex items-center justify-center bg-background px-4 relative py-16 overflow-hidden">
+            {/* Ambient Blurs */}
+            <div className="absolute top-[-10%] left-[-10%] size-[500px] rounded-full bg-secondary/80 blur-[150px] pointer-events-none" />
+            <div className="absolute bottom-[-10%] right-[-5%] size-[400px] rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
+
             {/* Back to Home Button */}
-            <div className="absolute top-6 left-6 md:top-8 md:left-8">
-                <Link
+            <div className="absolute top-8 left-8 z-10">
+                <Link prefetch={false}
                     href="/"
-                    className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm font-medium"
+                    className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-300 text-sm font-bold group"
                 >
-                    <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+                    <ArrowLeft className="size-4.5 transition-transform duration-300 group-hover:-translate-x-1" />
                     Back to Home
                 </Link>
             </div>
 
-            <div className="max-w-[480px] w-full">
-                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none p-8 md:p-10 border border-slate-100 dark:border-slate-800/50">
+            <div className="max-w-[520px] w-full relative z-10">
+                {/* Card */}
+                <div className="card-premium p-10 md:p-12 shadow-2xl">
 
                     {/* Header */}
-                    <div className="text-center mb-8">
-                        <div className="inline-flex items-center justify-center size-12 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 mb-4 ring-4 ring-blue-50 dark:ring-blue-900/10">
-                            <span className="material-symbols-outlined text-2xl">support_agent</span>
+                    <div className="text-center mb-10">
+                        <div className="inline-flex items-center justify-center size-14 rounded-[16px] bg-secondary text-primary mb-6 shadow-sm">
+                            <Headphones className="size-7" />
                         </div>
-                        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
+                        <h1 className="text-[34px] font-bold font-heading text-primary mb-2 tracking-tight">
                             Contact Support
-                        </h2>
-                        <p className="text-slate-500 dark:text-slate-400">
+                        </h1>
+                        <p className="text-muted-foreground font-medium text-[16px]">
                             We'd love to hear from you. Send us a message below.
                         </p>
                     </div>
 
                     {status === "success" ? (
-                        <div className="bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800 rounded-xl p-8 text-center animate-fade-in">
-                            <div className="inline-flex items-center justify-center size-16 bg-green-100 dark:bg-green-900/30 rounded-full mb-4">
-                                <span className="material-symbols-outlined text-green-600 dark:text-green-400 text-3xl">check</span>
+                        <div className="bg-secondary/50 border border-border rounded-premium p-10 text-center animate-fade-in">
+                            <div className="inline-flex items-center justify-center size-16 bg-success/10 rounded-[18px] mb-5">
+                                <Check className="size-8 text-success" />
                             </div>
-                            <h2 className="text-xl font-bold text-green-800 dark:text-green-300 mb-2">Message Sent!</h2>
-                            <p className="text-green-700 dark:text-green-400 text-sm mb-6">Thank you for contacting us. We will get back to you shortly.</p>
+                            <h2 className="text-[22px] font-bold font-heading text-primary mb-2">Message Sent!</h2>
+                            <p className="text-muted-foreground font-medium mb-8">Thank you for contacting us. We'll get back to you shortly.</p>
                             <button
                                 onClick={() => setStatus("idle")}
-                                className="px-6 py-2 bg-white dark:bg-slate-800 text-green-700 dark:text-green-400 font-semibold rounded-lg border border-green-200 dark:border-green-800 shadow-sm hover:shadow-md transition-all text-sm"
+                                className="px-6 py-3 bg-card text-primary font-bold rounded-xl border border-border shadow-sm hover:-translate-y-0.5 hover:shadow-premium transition-all duration-300 text-sm"
                             >
                                 Send another message
                             </button>
                         </div>
                     ) : (
-                        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                             <AuthInput
                                 label="Full Name"
                                 name="name"
@@ -100,14 +103,14 @@ export default function ContactPage() {
                             />
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">
+                                <label className="block text-sm font-bold text-primary mb-2 uppercase tracking-widest text-[11px]">
                                     Message
                                 </label>
                                 <textarea
                                     name="message"
                                     required
                                     rows={5}
-                                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-sm resize-none"
+                                    className="w-full px-4 py-3.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary/10 focus:border-primary/30 outline-none transition-all duration-300 placeholder:text-muted-foreground/60 text-primary font-medium shadow-sm resize-none"
                                     placeholder="How can we help you today?"
                                 />
                             </div>
@@ -115,17 +118,17 @@ export default function ContactPage() {
                             <button
                                 type="submit"
                                 disabled={status === "submitting"}
-                                className="w-full py-3.5 mt-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-blue-500/25 disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2 group"
+                                className="w-full py-4 mt-2 bg-primary text-primary-foreground font-bold rounded-xl shadow-premium hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(0,0,0,0.15)] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex justify-center items-center gap-2 group"
                             >
                                 {status === "submitting" ? (
                                     <>
-                                        <span className="size-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        <Loader2 className="size-5 animate-spin" />
                                         Sending...
                                     </>
                                 ) : (
                                     <>
                                         Send Message
-                                        <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">send</span>
+                                        <Send className="size-4.5 transition-transform duration-300 group-hover:translate-x-1" />
                                     </>
                                 )}
                             </button>

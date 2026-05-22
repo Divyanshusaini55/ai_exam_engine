@@ -14,14 +14,15 @@ export default function ShiftPage() {
   const shiftId = params.shiftId as string
   const [loading, setLoading] = useState(true)
 
-  // Check if this is a retake attempt
+  // Check if this is a retake attempt or learning mode review
   const isRetake = searchParams.get('retake') === 'true'
+  const isLearningMode = searchParams.get('mode') === 'learning'
 
-  // 🛡️ Route Guard: Prevent access to completed exams (unless retaking)
+  // 🛡️ Route Guard: Prevent access to completed exams (unless retaking or reviewing in learning mode)
   useEffect(() => {
     async function checkExamStatus() {
-      // Skip guard if this is a retake
-      if (isRetake) {
+      // Skip guard if this is a retake or learning mode view
+      if (isRetake || isLearningMode) {
         setLoading(false)
         return
       }
@@ -56,7 +57,7 @@ export default function ShiftPage() {
 
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center font-bold text-xl text-slate-500">
+      <div className="h-screen flex items-center justify-center font-bold text-xl text-muted-foreground">
         Verifying exam status...
       </div>
     )

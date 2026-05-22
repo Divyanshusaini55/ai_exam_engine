@@ -1,148 +1,209 @@
-"use client"
-import { useNoIndex } from "@/hooks/useNoIndex"
+"use client";
 
-import { useState, Suspense } from "react"
-import { useAuth } from "@/context/auth-context"
-import { apiClient } from "@/lib/apiClient"
-import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
-import { AuthInput } from "@/components/AuthInput"
+import { useNoIndex } from "@/hooks/useNoIndex";
+import { FormEvent, useState, Suspense } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/context/auth-context";
+import { apiClient } from "@/lib/apiClient";
+import { ArrowLeft, Loader2 } from "lucide-react";
 
+export function AuthForm({ defaultMode = "login" }: { defaultMode?: "login" | "register" }) {
+  useNoIndex();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirectTo") || "/dashboard";
+  const { login } = useAuth();
 
-function LoginForm() {
-    useNoIndex() // Prevent search engine indexing
-    const [username, setUsername] = useState("")
-    const [password, setPassword] = useState("")
-    const [error, setError] = useState("")
-    const { login } = useAuth()
-    const [loading, setLoading] = useState(false)
-    const router = useRouter()
-    const searchParams = useSearchParams()
-    const redirectTo = searchParams.get("redirectTo") || "/dashboard"
-    const fromAuthGuard = searchParams.get("from") === "auth-guard"
+  const [mode, setMode] = useState<"login" | "register">(defaultMode);
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setError("")
-        setLoading(true)
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
 
-        try {
-            const res = await apiClient.post('/auth/login/', {
-                username,
-                password
-            })
-
-            const data = await res.json()
-
-            if (res.ok) {
-                login(data.token, {
-                    id: data.user_id,
-                    username: data.username,
-                    email: data.email,
-                    date_joined: new Date().toISOString()
-                })
-                // Execute proper redirect using replacement to fix back button behavior
-                router.replace(redirectTo)
-            } else {
-                setError(data.non_field_errors?.[0] || "Invalid credentials")
-            }
-        } catch (err) {
-            setError("Something went wrong. Please try again.")
-        } finally {
-            setLoading(false)
+    try {
+      if (mode === "login") {
+        const res = await apiClient.post('/auth/login/', { username, password });
+        const data = await res.json();
+        
+        if (res.ok) {
+            login(data.token, {
+                id: data.user_id,
+                username: data.username,
+                email: data.email,
+                date_joined: new Date().toISOString()
+            });
+            router.replace(redirectTo);
+        } else {
+            setError(data.non_field_errors?.[0] || "Invalid credentials");
         }
+      } else {
+        const res = await apiClient.post('/auth/register/', { username, email, password });
+        const data = await res.json();
+        
+        if (res.ok) {
+            login(data.token, data.user);
+            setSuccess("Account created successfully! Redirecting...");
+            setTimeout(() => {
+                router.replace("/dashboard");
+            }, 1000);
+        } else {
+            let msg = "Registration failed";
+            if (typeof data === "object") {
+                const messages = Object.values(data).flat();
+                if (messages.length > 0) msg = String(messages[0]);
+            }
+            setError(msg);
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to authenticate");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950 px-4 py-12 md:py-20 relative">
-            <div className="absolute top-6 left-6 md:top-8 md:left-8">
-                <Link
-                    href="/"
-                    className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm font-medium"
-                >
-                    <span className="material-symbols-outlined text-[20px]">arrow_back</span>
-                    Back to Home
-                </Link>
-            </div>
+  return (
+    <main className="flex min-h-screen items-center justify-center overflow-x-hidden bg-background px-6 py-10 text-primary">
+      <div className="w-full max-w-md animate-fade-in">
+        {/* TOP */}
+        <div className="mb-10 text-center">
+          <Link
+            href="/"
+            className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground transition-colors hover:text-primary flex items-center justify-center gap-2"
+          >
+            <ArrowLeft className="size-3" /> Back to Home
+          </Link>
 
-            <div className="max-w-[420px] w-full">
-                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none p-8 md:p-10 border border-slate-100 dark:border-slate-800/50">
-                    <div className="text-center mb-8">
-                        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
-                            Welcome Back
-                        </h2>
-                        <p className="text-slate-500 dark:text-slate-400">
-                            Sign in to access your AI study tools.
-                        </p>
-                    </div>
+          <h1 className="mt-6 text-4xl font-bold font-heading tracking-tight text-primary">
+            {mode === "login" ? "Welcome back" : "Create account"}
+          </h1>
 
-                    {fromAuthGuard && (
-                        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-xl text-sm flex items-center gap-2 border border-blue-100 dark:border-blue-900/30">
-                            <span className="material-symbols-outlined text-lg">info</span>
-                            Please login to access this page
-                        </div>
-                    )}
-
-                    {error && (
-                        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-sm flex items-center gap-2 border border-red-100 dark:border-red-900/30">
-                            <span className="material-symbols-outlined text-lg">error</span>
-                            {error}
-                        </div>
-                    )}
-
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-                        <AuthInput
-                            label="Username"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            placeholder="Enter your username"
-                            required
-                        />
-
-                        <AuthInput
-                            label="Password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="••••••••"
-                            required
-                        />
-
-                        <div className="flex justify-end">
-                            <Link href="/forgot-password" className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:hover:text-blue-400 transition-colors">
-                                Forgot Password?
-                            </Link>
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-indigo-500/25 disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
-                        >
-                            {loading ? (
-                                <span className="size-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            ) : (
-                                "Sign In"
-                            )}
-                        </button>
-                    </form>
-
-                    <p className="mt-8 text-center text-sm text-slate-600 dark:text-slate-400">
-                        Don't have an account?{" "}
-                        <Link href="/signup" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
-                            Sign up now
-                        </Link>
-                    </p>
-                </div>
-            </div>
+          <p className="mt-4 text-sm leading-7 text-muted-foreground font-medium">
+            Secure access to your AI-powered exam engine infrastructure.
+          </p>
         </div>
-    )
+
+        {/* CARD */}
+        <div className="rounded-premium border border-border bg-card p-8 shadow-premium backdrop-blur-2xl">
+          <form onSubmit={submit} className="space-y-6">
+            {/* USERNAME */}
+            <div>
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2">Username</label>
+              <input
+                autoComplete="username"
+                id="login-username-input"
+                type="text"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full rounded-xl border border-border bg-secondary px-4 py-3.5 text-primary outline-none transition-all placeholder:text-muted-foreground/60 focus:border-primary/30 focus:ring-2 focus:ring-primary/5 font-medium"
+                placeholder="johndoe"
+              />
+            </div>
+
+            {/* EMAIL (Only for Register) */}
+            {mode === "register" && (
+              <div>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2">Email</label>
+                <input
+                  autoComplete="email"
+                  id="login-email-input"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-secondary px-4 py-3.5 text-primary outline-none transition-all placeholder:text-muted-foreground/60 focus:border-primary/30 focus:ring-2 focus:ring-primary/5 font-medium"
+                  placeholder="you@example.com"
+                />
+              </div>
+            )}
+
+            {/* PASSWORD */}
+            <div>
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2">Password</label>
+              <input
+                autoComplete={mode === "login" ? "current-password" : "new-password"}
+                id="login-password-input"
+                type="password"
+                minLength={8}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full rounded-xl border border-border bg-secondary px-4 py-3.5 text-primary outline-none transition-all placeholder:text-muted-foreground/60 focus:border-primary/30 focus:ring-2 focus:ring-primary/5 font-medium"
+                placeholder="••••••••"
+              />
+            </div>
+
+            {/* MESSAGES */}
+            {error && (
+              <div className="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive font-semibold">
+                {error}
+              </div>
+            )}
+            {success && (
+              <div className="rounded-xl border border-success/20 bg-success/10 px-4 py-3 text-sm text-success font-semibold">
+                {success}
+              </div>
+            )}
+
+            {/* SUBMIT */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-xl bg-primary py-3.5 text-sm font-bold text-primary-foreground transition-all duration-300 hover:scale-[1.01] hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 shadow-lg shadow-primary/10 flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  Please wait...
+                </>
+              ) : (
+                mode === "login" ? "Sign In" : "Create Account"
+              )}
+            </button>
+
+            {/* TOGGLE */}
+            <button
+              type="button"
+              onClick={() => {
+                setMode(mode === "login" ? "register" : "login");
+                setError(null);
+                setSuccess(null);
+              }}
+              className="w-full text-sm text-muted-foreground transition-colors hover:text-primary font-semibold"
+            >
+              {mode === "login" ? "Need an account? Register" : "Already registered? Sign in"}
+            </button>
+          </form>
+
+          {/* FOOTER */}
+          <div className="mt-8 border-t border-border pt-6 text-center flex justify-between items-center px-1">
+            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">AI Exam Engine API</p>
+            {mode === "login" && (
+                <Link prefetch={false} href="/forgot-password" className="text-xs text-muted-foreground hover:text-primary transition-colors underline decoration-dotted underline-offset-4 font-semibold">
+                    Forgot password?
+                </Link>
+            )}
+          </div>
+        </div>
+      </div>
+    </main>
+  );
 }
 
 export default function LoginPage() {
-    return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <LoginForm />
-        </Suspense>
-    )
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center text-primary font-bold">Loading...</div>}>
+      <AuthForm defaultMode="login" />
+    </Suspense>
+  );
 }

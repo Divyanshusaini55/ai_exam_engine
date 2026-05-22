@@ -3,165 +3,223 @@
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
+import { Navbar } from "@/components/navbar"
+import { ArrowRight, ArrowLeft } from "lucide-react"
+import { CategoryHomeIcon } from "@/components/category-home-icon"
 
 interface SubCategory {
-    id: number
-    slug: string
-    name: string
-    description: string
-    icon: string
-    order: number
-    is_active: boolean
-    category_name: string
-    category_slug: string
-    exam_count: number
+  id: number
+  slug: string
+  name: string
+  description: string
+  icon: string
+  order: number
+  is_active: boolean
+  category_name: string
+  category_slug: string
+  exam_count: number
 }
 
 interface Category {
-    id: number
-    slug: string
-    name: string
-    description: string
-    icon: string
-    icon_color: string
-    bg_color: string
+  id: number
+  slug: string
+  name: string
+  description: string
+  icon: string
+  icon_color: string
+  bg_color: string
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000/api"
 
 export default function CategoryPage() {
-    const params = useParams()
-    const router = useRouter()
-    const categorySlug = params.categorySlug as string
+  const params = useParams()
+  const router = useRouter()
+  const categorySlug = params.categorySlug as string
 
-    const [subcategories, setSubcategories] = useState<SubCategory[]>([])
-    const [category, setCategory] = useState<Category | null>(null)
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
+  const [subcategories, setSubcategories] = useState<SubCategory[]>([])
+  const [category, setCategory] = useState<Category | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-    useEffect(() => {
-        // Fetch category details
-        fetch(`${API_BASE_URL}/categories/${categorySlug}/`)
-            .then(res => {
-                if (!res.ok) throw new Error('Category not found')
-                return res.json()
-            })
-            .then(data => setCategory(data))
-            .catch(err => console.error('Category fetch error:', err))
+  const categoryLabel = category?.name || categorySlug
 
-        // Fetch subcategories for this category
-        fetch(`${API_BASE_URL}/subcategories/?category=${categorySlug}`)
-            .then(res => {
-                if (!res.ok) throw new Error('Failed to fetch subcategories')
-                return res.json()
-            })
-            .then(data => {
-                const subcategoriesList = data.results || data
-                setSubcategories(subcategoriesList)
-                setLoading(false)
-            })
-            .catch(err => {
-                setError(err.message)
-                setLoading(false)
-            })
-    }, [categorySlug])
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/categories/${categorySlug}/`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Category not found")
+        return res.json()
+      })
+      .then((data) => setCategory(data))
+      .catch((err) => console.error("Category fetch error:", err))
 
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <p className="text-center text-slate-500">Loading subcategories...</p>
-                </div>
-            </div>
-        )
-    }
+    fetch(`${API_BASE_URL}/subcategories/?category=${categorySlug}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch subcategories")
+        return res.json()
+      })
+      .then((data) => {
+        const subcategoriesList = data.results || data
+        setSubcategories(subcategoriesList)
+        setLoading(false)
+      })
+      .catch((err) => {
+        setError(err.message)
+        setLoading(false)
+      })
+  }, [categorySlug])
 
-    if (error) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <div className="text-center">
-                        <p className="text-red-500 mb-4">Error: {error}</p>
-                        <Link href="/" className="text-blue-600 hover:underline">← Back to Home</Link>
-                    </div>
-                </div>
-            </div>
-        )
-    }
-
+  if (loading) {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                {/* Breadcrumb */}
-                <div className="mb-8">
-                    <Link href="/" className="text-blue-600 hover:underline text-sm">← Back to Categories</Link>
-                </div>
-
-                {/* Category Header */}
-                <div className="mb-12">
-                    <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
-                        {category?.name || categorySlug.toUpperCase()}
-                    </h1>
-                    {category?.description && (
-                        <p className="text-lg text-slate-600 dark:text-slate-300">{category.description}</p>
-                    )}
-                </div>
-
-                {/* Subcategories Grid */}
-                {subcategories.length === 0 ? (
-                    <div className="text-center py-12">
-                        <p className="text-slate-500 text-lg mb-4">No subcategories available yet.</p>
-                        <Link href="/" className="text-blue-600 hover:underline">← Back to Home</Link>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {subcategories.map((subcategory, idx) => (
-                            <div
-                                key={subcategory.id}
-                                className="opacity-0 translate-y-8 transition-all duration-500 ease-out animate-in"
-                                style={{ animationDelay: `${idx * 100}ms` }}
-                            >
-                                <div
-                                    onClick={() => router.push(`/category/${categorySlug}/${subcategory.slug}`)}
-                                    className="group relative w-full bg-white dark:bg-slate-800 rounded-2xl p-6 border border-gray-100 dark:border-slate-700 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 overflow-hidden cursor-pointer"
-                                >
-                                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 group-hover:from-blue-500/5 via-transparent to-blue-500/0 group-hover:to-blue-500/5 transition-all duration-500" />
-
-                                    <div className="relative flex flex-col gap-6 h-full">
-                                        <div className="flex justify-between items-start gap-4">
-                                            <div className="size-16 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center transition-all duration-300 group-hover:shadow-lg group-hover:scale-110 flex-shrink-0">
-                                                <span className="material-symbols-outlined text-[36px] text-blue-600">{subcategory.icon}</span>
-                                            </div>
-                                            <span className="px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 text-xs font-bold tracking-wide whitespace-nowrap">
-                                                {subcategory.exam_count} {subcategory.exam_count === 1 ? 'EXAM' : 'EXAMS'}
-                                            </span>
-                                        </div>
-
-                                        <div className="flex-grow space-y-2">
-                                            <h3 className="text-2xl font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors leading-tight">
-                                                {subcategory.name}
-                                            </h3>
-                                            {subcategory.description && (
-                                                <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">{subcategory.description}</p>
-                                            )}
-                                        </div>
-
-                                        {/* CTA Button */}
-                                        <div className="pt-4 border-t border-dashed border-gray-200 dark:border-slate-700">
-                                            <div className="flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/20 group-hover:from-primary/10 group-hover:to-primary/20 transition-all duration-300">
-                                                <span className="text-sm font-semibold text-primary">View Exams</span>
-                                                <span className="material-symbols-outlined text-[20px] text-primary transition-transform duration-300 group-hover:translate-x-2">
-                                                    arrow_forward
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <p className="text-center font-medium text-muted-foreground">Loading subcategories...</p>
         </div>
+      </div>
     )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <p className="mb-4 font-bold text-destructive">Error: {error}</p>
+            <Link
+              prefetch={false}
+              href="/"
+              className="flex items-center justify-center gap-2 font-bold text-primary hover:underline"
+            >
+              <ArrowLeft className="size-4" /> Back to Home
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-background font-sans">
+      <Navbar />
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mb-10">
+          <Link
+            prefetch={false}
+            href="/"
+            className="flex items-center gap-2 text-sm font-bold text-primary hover:underline"
+          >
+            <ArrowLeft className="size-4" /> Back to Categories
+          </Link>
+        </div>
+
+        <header className="mb-12 flex flex-col gap-6 md:flex-row md:items-center md:gap-8">
+          <CategoryHomeIcon
+            iconName={category?.icon}
+            categoryLabel={categoryLabel}
+            apiBg={category?.bg_color}
+            apiIcon={category?.icon_color}
+          />
+          <div>
+            <h1 className="font-heading text-4xl font-extrabold tracking-tight text-primary md:text-5xl">
+              {category?.name || categorySlug.toUpperCase()}
+            </h1>
+            {category?.description && (
+              <p className="mt-3 max-w-3xl text-lg font-medium leading-relaxed text-muted-foreground">
+                {category.description}
+              </p>
+            )}
+          </div>
+        </header>
+
+        {subcategories.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-border bg-card py-20 text-center shadow-sm">
+            <p className="mb-4 text-xl font-bold text-primary">No subcategories available yet.</p>
+            <Link
+              prefetch={false}
+              href="/"
+              className="inline-flex items-center gap-2 rounded-xl bg-secondary px-6 py-3 font-bold text-primary transition-all hover:bg-secondary/80"
+            >
+              <ArrowLeft className="size-4" /> Back to Home
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {subcategories.map((subcategory, idx) => (
+              <div
+                key={subcategory.id}
+                className="translate-y-8 opacity-0 transition-all duration-500 ease-out animate-in"
+                style={{ animationDelay: `${idx * 100}ms` }}
+              >
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault()
+                      router.push(`/category/${categorySlug}/${subcategory.slug}`)
+                    }
+                  }}
+                  className="group card-premium relative flex h-full cursor-pointer flex-col gap-5 overflow-hidden p-6"
+                  onClick={() => router.push(`/category/${categorySlug}/${subcategory.slug}`)}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-secondary/50 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+
+                  <div className="relative z-10 flex h-full flex-col gap-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <CategoryHomeIcon
+                        iconName={subcategory.icon}
+                        categoryLabel={categoryLabel}
+                      />
+                      <span className="whitespace-nowrap rounded-full border border-border bg-secondary/50 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-primary">
+                        {subcategory.exam_count} {subcategory.exam_count === 1 ? "Exam" : "Exams"}
+                      </span>
+                    </div>
+
+                    <div className="mt-2 flex-grow space-y-2">
+                      <h3 className="font-heading text-[22px] font-bold leading-tight text-primary">
+                        {subcategory.name}
+                      </h3>
+                      {subcategory.description && (
+                        <p className="line-clamp-2 text-[15px] font-medium leading-relaxed text-muted-foreground">
+                          {subcategory.description}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="mt-auto border-t border-border pt-4">
+                      <div className="flex flex-col gap-2">
+                        <div 
+                          className="flex items-center justify-between rounded-xl border border-border bg-background p-3 transition-all duration-300 group-hover:border-primary group-hover:bg-primary"
+                          onClick={(e) => {
+                              // Let the parent onClick handle this one since it navigates to exams
+                          }}
+                        >
+                          <span className="text-sm font-semibold text-primary transition-colors duration-300 group-hover:text-primary-foreground">
+                            View exams
+                          </span>
+                          <ArrowRight className="size-5 text-primary transition-all duration-300 group-hover:translate-x-2 group-hover:text-primary-foreground" />
+                        </div>
+
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation() // Prevent triggering the card's main onClick
+                            router.push(`/roadmap/${subcategory.slug}`)
+                          }}
+                          className="w-full py-2.5 px-3 rounded-xl border-2 border-dashed border-primary/30 text-primary text-sm font-bold hover:bg-primary/5 hover:border-primary transition-all"
+                        >
+                          View Study Roadmap
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }

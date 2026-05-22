@@ -1,128 +1,120 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-
-
-import { Navbar } from "@/components/navbar"
+import { 
+    FileText, 
+    ShieldCheck, 
+    AlertTriangle, 
+    Ban, 
+    Gavel, 
+    ArrowUp 
+} from "lucide-react"
 
 export default function TermsPage() {
     const [scrolled, setScrolled] = useState(false)
 
     useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 200)
-        }
+        const handleScroll = () => setScrolled(window.scrollY > 200)
         window.addEventListener("scroll", handleScroll)
         return () => window.removeEventListener("scroll", handleScroll)
     }, [])
 
-    const scrollToTop = () => {
-        window.scrollTo({ top: 0, behavior: "smooth" })
-    }
+    const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" })
 
     const sections = [
         {
             id: 1,
-            title: "Terms",
-            icon: "gavel",
-            content: (
-                <>
-                    By accessing the website at <strong className="text-slate-900 dark:text-white">AI Exam Engine </strong>, you are agreeing to be bound by these terms of service, all applicable laws and regulations, and agree that you are responsible for compliance with any applicable local laws.
-                </>
-            )
+            title: "License to Use",
+            icon: ShieldCheck,
+            content: "Permission is granted to temporarily use the materials (information or software) on AI Exam Engine's website for personal, non-commercial transitory viewing only."
         },
         {
             id: 2,
-            title: "Use License",
-            icon: "badge",
-            content: "Permission is granted to temporarily download one copy of the materials (information or software) on AI Exam Engine's website for personal, non-commercial transitory viewing only."
+            title: "Disclaimer",
+            icon: AlertTriangle,
+            content: "The materials on AI Exam Engine's website are provided on an 'as is' basis. AI Exam Engine makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability."
         },
         {
             id: 3,
-            title: "Disclaimer",
-            icon: "warning",
-            content: "The materials on AI Exam Engine's website are provided on an 'as is' basis. AI Exam Engine makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights."
+            title: "Limitations",
+            icon: Ban,
+            content: "In no event shall AI Exam Engine or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on AI Exam Engine's website."
         },
         {
             id: 4,
-            title: "Limitations",
-            icon: "block",
-            content: "In no event shall AI Exam Engine or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on AI Exam Engine's website."
+            title: "Governing Law",
+            icon: Gavel,
+            content: "Any claim relating to AI Exam Engine's website shall be governed by the laws of the service provider's home jurisdiction without regard to its conflict of law provisions."
         }
     ]
 
     return (
-        <div className="min-h-screen bg-[#f9fafb] dark:bg-slate-950 transition-colors duration-300">
-            <Navbar />
-
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+        <div className="min-h-screen bg-background py-16 md:py-24 px-4 transition-colors duration-300">
+            <div className="max-w-3xl mx-auto">
 
                 {/* Header */}
-                <header className="text-center mb-12 md:mb-16 animate-fade-in-up">
-                    <div className="inline-flex items-center justify-center p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl mb-6 shadow-sm">
-                        <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400 text-3xl">description</span>
+                <header className="text-center mb-16 animate-fade-in">
+                    <div className="inline-flex items-center justify-center size-14 bg-secondary rounded-[18px] mb-6 border border-border shadow-sm">
+                        <FileText className="size-7 text-primary" />
                     </div>
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4 leading-tight">
+                    <h1 className="text-[42px] md:text-[56px] font-bold font-heading text-primary tracking-tight mb-3">
                         Terms of Service
                     </h1>
-                    <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 font-medium">
-                        Last Updated: <span className="text-slate-800 dark:text-slate-200">{new Date().toLocaleDateString()}</span>
+                    <p className="text-muted-foreground font-medium text-[17px]">
+                        Please read these terms carefully before using our platform
                     </p>
                 </header>
 
-                {/* Sections */}
-                <div className="space-y-6 md:space-y-8">
-                    {sections.map((section, idx) => (
-                        <div
-                            key={section.id}
-                            className="group bg-white dark:bg-slate-900 rounded-2xl md:rounded-3xl p-6 md:p-10 shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md hover:border-indigo-100 dark:hover:border-indigo-900 transition-all duration-300 animate-fade-in-up"
-                            style={{ animationDelay: `${idx * 0.1}s` }}
-                        >
-                            <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6">
-                                {/* Desktop Numbering */}
-                                <div className="hidden md:flex flex-col items-center gap-2 pt-1 flex-shrink-0">
-                                    <span className="flex items-center justify-center size-10 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 font-bold border border-slate-200 dark:border-slate-700 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:border-indigo-200 transition-colors">
-                                        {section.id.toString().padStart(2, '0')}
-                                    </span>
-                                    {idx !== sections.length - 1 && (
-                                        <div className="w-px h-full bg-slate-100 dark:bg-slate-800 group-hover:bg-indigo-50 transition-colors mt-2" style={{ minHeight: "40px" }}></div>
-                                    )}
-                                </div>
+                {/* Main Terms Card */}
+                <div className="card-premium p-8 md:p-10 mb-10 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+                    <p className="text-[18px] text-primary leading-relaxed font-medium">
+                        By accessing this website, you are agreeing to be bound by these website Terms and Conditions of Use, all applicable laws and regulations, and agree that you are responsible for compliance with any applicable local laws.
+                    </p>
+                </div>
 
-                                <div className="flex-1 w-full">
-                                    <div className="flex items-center gap-3 mb-3 md:mb-4">
-                                        {/* Mobile Badge */}
-                                        <span className="md:hidden text-xs font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 dark:text-slate-400 px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-700">
+                {/* Sections */}
+                <div className="space-y-6">
+                    {sections.map((section, idx) => {
+                        const Icon = section.icon
+                        return (
+                            <div
+                                key={section.id}
+                                className="group card-premium p-8 md:p-10 animate-fade-in"
+                                style={{ animationDelay: `${(idx + 2) * 0.1}s` }}
+                            >
+                                <div className="flex items-start gap-6">
+                                    <div className="hidden md:flex flex-col items-center gap-2 pt-1 flex-shrink-0">
+                                        <span className="flex items-center justify-center size-11 rounded-full bg-secondary text-primary font-bold text-[14px] border border-border shadow-sm transition-all duration-300 group-hover:scale-105">
                                             {section.id.toString().padStart(2, '0')}
                                         </span>
-                                        <div className="flex items-center gap-2 text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">
-                                            <span className="material-symbols-outlined text-2xl opacity-50 hidden sm:block">{section.icon}</span>
-                                            <h2 className="text-xl md:text-2xl font-bold">{section.title}</h2>
-                                        </div>
                                     </div>
-                                    <div className="text-slate-600 dark:text-slate-400 text-base md:text-lg leading-relaxed">
-                                        {section.content}
+
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <span className="md:hidden flex items-center justify-center size-9 rounded-full bg-secondary text-primary font-bold text-[13px] border border-border shadow-sm">
+                                                {section.id.toString().padStart(2, '0')}
+                                            </span>
+                                            <div className="flex items-center gap-2.5 text-primary">
+                                                <Icon className="size-5.5 text-muted-foreground" />
+                                                <h2 className="text-[20px] font-bold font-heading">{section.title}</h2>
+                                            </div>
+                                        </div>
+                                        <div className="text-muted-foreground text-[16px] leading-relaxed font-medium">
+                                            {section.content}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Footer Note */}
-                <div className="mt-12 md:mt-16 text-center pb-12 animate-fade-in-up" style={{ animationDelay: "0.5s" }}>
-                    <p className="text-sm md:text-base text-slate-500 mb-6 max-w-lg mx-auto leading-relaxed">
-                        We reserve the right to modify these terms at any time. By using this website you are agreeing to be bound by the then current version of these terms of service.
-                    </p>
+                        )
+                    })}
                 </div>
 
                 {/* Sticky Back to Top */}
                 <button
                     onClick={scrollToTop}
-                    className={`fixed bottom-6 right-6 md:bottom-8 md:right-8 size-10 md:size-12 bg-white dark:bg-slate-800 rounded-full shadow-lg border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-indigo-600 hover:scale-110 transition-all duration-300 z-50 ${scrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}
-                    aria-label="Back to top"
+                    className={`fixed bottom-8 right-8 size-12 bg-card rounded-full shadow-premium border border-border flex items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground hover:scale-110 transition-all duration-300 z-50 ${scrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}
                 >
-                    <span className="material-symbols-outlined text-xl md:text-2xl">arrow_upward</span>
+                    <ArrowUp className="size-6" />
                 </button>
 
             </div>

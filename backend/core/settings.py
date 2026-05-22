@@ -26,6 +26,7 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(','
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',  # Must be before django.contrib.admin
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     # Local apps
     'core',  # Required for management commands
     'quiz',
+    'community',
 ]
 
 MIDDLEWARE = [
@@ -114,8 +116,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
-USE_I18N = True
+USE_I18N = False  # Disabled: avoids corrupt gettext .mo file on macOS Python 3.9
 USE_TZ = True
+
 
 
 # Static files (CSS, JavaScript, Images)
@@ -205,6 +208,128 @@ if not GEMINI_API_KEY:
     )
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 20000
+
+# =============================================
+# JAZZMIN — PREMIUM ADMIN UI CONFIGURATION
+# =============================================
+
+JAZZMIN_SETTINGS = {
+    # ---- Branding ----
+    'site_title': 'Aspirant AI',
+    'site_header': 'Aspirant AI',
+    'site_brand': 'Aspirant AI',
+    'site_logo': 'admin/img/logo.png',
+    'site_logo_classes': 'img-circle elevation-3',
+    'site_icon': 'admin/img/logo.png',
+    'welcome_sign': 'Welcome to Aspirant AI Control Center',
+    'copyright': 'Aspirant AI — Internal Dashboard',
+
+    # ---- Search ----
+    'search_model': ['quiz.Exam', 'quiz.Question', 'auth.User'],
+
+    # ---- User Avatar ----
+    'user_avatar': None,
+
+    # ---- Topbar ----
+    'topmenu_links': [
+        {'name': 'Platform', 'url': 'http://localhost:3000', 'new_window': True, 'icon': 'fas fa-external-link-alt'},
+        {'name': 'API Docs', 'url': '/api/', 'new_window': True, 'icon': 'fas fa-code'},
+        {'model': 'auth.User'},
+    ],
+
+    # ---- User Menu ----
+    'usermenu_links': [
+        {'name': 'Platform', 'url': 'http://localhost:3000', 'new_window': True, 'icon': 'fas fa-external-link-alt'},
+    ],
+
+    # ---- Sidebar ----
+    'show_sidebar': True,
+    'navigation_expanded': True,
+    'hide_apps': [],
+    'hide_models': [],
+
+    'order_with_respect_to': [
+        'quiz', 'quiz.Category', 'quiz.SubCategory',
+        'quiz.Exam', 'quiz.Question', 'quiz.Answer',
+        'quiz.QuestionPaperUpload', 'quiz.CorrectionSuggestion',
+        'quiz.CurrentAffair',
+        'quiz.ExamRoadmap', 'quiz.RoadmapPhase', 'quiz.RoadmapTopic',
+        'quiz.UserTopicProgress',
+        'quiz.UserAnswer', 'quiz.ContactMessage',
+        'auth', 'community',
+    ],
+
+    'icons': {
+        'auth': 'fas fa-users-cog',
+        'auth.user': 'fas fa-user',
+        'auth.Group': 'fas fa-users',
+        'quiz.Category': 'fas fa-th-large',
+        'quiz.SubCategory': 'fas fa-layer-group',
+        'quiz.Exam': 'fas fa-file-alt',
+        'quiz.Question': 'fas fa-question-circle',
+        'quiz.Answer': 'fas fa-check-circle',
+        'quiz.QuestionPaperUpload': 'fas fa-cloud-upload-alt',
+        'quiz.CorrectionSuggestion': 'fas fa-edit',
+        'quiz.CurrentAffair': 'fas fa-newspaper',
+        'quiz.ExamRoadmap': 'fas fa-map',
+        'quiz.RoadmapPhase': 'fas fa-stream',
+        'quiz.RoadmapTopic': 'fas fa-bookmark',
+        'quiz.UserTopicProgress': 'fas fa-chart-line',
+        'quiz.UserAnswer': 'fas fa-poll',
+        'quiz.ContactMessage': 'fas fa-envelope',
+        'community': 'fas fa-comments',
+    },
+
+    'default_icon_parents': 'fas fa-chevron-circle-right',
+    'default_icon_children': 'fas fa-circle',
+
+    # ---- UI ----
+    'related_modal_active': True,
+    'custom_css': 'admin/css/custom_admin.css',
+    'custom_js': None,
+    'use_google_fonts_cdn': True,
+    'show_ui_builder': False,
+
+    # ---- Change view ----
+    'changeform_format': 'horizontal_tabs',
+    'changeform_format_overrides': {
+        'auth.user': 'collapsible',
+        'auth.group': 'vertical_tabs',
+    },
+}
+
+JAZZMIN_UI_TWEAKS = {
+    # ---- Theme ----
+    'navbar_small_text': False,
+    'footer_small_text': False,
+    'body_small_text': False,
+    'brand_small_text': False,
+    'brand_colour': False,
+    'accent': 'accent-primary',
+    'navbar': 'navbar-white navbar-light',
+    'no_navbar_border': False,
+    'navbar_fixed': True,
+    'layout_boxed': False,
+    'footer_fixed': False,
+    'sidebar_fixed': True,
+    'sidebar': 'sidebar-light-primary',
+    'sidebar_nav_small_text': False,
+    'sidebar_disable_expand': False,
+    'sidebar_nav_child_indent': True,
+    'sidebar_nav_compact_style': True,
+    'sidebar_nav_legacy_style': False,
+    'sidebar_nav_flat_style': False,
+    'theme': 'default',
+    'dark_mode_theme': 'darkly',
+    'button_classes': {
+        'primary': 'btn-primary',
+        'secondary': 'btn-outline-secondary',
+        'info': 'btn-outline-info',
+        'warning': 'btn-warning',
+        'danger': 'btn-danger',
+        'success': 'btn-success',
+    },
+}
 
 
 # Email Backend for Development (Prints to Console)

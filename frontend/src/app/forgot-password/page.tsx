@@ -5,6 +5,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { Navbar } from "@/components/navbar"
 import { apiClient } from "@/lib/apiClient"
+import { KeyRound } from "lucide-react"
 
 
 export default function ForgotPasswordPage() {
@@ -37,30 +38,30 @@ export default function ForgotPasswordPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 font-sans">
+        <div className="min-h-screen bg-background  font-sans">
             <Navbar />
             <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4">
-                <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-8">
+                <div className="max-w-md w-full bg-card rounded-2xl shadow-xl border border-border p-8">
                     <div className="text-center mb-8">
-                        <div className="size-16 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-600 dark:text-blue-400">
-                            <span className="material-symbols-outlined text-3xl">lock_reset</span>
+                        <div className="size-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
+                            <KeyRound className="size-8" />
                         </div>
-                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                        <h1 className="text-2xl font-bold text-primary mb-2">
                             Forgot your password?
                         </h1>
-                        <p className="text-slate-500 dark:text-slate-400">
+                        <p className="text-muted-foreground">
                             Enter your registered email to receive a reset link
                         </p>
                     </div>
 
                     {status === "success" ? (
-                        <div className="text-center animate-fade-in-up">
-                            <div className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 p-4 rounded-xl mb-6 border border-green-200 dark:border-green-900/30">
+                        <div className="text-center animate-fade-in">
+                            <div className="bg-success/10 text-success p-4 rounded-xl mb-6 border border-success/30">
                                 {message}
                             </div>
-                            <Link
+                            <Link prefetch={false}
                                 href="/login"
-                                className="inline-block w-full py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition-colors"
+                                className="inline-block w-full py-3 bg-secondary hover:bg-secondary dark:bg-secondary dark:hover:bg-slate-700 text-primary font-bold rounded-xl transition-colors"
                             >
                                 Back to Login
                             </Link>
@@ -68,20 +69,20 @@ export default function ForgotPasswordPage() {
                     ) : (
                         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                             {status === "error" && (
-                                <div className="p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm border border-red-100 dark:border-red-900/30">
+                                <div className="p-3 bg-destructive/10 text-destructive rounded-lg text-sm border border-destructive/30">
                                     {message}
                                 </div>
                             )}
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                                <label className="block text-sm font-medium text-primary mb-1.5">
                                     Email Address
                                 </label>
                                 <input
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all dark:text-white"
+                                    className="w-full px-4 py-3 bg-background dark:bg-secondary border border-border rounded-xl focus:ring-2 focus:ring-primary/30 outline-none transition-all"
                                     placeholder="name@example.com"
                                     required
                                 />
@@ -90,7 +91,7 @@ export default function ForgotPasswordPage() {
                             <button
                                 type="submit"
                                 disabled={status === "loading"}
-                                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/20 disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                                className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground font-bold rounded-xl transition-all shadow-premium disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2"
                             >
                                 {status === "loading" ? (
                                     <>
@@ -102,9 +103,9 @@ export default function ForgotPasswordPage() {
                                 )}
                             </button>
 
-                            <Link
+                            <Link prefetch={false}
                                 href="/login"
-                                className="text-center text-sm font-medium text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors mt-2"
+                                className="text-center text-sm font-medium text-muted-foreground hover:text-primary dark:hover:text-slate-200 transition-colors mt-2"
                             >
                                 Back to Login
                             </Link>

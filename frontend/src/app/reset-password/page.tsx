@@ -6,6 +6,7 @@ import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Navbar } from "@/components/navbar"
 import { apiClient } from "@/lib/apiClient"
+import { Key } from "lucide-react"
 
 
 function ResetPasswordForm() {
@@ -73,12 +74,12 @@ function ResetPasswordForm() {
     if (!uid || !token) {
         return (
             <div className="text-center">
-                <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-xl mb-6 border border-red-100 dark:border-red-900/30">
+                <div className="bg-destructive/10 text-destructive p-4 rounded-xl mb-6 border border-destructive/30">
                     Invalid or missing reset link.
                 </div>
-                <Link
+                <Link prefetch={false}
                     href="/forgot-password"
-                    className="inline-block px-6 py-3 bg-blue-600 text-white font-bold rounded-xl"
+                    className="inline-block px-6 py-3 bg-primary text-primary-foreground font-bold rounded-xl shadow-premium"
                 >
                     Request New Link
                 </Link>
@@ -89,40 +90,40 @@ function ResetPasswordForm() {
     return (
         <div className="w-full">
             <div className="text-center mb-8">
-                <div className="size-16 bg-indigo-50 dark:bg-indigo-900/20 rounded-full flex items-center justify-center mx-auto mb-4 text-indigo-600 dark:text-indigo-400">
-                    <span className="material-symbols-outlined text-3xl">vpn_key</span>
+                <div className="size-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
+                    <Key className="size-8" />
                 </div>
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                <h1 className="text-2xl font-bold text-primary mb-2">
                     Reset Password
                 </h1>
-                <p className="text-slate-500 dark:text-slate-400">
+                <p className="text-muted-foreground">
                     Enter your new password below
                 </p>
             </div>
 
             {status === "success" ? (
-                <div className="text-center animate-fade-in-up">
-                    <div className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 p-4 rounded-xl mb-6 border border-green-200 dark:border-green-900/30">
+                <div className="text-center animate-fade-in">
+                    <div className="bg-success/10 text-success p-4 rounded-xl mb-6 border border-success/30">
                         {message}
                     </div>
                 </div>
             ) : (
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     {status === "error" && (
-                        <div className="p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm border border-red-100 dark:border-red-900/30">
+                        <div className="p-3 bg-destructive/10 text-destructive rounded-lg text-sm border border-destructive/30">
                             {message}
                         </div>
                     )}
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                        <label className="block text-sm font-medium text-primary mb-1.5">
                             New Password
                         </label>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all dark:text-white"
+                            className="w-full px-4 py-3 bg-background dark:bg-secondary border border-border rounded-xl focus:ring-2 focus:ring-primary/30 outline-none transition-all"
                             placeholder="••••••••"
                             required
                             minLength={8}
@@ -130,14 +131,14 @@ function ResetPasswordForm() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                        <label className="block text-sm font-medium text-primary mb-1.5">
                             Confirm Password
                         </label>
                         <input
                             type="password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all dark:text-white"
+                            className="w-full px-4 py-3 bg-background dark:bg-secondary border border-border rounded-xl focus:ring-2 focus:ring-primary/30 outline-none transition-all"
                             placeholder="••••••••"
                             required
                         />
@@ -146,7 +147,7 @@ function ResetPasswordForm() {
                     <button
                         type="submit"
                         disabled={status === "loading"}
-                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/20 disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2 mt-2"
+                        className="w-full py-3 bg-primary hover:opacity-90 text-primary-foreground font-bold rounded-xl transition-all shadow-premium disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2 mt-2"
                     >
                         {status === "loading" ? (
                             <>
@@ -166,10 +167,10 @@ function ResetPasswordForm() {
 export default function ResetPasswordPage() {
     useNoIndex() // Prevent search engine indexing
     return (
-        <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 font-sans">
+        <div className="min-h-screen bg-background  font-sans">
             <Navbar />
             <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4">
-                <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-8">
+                <div className="max-w-md w-full bg-card rounded-2xl shadow-xl border border-border p-8">
                     <Suspense fallback={<div className="text-center p-8">Loading...</div>}>
                         <ResetPasswordForm />
                     </Suspense>

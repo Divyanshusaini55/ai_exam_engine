@@ -8,3 +8,5 @@ venv/
 env/
 *.log
 .DS_Store
+backend/staticfiles/
+backend/tmp/
