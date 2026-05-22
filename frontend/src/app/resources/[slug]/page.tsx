@@ -13,6 +13,7 @@ import ArticleViewer from '@/components/article-viewer'
 import ResourceHeader from '@/components/resource-header'
 import ResourceSidebar from '@/components/resource-sidebar'
 import ResourceActions from './resource-actions'
+import { processMarkdown } from '@/lib/processor'
 
 // ─── API base (server-side uses the internal URL if set) ──────────────────────
 const API_BASE =
@@ -96,6 +97,12 @@ export default async function ResourcePage({
 
   if (!resource) notFound()
 
+  // Process markdown into HTML string on the server!
+  const processedContent =
+    resource.rendered_content_format === 'markdown'
+      ? await processMarkdown(resource.content)
+      : resource.content
+
   return (
     <>
       {/*
@@ -117,9 +124,9 @@ export default async function ResourcePage({
 
       {/* Main layout */}
       <div className="mx-auto max-w-6xl px-4 py-8 flex gap-8">
-        <main className="flex-1 min-w-0">
+        <main className="flex-1 min-w-0 max-w-3xl mx-auto">
           <ArticleViewer
-            content={resource.content}
+            content={processedContent}
             contentFormat={resource.rendered_content_format}
             aiSummary={resource.ai_summary}
             resourceType={resource.resource_type}
@@ -127,12 +134,10 @@ export default async function ResourcePage({
           />
         </main>
 
-        <aside className="w-56 shrink-0 hidden lg:block">
-          <ResourceSidebar
-            content={resource.content}
-            contentFormat={resource.rendered_content_format}
-          />
-        </aside>
+        <ResourceSidebar
+          content={processedContent}
+          contentFormat={resource.rendered_content_format}
+        />
       </div>
     </>
   )

@@ -1,0 +1,276 @@
+.
+├── DEPLOYMENT_GUIDE.md
+├── DOCKER_GUIDE.md
+├── FRONTEND_ANALYSIS.md
+├── PROJECT_STRUCTURE.txt
+├── README.md
+├── backend
+│   ├── Dockerfile
+│   ├── Procfile
+│   ├── build.sh
+│   ├── check_gemini.py
+│   ├── community
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── management
+│   │   │   ├── __init__.py
+│   │   │   └── commands
+│   │   │       ├── __init__.py
+│   │   │       └── recalculate_contributor_stats.py
+│   │   ├── migrations
+│   │   │   ├── 0001_initial.py
+│   │   │   ├── 0002_comment_parent_comment_upvotes.py
+│   │   │   ├── 0003_badge_alter_comment_options_and_more.py
+│   │   │   └── __init__.py
+│   │   ├── models.py
+│   │   ├── serializers.py
+│   │   ├── services.py
+│   │   ├── signals.py
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── core
+│   │   ├── __init__.py
+│   │   ├── asgi.py
+│   │   ├── management
+│   │   │   ├── __init__.py
+│   │   │   └── commands
+│   │   │       ├── __init__.py
+│   │   │       └── create_admin.py
+│   │   ├── settings.py
+│   │   ├── urls.py
+│   │   └── wsgi.py
+│   ├── db.sqlite3
+│   ├── entrypoint.sh
+│   ├── manage.py
+│   ├── media
+│   │   ├── pdfs
+│   │   │   ├── RRB_NTPC_CBT2_Question_Paper_13-10-2025-Shift-1.pdf
+│   │   │   ├── RRB_NTPC_G.pdf
+│   │   │   ├── RRB_NTPC_G_Answer_Key_Compilation_English-5-6-2025-Shift-I.pdf
+│   │   │   ├── SSC-CGL-Tier-1-Question-Paper-9-September-2024-Shift-1.pdf
+│   │   │   ├── SSC-CGL-Tier-1-Question-Paper-9-September-2024-Shift-1_Z1iwdUt.pdf
+│   │   │   ├── SSC-CGL-Tier-1-Question-Paper-9-September-2024-Shift-1_oiepPKq.pdf
+│   │   │   ├── UP-Police-SI-1st-December-2021-Shift-1-Paper.pdf
+│   │   │   ├── UP-Police-SI-1st-December-2021-Shift-1-Paper_0rdFhVJ.pdf
+│   │   │   ├── UP-Police-SI-1st-December-2021-Shift-1-Paper_3lZNcHd.pdf
+│   │   │   ├── UP-Police-SI-1st-December-2021-Shift-1-Paper_YifQ3X7.pdf
+│   │   │   ├── UP-Police-SI-1st-December-2021-Shift-1-Paper_a7xMZ53.pdf
+│   │   │   ├── UP-Police-SI-1st-December-2021-Shift-1-Paper_kftLfHP.pdf
+│   │   │   ├── UP-Police-SI-1st-December-2021-Shift-1-Paper_uJFcNTO.pdf
+│   │   │   ├── UP-Police-SI-1st-December-2021-Shift-1-Paper_yNM7Rx8.pdf
+│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper.pdf
+│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_22daPSF.pdf
+│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_5yxzw9R.pdf
+│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_64sbZVm.pdf
+│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_DIiE6NY.pdf
+│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_Dh14rXM.pdf
+│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_I7HiTbt.pdf
+│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_XSruBKe.pdf
+│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_asPmzw8.pdf
+│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_cdKT0AY.pdf
+│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_h1tMrfR.pdf
+│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_k5CVAWN.pdf
+│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_kBG26dX.pdf
+│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_mDFF7CQ.pdf
+│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_p7xQoR4.pdf
+│   │   │   ├── UP-Police-SI-2nd-December-2021-Shift-1-Paper_rSU0dBm.pdf
+│   │   │   ├── test.pdf
+│   │   │   └── test_exam.pdf
+│   │   ├── question_images
+│   │   │   ├── Screenshot_2026-01-08-23-49-57-91_40deb401b9ffe8e1df2f1cc5ba480b12.jpg
+│   │   │   └── Screenshot_2026-01-08-23-49-57-91_40deb401b9ffe8e1df2f1cc5ba480b12_ZvCFc30.jpg
+│   │   └── question_papers
+│   │       ├── 26T1ETS1DS22F2000900.pdf
+│   │       └── 26T1ETS1DS22F2000900_gsWE7x0.pdf
+│   ├── quiz
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── ai.py
+│   │   ├── api.py
+│   │   ├── apps.py
+│   │   ├── management
+│   │   │   └── commands
+│   │   │       ├── fetch_current_affairs.py
+│   │   │       ├── generate_exam_summary.py
+│   │   │       └── generate_roadmap.py
+│   │   ├── migrations
+│   │   │   ├── 0001_initial.py
+│   │   │   ├── 0002_question_image_question_is_image_based.py
+│   │   │   ├── 0003_exam_category.py
+│   │   │   ├── 0004_question_explanation.py
+│   │   │   ├── 0005_userexamresult.py
+│   │   │   ├── 0006_category_subcategory_exam_subcategory.py
+│   │   │   ├── 0007_question_difficulty_question_subject_question_topic.py
+│   │   │   ├── 0008_alter_category_options_alter_subcategory_options_and_more.py
+│   │   │   ├── 0009_contactmessage.py
+│   │   │   ├── 0010_exam_marks_per_question_exam_total_marks.py
+│   │   │   ├── 0011_userexamresult_guest_email_userexamresult_guest_name_and_more.py
+│   │   │   ├── 0012_questionpaperupload.py
+│   │   │   ├── 0013_correctionsuggestion.py
+│   │   │   ├── 0014_currentaffair.py
+│   │   │   ├── 0015_examroadmap_roadmapphase_roadmaptopic_and_more.py
+│   │   │   ├── 0016_remove_usertopicprogress_is_completed_and_more.py
+│   │   │   ├── 0017_examroadmap_bookmarks.py
+│   │   │   ├── 0018_exam_ai_summary.py
+│   │   │   ├── 0019_topicresource_cms.py
+│   │   │   └── __init__.py
+│   │   ├── models.py
+│   │   ├── serializers.py
+│   │   ├── services.py
+│   │   ├── static
+│   │   │   └── admin
+│   │   │       ├── css
+│   │   │       │   └── custom_admin.css
+│   │   │       └── img
+│   │   │           └── logo.png
+│   │   ├── urls.py
+│   │   └── views_auth.py
+│   ├── requirements.txt
+│   ├── resources
+│   │   ├── __init__.py
+│   │   ├── renderers.py
+│   │   ├── serializers.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── runtime.txt
+│   └── tmp
+├── docker-compose.yml
+├── frontend
+│   ├── DEBUG_REPORT.md
+│   ├── Dockerfile
+│   ├── add-noindex-hook.sh
+│   ├── add-usenoindex-calls.sh
+│   ├── build_log.txt
+│   ├── build_log_navbar.txt
+│   ├── components.json
+│   ├── next-env.d.ts
+│   ├── next.config.js
+│   ├── output.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── public
+│   │   └── robots.txt
+│   ├── src
+│   │   ├── app
+│   │   │   ├── admin-messages
+│   │   │   │   └── page.tsx
+│   │   │   ├── analysis
+│   │   │   │   └── page.tsx
+│   │   │   ├── category
+│   │   │   │   └── [categorySlug]
+│   │   │   │       ├── [subcategorySlug]
+│   │   │   │       └── page.tsx
+│   │   │   ├── contact
+│   │   │   │   └── page.tsx
+│   │   │   ├── contributors
+│   │   │   │   └── page.tsx
+│   │   │   ├── daily-dose
+│   │   │   │   ├── [slug]
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── dashboard
+│   │   │   │   ├── [examId]
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── exam
+│   │   │   │   └── [examId]
+│   │   │   │       └── page.tsx
+│   │   │   ├── exams
+│   │   │   │   └── page.tsx
+│   │   │   ├── forgot-password
+│   │   │   │   └── page.tsx
+│   │   │   ├── globals.css
+│   │   │   ├── help
+│   │   │   │   └── page.tsx
+│   │   │   ├── layout.tsx
+│   │   │   ├── leaderboard
+│   │   │   │   └── page.tsx
+│   │   │   ├── loading
+│   │   │   │   └── [examId]
+│   │   │   │       └── page.tsx
+│   │   │   ├── login
+│   │   │   │   └── page.tsx
+│   │   │   ├── page.tsx
+│   │   │   ├── privacy
+│   │   │   │   └── page.tsx
+│   │   │   ├── profile
+│   │   │   │   └── page.tsx
+│   │   │   ├── reset-password
+│   │   │   │   └── page.tsx
+│   │   │   ├── resources
+│   │   │   │   ├── [slug]
+│   │   │   │   │   ├── page.tsx
+│   │   │   │   │   └── resource-actions.tsx
+│   │   │   │   └── _old_resourceId
+│   │   │   │       └── page.tsx
+│   │   │   ├── roadmap
+│   │   │   │   └── [subcategorySlug]
+│   │   │   │       └── page.tsx
+│   │   │   ├── shift
+│   │   │   │   └── [shiftId]
+│   │   │   │       └── page.tsx
+│   │   │   ├── signup
+│   │   │   │   └── page.tsx
+│   │   │   ├── sitemap.xml
+│   │   │   │   └── route.ts
+│   │   │   ├── terms
+│   │   │   │   └── page.tsx
+│   │   │   └── upload
+│   │   │       └── page.tsx
+│   │   ├── components
+│   │   │   ├── AuthInput.tsx
+│   │   │   ├── Timer.tsx
+│   │   │   ├── article-viewer.tsx
+│   │   │   ├── category-grid.tsx
+│   │   │   ├── category-home-icon.tsx
+│   │   │   ├── circular-progress.tsx
+│   │   │   ├── exam-card.tsx
+│   │   │   ├── exam-grid.tsx
+│   │   │   ├── exam-home.tsx
+│   │   │   ├── exam-taking-interface.tsx
+│   │   │   ├── footer.tsx
+│   │   │   ├── home-skeleton.tsx
+│   │   │   ├── latex-renderer.tsx
+│   │   │   ├── markdown-renderer.tsx
+│   │   │   ├── mobile-question-navigator.tsx
+│   │   │   ├── mode-toggle.tsx
+│   │   │   ├── navbar.tsx
+│   │   │   ├── performance-analysis.tsx
+│   │   │   ├── question-navigator.tsx
+│   │   │   ├── question-review.tsx
+│   │   │   ├── resource-header.tsx
+│   │   │   ├── resource-sidebar.tsx
+│   │   │   ├── stats-card.tsx
+│   │   │   ├── submission-loading-state.tsx
+│   │   │   ├── suggest-correction-modal.tsx
+│   │   │   ├── summary-modal.tsx
+│   │   │   ├── theme-provider.tsx
+│   │   │   ├── topic-resource-hub.tsx
+│   │   │   ├── ui
+│   │   │   │   ├── button.tsx
+│   │   │   │   ├── sheet.tsx
+│   │   │   │   └── skeleton.tsx
+│   │   │   └── xp-guide-modal.tsx
+│   │   ├── context
+│   │   │   └── auth-context.tsx
+│   │   ├── hooks
+│   │   │   ├── useAuthGuard.ts
+│   │   │   └── useNoIndex.ts
+│   │   ├── lib
+│   │   │   ├── api.ts
+│   │   │   ├── apiClient.ts
+│   │   │   ├── category-home-icons.ts
+│   │   │   ├── debug.ts
+│   │   │   ├── seo.ts
+│   │   │   └── utils.ts
+│   │   └── styles
+│   │       └── article.css
+│   ├── tailwind.config.ts
+│   ├── tsconfig.json
+│   └── tsconfig.tsbuildinfo
+└── structure.txt
+
+67 directories, 207 files

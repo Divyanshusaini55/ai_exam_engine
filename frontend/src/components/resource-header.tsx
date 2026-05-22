@@ -2,6 +2,7 @@
 
 import { BookmarkIcon, CheckCircleIcon, EyeIcon, ArrowLeftIcon, ClockIcon } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -74,6 +75,8 @@ export default function ResourceHeader({
   onBookmark,
   className,
 }: ResourceHeaderProps) {
+  const router = useRouter()
+
   return (
     <header
       className={cn(
@@ -86,34 +89,23 @@ export default function ResourceHeader({
         {/* ── Row 1: Back | ghost title | actions ─────────────────────────── */}
         <div className="flex h-14 items-center gap-3">
           {/* Back */}
-          <Link
-            href="/roadmap"
+          <button
+            onClick={() => router.back()}
             className="shrink-0 text-muted-foreground transition-colors hover:text-foreground"
             aria-label="Back to roadmap"
           >
             <ArrowLeftIcon className="size-4" />
-          </Link>
+          </button>
 
-          {/* Ghost title — small, centred, hidden on mobile */}
-          <p className="hidden flex-1 truncate text-center text-sm font-medium text-muted-foreground sm:block">
-            {title}
-          </p>
-
-          {/* Actions */}
+          {/* Actions - Pushed to the right automatically because we use flex-1 on an empty div to take up space, or just keep it ml-auto */}
           <div className="ml-auto flex shrink-0 items-center gap-2">
-            {/* View count */}
-            <span className="hidden items-center gap-1 text-xs text-muted-foreground sm:flex">
-              <EyeIcon className="size-3.5" />
-              {viewCount.toLocaleString()}
-            </span>
-
             {/* Save / Bookmark */}
             <Button
               variant="ghost"
               size="sm"
               onClick={onBookmark}
               aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark this resource'}
-              className="gap-1.5"
+              className="gap-1.5 rounded-full"
             >
               <BookmarkIcon
                 className={cn(
@@ -134,7 +126,7 @@ export default function ResourceHeader({
               size="sm"
               onClick={onMarkDone}
               aria-label={isCompleted ? 'Mark as not done' : 'Mark as done'}
-              className="gap-1.5"
+              className="gap-1.5 rounded-full"
             >
               <CheckCircleIcon
                 className={cn(
@@ -155,9 +147,12 @@ export default function ResourceHeader({
           <nav aria-label="Breadcrumb" className="mb-3">
             <ol className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <li>
-                <Link href="/roadmap" className="hover:text-foreground hover:underline">
+                <button 
+                  onClick={() => router.back()} 
+                  className="hover:text-foreground hover:underline"
+                >
                   Roadmaps
-                </Link>
+                </button>
               </li>
               <li aria-hidden>›</li>
               <li className="font-medium text-foreground capitalize">
@@ -165,12 +160,6 @@ export default function ResourceHeader({
               </li>
             </ol>
           </nav>
-
-          {/* Row 3: Badges */}
-          <div className="mb-3 flex flex-wrap items-center gap-2">
-            <ResourceTypeBadge type={resourceType} />
-            <DifficultyBadge difficulty={difficulty} />
-          </div>
 
           {/* Row 4: Title */}
           <h1 className="mb-2 text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-3xl">

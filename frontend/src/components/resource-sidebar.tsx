@@ -123,57 +123,56 @@ export default function ResourceSidebar({
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <nav
-      aria-label="On this page"
-      className={cn(
-        'sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto',
-        className
-      )}
-    >
-      <p className="mb-3 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
-        On This Page
-      </p>
+    <aside className={cn("w-56 shrink-0 hidden lg:block", className)}>
+      <nav
+        aria-label="On this page"
+        className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto"
+      >
+        <p className="mb-3 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+          On This Page
+        </p>
 
-      <ul className="space-y-1">
-        {headings.map(({ level, text, id }) => {
-          const isActive = activeId === id
-          return (
-            <li
-              key={id}
-              style={{
-                paddingLeft:
-                  level === 2 ? '0.75rem' : level === 3 ? '1.5rem' : '0',
-              }}
-            >
-              <a
-                href={`#${id}`}
-                onClick={(e) => {
-                  e.preventDefault()
-                  document
-                    .getElementById(id)
-                    ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                  setActiveId(id)
+        <ul className="space-y-1">
+          {headings.map(({ level, text, id }) => {
+            const isActive = activeId === id
+            return (
+              <li
+                key={id}
+                style={{
+                  paddingLeft:
+                    level === 2 ? '0.75rem' : level === 3 ? '1.5rem' : '0',
                 }}
-                className={cn(
-                  'flex items-center gap-2 rounded py-1 text-sm transition-colors',
-                  isActive
-                    ? 'font-medium text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
               >
-                {/* Dot indicator */}
-                <span
+                <a
+                  href={`#${id}`}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    document
+                      .getElementById(id)
+                      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                    setActiveId(id)
+                  }}
                   className={cn(
-                    'size-1.5 shrink-0 rounded-full transition-colors',
-                    isActive ? 'bg-primary' : 'bg-transparent'
+                    'flex items-center gap-2 rounded py-1 text-sm transition-colors',
+                    isActive
+                      ? 'font-medium text-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
                   )}
-                />
-                <span className="line-clamp-2 leading-snug">{text}</span>
-              </a>
-            </li>
-          )
-        })}
-      </ul>
-    </nav>
+                >
+                  {/* Dot indicator */}
+                  <span
+                    className={cn(
+                      'size-1.5 shrink-0 rounded-full transition-colors',
+                      isActive ? 'bg-primary' : 'bg-transparent'
+                    )}
+                  />
+                  <span className="line-clamp-2 leading-snug">{text}</span>
+                </a>
+              </li>
+            )
+          })}
+        </ul>
+      </nav>
+    </aside>
   )
 }

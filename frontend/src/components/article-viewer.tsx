@@ -5,6 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import LatexRenderer from './latex-renderer'
 import MarkdownRenderer from './markdown-renderer'
+import './article.css'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -157,7 +158,11 @@ export default function ArticleViewer({
       )}
 
       {contentFormat === 'plaintext' && (
-        <pre className="whitespace-pre-wrap font-mono text-sm">{content}</pre>
+        <div className="academic-article">
+          <pre className="whitespace-pre-wrap font-mono text-[14px] leading-relaxed bg-transparent border-none shadow-none p-0 m-0">
+            {content}
+          </pre>
+        </div>
       )}
     </div>
   )

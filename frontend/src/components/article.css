@@ -1,0 +1,208 @@
+/* src/components/article.css */
+
+.academic-article {
+  /* Colors inspired by mHC */
+  --bg-primary: #fdfbf7;
+  --bg-code: #2e2a2d;
+  --text-primary: #1a1a1a;
+  --text-secondary: #6b6b6b;
+  --accent: #8b7355;
+  --accent-light: #b09a7e;
+  --border: #e8e3dc;
+  --link: #5d7a8a;
+  --link-hover: #3d5a6a;
+
+  font-family: var(--font-crimson-pro), serif;
+  line-height: 1.75;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  font-size: 19px;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  padding: 3rem 2.5rem;
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+/* Dark mode fallback for the surrounding app, but we might want the article to stay light 
+   or adapt gracefully. The reference site is light-only. Let's force light mode for the article to keep the academic feel. */
+.dark .academic-article {
+  /* Subtle dark inversion if they want it, or keep it strictly light */
+  --bg-primary: #1a1918;
+  --text-primary: #e8e3dc;
+  --text-secondary: #a09a90;
+  --border: #36322f;
+  --accent: #d4ba97;
+  --accent-light: #8b7355;
+  --link: #8aaabb;
+  --link-hover: #b0cce0;
+}
+
+.academic-article p:first-of-type::first-letter {
+  font-family: var(--font-cormorant), serif;
+  font-size: 4.2em;
+  font-weight: 300;
+  float: left;
+  line-height: 0.85;
+  margin: 0.05em 0.15em 0 0;
+  color: var(--accent);
+}
+
+.academic-article h1, 
+.academic-article h2, 
+.academic-article h3, 
+.academic-article h4, 
+.academic-article h5, 
+.academic-article h6 {
+  font-family: var(--font-cormorant), serif;
+  font-weight: 400;
+  color: var(--text-primary);
+  margin-top: 3rem;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.02em;
+}
+
+.academic-article h2 {
+  font-size: 1.85rem;
+  text-align: center;
+  margin-top: 4rem;
+  margin-bottom: 2.5rem;
+  font-weight: 300;
+  position: relative;
+}
+
+.academic-article h2::before {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: var(--accent-light);
+  margin: 0 auto 1.5rem;
+  opacity: 0.6;
+}
+
+.academic-article h3 {
+  font-size: 1.5rem;
+  margin-top: 2.5rem;
+}
+
+.academic-article p {
+  margin: 1.5rem 0;
+  line-height: 1.85;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.academic-article a {
+  color: var(--link);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(93, 122, 138, 0.3);
+  transition: all 0.3s ease;
+}
+
+.academic-article a:hover {
+  color: var(--link-hover);
+  border-bottom-color: var(--link-hover);
+}
+
+.academic-article blockquote {
+  margin: 2rem 0;
+  padding-left: 2rem;
+  border-left: 2px solid var(--accent-light);
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.academic-article ul, 
+.academic-article ol {
+  margin: 1.5rem 0;
+  padding-left: 2rem;
+}
+
+.academic-article li {
+  margin: 0.75rem 0;
+  line-height: 1.75;
+}
+
+/* Math */
+.academic-article .katex-display {
+  margin: 2rem 0;
+  padding: 1.5rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  background: linear-gradient(135deg, rgba(139, 115, 85, 0.03) 0%, rgba(176, 154, 126, 0.05) 100%);
+  border-radius: 8px;
+  position: relative;
+}
+
+.dark .academic-article .katex-display {
+  background: linear-gradient(135deg, rgba(212, 186, 151, 0.05) 0%, rgba(139, 115, 85, 0.08) 100%);
+}
+
+.academic-article .katex-display > .katex {
+  padding: 0 1.5rem;
+}
+
+.academic-article .katex {
+  font-size: 1.08em;
+  color: var(--text-primary);
+}
+
+.academic-article .katex:not(.katex-display .katex) {
+  padding: 0 0.1em;
+}
+
+/* Code */
+.academic-article pre[class*="language-"],
+.academic-article figure[data-rehype-pretty-code-figure] pre {
+  border-radius: 8px;
+  margin: 2.5rem 0;
+  padding: 1.75rem;
+  background: var(--bg-code) !important;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  overflow-x: auto;
+}
+
+.academic-article code[class*="language-"],
+.academic-article figure[data-rehype-pretty-code-figure] code {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+.academic-article :not(pre) > code {
+  font-family: var(--font-jetbrains-mono), monospace;
+  background: rgba(139, 115, 85, 0.08);
+  padding: 0.2em 0.5em;
+  border-radius: 4px;
+  font-size: 0.88em;
+  color: var(--text-primary);
+  border: 1px solid rgba(139, 115, 85, 0.2);
+  font-weight: 400;
+}
+
+/* Table */
+.academic-article table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.academic-article th,
+.academic-article td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.academic-article th {
+  font-family: var(--font-cormorant), serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}

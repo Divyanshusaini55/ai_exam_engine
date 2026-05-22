@@ -155,8 +155,8 @@ function ResourceCard({
   onCompleteToggle,
 }: {
   resource: TopicResourceItem
-  onBookmarkToggle: (id: number, current: boolean) => void
-  onCompleteToggle: (id: number, current: boolean) => void
+  onBookmarkToggle: (slug: string, current: boolean) => void
+  onCompleteToggle: (slug: string, current: boolean) => void
 }) {
   const router = useRouter()
   const isExternal = resource.resource_type === "external_link" || resource.resource_type === "video"
@@ -165,7 +165,7 @@ function ResourceCard({
     if (isExternal && resource.external_url) {
       window.open(resource.external_url, "_blank", "noopener noreferrer")
     } else {
-      router.push(`/resources/${resource.id}`)
+      router.push(`/resources/${resource.slug}`)
     }
   }
 
@@ -238,7 +238,7 @@ function ResourceCard({
       {/* Action row */}
       <div className="border-t border-border flex items-center px-5 py-3 gap-2 bg-card">
         <button
-          onClick={e => { e.stopPropagation(); onBookmarkToggle(resource.id, resource.is_bookmarked) }}
+          onClick={e => { e.stopPropagation(); onBookmarkToggle(resource.slug, resource.is_bookmarked) }}
           className={`p-1.5 rounded-lg transition-colors ${resource.is_bookmarked ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
           title={resource.is_bookmarked ? "Remove bookmark" : "Bookmark"}
         >
@@ -246,7 +246,7 @@ function ResourceCard({
         </button>
 
         <button
-          onClick={e => { e.stopPropagation(); onCompleteToggle(resource.id, resource.is_completed) }}
+          onClick={e => { e.stopPropagation(); onCompleteToggle(resource.slug, resource.is_completed) }}
           className={`p-1.5 rounded-lg transition-colors ${resource.is_completed ? "text-emerald-500" : "text-muted-foreground hover:text-emerald-500"}`}
           title={resource.is_completed ? "Unmark complete" : "Mark complete"}
         >
@@ -314,29 +314,29 @@ export function TopicResourceHub({
     return matchesTab && matchesSearch
   })
 
-  const handleBookmark = useCallback(async (id: number, _current: boolean) => {
+  const handleBookmark = useCallback(async (slug: string, _current: boolean) => {
     const token = localStorage.getItem("auth_token")
     if (!token) { alert("Please log in to bookmark resources."); return }
     try {
-      const res = await fetch(`${API_BASE}/resources/${id}/bookmark/`, {
+      const res = await fetch(`${API_BASE}/resource-hub/${slug}/bookmark/`, {
         method: "POST",
         headers: { Authorization: `Token ${token}` },
       })
       const data = await res.json()
-      setResources(prev => prev.map(r => r.id === id ? { ...r, is_bookmarked: data.is_bookmarked } : r))
+      setResources(prev => prev.map(r => r.slug === slug ? { ...r, is_bookmarked: data.is_bookmarked } : r))
     } catch { /* silent */ }
   }, [])
 
-  const handleComplete = useCallback(async (id: number, _current: boolean) => {
+  const handleComplete = useCallback(async (slug: string, _current: boolean) => {
     const token = localStorage.getItem("auth_token")
     if (!token) { alert("Please log in to track progress."); return }
     try {
-      const res = await fetch(`${API_BASE}/resources/${id}/complete/`, {
+      const res = await fetch(`${API_BASE}/resource-hub/${slug}/mark-done/`, {
         method: "POST",
         headers: { Authorization: `Token ${token}` },
       })
       const data = await res.json()
-      setResources(prev => prev.map(r => r.id === id ? { ...r, is_completed: data.is_completed } : r))
+      setResources(prev => prev.map(r => r.slug === slug ? { ...r, is_completed: data.is_completed } : r))
     } catch { /* silent */ }
   }, [])
 
