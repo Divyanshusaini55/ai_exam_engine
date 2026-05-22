@@ -21,7 +21,7 @@ const STATUS_MAP = {
 export default function RoadmapPage() {
     const params = useParams()
     const router = useRouter()
-    const slug = params.subcategorySlug as string
+    const slug = params?.subcategorySlug as string
     const { user } = useAuth()
     
     const [roadmap, setRoadmap] = useState<any>(null)
