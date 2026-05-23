@@ -5,22 +5,22 @@ from newspaper import Article
 from django.core.management.base import BaseCommand
 from django.utils.text import slugify
 from quiz.models import CurrentAffair, Category
-from openai import OpenAI
-from django.conf import settings
+from quiz.ai.gemini_client import GeminiClient
 import json
 
 class Command(BaseCommand):
     help = 'Fetches and processes daily current affairs using AI'
 
     def handle(self, *args, **options):
-        client = OpenAI(
-            api_key=os.environ.get("GROK_API_KEY", getattr(settings, 'GROK_API_KEY', "")),
-            base_url="https://api.x.ai/v1",
-        )
+        client = GeminiClient()
 
         RSS_FEEDS = [
             {"name": "The Hindu", "url": "https://www.thehindu.com/news/national/feeder/default.rss"},
-            {"name": "LiveMint", "url": "https://www.livemint.com/rss/news"}
+            {"name": "Indian Express", "url": "https://indianexpress.com/section/india/feed/"},
+            {"name": "PIB - English", "url": "https://pib.gov.in/rss/English_All_News.xml"},
+            {"name": "LiveMint", "url": "https://www.livemint.com/rss/news"},
+            {"name": "Business Standard", "url": "https://www.business-standard.com/rss/economy-policy-102.rss"},
+            {"name": "Economic Times", "url": "https://economictimes.indiatimes.com/news/economy/policy/rssfeeds/1287732130.cms"}
         ]
         
         self.stdout.write(self.style.SUCCESS('Starting Current Affairs Fetch...'))
@@ -55,7 +55,7 @@ class Command(BaseCommand):
                         self.stdout.write("Text too short, skipping.")
                         continue
 
-                    # 2. Use Grok to Analyze & Summarize
+                    # 2. Use Gemini Client to Analyze & Summarize
                     prompt = f"""
                     You are an expert tutor for Indian competitive exams (UPSC, SSC, Banking).
                     Read the following news article text and determine if it is highly relevant for exam preparation (e.g. Economy, Policy, Defense, Science, International Relations).
@@ -74,16 +74,18 @@ class Command(BaseCommand):
                     {text[:4000]} # Limit to 4k chars to save tokens
                     """
 
-                    response = client.chat.completions.create(
-                        model="grok-2",
-                        messages=[
-                            {"role": "system", "content": "You are a precise JSON-generating assistant."},
-                            {"role": "user", "content": prompt},
-                        ],
-                    )
+                    res = client.generate_content(prompt)
+                    output = res['text'].strip()
                     
                     # Clean json block
-                    output = response.choices[0].message.content.replace('```json', '').replace('```', '').strip()
+                    if output.startswith("```json"):
+                        output = output[7:]
+                    if output.startswith("```"):
+                        output = output[3:]
+                    if output.endswith("```"):
+                        output = output[:-3]
+                    output = output.strip()
+                    
                     data = json.loads(output)
 
                     if data.get('relevant'):

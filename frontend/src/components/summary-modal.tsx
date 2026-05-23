@@ -2,6 +2,9 @@
 
 import { X } from "lucide-react"
 import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+import remarkMath from "remark-math"
+import rehypeKatex from "rehype-katex"
 
 interface SummaryModalProps {
     isOpen: boolean
@@ -56,7 +59,12 @@ export function SummaryModal({ isOpen, onClose, examTitle, summaryText, isLoadin
                             </div>
                         </div>
                     ) : (
-                        <ReactMarkdown>{displaySummary}</ReactMarkdown>
+                        <ReactMarkdown
+                            remarkPlugins={[remarkGfm, remarkMath]}
+                            rehypePlugins={[rehypeKatex]}
+                        >
+                            {displaySummary}
+                        </ReactMarkdown>
                     )}
                 </div>
                 

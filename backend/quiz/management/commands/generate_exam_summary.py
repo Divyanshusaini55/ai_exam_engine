@@ -1,85 +1,103 @@
-import os
-from django.core.management.base import BaseCommand
-from quiz.models import Exam, Question
-import google.generativeai as genai
-from quiz.ai import configure_gemini
-from django.conf import settings
+from django.core.management.base import BaseCommand, CommandError
+from quiz.models import Exam
+from quiz.ai.summary_service import ExamSummaryService
 
 class Command(BaseCommand):
-    help = 'Generates an AI summary for a given exam based on its questions using Grok AI'
+    help = 'Generates or updates AI summaries for exams using the Exam Intelligence Engine'
 
     def add_arguments(self, parser):
-        parser.add_argument('exam_id', type=int, help='The ID of the Exam to generate a summary for')
-        parser.add_argument('--force', action='store_true', help='Overwrite existing summary')
+        parser.add_argument(
+            'exam_id', 
+            type=int, 
+            nargs='?', 
+            help='The ID of the Exam to generate a summary for'
+        )
+        parser.add_argument(
+            '--force', 
+            action='store_true', 
+            help='Force overwrite/regenerate the summary for the specified exam_id'
+        )
+        parser.add_argument(
+            '--all', 
+            action='store_true', 
+            help='Generate summaries for all published active exams'
+        )
+        parser.add_argument(
+            '--pending', 
+            action='store_true', 
+            help='Generate summaries only for published active exams without any summary'
+        )
+        parser.add_argument(
+            '--regenerate', 
+            action='store_true', 
+            help='Regenerate summaries for all published active exams (overwriting existing)'
+        )
 
     def handle(self, *args, **options):
         exam_id = options['exam_id']
         force = options['force']
-        
-        try:
-            exam = Exam.objects.get(id=exam_id)
-        except Exam.DoesNotExist:
-            self.stdout.write(self.style.ERROR(f'Exam with ID "{exam_id}" does not exist.'))
-            return
+        process_all = options['all']
+        process_pending = options['pending']
+        regenerate_all = options['regenerate']
 
-        if exam.ai_summary and not force:
-            self.stdout.write(self.style.WARNING(f'Summary already exists for exam "{exam.title}". Use --force to regenerate.'))
-            return
+        # Determine target queryset
+        exams = Exam.objects.filter(is_active=True, status='published')
 
-        questions = Question.objects.filter(exam=exam).values('question_text', 'subject', 'topic', 'difficulty')
-        
-        if not questions.exists():
-            self.stdout.write(self.style.ERROR(f'No questions found for exam "{exam.title}". Cannot generate summary.'))
-            return
-
-        self.stdout.write(self.style.SUCCESS(f'Generating Summary for "{exam.title}" using Grok ({questions.count()} questions)...'))
-
-        configure_gemini()
-        # Using 'models/' prefix as seen in list_models() output
-        MODEL_NAME = "models/gemini-flash-lite-latest"
-        print(" USING MODEL:", MODEL_NAME)
-    
-        model = genai.GenerativeModel(MODEL_NAME)   
-        
-        # Prepare a lightweight representation of the exam content
-        question_list_text = ""
-        for idx, q in enumerate(questions[:50]): # Limit to first 50 questions to avoid massive prompt sizes
-            question_list_text += f"{idx+1}. Subject: {q.get('subject')}, Topic: {q.get('topic')}, Diff: {q.get('difficulty')}\n"
-            question_list_text += f"   Q: {q.get('question_text')[:200]}...\n"
-
-        prompt = f"""
-        You are an expert academic evaluator.
-        Please review the following question paper content for the exam titled "{exam.title}" and generate a structured, professional markdown summary.
-        
-        The summary should include:
-        1. An introductory paragraph about the general difficulty and scope of the exam.
-        2. A breakdown of the primary subjects/topics covered (use bullet points or sub-headings).
-        3. Key focus areas or specific patterns observed in the questions (e.g. "Heavy emphasis on Data Structures and Trees").
-        
-        Format the response in clean Markdown. Do NOT include markdown code block wrappers (like ```markdown), just return the raw markdown string.
-        
-        Here is a sample of the questions from the exam:
-        {question_list_text}
-        """
-
-        try:
-            response = model.generate_content(prompt)
+        if exam_id is not None:
+            # Single exam requested
+            exams = exams.filter(id=exam_id)
+            if not exams.exists():
+                self.stdout.write(self.style.WARNING(f'No active, published exam with ID {exam_id} was found.'))
+                # Fallback to check if it exists at all
+                if not Exam.objects.filter(id=exam_id).exists():
+                    raise CommandError(f'Exam with ID "{exam_id}" does not exist.')
+                self.stdout.write(self.style.WARNING(f'Exam with ID {exam_id} exists but is not active or published.'))
+                # Still allow single target if force is used or explicitly requested
+                exams = Exam.objects.filter(id=exam_id)
             
-            output = response.text.strip()
-            # Clean up accidental markdown code block wrappers
-            if output.startswith("```markdown"):
-                output = output[11:]
-            if output.startswith("```"):
-                output = output[3:]
-            if output.endswith("```"):
-                output = output[:-3]
-            
-            output = output.strip()
+            # For a single exam, overwrite is true if --force is provided
+            overwrite = force
+        else:
+            # Multi-exam execution based on flags
+            if process_all:
+                overwrite = False
+                self.stdout.write(self.style.SUCCESS('Processing all published active exams...'))
+            elif process_pending:
+                overwrite = False
+                # Filter to only exams with blank/null ai_summary
+                exams = exams.filter(ai_summary__isnull=True) | exams.filter(ai_summary='')
+                self.stdout.write(self.style.SUCCESS('Processing pending published active exams...'))
+            elif regenerate_all:
+                overwrite = True
+                self.stdout.write(self.style.SUCCESS('Regenerating summaries for all published active exams...'))
+            else:
+                self.print_help('manage.py', 'generate_exam_summary')
+                raise CommandError('Please specify an exam_id, --all, --pending, or --regenerate.')
 
-            exam.ai_summary = output
-            exam.save()
+        count = exams.count()
+        if count == 0:
+            self.stdout.write(self.style.SUCCESS('No exams match the selection criteria. Done.'))
+            return
 
-            self.stdout.write(self.style.SUCCESS(f'Successfully generated and saved summary for "{exam.title}".'))
+        self.stdout.write(self.style.SUCCESS(f'Found {count} exam(s) to process.'))
+        service = ExamSummaryService()
 
-        except Exception as e:
-            self.stdout.write(self.style.ERROR(f'Failed to generate summary: {str(e)}'))
+        success_count = 0
+        failure_count = 0
+
+        for idx, exam in enumerate(exams):
+            self.stdout.write(f"[{idx + 1}/{count}] Processing: {exam.title} (ID: {exam.id})...")
+            try:
+                # Call modular service
+                service.generate_summary(exam, force=overwrite)
+                self.stdout.write(self.style.SUCCESS(f"Successfully processed summary for exam {exam.id}"))
+                success_count += 1
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(f"Failed to process summary for exam {exam.id}: {str(e)}"))
+                failure_count += 1
+
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"\nExecution finished! Success: {success_count}, Failures: {failure_count}"
+            )
+        )

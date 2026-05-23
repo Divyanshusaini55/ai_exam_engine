@@ -2,7 +2,7 @@ import os
 import json
 from django.core.management.base import BaseCommand
 from quiz.models import SubCategory, ExamRoadmap, RoadmapPhase, RoadmapTopic
-from openai import OpenAI
+from quiz.ai.gemini_client import GeminiClient
 from django.conf import settings
 
 class Command(BaseCommand):
@@ -26,10 +26,7 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(f'Generating Roadmap for "{subcategory.name}" using Grok...'))
 
-        client = OpenAI(
-            api_key=os.environ.get("GROK_API_KEY", getattr(settings, 'GROK_API_KEY', "")),
-            base_url="https://api.x.ai/v1",
-        )
+        client = GeminiClient()
 
         prompt = f"""
         You are an expert curriculum designer for Indian competitive exams.
