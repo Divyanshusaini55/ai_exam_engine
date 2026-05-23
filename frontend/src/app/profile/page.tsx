@@ -35,7 +35,7 @@ export default function ProfilePage() {
     const { user, loading, logout } = useAuth()
     const router = useRouter()
 
-    const [activeTab, setActiveTab] = useState("comments") 
+    const [activeTab, setActiveTab] = useState("official") 
     const [showProfilePic, setShowProfilePic] = useState(true)
     const [profileData, setProfileData] = useState<any>(null)
     const [userComments, setUserComments] = useState<any[]>([])
@@ -226,12 +226,19 @@ export default function ProfilePage() {
                         <div className="card-premium p-6 bg-card border border-border shadow-sm">
                             <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-[0.1em] mb-6">Stats</h3>
                             <div className="space-y-4">
-                                <div className="flex items-center justify-between group cursor-pointer" onClick={() => setActiveTab("answers")}>
+                                <div className="flex items-center justify-between group cursor-pointer" onClick={() => setActiveTab("official")}>
+                                    <div className="flex items-center gap-3">
+                                        <Trophy className="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                                        <span className="text-sm font-medium text-muted-foreground group-hover:text-primary">Official Attempts</span>
+                                    </div>
+                                    <span className="text-sm font-bold text-primary">{profileData?.official_attempts?.length || 0}</span>
+                                </div>
+                                <div className="flex items-center justify-between group cursor-pointer" onClick={() => setActiveTab("practice")}>
                                     <div className="flex items-center gap-3">
                                         <PenTool className="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                                        <span className="text-sm font-medium text-muted-foreground group-hover:text-primary">Answers</span>
+                                        <span className="text-sm font-medium text-muted-foreground group-hover:text-primary">Practice Sessions</span>
                                     </div>
-                                    <span className="text-sm font-bold text-primary">{profileData?.answers_count || 0}</span>
+                                    <span className="text-sm font-bold text-primary">{profileData?.practice_sessions?.length || 0}</span>
                                 </div>
                                 <div className="flex items-center justify-between group cursor-pointer" onClick={() => setActiveTab("comments")}>
                                     <div className="flex items-center gap-3">
@@ -239,13 +246,6 @@ export default function ProfilePage() {
                                         <span className="text-sm font-medium text-muted-foreground group-hover:text-primary">Comments</span>
                                     </div>
                                     <span className="text-sm font-bold text-primary">{profileData?.comments_count || 0}</span>
-                                </div>
-                                <div className="flex items-center justify-between group cursor-pointer">
-                                    <div className="flex items-center gap-3">
-                                        <Eye className="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                                        <span className="text-sm font-medium text-muted-foreground group-hover:text-primary">Total Views</span>
-                                    </div>
-                                    <span className="text-sm font-bold text-primary">{profileData?.total_views || 0}</span>
                                 </div>
                                 <div className="flex items-center justify-between group cursor-pointer" onClick={() => setActiveTab("roadmaps")}>
                                     <div className="flex items-center gap-3">
@@ -334,16 +334,28 @@ export default function ProfilePage() {
                         {/* Tabs Navigation */}
                         <div className="bg-secondary/30 p-1.5 rounded-2xl border border-border flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar">
                             <button 
-                                onClick={() => setActiveTab("answers")}
+                                onClick={() => setActiveTab("official")}
                                 className={cn(
                                     "flex-1 py-2.5 sm:py-3 px-3 sm:px-6 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap min-w-max",
-                                    activeTab === "answers" 
+                                    activeTab === "official" 
                                         ? "bg-primary text-primary-foreground shadow-lg scale-[1.02]" 
                                         : "text-muted-foreground hover:bg-secondary/50"
                                 )}
                             >
-                                <FileText className="size-3.5 sm:size-4" />
-                                Answers <span className="opacity-60 ml-0.5 sm:ml-1">{profileData?.answers_count || 0}</span>
+                                <Trophy className="size-3.5 sm:size-4" />
+                                Official Attempts <span className="opacity-60 ml-0.5 sm:ml-1">{profileData?.official_attempts?.length || 0}</span>
+                            </button>
+                            <button 
+                                onClick={() => setActiveTab("practice")}
+                                className={cn(
+                                    "flex-1 py-2.5 sm:py-3 px-3 sm:px-6 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap min-w-max",
+                                    activeTab === "practice" 
+                                        ? "bg-primary text-primary-foreground shadow-lg scale-[1.02]" 
+                                        : "text-muted-foreground hover:bg-secondary/50"
+                                )}
+                            >
+                                <PenTool className="size-3.5 sm:size-4" />
+                                Practice Sessions <span className="opacity-60 ml-0.5 sm:ml-1">{profileData?.practice_sessions?.length || 0}</span>
                             </button>
                             <button 
                                 onClick={() => setActiveTab("comments")}
@@ -376,6 +388,96 @@ export default function ProfilePage() {
                             {statsLoading ? (
                                 <div className="card-premium p-20 flex flex-col items-center justify-center">
                                     <div className="size-10 border-4 border-primary border-t-transparent animate-spin rounded-full" />
+                                </div>
+                            ) : activeTab === "official" && profileData?.official_attempts?.length > 0 ? (
+                                <div className="space-y-4 animate-fade-in">
+                                    {profileData.official_attempts.map((attempt: any) => (
+                                        <div 
+                                            key={attempt.id} 
+                                            onClick={() => router.push(`/dashboard/${attempt.exam_id}?session_id=${attempt.session_id}`)}
+                                            className="card-premium p-5 bg-card border border-border shadow-sm flex flex-col gap-3 group cursor-pointer hover:border-primary/50 transition-colors"
+                                        >
+                                            <div className="flex items-center justify-between gap-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold border border-primary/20 shrink-0">
+                                                        <Trophy className="size-5" />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-sm font-bold text-primary line-clamp-1">{attempt.exam_title}</h4>
+                                                        <p className="text-[10px] text-muted-foreground font-medium">
+                                                            Attempted on {new Date(attempt.completed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right shrink-0">
+                                                    <span className="text-base font-extrabold text-primary">{attempt.percentage}%</span>
+                                                    <p className="text-[10px] text-muted-foreground font-medium">Accuracy</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-wrap items-center gap-6 text-xs text-muted-foreground font-medium">
+                                                <span>Score: <strong className="text-primary font-bold">{attempt.score}</strong></span>
+                                                <span>Total Questions: <strong className="text-primary font-bold">{attempt.total_questions}</strong></span>
+                                                <span>Correct: <strong className="text-success font-bold">{attempt.correct_answers}</strong></span>
+                                                <span>Duration: <strong className="text-primary font-bold">{Math.floor(attempt.duration / 60)}m {attempt.duration % 60}s</strong></span>
+                                            </div>
+                                            <div className="flex justify-end mt-1">
+                                                <button 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        router.push(`/dashboard/${attempt.exam_id}?session_id=${attempt.session_id}`)
+                                                    }}
+                                                    className="text-[11px] font-bold text-primary flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity"
+                                                >
+                                                    View Detailed Analysis <ChevronRight className="size-3" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : activeTab === "practice" && profileData?.practice_sessions?.length > 0 ? (
+                                <div className="space-y-4 animate-fade-in">
+                                    {profileData.practice_sessions.map((session: any) => (
+                                        <div 
+                                            key={session.id} 
+                                            onClick={() => router.push(`/dashboard/${session.exam_id}?session_id=${session.session_id}`)}
+                                            className="card-premium p-5 bg-card border border-border shadow-sm flex flex-col gap-3 group cursor-pointer hover:border-primary/50 transition-colors"
+                                        >
+                                            <div className="flex items-center justify-between gap-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="size-10 rounded-xl bg-secondary flex items-center justify-center text-primary font-bold border border-border shrink-0">
+                                                        <PenTool className="size-5" />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-sm font-bold text-primary line-clamp-1">{session.exam_title}</h4>
+                                                        <p className="text-[10px] text-muted-foreground font-medium">
+                                                            Practiced on {new Date(session.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right shrink-0">
+                                                    <span className="text-base font-extrabold text-primary">{session.accuracy}%</span>
+                                                    <p className="text-[10px] text-muted-foreground font-medium">Accuracy</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-wrap items-center gap-6 text-xs text-muted-foreground font-medium">
+                                                <span>Score: <strong className="text-primary font-bold">{session.score}</strong></span>
+                                                <span>Total Questions: <strong className="text-primary font-bold">{session.total_questions}</strong></span>
+                                                <span>Correct: <strong className="text-success font-bold">{session.correct_answers}</strong></span>
+                                                <span>Duration: <strong className="text-primary font-bold">{Math.floor(session.duration / 60)}m {session.duration % 60}s</strong></span>
+                                            </div>
+                                            <div className="flex justify-end mt-1">
+                                                <button 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        router.push(`/dashboard/${session.exam_id}?session_id=${session.session_id}`)
+                                                    }}
+                                                    className="text-[11px] font-bold text-primary flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity"
+                                                >
+                                                    View Detailed Analysis <ChevronRight className="size-3" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             ) : activeTab === "comments" && userComments.length > 0 ? (
                                 <div className="space-y-4 animate-fade-in">
@@ -452,7 +554,9 @@ export default function ProfilePage() {
                             ) : (
                                 <div className="card-premium p-20 bg-card border border-border shadow-sm flex flex-col items-center justify-center text-center animate-fade-in h-full">
                                     <div className="size-20 rounded-full bg-secondary/50 flex items-center justify-center text-muted-foreground/30 mb-6">
-                                        {activeTab === "answers" ? (
+                                        {activeTab === "official" ? (
+                                            <Trophy className="size-10" />
+                                        ) : activeTab === "practice" ? (
                                             <PenTool className="size-10" />
                                         ) : activeTab === "comments" ? (
                                             <MessageSquare className="size-10" />
@@ -463,13 +567,15 @@ export default function ProfilePage() {
                                         )}
                                     </div>
                                     <h3 className="text-lg font-bold text-primary mb-2">
-                                        {activeTab === "answers" ? "No answers posted yet" : 
+                                        {activeTab === "official" ? "No official attempts yet" : 
+                                         activeTab === "practice" ? "No practice sessions yet" : 
                                          activeTab === "comments" ? "No comments posted yet" : 
                                          activeTab === "roadmaps" ? "No saved roadmaps" :
                                          "No notifications yet"}
                                     </h3>
                                     <p className="text-sm text-muted-foreground font-medium max-w-[280px]">
-                                        {activeTab === "answers" ? "Start contributing to the community!" :
+                                        {activeTab === "official" ? "Take an exam under exam mode to see it here!" :
+                                         activeTab === "practice" ? "Start practicing under learning mode to track your history." :
                                          activeTab === "comments" ? "Join the discussions on exam papers!" :
                                          activeTab === "roadmaps" ? "Bookmark roadmaps to easily find them later." :
                                          "We'll notify you about replies and rewards."}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useSearchParams } from "next/navigation"
 import { QuestionNavigator } from "./question-navigator"
 import { MobileQuestionNavigator } from "./mobile-question-navigator"
@@ -10,6 +10,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
 import { useAuth } from "@/context/auth-context"
+import { useExamLanguage } from "@/context/exam-language-context"
 import { Button } from "@/components/ui/button"
 import {
     Sheet,
@@ -37,7 +38,9 @@ import {
     Heart,
     Pencil,
     Trash2,
-    Download
+    Download,
+    Flag,
+    Bookmark
 } from "lucide-react"
 
 import { SuggestCorrectionModal } from "./suggest-correction-modal"
@@ -67,47 +70,199 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
     const [mode, setMode] = useState<'exam' | 'learning'>(initialMode)
     const [isCorrectionModalOpen, setIsCorrectionModalOpen] = useState(false)
 
-    // 1. Fetch Data on Load
+    const { language, setLanguage } = useExamLanguage()
+
+    // NEW: Session state variables
+    const [sessionId, setSessionId] = useState<string | null>(null)
+    const [reviewQuestions, setReviewQuestions] = useState<Record<number, boolean>>({})
+    const [bookmarkedQuestions, setBookmarkedQuestions] = useState<Record<number, boolean>>({})
+    
+    // NEW: Modals state variables
+    const [showConfirmModal, setShowConfirmModal] = useState(false)
+    const [pendingMode, setPendingMode] = useState<'exam' | 'learning' | null>(null)
+    const [showScoreModal, setShowScoreModal] = useState(false)
+    const [scoreData, setScoreData] = useState<any>(null)
+    const secondsSpentRef = useRef(0)
+    const [showSubmitConfirmModal, setShowSubmitConfirmModal] = useState(false)
+
+    // Elapsed time effect
     useEffect(() => {
-        async function loadExam() {
+        if (!isPaused && !loading) {
+            const interval = setInterval(() => {
+                secondsSpentRef.current += 1
+            }, 1000)
+            return () => clearInterval(interval)
+        }
+    }, [isPaused, loading])
+
+    const saveProgressState = async (index = currentQuestionIndex, questionId = questions[index]?.id) => {
+        if (!sessionId) return
+        try {
+            await examApi.updateSession(
+                examId,
+                sessionId,
+                mode,
+                secondsSpentRef.current,
+                index,
+                questionId
+            )
+        } catch (err) {
+            console.error("Failed to save progress state:", err)
+        }
+    }
+
+    // 1. Fetch Data on Load or mode changes
+    useEffect(() => {
+        async function loadExamAndSession() {
+            setLoading(true)
             try {
-                // Fetch Exam Details, Questions, and Progress in parallel
+                // Start or resume session on backend
+                const storedSessionId = localStorage.getItem(`exam_session_${examId}_${mode}`)
+                const startRes = await examApi.startSession(examId, mode, storedSessionId)
+                const activeSessionId = startRes.data.session_id
+                setSessionId(activeSessionId)
+                localStorage.setItem(`exam_session_${examId}_${mode}`, activeSessionId)
+
+                // Fetch details & progress
                 const [examRes, qRes, progressRes] = await Promise.all([
-                    examApi.get(examId),
-                    examApi.getQuestions(examId),
-                    examApi.getProgress(examId)
+                    examApi.get(examId, { lang: language }),
+                    examApi.getQuestions(examId, { lang: language, mode }),
+                    examApi.getProgress(examId, activeSessionId)
                 ])
 
                 setExam(examRes.data)
                 setQuestions(qRes.data)
                 
-                // Jump to question if 'q' param is present
+                const resumedIndex = startRes.data.current_question_index || 0
+                const resumedDuration = startRes.data.duration || 0
+                
+                if (examRes.data && examRes.data.duration_minutes > 0 && resumedDuration >= examRes.data.duration_minutes * 60) {
+                    // Time is up! Submit immediately
+                    secondsSpentRef.current = resumedDuration
+                    setLoading(false)
+                    handleSubmit(true)
+                    return
+                }
+
+                // Jump to question if 'q' param is present, otherwise use resumed index
+                let targetIndex = resumedIndex
                 const qParam = searchParams?.get('q')
                 if (qParam && qRes.data) {
-                    const targetIndex = qRes.data.findIndex((q: any) => q.id.toString() === qParam)
-                    if (targetIndex !== -1) {
-                        setCurrentQuestionIndex(targetIndex)
+                    const idx = qRes.data.findIndex((q: any) => q.id.toString() === qParam)
+                    if (idx !== -1) {
+                        targetIndex = idx
                     }
                 }
+                setCurrentQuestionIndex(targetIndex)
                 
-                setSelectedAnswers(progressRes.data || {})
+                setSelectedAnswers(progressRes.data.answers || progressRes.data || {})
+                setReviewQuestions(progressRes.data.review?.reduce((acc: any, id: number) => ({ ...acc, [id]: true }), {}) || {})
+                setBookmarkedQuestions(progressRes.data.bookmarked?.reduce((acc: any, id: number) => ({ ...acc, [id]: true }), {}) || {})
+                
+                // Set visited questions
+                const visitedIds = progressRes.data.visited || []
+                const visitedSet = new Set<number>()
+                visitedIds.forEach((qId: number) => {
+                    const idx = qRes.data.findIndex((q: any) => q.id === qId)
+                    if (idx !== -1) {
+                        visitedSet.add(idx + 1)
+                    }
+                })
+                visitedSet.add(targetIndex + 1) // Ensure current question is marked visited
+                setVisitedQuestions(visitedSet)
+                
+                secondsSpentRef.current = resumedDuration
+                setTimerKey(k => k + 1)
+                setIsPaused(startRes.data.is_paused || false)
                 setLoading(false)
             } catch (e) {
-                console.error("Failed to load exam", e)
+                console.error("Failed to load exam and session", e)
+                setLoading(false)
             }
         }
-        loadExam()
-    }, [examId])
+        loadExamAndSession()
+    }, [examId, mode])
 
-    const handleResetTimer = () => {
-        if (exam) {
-            setTimerKey(k => k + 1)
-            setIsPaused(false)
+    // Save state on question change
+    useEffect(() => {
+        if (loading || !sessionId || !questions.length) return
+        const currentQId = questions[currentQuestionIndex]?.id
+        saveProgressState(currentQuestionIndex, currentQId)
+    }, [currentQuestionIndex, sessionId, loading])
+
+    // Periodically save elapsed time every 10 seconds
+    useEffect(() => {
+        if (isPaused || loading || !sessionId || !questions.length) return
+        
+        const interval = setInterval(() => {
+            const currentQId = questions[currentQuestionIndex]?.id
+            saveProgressState(currentQuestionIndex, currentQId)
+        }, 10000)
+        
+        return () => clearInterval(interval)
+    }, [isPaused, loading, sessionId, currentQuestionIndex, questions])
+
+    // Fetch translated questions dynamically when language changes (keeping timer & selections intact)
+    useEffect(() => {
+        if (!exam) return
+        async function loadTranslatedQuestions() {
+            try {
+                const qRes = await examApi.getQuestions(examId, { lang: language, mode })
+                setQuestions(qRes.data)
+            } catch (e) {
+                console.error("Failed to load translated questions", e)
+            }
+        }
+        loadTranslatedQuestions()
+    }, [language, examId, mode])
+
+    const handlePauseToggle = async () => {
+        const nextPaused = !isPaused
+        setIsPaused(nextPaused)
+        if (sessionId) {
+            try {
+                await examApi.pauseSession(examId, sessionId, mode, secondsSpentRef.current)
+            } catch (err) {
+                console.error("Failed to pause session:", err)
+            }
+        }
+    }
+
+    const handleResetTimer = async () => {
+        if (exam && sessionId) {
+            try {
+                await examApi.resetSession(examId, sessionId, mode)
+                setSelectedAnswers({})
+                setReviewQuestions({})
+                setBookmarkedQuestions({})
+                setTimerKey(k => k + 1)
+                setIsPaused(false)
+                secondsSpentRef.current = 0
+            } catch (err) {
+                console.error("Failed to reset session:", err)
+            }
+        }
+    }
+
+    const handleModeSwitchRequest = (targetMode: 'exam' | 'learning') => {
+        if (targetMode === mode) return
+        setPendingMode(targetMode)
+        setShowConfirmModal(true)
+    }
+
+    const confirmModeSwitch = () => {
+        if (pendingMode) {
+            setMode(pendingMode)
+            setShowConfirmModal(false)
         }
     }
 
     // 3. Handle Selection
     const handleAnswer = async (qId: number, aId: number) => {
+        if (!sessionId) return
+        
+        // In Learning mode, prevent changing answer once answered if desired, or allow toggle.
+        // Let's support standard behavior where clicking selected clears it.
         const isCurrentlySelected = selectedAnswers[qId] === aId
         const targetAId = isCurrentlySelected ? null : aId
 
@@ -121,14 +276,28 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
             return next
         })
 
-        // Background submission (sending null clears it in DB)
-        await examApi.submitAnswer(examId, qId, targetAId as any)
+        // Background submission with session ID
+        await examApi.submitAnswer(examId, qId, targetAId as any, sessionId)
+    }
+
+    const handleToggleReview = async () => {
+        if (!currentQ || !sessionId) return
+        const newVal = !reviewQuestions[currentQ.id]
+        setReviewQuestions(prev => ({ ...prev, [currentQ.id]: newVal }))
+        await examApi.submitAnswer(examId, currentQ.id, undefined, sessionId, newVal, undefined)
+    }
+
+    const handleToggleBookmark = async () => {
+        if (!currentQ || !sessionId) return
+        const newVal = !bookmarkedQuestions[currentQ.id]
+        setBookmarkedQuestions(prev => ({ ...prev, [currentQ.id]: newVal }))
+        await examApi.submitAnswer(examId, currentQ.id, undefined, sessionId, undefined, newVal)
     }
 
     // 4. Explain Logic
     const [explanation, setExplanation] = useState<string | null>(null)
     const [explaining, setExplaining] = useState(false)
-    const [visitedQuestions, setVisitedQuestions] = useState<Set<number>>(new Set([1])) // Track visited question IDs (or numbers, using numbers here to match 1-based index)
+    const [visitedQuestions, setVisitedQuestions] = useState<Set<number>>(new Set([1])) // Track visited question IDs
 
     // Track Visited
     useEffect(() => {
@@ -167,21 +336,32 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
         }
     }
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (bypassConfirm = false) => {
+        if (!sessionId) return
+        if (mode === 'exam' && !bypassConfirm) {
+            setShowSubmitConfirmModal(true)
+            return
+        }
         setLoading(true)
         try {
-            const sessionId = getSessionId()
-            console.log("📝 Submitting Exam...", { examId, sessionId })
+            console.log(`📝 Submitting in ${mode} mode...`, { examId, sessionId })
 
-            const res = await examApi.submitExam(examId, sessionId)
-            console.log("✅ Exam Submitted:", res.data)
+            const res = await examApi.submitExam(examId, sessionId, mode, secondsSpentRef.current)
+            console.log("✅ Submitted:", res.data)
+            localStorage.removeItem(`exam_session_${examId}_${mode}`)
 
-            if (onSubmit) {
-                onSubmit()
+            if (mode === 'exam') {
+                if (onSubmit) {
+                    onSubmit()
+                }
+            } else {
+                setScoreData(res.data)
+                setShowScoreModal(true)
+                setLoading(false)
             }
         } catch (error) {
             console.error("❌ Submission Failed:", error)
-            alert("Failed to submit exam. Please check your connection and try again.")
+            alert("Failed to submit. Please check your connection and try again.")
             setLoading(false)
         }
     }
@@ -422,30 +602,58 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                 <div className="flex items-center gap-2 md:gap-4 px-2 md:px-4 py-1 md:py-1.5 bg-card border border-border rounded-full shadow-sm shrink-0">
                     <TimerDisplay 
                         key={timerKey} 
-                        initialSeconds={exam ? exam.duration_minutes * 60 : 0} 
+                        initialSeconds={exam ? Math.max(0, exam.duration_minutes * 60 - secondsSpentRef.current) : 0} 
                         isPaused={isPaused} 
-                        onTimeUp={handleSubmit} 
+                        onTimeUp={() => handleSubmit(true)} 
                     />
-                    <div className="flex items-center gap-1 md:gap-2">
-                        <button 
-                            onClick={() => setIsPaused(!isPaused)}
-                            className="flex items-center justify-center size-7 md:size-8 rounded-full bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white transition-colors"
-                        >
-                            {isPaused ? <Play className="size-4 md:size-5 fill-white" /> : <Pause className="size-4 md:size-5 fill-white" />}
-                        </button>
-                        <button 
-                            onClick={handleResetTimer}
-                            className="flex items-center justify-center size-7 md:size-8 rounded-full bg-destructive hover:bg-destructive/90 text-white transition-colors"
-                        >
-                            <RotateCcw className="size-4 md:size-5" />
-                        </button>
-                    </div>
+                    {mode === 'learning' && (
+                        <div className="flex items-center gap-1 md:gap-2">
+                            <button 
+                                onClick={handlePauseToggle}
+                                className="flex items-center justify-center size-7 md:size-8 rounded-full bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white transition-colors"
+                            >
+                                {isPaused ? <Play className="size-4 md:size-5 fill-white" /> : <Pause className="size-4 md:size-5 fill-white" />}
+                            </button>
+                            <button 
+                                onClick={handleResetTimer}
+                                className="flex items-center justify-center size-7 md:size-8 rounded-full bg-destructive hover:bg-destructive/90 text-white transition-colors"
+                            >
+                                <RotateCcw className="size-4 md:size-5" />
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Right: Submit & Options */}
                 <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
+                    {/* EN | हिन्दी Language Switcher */}
+                    {exam?.supported_languages && exam.supported_languages.includes("hi") && (
+                        <div className="hidden md:flex items-center bg-secondary dark:bg-secondary/40 border border-border rounded-[14px] p-0.5 h-10 shrink-0">
+                            <button
+                                onClick={() => setLanguage("en")}
+                                className={`px-3 h-full flex items-center justify-center text-sm font-bold rounded-[12px] transition-all ${
+                                    language === "en"
+                                        ? "bg-card text-primary shadow-sm"
+                                        : "text-muted-foreground hover:text-primary"
+                                }`}
+                            >
+                                EN
+                            </button>
+                            <button
+                                onClick={() => setLanguage("hi")}
+                                className={`px-3 h-full flex items-center justify-center text-sm font-bold rounded-[12px] transition-all ${
+                                    language === "hi"
+                                        ? "bg-card text-primary shadow-sm"
+                                        : "text-muted-foreground hover:text-primary"
+                                }`}
+                            >
+                                हिन्दी
+                            </button>
+                        </div>
+                    )}
+
                     <Button
-                        onClick={handleSubmit}
+                        onClick={() => handleSubmit(false)}
                         className="rounded-[14px] gap-1.5 md:gap-2 px-3 md:px-6 h-8 md:h-10 text-xs md:text-sm shrink-0"
                     >
                         <span className="hidden md:inline">Submit Exam</span>
@@ -453,11 +661,11 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                         <CheckCircle2 className="size-4 md:size-[18px]" />
                     </Button>
 
-                    <ModeToggle className="size-8 md:size-10 rounded-[14px]" />
+                    <ModeToggle className="hidden md:flex size-10 rounded-[14px]" />
 
                     <Sheet>
                         <SheetTrigger asChild>
-                            <button className="md:hidden flex items-center gap-1 px-1 py-1 rounded-[12px] bg-secondary hover:bg-secondary/80 text-primary transition-colors shrink-0 border border-border">
+                            <button className="md:hidden flex items-center justify-center size-8 rounded-[12px] bg-secondary hover:bg-secondary/80 text-primary transition-colors shrink-0 border border-border">
                                 <MoreVertical className="size-4" />
                             </button>
                         </SheetTrigger>
@@ -469,17 +677,53 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                             {/* Mode Toggle */}
                             <div className="flex bg-secondary p-1 rounded-[14px]">
                                 <button 
-                                    onClick={() => setMode('exam')}
+                                    onClick={() => handleModeSwitchRequest('exam')}
                                     className={`flex-1 py-2 text-[13px] font-bold rounded-[12px] transition-all ${mode === 'exam' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground'}`}
                                 >
                                     Exam Mode
                                 </button>
                                 <button 
-                                    onClick={() => setMode('learning')}
+                                    onClick={() => handleModeSwitchRequest('learning')}
                                     className={`flex-1 py-2 text-[13px] font-bold rounded-[12px] transition-all ${mode === 'learning' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground'}`}
                                 >
                                     Learning Mode
                                 </button>
+                            </div>
+
+                            {/* Mobile Settings Row */}
+                            <div className="flex items-center gap-3 mt-1">
+                                {exam?.supported_languages && exam.supported_languages.includes("hi") ? (
+                                    <div className="flex-grow flex bg-secondary p-0.5 rounded-[14px] h-11 border border-border">
+                                        <button
+                                            onClick={() => setLanguage("en")}
+                                            className={`flex-1 flex items-center justify-center text-[13px] font-bold rounded-[12px] transition-all ${
+                                                language === "en"
+                                                    ? "bg-card text-primary shadow-sm"
+                                                    : "text-muted-foreground"
+                                            }`}
+                                        >
+                                            English
+                                        </button>
+                                        <button
+                                            onClick={() => setLanguage("hi")}
+                                            className={`flex-1 flex items-center justify-center text-[13px] font-bold rounded-[12px] transition-all ${
+                                                language === "hi"
+                                                    ? "bg-card text-primary shadow-sm"
+                                                    : "text-muted-foreground"
+                                            }`}
+                                        >
+                                            हिन्दी
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="flex-grow text-[13px] font-bold text-muted-foreground bg-secondary h-11 rounded-[14px] flex items-center justify-center border border-border">
+                                        Language: English Only
+                                    </div>
+                                )}
+                                <div className="flex items-center gap-2 bg-secondary p-1 rounded-[14px] border border-border h-11 px-3 shrink-0">
+                                    <span className="text-[13px] font-bold text-muted-foreground">Theme</span>
+                                    <ModeToggle className="h-8 w-8 rounded-[10px] bg-card border-none hover:scale-100 shadow-none active:scale-100" />
+                                </div>
                             </div>
 
                             {/* Summary Button */}
@@ -521,6 +765,10 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                     onNavigate={(qNum) => setCurrentQuestionIndex(qNum - 1)}
                     answeredQuestions={answeredQuestionNumbers}
                     visitedQuestions={Array.from(visitedQuestions)}
+                    mode={mode}
+                    questions={questions}
+                    reviewQuestions={reviewQuestions}
+                    bookmarkedQuestions={bookmarkedQuestions}
                 />
             </div>
 
@@ -534,10 +782,13 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                     answeredQuestions={answeredQuestionNumbers}
                     visitedQuestions={Array.from(visitedQuestions)}
                     mode={mode}
-                    onModeChange={setMode}
+                    onModeChange={handleModeSwitchRequest}
                     pdfUrl={exam?.pdf_file}
                     isLoggedIn={!!user}
                     onViewSummary={() => setIsSummaryModalOpen(true)}
+                    questions={questions}
+                    reviewQuestions={reviewQuestions}
+                    bookmarkedQuestions={bookmarkedQuestions}
                 />
 
                 {/* Main Question Card */}
@@ -581,7 +832,27 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                         </>
                                     )}
                                 </button>
-                                <span className="text-xs font-bold bg-secondary text-muted-foreground px-3 py-1 rounded-full">{currentQ.points} Point(s)</span>
+                                {mode === 'learning' && (
+                                    <>
+                                        <button
+                                            onClick={handleToggleReview}
+                                            className={`flex items-center gap-1.5 px-3 py-1 rounded-[12px] text-[10px] font-bold transition-colors ${reviewQuestions[currentQ?.id] ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-secondary text-primary hover:bg-secondary/80'}`}
+                                            title="Flag for Review"
+                                        >
+                                            <Flag className="size-3" />
+                                            {reviewQuestions[currentQ?.id] ? "Flagged" : "Flag"}
+                                        </button>
+                                        <button
+                                            onClick={handleToggleBookmark}
+                                            className={`flex items-center gap-1.5 px-3 py-1 rounded-[12px] text-[10px] font-bold transition-colors ${bookmarkedQuestions[currentQ?.id] ? 'bg-yellow-500 text-black hover:bg-yellow-600' : 'bg-secondary text-primary hover:bg-secondary/80'}`}
+                                            title="Bookmark Question"
+                                        >
+                                            <Bookmark className="size-3" />
+                                            {bookmarkedQuestions[currentQ?.id] ? "Bookmarked" : "Bookmark"}
+                                        </button>
+                                    </>
+                                )}
+                                <span className="text-xs font-bold bg-secondary text-muted-foreground px-3 py-1 rounded-full">{currentQ?.points} Point(s)</span>
                             </div>
                         </div>
 
@@ -597,6 +868,31 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                         <div className="flex flex-col gap-2 md:gap-3">
                             {currentQ.answers.map((ans: any) => {
                                 const isSelected = selectedAnswers[currentQ.id] === ans.id
+                                const isAnswered = selectedAnswers[currentQ.id] !== undefined
+                                
+                                let optionStyle = "border-border hover:border-primary/30 hover:bg-background"
+                                let badgeStyle = "bg-secondary text-muted-foreground group-hover:bg-secondary"
+                                
+                                if (mode === 'learning' && isAnswered) {
+                                    if (isSelected) {
+                                        if (ans.is_correct) {
+                                            optionStyle = "border-success text-success bg-background"
+                                            badgeStyle = "bg-success text-white"
+                                        } else {
+                                            optionStyle = "border-destructive text-destructive bg-background"
+                                            badgeStyle = "bg-destructive text-white"
+                                        }
+                                    } else if (ans.is_correct) {
+                                        optionStyle = "border-success text-success bg-background"
+                                        badgeStyle = "bg-success text-white"
+                                    }
+                                } else {
+                                    if (isSelected) {
+                                        optionStyle = "border-primary bg-secondary"
+                                        badgeStyle = "bg-primary text-primary-foreground"
+                                    }
+                                }
+
                                 return (
                                     <label 
                                         key={ans.id} 
@@ -604,7 +900,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                             e.preventDefault()
                                             handleAnswer(currentQ.id, ans.id)
                                         }}
-                                        className={`group relative flex items-center p-2.5 md:p-3 rounded-xl border-2 cursor-pointer transition-all duration-200 active:scale-[0.98] ${isSelected ? 'border-primary bg-secondary' : 'border-border hover:border-primary/30 hover:bg-background'}`}
+                                        className={`group relative flex items-center p-2.5 md:p-3 rounded-xl border-2 cursor-pointer transition-all duration-200 active:scale-[0.98] ${optionStyle}`}
                                     >
                                         <input 
                                             type="radio" 
@@ -613,16 +909,34 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                             readOnly
                                             className="sr-only" 
                                         />
-                                        <div className={`size-7 md:size-8 text-sm md:text-base rounded-lg flex shrink-0 items-center justify-center font-bold mr-3 md:mr-3 transition-colors ${isSelected ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground group-hover:bg-secondary'}`}>
+                                        <div className={`size-7 md:size-8 text-sm md:text-base rounded-lg flex shrink-0 items-center justify-center font-bold mr-3 md:mr-3 transition-colors ${badgeStyle}`}>
                                             {String.fromCharCode(65 + ans.order)}
                                         </div>
-                                        <span className={`text-sm md:text-base transition-colors ${isSelected ? 'text-primary font-bold' : 'text-primary'}`}>
+                                        <span className="text-sm md:text-base transition-colors font-medium">
                                             {ans.answer_text}
                                         </span>
                                     </label>
                                 )
                             })}
                         </div>
+
+                        {/* Static Explanation (Learning Mode & Answered) */}
+                        {mode === 'learning' && selectedAnswers[currentQ.id] !== undefined && currentQ.explanation && (
+                            <div className="mt-8 p-6 bg-secondary rounded-xl border border-border animate-fade-in">
+                                <div className="flex items-center gap-2 mb-3 text-primary font-bold text-sm">
+                                    <Sparkles className="size-4.5" />
+                                    Explanation
+                                </div>
+                                <div className="text-primary leading-relaxed text-sm prose dark:prose-invert max-w-none">
+                                    <ReactMarkdown
+                                        remarkPlugins={[remarkMath]}
+                                        rehypePlugins={[rehypeKatex]}
+                                    >
+                                        {currentQ.explanation}
+                                    </ReactMarkdown>
+                                </div>
+                            </div>
+                        )}
 
                         {/* AI Explanation Box */}
                         {explanation && (
@@ -673,6 +987,146 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                             examTitle={exam?.title || "Exam Summary"}
                             summaryText={exam?.ai_summary || ""}
                         />
+
+                        {/* Switch Mode Confirmation Modal */}
+                        {showConfirmModal && (
+                            <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+                                <div 
+                                    className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" 
+                                    onClick={() => setShowConfirmModal(false)}
+                                />
+                                <div className="relative bg-card w-full max-w-md rounded-2xl shadow-xl flex flex-col p-6 border border-border animate-scale-in">
+                                    <h3 className="text-lg font-bold text-primary mb-2">Switch Mode</h3>
+                                    <p className="text-sm text-muted-foreground mb-6">
+                                        {pendingMode === 'learning' 
+                                            ? "Switching will start a separate practice session." 
+                                            : "Official attempt will be tracked."}
+                                    </p>
+                                    <div className="flex gap-3 justify-end">
+                                        <Button 
+                                            variant="outline" 
+                                            onClick={() => setShowConfirmModal(false)}
+                                            className="rounded-[14px]"
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button 
+                                            onClick={confirmModeSwitch}
+                                            className="rounded-[14px]"
+                                        >
+                                            Confirm
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Practice Completed Modal */}
+                        {showScoreModal && scoreData && (
+                            <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+                                <div 
+                                    className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" 
+                                    onClick={() => setShowScoreModal(false)}
+                                />
+                                <div className="relative bg-card w-full max-w-lg rounded-3xl shadow-xl flex flex-col p-8 border border-border animate-scale-in">
+                                    <div className="text-center mb-6">
+                                        <h2 className="text-3xl font-extrabold text-primary tracking-tight">Practice Complete</h2>
+                                        <p className="text-sm text-muted-foreground mt-1">Great job finishing your practice session!</p>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4 mb-6">
+                                        <div className="bg-secondary/50 p-4 rounded-2xl border border-border text-center">
+                                            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Score</div>
+                                            <div className="text-2xl font-extrabold text-primary mt-1">{scoreData.score} / {questions.length}</div>
+                                        </div>
+                                        <div className="bg-secondary/50 p-4 rounded-2xl border border-border text-center">
+                                            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Accuracy</div>
+                                            <div className="text-2xl font-extrabold text-primary mt-1">{scoreData.accuracy}%</div>
+                                        </div>
+                                        <div className="bg-secondary/50 p-4 rounded-2xl border border-border text-center col-span-2 grid grid-cols-3 gap-2">
+                                            <div className="text-center">
+                                                <div className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Attempted</div>
+                                                <div className="text-lg font-bold text-primary mt-0.5">{scoreData.correct + scoreData.wrong}</div>
+                                            </div>
+                                            <div className="text-center border-l border-border">
+                                                <div className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider text-success">Correct</div>
+                                                <div className="text-lg font-bold text-success mt-0.5">{scoreData.correct}</div>
+                                            </div>
+                                            <div className="text-center border-l border-border">
+                                                <div className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider text-destructive">Wrong</div>
+                                                <div className="text-lg font-bold text-destructive mt-0.5">{scoreData.wrong}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {scoreData.weak_topics && scoreData.weak_topics.length > 0 && (
+                                        <div className="bg-destructive/5 dark:bg-destructive/10 p-5 rounded-2xl border border-destructive/20 mb-6">
+                                            <h4 className="text-xs font-bold text-destructive uppercase tracking-wider mb-2">Weak Areas</h4>
+                                            <div className="flex flex-wrap gap-2">
+                                                {scoreData.weak_topics.map((topic: string) => (
+                                                    <span key={topic} className="px-2.5 py-1 bg-destructive/10 text-destructive text-xs font-bold rounded-lg border border-destructive/20">
+                                                        {topic}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="flex flex-col sm:flex-row gap-3">
+                                        <Button 
+                                            variant="outline" 
+                                            onClick={() => setShowScoreModal(false)}
+                                            className="flex-grow rounded-[14px] py-6 text-sm font-bold"
+                                        >
+                                            Continue Learning
+                                        </Button>
+                                        <Button 
+                                            onClick={() => {
+                                                setShowScoreModal(false);
+                                                handleModeSwitchRequest('exam');
+                                            }}
+                                            className="flex-grow rounded-[14px] py-6 text-sm font-bold bg-primary hover:opacity-90 shadow-lg shadow-primary/10"
+                                        >
+                                            Try Official Exam →
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Submit Exam Confirmation Modal */}
+                        {showSubmitConfirmModal && (
+                            <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+                                <div 
+                                    className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" 
+                                    onClick={() => setShowSubmitConfirmModal(false)}
+                                />
+                                <div className="relative bg-card w-full max-w-md rounded-2xl shadow-xl flex flex-col p-6 border border-border animate-scale-in">
+                                    <h3 className="text-lg font-bold text-primary mb-2">Submit Exam</h3>
+                                    <p className="text-sm text-muted-foreground mb-6">
+                                        Are you sure you want to submit your exam attempt? This will end the session and submit your scores for official analysis.
+                                    </p>
+                                    <div className="flex gap-3 justify-end">
+                                        <Button 
+                                            variant="outline" 
+                                            onClick={() => setShowSubmitConfirmModal(false)}
+                                            className="rounded-[14px]"
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button 
+                                            onClick={() => {
+                                                setShowSubmitConfirmModal(false);
+                                                handleSubmit(true);
+                                            }}
+                                            className="rounded-[14px] bg-primary hover:opacity-90"
+                                        >
+                                            Submit Exam
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {/* PREMIUM DISCUSSION MODAL (Matches Reference UI) */}
                         {isDiscussionOpen && (
@@ -829,14 +1283,27 @@ function TimerDisplay({ initialSeconds, isPaused, onTimeUp }: { initialSeconds: 
         setTimeLeft(initialSeconds)
     }, [initialSeconds])
 
+    const onTimeUpRef = useRef(onTimeUp)
     useEffect(() => {
-        if (!isPaused && timeLeft > 0) {
-            const timer = setInterval(() => setTimeLeft((t) => t - 1), 1000)
-            return () => clearInterval(timer)
-        } else if (timeLeft === 0 && initialSeconds > 0) {
-            onTimeUp()
-        }
-    }, [timeLeft, isPaused, onTimeUp, initialSeconds])
+        onTimeUpRef.current = onTimeUp
+    }, [onTimeUp])
+
+    useEffect(() => {
+        if (isPaused || initialSeconds <= 0) return
+
+        const timer = setInterval(() => {
+            setTimeLeft((prev) => {
+                if (prev <= 1) {
+                    clearInterval(timer)
+                    setTimeout(() => onTimeUpRef.current(), 0)
+                    return 0
+                }
+                return prev - 1
+            })
+        }, 1000)
+
+        return () => clearInterval(timer)
+    }, [isPaused, initialSeconds])
 
     const formatTime = (seconds: number) => {
         const h = Math.floor(seconds / 3600)

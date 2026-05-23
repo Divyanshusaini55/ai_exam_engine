@@ -49,6 +49,10 @@ class SubCategory(models.Model):
         ordering = ['order', 'name']
 
 
+def get_default_languages():
+    return ["en"]
+
+
 class Exam(models.Model):
     STATUS_CHOICES = [
         ('draft', 'Draft'),
@@ -101,6 +105,7 @@ class Exam(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True, help_text="Inactive exams are hidden from students")
+    supported_languages = models.JSONField(default=get_default_languages, help_text="Supported languages for this exam")
 
     def __str__(self):
         year_str = f" ({self.year})" if self.year else ""
@@ -173,6 +178,8 @@ class UserAnswer(models.Model):
     is_correct = models.BooleanField(default=False)
     answered_at = models.DateTimeField(auto_now_add=True)
     session_id = models.CharField(max_length=100, db_index=True)
+    is_flagged_for_review = models.BooleanField(default=False)
+    is_bookmarked = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.session_id} - {self.question}"
@@ -184,7 +191,7 @@ class UserAnswer(models.Model):
 
 from django.contrib.auth.models import User
 
-class UserExamResult(models.Model):
+class ExamAttempt(models.Model):
     user = models.ForeignKey(User, related_name='exam_results', on_delete=models.SET_NULL, null=True, blank=True)
     guest_name = models.CharField(max_length=100, null=True, blank=True)
     guest_email = models.EmailField(null=True, blank=True)
@@ -195,12 +202,43 @@ class UserExamResult(models.Model):
     percentage = models.FloatField()
     session_id = models.CharField(max_length=100, db_index=True)
     completed_at = models.DateTimeField(auto_now_add=True)
+    duration = models.IntegerField(default=0, null=True, blank=True)
+    is_completed = models.BooleanField(default=False)
+    current_question_index = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.user.username} - {self.exam.title} ({self.percentage}%)"
+        username = self.user.username if self.user else (self.guest_name or "Guest")
+        return f"{username} - {self.exam.title} ({self.percentage}%)"
 
     class Meta:
         ordering = ['-completed_at']
+
+
+class PracticeSession(models.Model):
+    user = models.ForeignKey(User, related_name='practice_sessions', on_delete=models.SET_NULL, null=True, blank=True)
+    exam = models.ForeignKey(Exam, related_name='practice_sessions', on_delete=models.CASCADE)
+    score = models.IntegerField()
+    total_questions = models.IntegerField()
+    correct_answers = models.IntegerField()
+    accuracy = models.FloatField()
+    session_id = models.CharField(max_length=100, db_index=True)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    duration = models.IntegerField(default=0, null=True, blank=True)
+    is_completed = models.BooleanField(default=False)
+    current_question_index = models.IntegerField(default=0)
+    is_paused = models.BooleanField(default=False)
+
+    def __str__(self):
+        username = self.user.username if self.user else "Guest"
+        return f"{username} - {self.exam.title} ({self.accuracy}%) - Practice"
+
+    class Meta:
+        ordering = ['-submitted_at']
+
+
+# Alias for backward compatibility
+UserExamResult = ExamAttempt
+
 
 
 class ContactMessage(models.Model):
@@ -588,4 +626,42 @@ class ResourceBookmark(models.Model):
 
     def __str__(self):
         return f"♥ {self.user.username} — {self.resource.title}"
+
+
+from .models_translations import QuestionTranslation, AnswerTranslation
+
+
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from django.core.cache import cache
+
+def clear_exam_cache(exam_id):
+    if exam_id:
+        for lang in ['en', 'hi']:
+            cache.delete(f"exam:{exam_id}:{lang}")
+            cache.delete(f"exam_questions:{exam_id}:{lang}")
+
+@receiver([post_save, post_delete], sender=Exam)
+def exam_cache_clear(sender, instance, **kwargs):
+    clear_exam_cache(instance.id)
+
+@receiver([post_save, post_delete], sender=Question)
+def question_cache_clear(sender, instance, **kwargs):
+    clear_exam_cache(instance.exam_id)
+
+@receiver([post_save, post_delete], sender=Answer)
+def answer_cache_clear(sender, instance, **kwargs):
+    if hasattr(instance, 'question') and instance.question:
+        clear_exam_cache(instance.question.exam_id)
+
+@receiver([post_save, post_delete], sender=QuestionTranslation)
+def question_translation_cache_clear(sender, instance, **kwargs):
+    if hasattr(instance, 'question') and instance.question:
+        clear_exam_cache(instance.question.exam_id)
+
+@receiver([post_save, post_delete], sender=AnswerTranslation)
+def answer_translation_cache_clear(sender, instance, **kwargs):
+    if hasattr(instance, 'answer') and instance.answer and hasattr(instance.answer, 'question') and instance.answer.question:
+        clear_exam_cache(instance.answer.question.exam_id)
+
 

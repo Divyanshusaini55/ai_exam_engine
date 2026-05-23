@@ -39,16 +39,49 @@ class ProfileViewSet(viewsets.ModelViewSet):
         comments_count = Comment.objects.filter(user=request.user).count()
         total_views = Solution.objects.filter(user=request.user).aggregate(t=Sum('views'))['t'] or 0
 
-        from quiz.models import ExamRoadmap
+        from quiz.models import ExamRoadmap, ExamAttempt, PracticeSession
         from quiz.serializers import BookmarkedRoadmapSerializer
         bookmarked_roadmaps = ExamRoadmap.objects.filter(bookmarks=request.user)
         bookmarked_serializer = BookmarkedRoadmapSerializer(bookmarked_roadmaps, many=True)
+
+        official_attempts = ExamAttempt.objects.filter(user=request.user, is_completed=True).select_related('exam')
+        practice_sessions = PracticeSession.objects.filter(user=request.user, is_completed=True).select_related('exam')
 
         data = self.get_serializer(profile).data
         data['answers_count'] = answers_count
         data['comments_count'] = comments_count
         data['total_views'] = total_views
         data['bookmarked_roadmaps'] = bookmarked_serializer.data
+
+        data['official_attempts'] = [
+            {
+                'id': attempt.id,
+                'exam_id': attempt.exam.id,
+                'exam_title': attempt.exam.title,
+                'score': attempt.score,
+                'total_questions': attempt.total_questions,
+                'correct_answers': attempt.correct_answers,
+                'percentage': attempt.percentage,
+                'duration': attempt.duration,
+                'completed_at': attempt.completed_at.isoformat(),
+            }
+            for attempt in official_attempts
+        ]
+        
+        data['practice_sessions'] = [
+            {
+                'id': session.id,
+                'exam_id': session.exam.id,
+                'exam_title': session.exam.title,
+                'score': session.score,
+                'total_questions': session.total_questions,
+                'correct_answers': session.correct_answers,
+                'accuracy': session.accuracy,
+                'duration': session.duration,
+                'submitted_at': session.submitted_at.isoformat(),
+            }
+            for session in practice_sessions
+        ]
         return Response(data)
 
 
@@ -145,11 +178,11 @@ class MyStatsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        from quiz.models import UserExamResult, UserTopicProgress
+        from quiz.models import ExamAttempt, UserTopicProgress
         profile, _ = Profile.objects.get_or_create(user=request.user)
 
-        exams_solved = UserExamResult.objects.filter(user=request.user).count()
-        avg_score    = UserExamResult.objects.filter(user=request.user).aggregate(a=Avg('percentage'))['a'] or 0
+        exams_solved = ExamAttempt.objects.filter(user=request.user, is_completed=True).count()
+        avg_score    = ExamAttempt.objects.filter(user=request.user, is_completed=True).aggregate(a=Avg('percentage'))['a'] or 0
         roadmap_done = UserTopicProgress.objects.filter(user=request.user, status='done').count()
 
         # 7-day activity chart

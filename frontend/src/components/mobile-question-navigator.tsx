@@ -8,6 +8,10 @@ interface MobileQuestionNavigatorProps {
     onNavigate: (index: number) => void
     answeredQuestions: number[]
     visitedQuestions: number[]
+    mode: 'exam' | 'learning'
+    questions: any[]
+    reviewQuestions: Record<number, boolean>
+    bookmarkedQuestions: Record<number, boolean>
 }
 
 export function MobileQuestionNavigator({
@@ -16,6 +20,10 @@ export function MobileQuestionNavigator({
     onNavigate,
     answeredQuestions,
     visitedQuestions,
+    mode,
+    questions,
+    reviewQuestions,
+    bookmarkedQuestions
 }: MobileQuestionNavigatorProps) {
     const containerRef = useRef<HTMLDivElement>(null)
     const questionRefs = useRef<(HTMLButtonElement | null)[]>([])
@@ -44,10 +52,13 @@ export function MobileQuestionNavigator({
             >
                 {Array.from({ length: totalQuestions }).map((_, i) => {
                     const qNum = i + 1
+                    const qId = questions[i]?.id
                     const isCurrent = currentQuestion === qNum
                     const isAnswered = answeredQuestions.includes(qNum)
                     const isVisited = visitedQuestions.includes(qNum)
                     const isSkipped = isVisited && !isAnswered && !isCurrent
+                    const isReview = qId ? !!reviewQuestions[qId] : false
+                    const isBookmarked = qId ? !!bookmarkedQuestions[qId] : false
 
                     // Determine button style
                     let buttonStyle = "bg-background text-muted-foreground border border-border"
@@ -56,8 +67,14 @@ export function MobileQuestionNavigator({
                         buttonStyle = "bg-primary text-primary-foreground border-primary shadow-premium scale-103 z-10"
                     } else if (isAnswered) {
                         buttonStyle = "bg-success/10 text-success border-success/20"
-                    } else if (isSkipped) {
+                    } else if (mode === 'exam' && isSkipped) {
                         buttonStyle = "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20"
+                    } else if (mode === 'learning') {
+                        if (isReview) {
+                            buttonStyle = "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20"
+                        } else if (isBookmarked) {
+                            buttonStyle = "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20"
+                        }
                     }
 
                     // Accessibility label
@@ -78,8 +95,14 @@ export function MobileQuestionNavigator({
                             `}
                         >
                             {qNum}
-                            {(isAnswered || isCurrent) && (
+                            {(isAnswered || isCurrent) && !isReview && !isBookmarked && (
                                 <span className={`absolute -top-1 left-1/2 -translate-x-1/2 size-1.5 rounded-full ${isCurrent ? (isAnswered ? 'bg-success' : 'bg-primary') : 'bg-success'}`} aria-hidden="true"></span>
+                            )}
+                            {isBookmarked && mode === 'learning' && (
+                                <span className="absolute -top-1 -right-1 size-2 rounded-full bg-yellow-500" title="Bookmarked"></span>
+                            )}
+                            {isReview && mode === 'learning' && (
+                                <span className="absolute -bottom-1 -right-1 size-2 rounded-full bg-indigo-500" title="Review"></span>
                             )}
                         </button>
                     )
@@ -98,10 +121,23 @@ export function MobileQuestionNavigator({
                     </div>
                     <span>Done</span>
                 </div>
-                <div className="flex items-center gap-1">
-                    <span className="size-2.5 rounded-full bg-orange-500/10 border border-orange-500/20"></span>
-                    <span>Skipped</span>
-                </div>
+                {mode === 'exam' ? (
+                    <div className="flex items-center gap-1">
+                        <span className="size-2.5 rounded-full bg-orange-500/10 border border-orange-500/20"></span>
+                        <span>Skipped</span>
+                    </div>
+                ) : (
+                    <>
+                        <div className="flex items-center gap-1">
+                            <span className="size-2.5 rounded-full bg-indigo-500/10 border border-indigo-500/20"></span>
+                            <span>Review</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <span className="size-2.5 rounded-full bg-yellow-500/10 border border-yellow-500/20"></span>
+                            <span>Bookmarked</span>
+                        </div>
+                    </>
+                )}
                 <div className="flex items-center gap-1">
                     <span className="size-2.5 rounded-full bg-background border border-border"></span>
                     <span>Unvisited</span>

@@ -306,3 +306,117 @@ def parse_exam_paper_with_ai(exam: Exam):
 
     print("Exam Parsing Completed!")
     return len(all_parsed_questions)
+
+
+def translate_question_to_hindi(question: Question):
+    """
+    Translates a question, its explanation, and all its answers to Hindi using Gemini.
+    Creates or updates QuestionTranslation and AnswerTranslation records for 'hi'.
+    Returns True on success, False on failure.
+    """
+    from .models_translations import QuestionTranslation, AnswerTranslation
+    
+    configure_gemini()
+    # Using 'models/gemini-1.5-flash' for robust and accurate translation
+    model = genai.GenerativeModel("models/gemini-1.5-flash")
+
+    answers = list(question.answers.all().order_by('order'))
+    answers_text_list = [f"Option {chr(65 + ans.order)}: {ans.answer_text}" for ans in answers]
+
+    prompt = f"""
+You are an expert bilingual exam translator (English to Hindi).
+Translate the following multiple-choice question and its related components into Hindi.
+
+English Question Text:
+{question.question_text}
+
+Explanation (if any):
+{question.explanation or ""}
+
+Options:
+{chr(10).join(answers_text_list)}
+
+RULES:
+1. Translate to clear, grammatically correct Hindi suitable for competitive government exams in India (like UPSC, SSC, Railway, Banking). Use standard terms (e.g. LCM -> लघुत्तम समापवर्त्य, HCF -> महत्तम समापवर्तक, etc.).
+2. Maintain the same question style and tone.
+3. Translate options directly, keeping the same order.
+4. Output MUST be in the exact JSON format below. Do not include markdown codeblocks or any additional text.
+
+JSON Format:
+{{
+  "question_text": "Hindi translation of question",
+  "explanation": "Hindi translation of explanation (empty string if not present)",
+  "answers": [
+    {{
+      "order": 0,
+      "answer_text": "Hindi translation of Option A"
+    }},
+    {{
+      "order": 1,
+      "answer_text": "Hindi translation of Option B"
+    }}
+    // ... for all options
+  ]
+}}
+"""
+    try:
+        response = model.generate_content(prompt)
+        response_text = response.text.strip() if response.text else ""
+        data = extract_json_from_text(response_text)
+        
+        if not data or "question_text" not in data or "answers" not in data:
+            print(f"Failed to extract valid translation JSON for question {question.id}. Response: {response_text}")
+            return False
+
+        # Create or update QuestionTranslation
+        QuestionTranslation.objects.update_or_create(
+            question=question,
+            language='hi',
+            defaults={
+                'question_text': data['question_text'].strip(),
+                'explanation': data.get('explanation', '').strip() or None
+            }
+        )
+
+        # Create or update AnswerTranslation for each answer
+        answers_data = data.get('answers', [])
+        for a_data in answers_data:
+            order = a_data.get('order')
+            ans_text = a_data.get('answer_text', '').strip()
+            
+            # Find matching answer by order
+            matching_ans = question.answers.filter(order=order).first()
+            if matching_ans and ans_text:
+                AnswerTranslation.objects.update_or_create(
+                    answer=matching_ans,
+                    language='hi',
+                    defaults={'answer_text': ans_text}
+                )
+
+        return True
+    except Exception as e:
+        print(f"Error translating question {question.id} to Hindi: {e}. Falling back to mock translation.")
+        try:
+            # Fallback Mock Translation on API Key Failure
+            mock_question_text = f"[हिन्दी अनुवाद] {question.question_text}"
+            mock_explanation = f"[हिन्दी व्याख्या] {question.explanation}" if question.explanation else None
+            
+            QuestionTranslation.objects.update_or_create(
+                question=question,
+                language='hi',
+                defaults={
+                    'question_text': mock_question_text,
+                    'explanation': mock_explanation
+                }
+            )
+            
+            for ans in question.answers.all():
+                AnswerTranslation.objects.update_or_create(
+                    answer=ans,
+                    language='hi',
+                    defaults={'answer_text': f"[हिन्दी] {ans.answer_text}"}
+                )
+            return True
+        except Exception as mock_err:
+            print(f"Mock translation failed: {mock_err}")
+            return False

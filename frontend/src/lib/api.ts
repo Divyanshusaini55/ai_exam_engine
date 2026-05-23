@@ -71,31 +71,85 @@ export const examApi = {
   list: (params?: any) => api.get('/exams/', { params }),
 
   // Get details (questions) for a specific exam
-  get: (id: string) => api.get(`/exams/${id}/`),
+  get: (id: string, params?: any) => api.get(`/exams/${id}/`, { params }),
 
   // Get questions for the "Taking Interface"
-  getQuestions: (id: string) => api.get(`/exams/${id}/questions/`),
+  getQuestions: (id: string, params?: any) => api.get(`/exams/${id}/questions/`, { params }),
 
   // Submit a single answer (Background Auto-save)
-  submitAnswer: (examId: string, questionId: number, answerId: number) => {
+  submitAnswer: (
+    examId: string,
+    questionId: number,
+    answerId?: number | null,
+    sessionId?: string | null,
+    isFlaggedForReview?: boolean,
+    isBookmarked?: boolean
+  ) => {
     return api.post(`/exams/${examId}/submit_answer/`, {
-      session_id: getSessionId(),
+      session_id: sessionId || getSessionId(),
       question_id: questionId,
       answer_id: answerId,
+      is_flagged_for_review: isFlaggedForReview,
+      is_bookmarked: isBookmarked,
     });
   },
 
-  // NEW: Submit entire exam to calculate results
-  submitExam: (examId: string, sessionId: string) => {
-    return api.post(`/exams/${examId}/submit_exam/`, {
+  // NEW: Start exam/learning session
+  startSession: (examId: string, mode: 'exam' | 'learning', sessionId?: string | null) => {
+    return api.post(`/exams/${examId}/start/`, {
+      mode,
       session_id: sessionId
     });
   },
 
+  // NEW: Submit entire exam/practice to calculate results
+  submitExam: (examId: string, sessionId: string, mode: 'exam' | 'learning' = 'exam', duration = 0) => {
+    return api.post(`/exams/${examId}/submit/`, {
+      session_id: sessionId,
+      mode,
+      duration
+    });
+  },
+
+  // NEW: Pause session
+  pauseSession: (examId: string, sessionId: string, mode: 'exam' | 'learning', duration: number) => {
+    return api.post(`/exams/${examId}/pause/`, {
+      session_id: sessionId,
+      mode,
+      duration
+    });
+  },
+
+  // NEW: Reset session
+  resetSession: (examId: string, sessionId: string, mode: 'exam' | 'learning') => {
+    return api.post(`/exams/${examId}/reset/`, {
+      session_id: sessionId,
+      mode
+    });
+  },
+
+  // NEW: Update session state (current question index, duration, visited status)
+  updateSession: (
+    examId: string,
+    sessionId: string,
+    mode: 'exam' | 'learning',
+    duration: number,
+    currentQuestionIndex: number,
+    questionId?: number | null
+  ) => {
+    return api.post(`/exams/${examId}/update_session/`, {
+      session_id: sessionId,
+      mode,
+      duration,
+      current_question_index: currentQuestionIndex,
+      question_id: questionId,
+    });
+  },
+
   // Get Final Results
-  getResults: (examId: string) => {
+  getResults: (examId: string, sessionId?: string | null) => {
     return api.get(`/exams/${examId}/results/`, {
-      params: { session_id: getSessionId() }
+      params: { session_id: sessionId || getSessionId() }
     });
   },
 
@@ -128,8 +182,8 @@ export const examApi = {
   upvoteSuggestion: (id: number) => api.post(`/suggestions/${id}/upvote/`),
   
   // NEW: Get current progress for an exam (to restore on refresh)
-  getProgress: (examId: string) => api.get(`/exams/${examId}/progress/`, {
-    params: { session_id: getSessionId() }
+  getProgress: (examId: string, sessionId?: string | null) => api.get(`/exams/${examId}/progress/`, {
+    params: { session_id: sessionId || getSessionId() }
   }),
 };
 

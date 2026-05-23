@@ -56,8 +56,8 @@ class Command(BaseCommand):
             xp += profile.uploads_approved         * 50
             xp += profile.suggestions_approved     * 20
             # Exam results
-            from quiz.models import UserExamResult, UserTopicProgress
-            xp += UserExamResult.objects.filter(user=user).count() * 2
+            from quiz.models import ExamAttempt, UserTopicProgress
+            xp += ExamAttempt.objects.filter(user=user, is_completed=True).count() * 2
             xp += UserTopicProgress.objects.filter(user=user, status='done').count() * 1
             profile.xp = xp
 

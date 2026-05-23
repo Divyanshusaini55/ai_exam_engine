@@ -1,15 +1,24 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { Play, Pause, RotateCcw } from 'lucide-react'
 
 interface TimerProps {
   durationMinutes: number
   onTimeUp: () => void
+  mode?: 'exam' | 'learning'
 }
 
-export default function Timer({ durationMinutes, onTimeUp }: TimerProps) {
+export default function Timer({ durationMinutes, onTimeUp, mode = 'exam' }: TimerProps) {
   const [timeLeft, setTimeLeft] = useState(durationMinutes * 60) // Convert to seconds
   const [isExpired, setIsExpired] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
+
+  useEffect(() => {
+    setTimeLeft(durationMinutes * 60)
+    setIsExpired(false)
+    setIsPaused(false)
+  }, [durationMinutes])
 
   useEffect(() => {
     if (timeLeft <= 0) {
@@ -17,6 +26,8 @@ export default function Timer({ durationMinutes, onTimeUp }: TimerProps) {
       onTimeUp()
       return
     }
+
+    if (isPaused) return
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
@@ -30,7 +41,7 @@ export default function Timer({ durationMinutes, onTimeUp }: TimerProps) {
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [timeLeft, onTimeUp])
+  }, [timeLeft, onTimeUp, isPaused])
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600)
@@ -46,6 +57,12 @@ export default function Timer({ durationMinutes, onTimeUp }: TimerProps) {
   const percentage = (timeLeft / (durationMinutes * 60)) * 100
   const isWarning = percentage < 20
 
+  const handleReset = () => {
+    setTimeLeft(durationMinutes * 60)
+    setIsExpired(false)
+    setIsPaused(false)
+  }
+
   return (
     <div
       style={{
@@ -59,12 +76,52 @@ export default function Timer({ durationMinutes, onTimeUp }: TimerProps) {
         fontWeight: '600',
         fontSize: '1.1rem',
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        gap: '1rem',
       }}
     >
-      <span>⏱️ Time Remaining:</span>
-      <span style={{ fontSize: '1.3rem', fontFamily: 'monospace' }}>
-        {isExpired ? '00:00' : formatTime(timeLeft)}
-      </span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <span>⏱️ Time Remaining:</span>
+        <span style={{ fontSize: '1.3rem', fontFamily: 'monospace' }}>
+          {isExpired ? '00:00' : formatTime(timeLeft)}
+        </span>
+      </div>
+
+      {mode === 'learning' && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <button
+            onClick={() => setIsPaused(!isPaused)}
+            style={{
+              background: 'rgba(255,255,255,0.2)',
+              border: 'none',
+              borderRadius: '4px',
+              padding: '4px 8px',
+              color: 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {isPaused ? <Play size={16} fill="white" /> : <Pause size={16} fill="white" />}
+          </button>
+          <button
+            onClick={handleReset}
+            style={{
+              background: 'rgba(255,255,255,0.2)',
+              border: 'none',
+              borderRadius: '4px',
+              padding: '4px 8px',
+              color: 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <RotateCcw size={16} />
+          </button>
+        </div>
+      )}
     </div>
   )
 }

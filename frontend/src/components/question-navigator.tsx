@@ -13,6 +13,9 @@ interface QuestionNavigatorProps {
     pdfUrl?: string
     isLoggedIn: boolean
     onViewSummary: () => void
+    questions: any[]
+    reviewQuestions: Record<number, boolean>
+    bookmarkedQuestions: Record<number, boolean>
 }
 
 export function QuestionNavigator({
@@ -25,7 +28,10 @@ export function QuestionNavigator({
     onModeChange,
     pdfUrl,
     isLoggedIn,
-    onViewSummary
+    onViewSummary,
+    questions,
+    reviewQuestions,
+    bookmarkedQuestions
 }: QuestionNavigatorProps) {
     const handleDownload = () => {
         if (!isLoggedIn) {
@@ -88,7 +94,14 @@ export function QuestionNavigator({
                     </p>
                     <div className="flex gap-1">
                         <span className="size-2 rounded-full bg-success" title="Answered" />
-                        <span className="size-2 rounded-full bg-orange-500" title="Skipped" />
+                        {mode === 'exam' ? (
+                            <span className="size-2 rounded-full bg-orange-500" title="Skipped" />
+                        ) : (
+                            <>
+                                <span className="size-2 rounded-full bg-indigo-500" title="Review" />
+                                <span className="size-2 rounded-full bg-yellow-500" title="Bookmarked" />
+                            </>
+                        )}
                         <span className="size-2 rounded-full bg-muted" title="Not Visited" />
                     </div>
                 </div>
@@ -98,10 +111,13 @@ export function QuestionNavigator({
                 <div className="grid grid-cols-5 gap-3">
                     {Array.from({ length: totalQuestions }).map((_, i) => {
                         const qNum = i + 1
+                        const qId = questions[i]?.id
                         const isCurrent = currentQuestion === qNum
                         const isAnswered = answeredQuestions.includes(qNum)
                         const isVisited = visitedQuestions.includes(qNum)
-                        const isSkipped = isVisited && !isAnswered && !isCurrent // Skipped if visited but not answered (and not current) - simple logic
+                        const isSkipped = isVisited && !isAnswered && !isCurrent
+                        const isReview = qId ? !!reviewQuestions[qId] : false
+                        const isBookmarked = qId ? !!bookmarkedQuestions[qId] : false
 
                         // Determine Style
                         let buttonStyle = "bg-background text-muted-foreground border border-border hover:bg-secondary"
@@ -110,8 +126,14 @@ export function QuestionNavigator({
                             buttonStyle = "bg-primary text-primary-foreground border-primary shadow-premium scale-105 z-10 ring-4 ring-primary/20"
                         } else if (isAnswered) {
                             buttonStyle = "bg-success/10 text-success border-success/20 hover:bg-success/20"
-                        } else if (isSkipped) {
+                        } else if (mode === 'exam' && isSkipped) {
                             buttonStyle = "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20 hover:bg-orange-500/20"
+                        } else if (mode === 'learning') {
+                            if (isReview) {
+                                buttonStyle = "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20 hover:bg-indigo-500/20"
+                            } else if (isBookmarked) {
+                                buttonStyle = "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20 hover:bg-yellow-500/20"
+                            }
                         }
 
                         return (
@@ -125,8 +147,14 @@ export function QuestionNavigator({
                                 `}
                             >
                                 {qNum}
-                                {(isAnswered || isCurrent) && (
+                                {(isAnswered || isCurrent) && !isReview && !isBookmarked && (
                                     <span className={`absolute -top-1 left-1/2 -translate-x-1/2 size-1.5 rounded-full ${isCurrent ? (isAnswered ? 'bg-success' : 'bg-primary') : 'bg-success'}`}></span>
+                                )}
+                                {isBookmarked && mode === 'learning' && (
+                                    <span className="absolute -top-1 -right-1 size-2 rounded-full bg-yellow-500" title="Bookmarked"></span>
+                                )}
+                                {isReview && mode === 'learning' && (
+                                    <span className="absolute -bottom-1 -right-1 size-2 rounded-full bg-indigo-500" title="Review"></span>
                                 )}
                             </button>
                         )
@@ -144,9 +172,20 @@ export function QuestionNavigator({
                             <span className="size-1 rounded-full bg-success"></span>
                         </span> Answered
                     </div>
-                    <div className="flex items-center gap-2">
-                        <span className="size-3 rounded-full bg-orange-500/10 border border-orange-500/20"></span> Skipped
-                    </div>
+                    {mode === 'exam' ? (
+                        <div className="flex items-center gap-2">
+                            <span className="size-3 rounded-full bg-orange-500/10 border border-orange-500/20"></span> Skipped
+                        </div>
+                    ) : (
+                        <>
+                            <div className="flex items-center gap-2">
+                                <span className="size-3 rounded-full bg-indigo-500/10 border border-indigo-500/20"></span> Review
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="size-3 rounded-full bg-yellow-500/10 border border-yellow-500/20"></span> Bookmarked
+                            </div>
+                        </>
+                    )}
                     <div className="flex items-center gap-2">
                         <span className="size-3 rounded-full bg-background border border-border"></span> Not Visited
                     </div>

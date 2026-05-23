@@ -3,14 +3,16 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
+from django.core.cache import cache
 from django.db.models import Count, Sum
 from django.db import models 
 from django.contrib.auth.models import User
+import uuid
 
 from .ai import generate_explanation_for_question, parse_exam_paper_with_ai
 
 from .models import (
-    Exam, Question, Answer, UserAnswer, UserExamResult,
+    Exam, Question, Answer, UserAnswer, ExamAttempt, PracticeSession,
     Category, SubCategory, CorrectionSuggestion,
     TopicResource, ResourceBookmark, ResourceProgress,
     RoadmapTopic,
@@ -77,6 +79,19 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
             
         return queryset
 
+    def retrieve(self, request, *args, **kwargs):
+        lang = request.query_params.get('lang', 'en')
+        exam_id = kwargs.get('pk')
+        cache_key = f"exam:{exam_id}:{lang}"
+        
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            return Response(cached_data)
+            
+        response = super().retrieve(request, *args, **kwargs)
+        cache.set(cache_key, response.data, 300)
+        return response
+
     @action(detail=True, methods=['post'])
     def parse_pdf(self, request, pk=None):
         exam = self.get_object()
@@ -111,6 +126,16 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=True, methods=['get'])
     def questions(self, request, pk=None):
+        lang = request.query_params.get('lang', 'en')
+        mode = request.query_params.get('mode', 'exam')
+        
+        hide_correct = (mode == 'exam')
+        cache_key = f"exam_questions:{pk}:{lang}:{hide_correct}"
+        
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            return Response(cached_data)
+            
         exam = self.get_object()
         questions = exam.questions.all().prefetch_related('answers', 'community_comments')
 
@@ -119,9 +144,11 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
             many=True,
             context={
                 'request': request,
-                'hide_correct': True
+                'hide_correct': hide_correct,
+                'lang': lang
             }
         )
+        cache.set(cache_key, serializer.data, 300)
         return Response(serializer.data)
 
     @action(detail=True, methods=['post'])
@@ -132,6 +159,8 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
         question_id = request.data.get('question_id')
         answer_id = request.data.get('answer_id')
         text_answer = request.data.get('text_answer', '')
+        is_flagged_for_review = request.data.get('is_flagged_for_review')
+        is_bookmarked = request.data.get('is_bookmarked')
 
         if not session_id:
             return Response(
@@ -141,26 +170,33 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
 
         question = get_object_or_404(Question, id=question_id, exam=exam)
 
-        selected_answer = None
-        is_correct = False
+        defaults = {
+            'exam': exam,
+            'text_answer': text_answer,
+        }
 
-        if answer_id:
-            selected_answer = get_object_or_404(
-                Answer,
-                id=answer_id,
-                question=question
-            )
-            is_correct = selected_answer.is_correct
+        if answer_id is not None:
+            if answer_id:
+                selected_answer = get_object_or_404(
+                    Answer,
+                    id=answer_id,
+                    question=question
+                )
+                defaults['selected_answer'] = selected_answer
+                defaults['is_correct'] = selected_answer.is_correct
+            else:
+                defaults['selected_answer'] = None
+                defaults['is_correct'] = False
+
+        if is_flagged_for_review is not None:
+            defaults['is_flagged_for_review'] = is_flagged_for_review
+        if is_bookmarked is not None:
+            defaults['is_bookmarked'] = is_bookmarked
 
         user_answer, _ = UserAnswer.objects.update_or_create(
             session_id=session_id,
             question=question,
-            defaults={
-                'exam': exam,
-                'selected_answer': selected_answer,
-                'text_answer': text_answer,
-                'is_correct': is_correct
-            }
+            defaults=defaults
         )
 
         serializer = UserAnswerSerializer(user_answer)
@@ -174,95 +210,281 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
             return Response({'error': 'session_id is required'}, status=400)
         
         user_answers = UserAnswer.objects.filter(exam=exam, session_id=session_id)
-        # Map question_id -> selected_answer_id
-        progress_data = {ua.question_id: ua.selected_answer_id for ua in user_answers}
-        return Response(progress_data)
+        
+        answers_dict = {ua.question_id: ua.selected_answer_id for ua in user_answers if ua.selected_answer_id is not None}
+        review_list = [ua.question_id for ua in user_answers if ua.is_flagged_for_review]
+        bookmarked_list = [ua.question_id for ua in user_answers if ua.is_bookmarked]
+        visited_list = list(user_answers.values_list('question_id', flat=True))
+        
+        return Response({
+            'answers': answers_dict,
+            'review': review_list,
+            'bookmarked': bookmarked_list,
+            'visited': visited_list
+        })
 
+    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
+    def start(self, request, pk=None):
+        exam = self.get_object()
+        mode = request.data.get('mode', 'exam')  # 'exam' or 'learning'
+        session_id = request.data.get('session_id')
+        
+        if mode not in ['exam', 'learning']:
+            return Response({'error': 'Invalid mode'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        user = request.user if request.user.is_authenticated else None
+        
+        # Check if there is an active (incomplete) session/attempt of the same mode to resume
+        if mode == 'exam':
+            active_attempt = None
+            if user:
+                active_attempt = ExamAttempt.objects.filter(user=user, exam=exam, is_completed=False).order_by('-completed_at').first()
+            elif session_id:
+                active_attempt = ExamAttempt.objects.filter(session_id=session_id, exam=exam, is_completed=False).first()
+                
+            if active_attempt:
+                return Response({
+                    'success': True,
+                    'session_id': active_attempt.session_id,
+                    'mode': mode,
+                    'current_question_index': active_attempt.current_question_index,
+                    'duration': active_attempt.duration
+                })
+                
+            # Otherwise create a new one
+            new_session_id = session_id or str(uuid.uuid4())
+            ExamAttempt.objects.create(
+                user=user,
+                exam=exam,
+                session_id=new_session_id,
+                score=0,
+                total_questions=exam.questions.count(),
+                correct_answers=0,
+                percentage=0.0,
+                duration=0,
+                is_completed=False
+            )
+            return Response({
+                'success': True,
+                'session_id': new_session_id,
+                'mode': mode,
+                'current_question_index': 0,
+                'duration': 0
+            })
+        else:
+            active_session = None
+            if user:
+                active_session = PracticeSession.objects.filter(user=user, exam=exam, is_completed=False).order_by('-submitted_at').first()
+            elif session_id:
+                active_session = PracticeSession.objects.filter(session_id=session_id, exam=exam, is_completed=False).first()
+                
+            if active_session:
+                return Response({
+                    'success': True,
+                    'session_id': active_session.session_id,
+                    'mode': mode,
+                    'current_question_index': active_session.current_question_index,
+                    'duration': active_session.duration
+                })
+                
+            new_session_id = session_id or str(uuid.uuid4())
+            PracticeSession.objects.create(
+                user=user,
+                exam=exam,
+                session_id=new_session_id,
+                score=0,
+                total_questions=exam.questions.count(),
+                correct_answers=0,
+                accuracy=0.0,
+                duration=0,
+                is_completed=False
+            )
+            return Response({
+                'success': True,
+                'session_id': new_session_id,
+                'mode': mode,
+                'current_question_index': 0,
+                'duration': 0
+            })
+
+    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
+    def update_session(self, request, pk=None):
+        exam = self.get_object()
+        session_id = request.data.get('session_id')
+        mode = request.data.get('mode', 'exam')
+        duration = request.data.get('duration')
+        current_question_index = request.data.get('current_question_index')
+        question_id = request.data.get('question_id')
+        
+        if not session_id:
+            return Response({'error': 'session_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        updates = {}
+        if duration is not None:
+            updates['duration'] = duration
+        if current_question_index is not None:
+            updates['current_question_index'] = current_question_index
+            
+        if updates:
+            if mode == 'exam':
+                ExamAttempt.objects.filter(session_id=session_id, exam=exam).update(**updates)
+            else:
+                PracticeSession.objects.filter(session_id=session_id, exam=exam).update(**updates)
+                
+        if question_id:
+            UserAnswer.objects.get_or_create(
+                session_id=session_id,
+                exam=exam,
+                question_id=question_id
+            )
+            
+        return Response({'success': True})
+
+    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
+    def submit(self, request, pk=None):
+        exam = self.get_object()
+        session_id = request.data.get('session_id')
+        mode = request.data.get('mode', 'exam')
+        duration = request.data.get('duration', 0)
+        
+        if not session_id:
+            return Response({'error': 'session_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        user = request.user if request.user.is_authenticated else None
+        guest_name = request.data.get("name", "Guest")
+        guest_email = request.data.get("email", "")
+        
+        user_answers = UserAnswer.objects.filter(exam=exam, session_id=session_id)
+        total_questions = exam.questions.count()
+        correct_answers = user_answers.filter(is_correct=True).count()
+        wrong_answers = user_answers.filter(is_correct=False).exclude(selected_answer__isnull=True).count()
+        
+        score = user_answers.filter(is_correct=True).aggregate(
+            total=models.Sum('question__points')
+        )['total'] or 0
+        
+        accuracy = round((correct_answers / total_questions * 100) if total_questions > 0 else 0, 2)
+        
+        if mode == 'exam':
+            attempt, created = ExamAttempt.objects.update_or_create(
+                session_id=session_id,
+                exam=exam,
+                defaults={
+                    'user': user,
+                    'score': score,
+                    'total_questions': total_questions,
+                    'correct_answers': correct_answers,
+                    'percentage': accuracy,
+                    'duration': duration,
+                    'is_completed': True,
+                    'guest_name': guest_name if not user else None,
+                    'guest_email': guest_email if not user else None,
+                }
+            )
+            return Response({
+                'success': True,
+                'message': 'Exam submitted successfully!',
+                'result_id': attempt.id,
+                'score': score,
+                'total': total_questions,
+                'percentage': attempt.percentage,
+                'attempt_id': attempt.id 
+            })
+        else:
+            session, created = PracticeSession.objects.update_or_create(
+                session_id=session_id,
+                exam=exam,
+                defaults={
+                    'user': user,
+                    'score': score,
+                    'total_questions': total_questions,
+                    'correct_answers': correct_answers,
+                    'accuracy': accuracy,
+                    'duration': duration,
+                    'is_completed': True
+                }
+            )
+            
+            # Calculate weak areas
+            from django.db.models import Count, Q
+            topic_stats = user_answers.values('question__topic').annotate(
+                total=Count('id'),
+                correct=Count('id', filter=Q(is_correct=True))
+            )
+            weak_topics = []
+            for stat in topic_stats:
+                topic_name = stat['question__topic']
+                if not topic_name:
+                    continue
+                tot = stat['total']
+                corr = stat['correct']
+                acc = (corr / tot) if tot > 0 else 0
+                if acc < 0.7:
+                    weak_topics.append(topic_name)
+                    
+            return Response({
+                'score': score,
+                'accuracy': accuracy,
+                'correct': correct_answers,
+                'wrong': wrong_answers,
+                'weak_topics': weak_topics
+            })
+
+    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
+    def pause(self, request, pk=None):
+        exam = self.get_object()
+        session_id = request.data.get('session_id')
+        mode = request.data.get('mode', 'learning')
+        duration = request.data.get('duration', 0)
+        
+        if mode == 'exam':
+            return Response(
+                {'error': 'Pause is disabled in Exam Mode'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        if not session_id:
+            return Response(
+                {'error': 'session_id is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        PracticeSession.objects.filter(session_id=session_id).update(duration=duration)
+        return Response({'success': True, 'message': 'Practice session paused successfully'})
+
+    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
+    def reset(self, request, pk=None):
+        exam = self.get_object()
+        session_id = request.data.get('session_id')
+        mode = request.data.get('mode', 'learning')
+        
+        if mode == 'exam':
+            return Response(
+                {'error': 'Reset is disabled in Exam Mode'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        if not session_id:
+            return Response(
+                {'error': 'session_id is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        UserAnswer.objects.filter(exam=exam, session_id=session_id).delete()
+        PracticeSession.objects.filter(session_id=session_id).update(
+            score=0,
+            correct_answers=0,
+            accuracy=0.0,
+            duration=0
+        )
+        return Response({'success': True, 'message': 'Practice session reset successfully'})
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def submit_exam(self, request, pk=None):
         """
-        Calculates the final score and creates a UserExamResult.
-        Allows GUEST submissions (user=None).
+        Delegates to the submit action.
         """
-        exam = self.get_object()
-        session_id = request.data.get('session_id')
-        
-        try:
-            # 1. Determine User vs Guest
-            user = request.user if request.user.is_authenticated else None
-            guest_name = request.data.get("name", "Guest")
-            guest_email = request.data.get("email", "")
-
-            print(f"SUBMIT EXAM: User={user}, Session={session_id}, Guest={guest_name}")
-
-            if not session_id:
-                return Response(
-                    {'error': 'Session ID required.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            # Quick: Calculate answers from DB
-            user_answers = UserAnswer.objects.filter(exam=exam, session_id=session_id)
-            total_questions = exam.questions.count()
-            correct_answers = user_answers.filter(is_correct=True).count()
-            
-            # SANITY CHECK: Remove duplicates if they exist
-            if user:
-                existing_results = UserExamResult.objects.filter(user=user, exam=exam)
-            else:
-                # For guests, check by session_id to avoid duplicates for same session
-                existing_results = UserExamResult.objects.filter(session_id=session_id, exam=exam)
-                
-            if existing_results.count() > 1:
-                print(f"Found duplicate results for {user or session_id}. Cleaning up...")
-                existing_results.delete()
-
-            # Calculate Score
-            score = user_answers.filter(is_correct=True).aggregate(
-                total=models.Sum('question__points')
-            )['total'] or 0
-
-            # Create Result
-            defaults = {
-                'score': score,
-                'total_questions': total_questions,
-                'correct_answers': correct_answers,
-                'percentage': round((correct_answers / total_questions * 100) if total_questions > 0 else 0, 2),
-                'guest_name': guest_name if not user else None,
-                'guest_email': guest_email if not user else None,
-            }
-            
-            if user:
-                result, created = UserExamResult.objects.update_or_create(
-                    user=user,
-                    exam=exam,
-                    defaults={**defaults, 'session_id': session_id}
-                )
-            else:
-                # For guests, we rely on session_id + exam to identify the attempt
-                result, created = UserExamResult.objects.update_or_create(
-                    session_id=session_id,
-                    exam=exam,
-                    defaults={**defaults, 'user': None}
-                )
-
-            return Response({
-                'success': True,
-                'message': 'Exam submitted successfully!',
-                'result_id': result.id,
-                'score': score,
-                'total': total_questions,
-                'percentage': result.percentage,
-                'attempt_id': result.id 
-            })
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
-            return Response(
-                {'error': f'Submission failed: {str(e)}'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+        return self.submit(request, pk=pk)
 
     @action(detail=True, methods=['get'])
     def results(self, request, pk=None):
@@ -280,18 +502,35 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
                 status=status.HTTP_401_UNAUTHORIZED
             )
         
-        # CHECK IF USER HAS COMPLETED THIS EXAM
-        # Use filter().order_by().first() to avoid MultipleObjectsReturned errors and get the LATEST attempt
-        if request.user.is_authenticated:
-             user_result = UserExamResult.objects.filter(
-                user=request.user, 
-                exam=exam
-            ).order_by('-completed_at').first()
-        else:
-             user_result = UserExamResult.objects.filter(
+        # CHECK IF USER HAS COMPLETED THIS EXAM OR PRACTICE SESSION
+        user_result = None
+        is_practice = False
+        
+        if session_id:
+            user_result = ExamAttempt.objects.filter(
                 session_id=session_id, 
                 exam=exam
             ).order_by('-completed_at').first()
+            
+        if not user_result and request.user.is_authenticated:
+            user_result = ExamAttempt.objects.filter(
+                user=request.user, 
+                exam=exam
+            ).order_by('-completed_at').first()
+            
+        if not user_result:
+            if session_id:
+                user_result = PracticeSession.objects.filter(
+                    session_id=session_id,
+                    exam=exam
+                ).order_by('-submitted_at').first()
+            if not user_result and request.user.is_authenticated:
+                user_result = PracticeSession.objects.filter(
+                    user=request.user,
+                    exam=exam
+                ).order_by('-submitted_at').first()
+            if user_result:
+                is_practice = True
 
         if not user_result:
             return Response(
@@ -316,11 +555,8 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
             total=Sum('points')
         )['total'] or 0
         
-        percentage = round(
-            (correct_answers / total_questions * 100)
-            if total_questions > 0 else 0,
-            2
-        )
+        percentage = user_result.accuracy if is_practice else user_result.percentage
+        completed_at = user_result.submitted_at if is_practice else user_result.completed_at
 
         # SUMMARY DATA (using saved result)
         summary_data = {
@@ -332,8 +568,8 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
             'correct_answers': user_result.correct_answers,
             'total_points': user_result.score,
             'max_points': max_points,
-            'percentage': user_result.percentage,
-            'completed_at': user_result.completed_at,
+            'percentage': percentage,
+            'completed_at': completed_at,
         }
 
         summary_serializer = ExamResultSerializer(summary_data)
@@ -367,7 +603,7 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-        results = UserExamResult.objects.filter(user=request.user)
+        results = ExamAttempt.objects.filter(user=request.user, is_completed=True)
         
         total_tests = results.count()
         avg_score = results.aggregate(avg=models.Avg('percentage'))['avg'] or 0
@@ -438,14 +674,14 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
             # We want each user to appear only once with their BEST score for this exam.
             
             # Subquery to find the best score for each user for this exam
-            all_results = UserExamResult.objects.filter(exam_id=exam_id)
+            all_results = ExamAttempt.objects.filter(exam_id=exam_id, is_completed=True)
             
             # Group by user and find max score (using annotation tricks or python sorting)
             # For simplicity and cross-db compatibility:
             # We fetch all, then distinct by user keeping highest score.
             
             # Using Django's distinct on fields is only for Postgres, so we do it in Python for SQLite safety
-            results = UserExamResult.objects.filter(exam_id=exam_id).select_related('user', 'exam').order_by('user', '-score')
+            results = ExamAttempt.objects.filter(exam_id=exam_id, is_completed=True).select_related('user', 'exam').order_by('user', '-score')
             
             user_best_map = {}
             for r in results:
@@ -470,9 +706,10 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
         else:
             # Global Leaderboard (Reputation / Total Score sum)
             # Sum of all scores for each user
+            from django.db.models import Q
             users = User.objects.annotate(
-                total_score=Sum('exam_results__score'),
-                exams_taken=Count('exam_results')
+                total_score=Sum('exam_results__score', filter=Q(exam_results__is_completed=True)),
+                exams_taken=Count('exam_results', filter=Q(exam_results__is_completed=True))
             ).filter(total_score__isnull=False).order_by('-total_score')
 
             rank = 1

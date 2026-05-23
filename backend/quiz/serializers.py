@@ -43,12 +43,44 @@ class AnswerSerializer(serializers.ModelSerializer):
         fields = ['id', 'answer_text', 'order']
         read_only_fields = ['id']
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        lang = self.context.get('lang')
+        if not lang:
+            request = self.context.get('request')
+            if request:
+                lang = request.query_params.get('lang', 'en')
+        if not lang:
+            lang = 'en'
+            
+        if lang != 'en':
+            translation = instance.translations.filter(language=lang).first()
+            if translation:
+                data['answer_text'] = translation.answer_text
+        return data
+
 
 class AnswerSerializerWithCorrect(serializers.ModelSerializer):
     class Meta:
         model = Answer
         fields = ['id', 'answer_text', 'is_correct', 'order']
         read_only_fields = ['id']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        lang = self.context.get('lang')
+        if not lang:
+            request = self.context.get('request')
+            if request:
+                lang = request.query_params.get('lang', 'en')
+        if not lang:
+            lang = 'en'
+            
+        if lang != 'en':
+            translation = instance.translations.filter(language=lang).first()
+            if translation:
+                data['answer_text'] = translation.answer_text
+        return data
 
 
 class QuestionSerializer(serializers.ModelSerializer):
@@ -81,14 +113,33 @@ class QuestionSerializer(serializers.ModelSerializer):
         hide_correct = self.context.get('hide_correct', False)
         answers = obj.answers.all()
         if hide_correct:
-            return AnswerSerializer(answers, many=True).data
-        return AnswerSerializerWithCorrect(answers, many=True).data
+            return AnswerSerializer(answers, many=True, context=self.context).data
+        return AnswerSerializerWithCorrect(answers, many=True, context=self.context).data
 
     def get_image(self, obj):
         request = self.context.get('request')
         if hasattr(obj, 'image') and obj.image and request:
             return request.build_absolute_uri(obj.image.url)
         return None
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        lang = self.context.get('lang')
+        if not lang:
+            request = self.context.get('request')
+            if request:
+                lang = request.query_params.get('lang', 'en')
+        if not lang:
+            lang = 'en'
+            
+        data['language'] = lang
+        if lang != 'en':
+            translation = instance.translations.filter(language=lang).first()
+            if translation:
+                data['question_text'] = translation.question_text
+                if translation.explanation:
+                    data['explanation'] = translation.explanation
+        return data
 
 
 class ExamSerializer(serializers.ModelSerializer):
@@ -116,6 +167,7 @@ class ExamSerializer(serializers.ModelSerializer):
             'marks_per_question',
             'total_marks',
             'question_count',
+            'supported_languages',
             'created_at',
             'is_active'
         ]

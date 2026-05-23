@@ -35,11 +35,15 @@ export function PerformanceAnalysisDashboard({ examId, onRetake }: PerformanceAn
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'correct' | 'incorrect' | 'skipped'>('all')
 
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const qParam = searchParams?.get('q');
+  const sessionIdParam = searchParams?.get('session_id');
+
   useEffect(() => {
     async function fetchData() {
       try {
         // 🔥 Now getResults returns everything we need including full questions with answers!
-        const resResults = await examApi.getResults(examId)
+        const resResults = await examApi.getResults(examId, sessionIdParam)
         setResult(resResults.data)
 
         // If the API returns questions, use them. Otherwise fallback (backward compat)
@@ -59,10 +63,7 @@ export function PerformanceAnalysisDashboard({ examId, onRetake }: PerformanceAn
     if (examId) {
       fetchData()
     }
-  }, [examId])
-
-  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-  const qParam = searchParams?.get('q');
+  }, [examId, sessionIdParam])
 
   useEffect(() => {
     if (!loading && qParam && questions.length > 0) {

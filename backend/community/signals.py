@@ -125,14 +125,24 @@ def connect_suggestion_signal():
         )
 
 
-# ─── UserExamResult ───────────────────────────────────────────────────────────
+# ─── ExamAttempt ──────────────────────────────────────────────────────────────
 def connect_exam_result_signal():
-    from quiz.models import UserExamResult
+    from quiz.models import ExamAttempt
 
-    @receiver(post_save, sender=UserExamResult, weak=False)
+    @receiver(post_save, sender=ExamAttempt, weak=False)
     def on_exam_result_saved(sender, instance, created, **kwargs):
-        if not created or not instance.user:
+        if not instance.is_completed or not instance.user:
             return
+            
+        # Avoid duplicate runs by checking for existing activity matching this attempt
+        from .models import ContributorActivity
+        if ContributorActivity.objects.filter(
+            user=instance.user,
+            activity_type='EXAM',
+            metadata__attempt_id=instance.id
+        ).exists():
+            return
+            
         from .services import award_xp, update_streak
 
         award_xp(instance.user, 2, 'Mock test completed')
@@ -146,6 +156,7 @@ def connect_exam_result_signal():
                 'exam_id': instance.exam_id,
                 'exam_title': instance.exam.title,
                 'percentage': instance.percentage,
+                'attempt_id': instance.id,
             },
         )
 

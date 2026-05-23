@@ -24,6 +24,7 @@ export const metadata: Metadata = {
 }
 
 import { AuthProvider } from "@/context/auth-context"
+import { ExamLanguageProvider } from "@/context/exam-language-context"
 import { Footer } from "@/components/footer"
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider"
@@ -48,8 +49,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            {children}
-            <Footer />
+            <ExamLanguageProvider>
+              {children}
+              <Footer />
+            </ExamLanguageProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
