@@ -223,6 +223,68 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
             'visited': visited_list
         })
 
+    @action(detail=True, methods=['get', 'post'], permission_classes=[AllowAny])
+    def summary(self, request, pk=None):
+        exam = self.get_object()
+        
+        # Check if force parameter is passed to regenerate summary
+        force = request.data.get('force', False) or request.query_params.get('force', 'false').lower() == 'true'
+        if exam.ai_summary and not force:
+            return Response({'ai_summary': exam.ai_summary})
+            
+        from quiz.ai import configure_gemini
+        import google.generativeai as genai
+        
+        questions = exam.questions.all().values('question_text', 'subject', 'topic', 'difficulty')
+        if not questions.exists():
+            return Response({'error': 'No questions found for this exam. Cannot generate summary.'}, status=400)
+            
+        try:
+            configure_gemini()
+            MODEL_NAME = "models/gemini-flash-lite-latest"
+            model = genai.GenerativeModel(MODEL_NAME)
+            
+            question_list_text = ""
+            for idx, q in enumerate(questions[:50]): # Limit to first 50 questions
+                question_list_text += f"{idx+1}. Subject: {q.get('subject')}, Topic: {q.get('topic')}, Diff: {q.get('difficulty')}\n"
+                question_list_text += f"   Q: {q.get('question_text')[:200]}...\n"
+
+            prompt = f"""
+            You are an expert academic evaluator.
+            Please review the following question paper content for the exam titled "{exam.title}" and generate a structured, professional markdown summary.
+            
+            The summary should include:
+            1. An introductory paragraph about the general difficulty and scope of the exam.
+            2. A breakdown of the primary subjects/topics covered (use bullet points or sub-headings).
+            3. Key focus areas or specific patterns observed in the questions (e.g. "Heavy emphasis on Data Structures and Trees").
+            
+            Format the response in clean Markdown. Do NOT include markdown code block wrappers (like ```markdown), just return the raw markdown string.
+            
+            Here is a sample of the questions from the exam:
+            {question_list_text}
+            """
+            
+            response = model.generate_content(prompt)
+            output = response.text.strip()
+            
+            # Clean up accidental markdown code block wrappers
+            if output.startswith("```markdown"):
+                output = output[11:]
+            if output.startswith("```"):
+                output = output[3:]
+            if output.endswith("```"):
+                output = output[:-3]
+            
+            output = output.strip()
+            
+            exam.ai_summary = output
+            exam.save(update_fields=['ai_summary'])
+            
+            return Response({'ai_summary': exam.ai_summary})
+            
+        except Exception as e:
+            return Response({'error': f'Failed to generate summary: {str(e)}'}, status=500)
+
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def start(self, request, pk=None):
         exam = self.get_object()

@@ -61,6 +61,8 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
     const [timerKey, setTimerKey] = useState(0) // Used to force reset TimerDisplay
     const [isPaused, setIsPaused] = useState(false)
     const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false)
+    const [summaryText, setSummaryText] = useState("")
+    const [loadingSummary, setLoadingSummary] = useState(false)
     const searchParams = useSearchParams()
     
     // Initial states can be derived from searchParams
@@ -84,6 +86,28 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
     const [scoreData, setScoreData] = useState<any>(null)
     const secondsSpentRef = useRef(0)
     const [showSubmitConfirmModal, setShowSubmitConfirmModal] = useState(false)
+
+    const handleViewSummary = async () => {
+        setIsSummaryModalOpen(true)
+        if (summaryText) return
+
+        if (exam?.ai_summary) {
+            setSummaryText(exam.ai_summary)
+            return
+        }
+
+        setLoadingSummary(true)
+        try {
+            const response = await examApi.getSummary(examId)
+            const summary = response.data.ai_summary || ""
+            setSummaryText(summary)
+            setExam((prev: any) => prev ? { ...prev, ai_summary: summary } : prev)
+        } catch (error) {
+            console.error("Failed to fetch exam summary:", error)
+        } finally {
+            setLoadingSummary(false)
+        }
+    }
 
     // Elapsed time effect
     useEffect(() => {
@@ -131,6 +155,9 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                 ])
 
                 setExam(examRes.data)
+                if (examRes.data?.ai_summary) {
+                    setSummaryText(examRes.data.ai_summary)
+                }
                 setQuestions(qRes.data)
                 
                 const resumedIndex = startRes.data.current_question_index || 0
@@ -347,7 +374,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
             console.log(`📝 Submitting in ${mode} mode...`, { examId, sessionId })
 
             const res = await examApi.submitExam(examId, sessionId, mode, secondsSpentRef.current)
-            console.log("✅ Submitted:", res.data)
+            console.log("Submitted:", res.data)
             localStorage.removeItem(`exam_session_${examId}_${mode}`)
 
             if (mode === 'exam') {
@@ -360,7 +387,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                 setLoading(false)
             }
         } catch (error) {
-            console.error("❌ Submission Failed:", error)
+            console.error("Submission Failed:", error)
             alert("Failed to submit. Please check your connection and try again.")
             setLoading(false)
         }
@@ -728,7 +755,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
 
                             {/* Summary Button */}
                             <button 
-                                onClick={() => setIsSummaryModalOpen(true)}
+                                onClick={handleViewSummary}
                                 className="w-full mt-2 py-3 bg-primary text-primary-foreground rounded-[14px] text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-sm"
                             >
                                 <Sparkles className="size-4.5" />
@@ -785,7 +812,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                     onModeChange={handleModeSwitchRequest}
                     pdfUrl={exam?.pdf_file}
                     isLoggedIn={!!user}
-                    onViewSummary={() => setIsSummaryModalOpen(true)}
+                    onViewSummary={handleViewSummary}
                     questions={questions}
                     reviewQuestions={reviewQuestions}
                     bookmarkedQuestions={bookmarkedQuestions}
@@ -985,7 +1012,8 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                             isOpen={isSummaryModalOpen}
                             onClose={() => setIsSummaryModalOpen(false)}
                             examTitle={exam?.title || "Exam Summary"}
-                            summaryText={exam?.ai_summary || ""}
+                            summaryText={summaryText}
+                            isLoading={loadingSummary}
                         />
 
                         {/* Switch Mode Confirmation Modal */}

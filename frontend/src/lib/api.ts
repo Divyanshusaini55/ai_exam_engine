@@ -185,6 +185,9 @@ export const examApi = {
   getProgress: (examId: string, sessionId?: string | null) => api.get(`/exams/${examId}/progress/`, {
     params: { session_id: sessionId || getSessionId() }
   }),
+
+  // NEW: Get exam summary (dynamically generates if not present)
+  getSummary: (id: string, params?: any) => api.get(`/exams/${id}/summary/`, { params }),
 };
 
 export const communityApi = {

@@ -8,9 +8,10 @@ interface SummaryModalProps {
     onClose: () => void
     examTitle: string
     summaryText: string
+    isLoading?: boolean
 }
 
-export function SummaryModal({ isOpen, onClose, examTitle, summaryText }: SummaryModalProps) {
+export function SummaryModal({ isOpen, onClose, examTitle, summaryText, isLoading }: SummaryModalProps) {
     if (!isOpen) return null
 
     // Default summary if empty to show the UI is working
@@ -43,7 +44,20 @@ export function SummaryModal({ isOpen, onClose, examTitle, summaryText }: Summar
 
                 {/* Content Area */}
                 <div className="flex-1 overflow-y-auto p-8 prose dark:prose-invert prose-sm md:prose-base max-w-none prose-headings:text-primary prose-a:text-blue-500">
-                    <ReactMarkdown>{displaySummary}</ReactMarkdown>
+                    {isLoading ? (
+                        <div className="flex flex-col items-center justify-center h-full py-20 space-y-4">
+                            <div className="relative size-16 flex items-center justify-center">
+                                <div className="absolute inset-0 rounded-full border-4 border-primary/20 animate-ping" />
+                                <div className="size-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+                            </div>
+                            <div className="text-center">
+                                <h3 className="text-lg font-bold text-primary animate-pulse">Generating AI Summary...</h3>
+                                <p className="text-xs text-muted-foreground mt-1">Analyzing questions, subjects, and difficulty patterns</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <ReactMarkdown>{displaySummary}</ReactMarkdown>
+                    )}
                 </div>
                 
                 {/* Footer (matches second screenshot close button) */}

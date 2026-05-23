@@ -1,7 +1,8 @@
 import os
 from django.core.management.base import BaseCommand
 from quiz.models import Exam, Question
-from openai import OpenAI
+import google.generativeai as genai
+from quiz.ai import configure_gemini
 from django.conf import settings
 
 class Command(BaseCommand):
@@ -33,11 +34,13 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(f'Generating Summary for "{exam.title}" using Grok ({questions.count()} questions)...'))
 
-        client = OpenAI(
-            api_key=os.environ.get("GROK_API_KEY", getattr(settings, 'GROK_API_KEY', "")),
-            base_url="https://api.x.ai/v1",
-        )
-
+        configure_gemini()
+        # Using 'models/' prefix as seen in list_models() output
+        MODEL_NAME = "models/gemini-flash-lite-latest"
+        print(" USING MODEL:", MODEL_NAME)
+    
+        model = genai.GenerativeModel(MODEL_NAME)   
+        
         # Prepare a lightweight representation of the exam content
         question_list_text = ""
         for idx, q in enumerate(questions[:50]): # Limit to first 50 questions to avoid massive prompt sizes
@@ -60,15 +63,9 @@ class Command(BaseCommand):
         """
 
         try:
-            response = client.chat.completions.create(
-                model="grok-2",
-                messages=[
-                    {"role": "system", "content": "You are a precise, academic summarizing assistant."},
-                    {"role": "user", "content": prompt},
-                ],
-            )
+            response = model.generate_content(prompt)
             
-            output = response.choices[0].message.content.strip()
+            output = response.text.strip()
             # Clean up accidental markdown code block wrappers
             if output.startswith("```markdown"):
                 output = output[11:]
