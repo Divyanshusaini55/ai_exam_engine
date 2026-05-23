@@ -7,17 +7,17 @@ import { useAuth } from "@/context/auth-context"
 import { CategoryGrid } from "@/components/category-grid"
 import { Navbar } from "@/components/navbar"
 import { HomeSkeleton } from "@/components/home-skeleton"
-import { 
-    BookOpen, 
-    FileQuestion, 
-    Sparkles, 
-    Monitor, 
-    ClipboardCheck, 
-    TrendingUp, 
-    Trophy, 
-    Flame,
-    Activity,
-    CircleUserRound
+import {
+  BookOpen,
+  FileQuestion,
+  Sparkles,
+  Monitor,
+  ClipboardCheck,
+  TrendingUp,
+  Trophy,
+  Flame,
+  Activity,
+  CircleUserRound
 } from "lucide-react"
 
 
@@ -43,7 +43,7 @@ export function ExamHome() {
 
       {/* Real content */}
       <div className={`min-h-screen bg-background relative overflow-hidden transition-opacity duration-700 ${dataLoaded ? 'opacity-100' : 'opacity-0'}`}>
-        
+
         {/* Soft Background Blurs */}
         <div className="absolute top-[-10%] left-[-10%] size-[600px] rounded-full bg-secondary/80 blur-[150px] pointer-events-none" />
         <div className="absolute top-[20%] right-[-5%] size-[500px] rounded-full bg-primary/5 blur-[150px] pointer-events-none" />
@@ -52,22 +52,22 @@ export function ExamHome() {
 
         {/* Main Content */}
         <main className="flex-1 flex flex-col items-center relative z-10 pt-20 pb-12 px-4 md:px-8">
-          
+
           <div className="w-full max-w-7xl flex flex-col gap-0 items-center text-center">
-            
+
             {/* Hero Section */}
             <div className="flex flex-col gap-6 items-center max-w-4xl mx-auto pt-10 pb-8 animate-fade-in">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary text-primary font-bold text-[11px] uppercase tracking-widest shadow-sm mb-4">
                 <Sparkles className="size-3.5 text-primary" />
                 <span>The Future of Exam Prep is Here</span>
               </div>
-              
+
               <h1 className="text-5xl md:text-6xl lg:text-[72px] leading-[1.1] font-bold font-heading text-primary tracking-tight text-balance">
                 Master your exams with AI precision.
               </h1>
-              
+
               <p className="text-lg md:text-xl text-muted-foreground font-medium max-w-2xl mt-2 leading-relaxed">
-                A world-class platform engineered to accelerate your preparation for competitive exams through real-time analytics and expansive test series.
+                A premium class platform engineered to accelerate your preparation for competitive exams through real-time analytics and expansive test series.
               </p>
 
               {/* Exam Tags */}
@@ -84,7 +84,7 @@ export function ExamHome() {
             <div className="w-full max-w-5xl mx-auto mt-16 mb-24 relative animate-fade-in" style={{ animationDelay: "200ms" }}>
               {/* Bottom fade */}
               <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
-              
+
               <div className="w-full rounded-t-[32px] border-t border-l border-r border-border bg-card shadow-[0_-20px_60px_rgba(0,0,0,0.06)] overflow-hidden">
                 {/* Mock Navbar */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-background/80">
@@ -99,10 +99,10 @@ export function ExamHome() {
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="h-8 w-20 bg-secondary rounded-lg border border-border flex items-center justify-center">
-                        <div className="h-2 w-12 bg-primary/20 rounded-full" />
+                      <div className="h-2 w-12 bg-primary/20 rounded-full" />
                     </div>
                     <div className="size-8 rounded-full bg-secondary border border-border flex items-center justify-center overflow-hidden">
-                        <CircleUserRound className="size-4 text-muted-foreground/50" />
+                      <CircleUserRound className="size-4 text-muted-foreground/50" />
                     </div>
                   </div>
                 </div>
@@ -128,13 +128,13 @@ export function ExamHome() {
                     ].map((stat, i) => (
                       <div key={i} className={`${stat.color} rounded-2xl p-4 border border-border flex flex-col items-start text-left`}>
                         <div className="size-8 rounded-lg bg-card border border-border flex items-center justify-center text-primary shadow-sm mb-3">
-                            <stat.icon className="size-4.5" />
+                          <stat.icon className="size-4.5" />
                         </div>
                         <div className="h-6 flex items-center">
                           <span className="text-[18px] font-bold text-primary tracking-tight">{stat.value}</span>
                         </div>
                         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">
-                            {stat.label}
+                          {stat.label}
                         </p>
                       </div>
                     ))}
@@ -157,7 +157,7 @@ export function ExamHome() {
                         ))}
                       </div>
                       <div className="flex gap-2 mt-2">
-                        {["M","T","W","T","F","S","S"].map((d,i) => (
+                        {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
                           <div key={i} className="flex-1 text-center text-[9px] text-muted-foreground font-bold">{d}</div>
                         ))}
                       </div>
@@ -170,7 +170,7 @@ export function ExamHome() {
                         {[85, 72, 91].map((score, i) => (
                           <div key={i} className="flex items-center gap-3 p-2 bg-card rounded-xl border border-border shadow-sm">
                             <div className="size-7 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
-                                <Activity className="size-3.5 text-primary" />
+                              <Activity className="size-3.5 text-primary" />
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="h-2.5 w-full bg-primary/15 rounded-full mb-1.5" />
@@ -199,9 +199,9 @@ export function ExamHome() {
                 </h2>
                 <p className="text-muted-foreground text-lg font-medium mt-4">Everything you need to secure top ranks.</p>
               </div>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                
+
                 {/* Feature 1 */}
                 <div className="card-premium p-8 flex flex-col items-start gap-5 text-left">
                   <div className="size-12 rounded-2xl bg-secondary flex items-center justify-center text-primary shadow-sm border border-border/50">
@@ -209,10 +209,10 @@ export function ExamHome() {
                   </div>
                   <div className="space-y-2">
                     <h3 className="font-bold font-heading text-primary text-[20px] leading-tight">
-                        160+ Question Papers
+                      160+ Question Papers
                     </h3>
                     <p className="text-muted-foreground text-[15px] font-medium leading-relaxed">
-                        Practice with a curated library of historical and mock papers.
+                      Practice with a curated library of historical and mock papers.
                     </p>
                   </div>
                 </div>
@@ -224,10 +224,10 @@ export function ExamHome() {
                   </div>
                   <div className="space-y-2">
                     <h3 className="font-bold font-heading text-primary text-[20px] leading-tight">
-                        50K+ Questions
+                      50K+ Questions
                     </h3>
                     <p className="text-muted-foreground text-[15px] font-medium leading-relaxed">
-                        Access a vast, categorized database of high-yield questions.
+                      Access a vast, categorized database of high-yield questions.
                     </p>
                   </div>
                 </div>
@@ -239,10 +239,10 @@ export function ExamHome() {
                   </div>
                   <div className="space-y-2">
                     <h3 className="font-bold font-heading text-primary text-[20px] leading-tight">
-                        AI Solutions
+                      AI Solutions
                     </h3>
                     <p className="text-muted-foreground text-[15px] font-medium leading-relaxed">
-                        Instantly resolve doubts with intelligent, step-by-step AI breakdowns.
+                      Instantly resolve doubts with intelligent, step-by-step AI breakdowns.
                     </p>
                   </div>
                 </div>
@@ -254,10 +254,10 @@ export function ExamHome() {
                   </div>
                   <div className="space-y-2">
                     <h3 className="font-bold font-heading text-primary text-[20px] leading-tight">
-                        Exam Simulation
+                      Exam Simulation
                     </h3>
                     <p className="text-muted-foreground text-[15px] font-medium leading-relaxed">
-                        Train in a distraction-free environment mirroring real test engines.
+                      Train in a distraction-free environment mirroring real test engines.
                     </p>
                   </div>
                 </div>
