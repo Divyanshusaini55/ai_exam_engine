@@ -315,7 +315,7 @@ export default function AnalysisPage() {
                         {/* Empty State / CTA (Supportive) */}
                         <div className="p-6 bg-secondary/30 rounded-2xl border border-dashed border-border text-center animate-fade-in" style={{ animationDelay: '0.8s' }}>
                             <p className="text-muted-foreground text-sm mb-4">
-                                "Success is the sum of small efforts, repeated day in and day out."
+                                &ldquo;Success is the sum of small efforts, repeated day in and day out.&rdquo;
                             </p>
                             <button className="text-primary font-bold text-sm hover:underline">
                                 Read Study Tips →

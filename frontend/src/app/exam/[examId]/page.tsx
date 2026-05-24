@@ -411,7 +411,7 @@ export default function ExamPage() {
         <AlertCircle className="size-10" />
       </div>
       <h2 className="text-2xl font-bold text-primary mb-2">Exam Not Found</h2>
-      <p className="text-muted-foreground mb-8 max-w-sm">The requested exam ID or category "{id}" does not exist in our database.</p>
+      <p className="text-muted-foreground mb-8 max-w-sm">The requested exam ID or category &ldquo;{id}&rdquo; does not exist in our database.</p>
       <div className="flex flex-col sm:flex-row gap-4">
         <button onClick={() => window.location.reload()} className="px-8 py-3 bg-primary text-primary-foreground rounded-xl font-bold shadow-premium transition-all active:scale-95">Try Reloading</button>
         <button onClick={() => router.push('/')} className="px-8 py-3 bg-secondary text-primary rounded-xl font-bold border border-border transition-all active:scale-95">Back to Home</button>

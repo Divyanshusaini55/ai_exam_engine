@@ -67,17 +67,17 @@ export default function ContactPage() {
                             Contact Support
                         </h1>
                         <p className="text-muted-foreground font-medium text-[16px]">
-                            We'd love to hear from you. Send us a message below.
+                            We&apos;d love to hear from you. Send us a message below.
                         </p>
                     </div>
-
+ 
                     {status === "success" ? (
                         <div className="bg-secondary/50 border border-border rounded-premium p-10 text-center animate-fade-in">
                             <div className="inline-flex items-center justify-center size-16 bg-success/10 rounded-[18px] mb-5">
                                 <Check className="size-8 text-success" />
                             </div>
                             <h2 className="text-[22px] font-bold font-heading text-primary mb-2">Message Sent!</h2>
-                            <p className="text-muted-foreground font-medium mb-8">Thank you for contacting us. We'll get back to you shortly.</p>
+                            <p className="text-muted-foreground font-medium mb-8">Thank you for contacting us. We&apos;ll get back to you shortly.</p>
                             <button
                                 onClick={() => setStatus("idle")}
                                 className="px-6 py-3 bg-card text-primary font-bold rounded-xl border border-border shadow-sm hover:-translate-y-0.5 hover:shadow-premium transition-all duration-300 text-sm"

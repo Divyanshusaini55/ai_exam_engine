@@ -268,7 +268,7 @@ export default function LeaderboardPage() {
                                 <div className="relative z-10 flex flex-col items-center">
                                     <Sparkles className="size-10 text-primary-foreground/80 mb-6" />
                                     <p className="text-[22px] md:text-[26px] font-medium font-heading leading-tight mb-8 italic">
-                                        "Consistency beats talent when talent doesn't practice."
+                                        &ldquo;Consistency beats talent when talent doesn&apos;t practice.&rdquo;
                                     </p>
                                     <Link prefetch={false}
                                         href="/"

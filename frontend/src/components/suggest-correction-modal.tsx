@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { 
     X, 
     Check, 
@@ -48,7 +48,7 @@ export function SuggestCorrectionModal({ isOpen, onClose, question }: SuggestCor
         }
     }, [question])
 
-    const fetchSuggestions = async () => {
+    const fetchSuggestions = useCallback(async () => {
         if (!question) return
         setLoading(true)
         try {
@@ -60,13 +60,13 @@ export function SuggestCorrectionModal({ isOpen, onClose, question }: SuggestCor
         } finally {
             setLoading(false)
         }
-    }
+    }, [question])
 
     useEffect(() => {
         if (isOpen && activeTab === 'list') {
             fetchSuggestions()
         }
-    }, [isOpen, activeTab, question])
+    }, [isOpen, activeTab, question, fetchSuggestions])
 
     const handleSubmit = async () => {
         if (!user) {

@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { apiClient } from "@/lib/apiClient"
 
@@ -30,18 +30,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true)
     const router = useRouter()
 
-    useEffect(() => {
-        const controller = new AbortController()
-        const token = localStorage.getItem("auth_token")
-        if (token) {
-            fetchUser(token, controller.signal)
-        } else {
-            setLoading(false)
-        }
-        return () => controller.abort()
+    const logout = useCallback(() => {
+        localStorage.removeItem("auth_token")
+        setUser(null)
+        // We do NOT redirect here anymore. 
+        // Protected pages (Dashboard, Profile) will handle redirect via useAuthGuard or useEffect.
+        // Public pages (Home) will just show the non-logged-in state.
     }, [])
 
-    const fetchUser = async (token: string, signal?: AbortSignal) => {
+    const fetchUser = useCallback(async (token: string, signal?: AbortSignal) => {
         try {
             const res = await apiClient.get('/auth/user/', { signal })
 
@@ -61,20 +58,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } finally {
             setLoading(false)
         }
-    }
+    }, [logout])
+
+    useEffect(() => {
+        const controller = new AbortController()
+        const token = localStorage.getItem("auth_token")
+        if (token) {
+            fetchUser(token, controller.signal)
+        } else {
+            setLoading(false)
+        }
+        return () => controller.abort()
+    }, [fetchUser])
 
     const login = (token: string, userData: User) => {
         localStorage.setItem("auth_token", token)
         setUser(userData)
         // Redirection should be handled by the component calling login
-    }
-
-    const logout = () => {
-        localStorage.removeItem("auth_token")
-        setUser(null)
-        // We do NOT redirect here anymore. 
-        // Protected pages (Dashboard, Profile) will handle redirect via useAuthGuard or useEffect.
-        // Public pages (Home) will just show the non-logged-in state.
     }
 
     return (

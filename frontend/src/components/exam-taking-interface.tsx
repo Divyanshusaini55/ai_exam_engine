@@ -208,6 +208,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
             }
         }
         loadExamAndSession()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [examId, mode])
 
     // Save state on question change
@@ -215,6 +216,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
         if (loading || !sessionId || !questions.length) return
         const currentQId = questions[currentQuestionIndex]?.id
         saveProgressState(currentQuestionIndex, currentQId)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentQuestionIndex, sessionId, loading])
 
     // Periodically save elapsed time every 10 seconds
@@ -227,6 +229,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
         }, 10000)
         
         return () => clearInterval(interval)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isPaused, loading, sessionId, currentQuestionIndex, questions])
 
     // Fetch translated questions dynamically when language changes (keeping timer & selections intact)
@@ -241,6 +244,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
             }
         }
         loadTranslatedQuestions()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [language, examId, mode])
 
     const handlePauseToggle = async () => {
@@ -1228,7 +1232,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                                 )}
                                             </div>
                                             <p className="text-xs text-muted-foreground font-medium mb-6 opacity-60">
-                                                All markdown syntax are supported including maths equations. Use 'Copy' button when copying from GPT to maintain the formatting.
+                                                All markdown syntax are supported including maths equations. Use &apos;Copy&apos; button when copying from GPT to maintain the formatting.
                                             </p>
                                             
                                             {user ? (

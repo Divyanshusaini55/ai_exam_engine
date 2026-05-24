@@ -3,7 +3,7 @@
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/context/auth-context"
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { communityApi } from "@/lib/api"
 import { ModeToggle } from "./mode-toggle"
 import { 
@@ -53,7 +53,7 @@ export function Navbar() {
     const notifRef = useRef<HTMLDivElement>(null)
 
     // Fetch notifications
-    const fetchNotifications = async (signal?: AbortSignal) => {
+    const fetchNotifications = useCallback(async (signal?: AbortSignal) => {
         if (!user) return
         try {
             const res = await communityApi.getNotifications({ signal })
@@ -62,7 +62,7 @@ export function Navbar() {
             if (error.name === 'CanceledError' || error.name === 'AbortError') return;
             console.error("Failed to fetch notifications:", error)
         }
-    }
+    }, [user])
 
     const markAsRead = async (id: number) => {
         try {
@@ -104,7 +104,7 @@ export function Navbar() {
             fetchNotifications(controller.signal)
         }
         return () => controller.abort()
-    }, [user])
+    }, [user, fetchNotifications])
 
     // Close menu on route change
     useEffect(() => {
