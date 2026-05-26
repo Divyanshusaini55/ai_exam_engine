@@ -272,7 +272,7 @@ export default function LeaderboardPage() {
                                     </p>
                                     <Link prefetch={false}
                                         href="/"
-                                        className="inline-flex items-center gap-2 px-8 py-4 bg-card text-primary font-bold rounded-xl hover:-translate-y-1 shadow-2xl transition-all duration-300"
+                                        className="inline-flex items-center gap-2 px-2 py-3 bg-card text-primary font-bold rounded-xl hover:-translate-y-1 shadow-2xl transition-all duration-300"
                                     >
                                         <Rocket className="size-5" />
                                         Take a Test & Improve Rank

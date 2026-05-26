@@ -6,7 +6,7 @@ import {
   X, Clock, Eye, ExternalLink, ChevronRight,
   BookOpen, FileText, Video, Link2, Zap,
   Calculator, FlaskConical, Bookmark, BookmarkCheck,
-  CheckCircle2, Circle, Search, ChevronDown,
+  CheckCircle2, Circle, Search, ChevronDown, Lock,
 } from "lucide-react"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
@@ -49,6 +49,7 @@ export type TopicResourceHubProps = {
   // Status tracking
   topicStatus?: TopicStatus
   onStatusChange?: (status: TopicStatus) => void
+  prerequisites?: { id: number; title: string; status: string }[]
 }
 
 // ─── Status config ──────────────────────────────────────────────────────────────
@@ -95,6 +96,13 @@ const DIFFICULTY_STYLE: Record<string, string> = {
   beginner:     "text-emerald-700 bg-emerald-50 dark:bg-emerald-900/50 dark:text-emerald-300",
   intermediate: "text-amber-700 bg-amber-50 dark:bg-amber-900/50 dark:text-amber-300",
   advanced:     "text-red-700 bg-red-50 dark:bg-red-900/50 dark:text-red-300",
+}
+
+const PREREQ_STATUS_STYLE: Record<string, string> = {
+  done: "bg-emerald-50 text-emerald-700 border-emerald-200/50 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30",
+  in_progress: "bg-yellow-50 text-yellow-700 border-yellow-200/50 dark:bg-yellow-950/20 dark:text-yellow-400 dark:border-yellow-900/30",
+  pending: "bg-amber-50 text-amber-700 border-amber-200/50 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30",
+  skip: "bg-secondary text-secondary-foreground border-border",
 }
 
 // ─── Status Dropdown ──────────────────────────────────────────────────────────
@@ -293,6 +301,7 @@ export function TopicResourceHub({
   isOpen,
   topicStatus = "pending",
   onStatusChange,
+  prerequisites = [],
 }: TopicResourceHubProps) {
   const [activeTab, setActiveTab] = useState<string>("all")
   const [search, setSearch] = useState("")
@@ -381,6 +390,29 @@ export function TopicResourceHub({
               </h2>
               {topicDescription && (
                 <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{topicDescription}</p>
+              )}
+              {prerequisites && prerequisites.length > 0 && (
+                <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mr-1">Prerequisites:</span>
+                  {prerequisites.map((p) => {
+                    const style = PREREQ_STATUS_STYLE[p.status] || PREREQ_STATUS_STYLE.pending
+                    return (
+                      <span
+                        key={p.id}
+                        className={`text-xs px-2.5 py-0.5 rounded-full border font-medium flex items-center gap-1 ${style}`}
+                      >
+                        {p.status === 'done' ? (
+                          <CheckCircle2 className="size-3" />
+                        ) : p.status === 'in_progress' ? (
+                          <Circle className="size-3 fill-current" />
+                        ) : (
+                          <Lock className="size-3" />
+                        )}
+                        {p.title}
+                      </span>
+                    )
+                  })}
+                </div>
               )}
             </div>
 

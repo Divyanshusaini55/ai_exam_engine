@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/context/auth-context"
 import { CircularProgress } from "@/components/circular-progress"
 import { StatsCard } from "@/components/stats-card"
@@ -30,12 +30,12 @@ interface PerformanceAnalysisDashboardProps {
 export function PerformanceAnalysisDashboard({ examId, onRetake }: PerformanceAnalysisDashboardProps) {
   const { user } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [result, setResult] = useState<any>(null)
   const [questions, setQuestions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'correct' | 'incorrect' | 'skipped'>('all')
 
-  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const qParam = searchParams?.get('q');
   const sessionIdParam = searchParams?.get('session_id');
 

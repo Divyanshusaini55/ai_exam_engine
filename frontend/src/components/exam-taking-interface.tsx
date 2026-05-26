@@ -48,7 +48,7 @@ import { SummaryModal } from "./summary-modal"
 
 interface ExamTakingInterfaceProps {
     examId: string
-    onSubmit?: () => void
+    onSubmit?: (sessionId?: string) => void
 }
 
 export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfaceProps) {
@@ -89,7 +89,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
 
     const handleViewSummary = async () => {
         setIsSummaryModalOpen(true)
-        if (summaryText) return
+        if (summaryText && summaryText !== "AI is currently generating the summary for this exam. This takes about a minute. Please check back shortly.") return
 
         if (exam?.ai_summary) {
             setSummaryText(exam.ai_summary)
@@ -99,9 +99,13 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
         setLoadingSummary(true)
         try {
             const response = await examApi.getSummary(examId)
-            const summary = response.data.ai_summary || ""
-            setSummaryText(summary)
-            setExam((prev: any) => prev ? { ...prev, ai_summary: summary } : prev)
+            if (response.status === 202 || response.data?.status === 'processing') {
+                setSummaryText("AI is currently generating the summary for this exam. This takes about a minute. Please check back shortly.")
+            } else {
+                const summary = response.data.ai_summary || ""
+                setSummaryText(summary)
+                setExam((prev: any) => prev ? { ...prev, ai_summary: summary } : prev)
+            }
         } catch (error) {
             console.error("Failed to fetch exam summary:", error)
         } finally {
@@ -383,7 +387,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
 
             if (mode === 'exam') {
                 if (onSubmit) {
-                    onSubmit()
+                    onSubmit(sessionId)
                 }
             } else {
                 setScoreData(res.data)

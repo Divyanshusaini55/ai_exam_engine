@@ -38,6 +38,13 @@ class SubCategory(models.Model):
     order = models.IntegerField(default=0, help_text="Display order within category")
     is_active = models.BooleanField(default=True, help_text="Show on frontend?")
     
+    syllabus_pdf = models.FileField(
+        upload_to='syllabus_pdfs/',
+        null=True,
+        blank=True,
+        help_text="Syllabus PDF file for automated roadmap generation"
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -367,6 +374,13 @@ class RoadmapTopic(models.Model):
     estimated_minutes = models.IntegerField(default=60, help_text="Estimated study time in minutes")
     order = models.IntegerField(default=0)
     resources = models.JSONField(default=list, blank=True, help_text="List of resources e.g. [{'type': 'video', 'url': '...', 'title': '...'}]")
+    prerequisites = models.ManyToManyField(
+        'self',
+        symmetrical=False,
+        blank=True,
+        related_name='dependent_topics',
+        help_text="Prerequisites required before studying this topic"
+    )
 
     def __str__(self):
         return self.title
@@ -628,9 +642,6 @@ class ResourceBookmark(models.Model):
         return f"♥ {self.user.username} — {self.resource.title}"
 
 
-from .models_translations import QuestionTranslation, AnswerTranslation
-
-
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.core.cache import cache
@@ -654,12 +665,12 @@ def answer_cache_clear(sender, instance, **kwargs):
     if hasattr(instance, 'question') and instance.question:
         clear_exam_cache(instance.question.exam_id)
 
-@receiver([post_save, post_delete], sender=QuestionTranslation)
+@receiver([post_save, post_delete], sender='quiz.QuestionTranslation')
 def question_translation_cache_clear(sender, instance, **kwargs):
     if hasattr(instance, 'question') and instance.question:
         clear_exam_cache(instance.question.exam_id)
 
-@receiver([post_save, post_delete], sender=AnswerTranslation)
+@receiver([post_save, post_delete], sender='quiz.AnswerTranslation')
 def answer_translation_cache_clear(sender, instance, **kwargs):
     if hasattr(instance, 'answer') and instance.answer and hasattr(instance.answer, 'question') and instance.answer.question:
         clear_exam_cache(instance.answer.question.exam_id)

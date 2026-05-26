@@ -42,3 +42,6 @@ frontend/tsconfig.tsbuildinfo
 .venv/
 venv/
 env/
+*.pdf
+backend/test_*.py
+backend/update_db.py

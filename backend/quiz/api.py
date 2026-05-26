@@ -232,13 +232,37 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
         if exam.ai_summary and not force:
             return Response({'ai_summary': exam.ai_summary})
             
-        from quiz.ai.summary_service import ExamSummaryService
-        try:
-            service = ExamSummaryService()
-            output = service.generate_summary(exam, force=force)
-            return Response({'ai_summary': output})
-        except Exception as e:
-            return Response({'error': f'Failed to generate summary: {str(e)}'}, status=500)
+        from django.core.cache import cache
+        import threading
+        
+        cache_key = f"exam_{exam.id}_summary_generating"
+        
+        if not cache.get(cache_key):
+            cache.set(cache_key, True, timeout=300) # Lock for 5 minutes
+            
+            def background_generate(exam_id, is_force):
+                try:
+                    from quiz.models import Exam
+                    from quiz.ai.summary_service import ExamSummaryService
+                    import logging
+                    
+                    thread_exam = Exam.objects.get(pk=exam_id)
+                    service = ExamSummaryService()
+                    service.generate_summary(thread_exam, force=is_force)
+                except Exception as e:
+                    import logging
+                    logging.getLogger('quiz.ai').error(f"Background summary generation failed: {e}")
+                finally:
+                    cache.delete(f"exam_{exam_id}_summary_generating")
+
+            thread = threading.Thread(target=background_generate, args=(exam.id, force))
+            thread.daemon = True
+            thread.start()
+            
+        return Response({
+            'status': 'processing', 
+            'message': 'AI summary is currently being generated. This takes about a minute. Please check back shortly.'
+        }, status=202)
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def start(self, request, pk=None):
@@ -383,21 +407,36 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
         accuracy = round((correct_answers / total_questions * 100) if total_questions > 0 else 0, 2)
         
         if mode == 'exam':
-            attempt, created = ExamAttempt.objects.update_or_create(
-                session_id=session_id,
-                exam=exam,
-                defaults={
-                    'user': user,
-                    'score': score,
-                    'total_questions': total_questions,
-                    'correct_answers': correct_answers,
-                    'percentage': accuracy,
-                    'duration': duration,
-                    'is_completed': True,
-                    'guest_name': guest_name if not user else None,
-                    'guest_email': guest_email if not user else None,
-                }
-            )
+            attempts = ExamAttempt.objects.filter(session_id=session_id, exam=exam)
+            if attempts.exists():
+                attempt = attempts.first()
+                attempt.user = user
+                attempt.score = score
+                attempt.total_questions = total_questions
+                attempt.correct_answers = correct_answers
+                attempt.percentage = accuracy
+                attempt.duration = duration
+                attempt.is_completed = True
+                attempt.guest_name = guest_name if not user else None
+                attempt.guest_email = guest_email if not user else None
+                attempt.save()
+                
+                if attempts.count() > 1:
+                    attempts.exclude(id=attempt.id).delete()
+            else:
+                attempt = ExamAttempt.objects.create(
+                    session_id=session_id,
+                    exam=exam,
+                    user=user,
+                    score=score,
+                    total_questions=total_questions,
+                    correct_answers=correct_answers,
+                    percentage=accuracy,
+                    duration=duration,
+                    is_completed=True,
+                    guest_name=guest_name if not user else None,
+                    guest_email=guest_email if not user else None,
+                )
             return Response({
                 'success': True,
                 'message': 'Exam submitted successfully!',
@@ -408,19 +447,32 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
                 'attempt_id': attempt.id 
             })
         else:
-            session, created = PracticeSession.objects.update_or_create(
-                session_id=session_id,
-                exam=exam,
-                defaults={
-                    'user': user,
-                    'score': score,
-                    'total_questions': total_questions,
-                    'correct_answers': correct_answers,
-                    'accuracy': accuracy,
-                    'duration': duration,
-                    'is_completed': True
-                }
-            )
+            sessions = PracticeSession.objects.filter(session_id=session_id, exam=exam)
+            if sessions.exists():
+                session = sessions.first()
+                session.user = user
+                session.score = score
+                session.total_questions = total_questions
+                session.correct_answers = correct_answers
+                session.accuracy = accuracy
+                session.duration = duration
+                session.is_completed = True
+                session.save()
+                
+                if sessions.count() > 1:
+                    sessions.exclude(id=session.id).delete()
+            else:
+                session = PracticeSession.objects.create(
+                    session_id=session_id,
+                    exam=exam,
+                    user=user,
+                    score=score,
+                    total_questions=total_questions,
+                    correct_answers=correct_answers,
+                    accuracy=accuracy,
+                    duration=duration,
+                    is_completed=True
+                )
             
             # Calculate weak areas
             from django.db.models import Count, Q
@@ -526,25 +578,29 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
         if session_id:
             user_result = ExamAttempt.objects.filter(
                 session_id=session_id, 
-                exam=exam
+                exam=exam,
+                is_completed=True
             ).order_by('-completed_at').first()
             
         if not user_result and request.user.is_authenticated:
             user_result = ExamAttempt.objects.filter(
                 user=request.user, 
-                exam=exam
+                exam=exam,
+                is_completed=True
             ).order_by('-completed_at').first()
             
         if not user_result:
             if session_id:
                 user_result = PracticeSession.objects.filter(
                     session_id=session_id,
-                    exam=exam
+                    exam=exam,
+                    is_completed=True
                 ).order_by('-submitted_at').first()
             if not user_result and request.user.is_authenticated:
                 user_result = PracticeSession.objects.filter(
                     user=request.user,
-                    exam=exam
+                    exam=exam,
+                    is_completed=True
                 ).order_by('-submitted_at').first()
             if user_result:
                 is_practice = True
@@ -687,31 +743,23 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
         leaderboard_data = []
 
         if exam_id:
-            # Per-Exam Leaderboard (Highest Score per User)
-            # We want each user to appear only once with their BEST score for this exam.
-            
-            # Subquery to find the best score for each user for this exam
-            all_results = ExamAttempt.objects.filter(exam_id=exam_id, is_completed=True)
-            
-            # Group by user and find max score (using annotation tricks or python sorting)
-            # For simplicity and cross-db compatibility:
-            # We fetch all, then distinct by user keeping highest score.
-            
-            # Using Django's distinct on fields is only for Postgres, so we do it in Python for SQLite safety
-            results = ExamAttempt.objects.filter(exam_id=exam_id, is_completed=True).select_related('user', 'exam').order_by('user', '-score')
+            # Per-Exam Leaderboard (Highest Score per User/Guest)
+            results = ExamAttempt.objects.filter(exam_id=exam_id, is_completed=True).select_related('user', 'exam').order_by('-score')
             
             user_best_map = {}
             for r in results:
-                if r.user_id not in user_best_map:
-                    user_best_map[r.user_id] = r
+                identity = r.user_id if r.user_id else r.session_id
+                if identity not in user_best_map:
+                    user_best_map[identity] = r
             
             sorted_results = sorted(user_best_map.values(), key=lambda x: x.score, reverse=True)
             
             rank = 1
             for r in sorted_results:
+                username = r.user.username if r.user else (r.guest_name or f"Guest-{str(r.session_id)[:4]}")
                 leaderboard_data.append({
                     "rank": rank,
-                    "username": r.user.username,
+                    "username": username,
                     "score": r.score,
                     "total_questions": r.total_questions,
                     "percentage": r.percentage,
@@ -722,24 +770,45 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
                 
         else:
             # Global Leaderboard (Reputation / Total Score sum)
-            # Sum of all scores for each user
             from django.db.models import Q
-            users = User.objects.annotate(
+            
+            # Authenticated users
+            auth_users = User.objects.annotate(
                 total_score=Sum('exam_results__score', filter=Q(exam_results__is_completed=True)),
                 exams_taken=Count('exam_results', filter=Q(exam_results__is_completed=True))
-            ).filter(total_score__isnull=False).order_by('-total_score')
+            ).filter(total_score__isnull=False)
 
-            rank = 1
-            for u in users:
+            for u in auth_users:
                 leaderboard_data.append({
-                    "rank": rank,
                     "username": u.username,
                     "score": u.total_score,
                     "exams_taken": u.exams_taken,
-                    "date": "-", # Global doesn't have a single date
+                    "date": "-",
                     "exam_title": "All Exams"
                 })
-                rank += 1
+
+            # Guest users
+            guest_attempts = ExamAttempt.objects.filter(user__isnull=True, is_completed=True).values('session_id', 'guest_name').annotate(
+                total_score=Sum('score'),
+                exams_taken=Count('id')
+            ).filter(total_score__isnull=False)
+
+            for g in guest_attempts:
+                username = g['guest_name'] or f"Guest-{str(g['session_id'])[:4]}"
+                leaderboard_data.append({
+                    "username": username,
+                    "score": g['total_score'],
+                    "exams_taken": g['exams_taken'],
+                    "date": "-",
+                    "exam_title": "All Exams"
+                })
+
+            # Sort by total score descending
+            leaderboard_data.sort(key=lambda x: x['score'], reverse=True)
+
+            # Assign ranks
+            for i, entry in enumerate(leaderboard_data):
+                entry['rank'] = i + 1
 
         return Response(leaderboard_data)
 

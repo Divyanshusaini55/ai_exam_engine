@@ -14,15 +14,14 @@ class GeminiClient:
             raise ValueError("GEMINI_API_KEY is not set in settings.")
         genai.configure(api_key=self.api_key)
         
-        # Primary model from settings
-        self.primary_model = getattr(settings, 'GEMINI_SUMMARY_MODEL', 'models/gemini-flash-lite-latest')
+        self.primary_model = getattr(settings, 'GEMINI_SUMMARY_MODEL', 'models/gemini-2.5-flash')
         # Fallbacks
         self.fallback_models = [
-            'models/gemini-1.5-flash',
-            'models/gemini-1.5-pro'
+            'models/gemini-2.5-flash',
+            'models/gemini-2.5-pro'
         ]
 
-    def generate_content(self, prompt, max_retries=3, timeout=30):
+    def generate_content(self, prompt, max_retries=3, timeout=120):
         # Build candidate list of models (primary first, then fallback models if different)
         models_to_try = [self.primary_model]
         for fallback in self.fallback_models:

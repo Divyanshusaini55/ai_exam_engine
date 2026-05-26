@@ -1,11 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { Navbar } from "@/components/navbar"
 import { roadmapApi } from "@/lib/api"
 import { useAuth } from "@/context/auth-context"
-import { ArrowLeft, CheckCircle2, Circle, Loader2, Map as MapIcon, Clock, BookMarked, Bookmark, Download, Share2 } from "lucide-react"
+import { ArrowLeft, CheckCircle2, Circle, Loader2, Map as MapIcon, Clock, BookMarked, Bookmark, Download, Share2, Lock } from "lucide-react"
 import { TopicResourceHub, type TopicResourceItem, type TopicStatus } from "@/components/topic-resource-hub"
 
 // Define a mapping for status styles and labels
@@ -27,6 +27,20 @@ export default function RoadmapPage() {
     const [roadmap, setRoadmap] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(false)
+
+    const topicStatusMap = useMemo(() => {
+        const statusMap = new Map<number, string>()
+        if (roadmap?.phases) {
+            for (const phase of roadmap.phases) {
+                if (phase.topics) {
+                    for (const topic of phase.topics) {
+                        statusMap.set(topic.id, topic.status || 'pending')
+                    }
+                }
+            }
+        }
+        return statusMap
+    }, [roadmap])
     
     // Modal / Hub state
     const [selectedTopic, setSelectedTopic] = useState<any>(null)
@@ -501,6 +515,7 @@ export default function RoadmapPage() {
                                     {phase.topics.map((topic: any) => {
                                         const currentStatus = topic.status || 'pending'
                                         const statusInfo = STATUS_MAP[currentStatus as keyof typeof STATUS_MAP]
+                                        const hasUnmetPrerequisites = topic.prerequisites?.some((p: any) => topicStatusMap.get(p.id) !== 'done')
 
                                         return (
                                             <div 
@@ -519,6 +534,8 @@ export default function RoadmapPage() {
                                                 <div className="shrink-0 mt-0.5">
                                                     {currentStatus === 'done' ? (
                                                         <CheckCircle2 className={`size-5 ${statusInfo.color}`} />
+                                                    ) : hasUnmetPrerequisites ? (
+                                                        <Lock className="size-5 text-amber-500 animate-pulse" title="Prerequisites pending" />
                                                     ) : currentStatus === 'in_progress' ? (
                                                         <Circle className={`size-5 ${statusInfo.color} fill-yellow-100 dark:fill-yellow-900/50`} />
                                                     ) : currentStatus === 'skip' ? (
@@ -535,6 +552,26 @@ export default function RoadmapPage() {
                                                         <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
                                                             {topic.description}
                                                         </p>
+                                                    )}
+                                                    {topic.prerequisites && topic.prerequisites.length > 0 && (
+                                                        <div className="flex flex-wrap items-center gap-1.5 mt-2" onClick={e => e.stopPropagation()}>
+                                                            <span className="text-[9px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Prereq:</span>
+                                                            {topic.prerequisites.map((p: any) => {
+                                                                const isPrereqDone = topicStatusMap.get(p.id) === 'done'
+                                                                return (
+                                                                    <span 
+                                                                        key={p.id} 
+                                                                        className={`text-[9px] px-1.5 py-0.5 rounded-md font-medium border transition-colors ${
+                                                                            isPrereqDone 
+                                                                                ? "bg-green-50 dark:bg-green-950/20 border-green-200/50 dark:border-green-900/30 text-green-700 dark:text-green-400"
+                                                                                : "bg-amber-50 dark:bg-amber-950/20 border-amber-200/50 dark:border-amber-900/30 text-amber-700 dark:text-amber-400"
+                                                                        }`}
+                                                                    >
+                                                                        {p.title}
+                                                                    </span>
+                                                                )
+                                                            })}
+                                                        </div>
                                                     )}
                                                     <div className="flex items-center justify-between mt-2">
                                                         <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-medium">
@@ -574,8 +611,7 @@ export default function RoadmapPage() {
                 </div>
             </main>
 
-            {/* Topic Resource Hub — single source of truth for resources + status */}
-            {selectedTopic && (
+             {selectedTopic && (
                 <TopicResourceHub
                     isOpen={hubOpen}
                     topicTitle={selectedTopic.title}
@@ -584,6 +620,10 @@ export default function RoadmapPage() {
                     onClose={closeTopicHub}
                     topicStatus={(selectedTopic.status || "pending") as TopicStatus}
                     onStatusChange={(newStatus) => updateTopicStatus(selectedTopic.id, newStatus)}
+                    prerequisites={selectedTopic.prerequisites?.map((p: any) => ({
+                        ...p,
+                        status: topicStatusMap.get(p.id) || 'pending'
+                    }))}
                 />
             )}
         </div>

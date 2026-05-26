@@ -207,7 +207,7 @@ if not GEMINI_API_KEY:
         "Please create a .env file in the backend/ folder and add your key."
     )
 
-GEMINI_SUMMARY_MODEL = os.environ.get('GEMINI_SUMMARY_MODEL', 'models/gemini-flash-lite-latest')
+GEMINI_SUMMARY_MODEL = os.environ.get('GEMINI_SUMMARY_MODEL', 'models/gemini-2.5-flash')
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 20000
 

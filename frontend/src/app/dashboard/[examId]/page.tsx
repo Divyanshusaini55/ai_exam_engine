@@ -1,4 +1,5 @@
 "use client"
+import { Suspense } from "react"
 import { useNoIndex } from "@/hooks/useNoIndex"
 import { useRouter, useParams } from "next/navigation"
 import { PerformanceAnalysisDashboard } from "@/components/performance-analysis"
@@ -15,9 +16,11 @@ export default function DashboardPage() {
   }
 
   return (
-    <PerformanceAnalysisDashboard
-      examId={params.examId as string}
-      onRetake={handleRetake}
-    />
+    <Suspense fallback={<div>Loading Dashboard...</div>}>
+      <PerformanceAnalysisDashboard
+        examId={params.examId as string}
+        onRetake={handleRetake}
+      />
+    </Suspense>
   )
 }

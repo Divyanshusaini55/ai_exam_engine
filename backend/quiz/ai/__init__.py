@@ -16,7 +16,7 @@ from quiz.ai.pattern_engine import PatternEngine
 from quiz.ai.aggregation_engine import AggregationEngine
 from quiz.ai.markdown_formatter import MarkdownFormatter
 from quiz.ai.validators import QualityValidator
-from quiz.ai.serializers import ConceptSerializer, FormulaSerializer
+from quiz.ai.roadmap_engine import RoadmapEngine
 
 # original functions from quiz/ai.py to preserve backwards compatibility
 def extract_text_from_pdf(pdf_file):
@@ -315,7 +315,7 @@ def translate_question_to_hindi(question: Question):
     Translates a question, its explanation, and all its answers to Hindi using Gemini.
     Creates or updates QuestionTranslation and AnswerTranslation records for 'hi'.
     """
-    from .models_translations import QuestionTranslation, AnswerTranslation
+    from quiz.models_translations import QuestionTranslation, AnswerTranslation
     
     configure_gemini()
     model = genai.GenerativeModel("models/gemini-1.5-flash")

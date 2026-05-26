@@ -398,10 +398,11 @@ class TopicResourceListSerializer(serializers.ModelSerializer):
 class RoadmapTopicSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField()
     topic_resources = serializers.SerializerMethodField()
+    prerequisites = serializers.SerializerMethodField()
 
     class Meta:
         model = RoadmapTopic
-        fields = ['id', 'title', 'description', 'estimated_minutes', 'order', 'status', 'resources', 'topic_resources']
+        fields = ['id', 'title', 'description', 'estimated_minutes', 'order', 'status', 'resources', 'topic_resources', 'prerequisites']
 
     def get_status(self, obj):
         user = self.context.get('request').user if self.context.get('request') else None
@@ -415,6 +416,9 @@ class RoadmapTopicSerializer(serializers.ModelSerializer):
         """Return published resources for this topic (list view — no heavy content)."""
         qs = obj.topic_resources.filter(is_published=True).order_by('order', 'created_at')
         return TopicResourceListSerializer(qs, many=True, context=self.context).data
+
+    def get_prerequisites(self, obj):
+        return [{'id': p.id, 'title': p.title} for p in obj.prerequisites.all()]
 
 class RoadmapPhaseSerializer(serializers.ModelSerializer):
     topics = RoadmapTopicSerializer(many=True, read_only=True)

@@ -35,23 +35,22 @@ Questions:
     @staticmethod
     def build_summary_prompt(exam_title: str, aggregated_json: str) -> str:
         return f"""
-You are an expert academic evaluator and lead curriculum developer.
-Generate an exhaustive, highly detailed, and maximized academic analysis and overview for the exam "{exam_title}".
+You are an expert academic evaluator.
+Generate a focused, structured academic analysis and overview for the exam "{exam_title}".
 
 Inputs:
-Use the following aggregated statistics and patterns JSON. Analyze it deeply to produce your report:
+Use the following aggregated statistics and patterns JSON. Analyze it to produce your report:
 {aggregated_json}
 
-CRITICAL RULES FOR MAXIMIZATION & GROUNDING:
-1. Do NOT write a short generic essay or high-level paragraphs. Maximize the detail and depth of every section.
-2. Ground all observations, explanations, and advice in specific questions from the exam. CITE specific question IDs (e.g. Question #12) and quote/paraphrase their text snippet to illustrate your points.
-3. Every subject, concept, formula, skill, pattern, weak area, or difficulty profile mentioned in the summary must be linked to concrete questions from the exam.
-4. Output must feel like a premium, hyper-detailed Exam Analysis + Advanced Coaching Notes + Comprehensive Formula Sheet + Question Intelligence.
+CRITICAL RULES:
+1. Keep your analysis concise and impactful. Avoid overly long paragraphs. Use bullet points where appropriate.
+2. Ground key observations in specific questions from the exam. CITE specific question IDs (e.g. Question #12) to illustrate your points, but do not do this for every single item if it becomes repetitive.
+3. Output must be a clean, structured Exam Analysis + Coaching Notes.
 
 Your summary MUST follow this markdown structure exactly:
 
 # Overview
-[Provide a detailed and comprehensive academic analysis of the exam's general difficulty, scope, and coverage. Ground this overview in the specific types of questions found in the paper, citing key questions (by ID and text snippet) to show the style, computational depth, and cognitive reasoning required.]
+[Provide a concise overview of the exam's general difficulty, scope, and coverage. Mention key question styles and cognitive reasoning required.]
 
 ---
 

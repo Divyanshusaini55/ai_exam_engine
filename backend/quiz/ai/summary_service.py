@@ -49,8 +49,18 @@ class ExamSummaryService:
         # Step 1: Question Ingestion & Validation
         validated_questions = self.analyzer.ingest_and_validate(raw_questions)
 
+        # Step 1.5: Sample questions to prevent API timeouts for large exams
+        import random
+        max_sample = 30
+        if len(validated_questions) > max_sample:
+            logger.info(f"Exam is large ({len(validated_questions)} questions). Sampling {max_sample} questions for summary generation to prevent timeout.")
+            random.seed(exam.id)  # Fixed seed for consistent summary generation
+            sampled_questions = random.sample(validated_questions, max_sample)
+        else:
+            sampled_questions = validated_questions
+
         # Step 2: Question Intelligence Engine (Batch processing: 30 questions per batch)
-        analyzed_questions = self.analyzer.analyze_questions(validated_questions, batch_size=30)
+        analyzed_questions = self.analyzer.analyze_questions(sampled_questions, batch_size=30)
         logger.info(f"Successfully analyzed {len(analyzed_questions)} questions.")
 
         # Map validated questions by ID back to analyzed_questions for question references
@@ -64,6 +74,11 @@ class ExamSummaryService:
 
         # Step 3: Exam Aggregator
         aggregated_data = AggregationEngine.aggregate(analyzed_questions)
+        
+        # Remove raw questions to prevent bloated AI summary and token limit bloat
+        if 'exam_questions' in aggregated_data:
+            del aggregated_data['exam_questions']
+            
         aggregated_json_str = json.dumps(aggregated_data, indent=2)
         logger.info("Exam stats aggregated successfully.")
 

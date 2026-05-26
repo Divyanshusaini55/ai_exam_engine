@@ -50,9 +50,13 @@ export default function ShiftPage() {
     checkExamStatus()
   }, [shiftId, router, isRetake])
 
-  const handleSubmit = () => {
+  const handleSubmit = (sessionId?: string) => {
     // Replace history to prevent back-navigation to exam
-    router.replace(`/dashboard/${shiftId}`)
+    if (sessionId) {
+      router.replace(`/dashboard/${shiftId}?session_id=${sessionId}`)
+    } else {
+      router.replace(`/dashboard/${shiftId}`)
+    }
   }
 
   if (loading) {

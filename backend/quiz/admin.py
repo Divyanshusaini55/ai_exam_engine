@@ -12,8 +12,8 @@ from .models import (
     CurrentAffair,
     ExamRoadmap, RoadmapPhase, RoadmapTopic, UserTopicProgress,
     ResourceTag, TopicResource, ResourceProgress, ResourceBookmark,
-    QuestionTranslation, AnswerTranslation,
 )
+from .models_translations import QuestionTranslation, AnswerTranslation
 from .ai import generate_questions_from_pdf
 
 def _status_badge(status):
@@ -294,7 +294,7 @@ class SubCategoryAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at')
 
     fieldsets = (
-        ('Basic Info', {'fields': ('category', 'name', 'slug', 'description')}),
+        ('Basic Info', {'fields': ('category', 'name', 'slug', 'description', 'syllabus_pdf')}),
         ('Display Settings', {'fields': ('icon', 'order')}),
         ('Status', {'fields': ('is_active',)}),
         ('Timestamps', {'fields': ('created_at', 'updated_at'), 'classes': ('collapse',)}),
@@ -594,9 +594,11 @@ class RoadmapTopicAdmin(admin.ModelAdmin):
     search_fields = ('title',)
     inlines = [TopicResourceInline]
 
+    filter_horizontal = ('prerequisites',)
+
     fieldsets = (
         ('Topic Info', {
-            'fields': ('phase', 'title', 'description', 'estimated_minutes', 'order'),
+            'fields': ('phase', 'title', 'description', 'estimated_minutes', 'order', 'prerequisites'),
         }),
         ('Legacy JSON Resources (deprecated — use inline editor below)', {
             'fields': ('resources',),

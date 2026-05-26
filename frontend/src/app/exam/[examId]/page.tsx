@@ -427,7 +427,7 @@ export default function ExamPage() {
         await examApi.getResults(id)
         router.replace(`/dashboard/${id}`)
         return
-      } catch (error) {}
+      } catch (error) { }
       await new Promise(resolve => setTimeout(resolve, 500))
       handleStart()
     } catch (error) {
@@ -447,7 +447,7 @@ export default function ExamPage() {
         <Navbar />
       </div>
       <div className="w-full max-w-4xl mx-auto flex flex-col gap-8 animate-fade-in px-4 py-12">
-        
+
         {/* Navigation */}
         <div className="flex items-center justify-between gap-4">
           <button
@@ -457,7 +457,7 @@ export default function ExamPage() {
             <ArrowLeft className="size-4.5" />
             Back to Exams
           </button>
-          
+
           <div className="px-4 py-1.5 rounded-full bg-secondary border border-border text-primary text-xs font-bold uppercase tracking-wider flex items-center gap-2">
             <ShieldCheck className="size-4 text-success" />
             Official Assessment
@@ -467,7 +467,7 @@ export default function ExamPage() {
         {/* Hero Section */}
         <div className="card-premium p-8 md:p-12 relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32 transition-transform group-hover:scale-110 duration-700" />
-          
+
           <div className="relative z-10">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-6">
@@ -476,14 +476,14 @@ export default function ExamPage() {
                   {exam.title}
                 </h1>
               </div>
-              
+
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                 <div className="bg-background/50 backdrop-blur-sm p-4 rounded-2xl border border-border flex flex-col items-center text-center gap-1 transition-all hover:bg-background">
                   <Clock className="text-primary mb-1 size-8" />
                   <div className="font-bold text-xl text-primary">{exam.duration_minutes}</div>
                   <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Minutes</div>
                 </div>
-                
+
                 <div className="bg-background/50 backdrop-blur-sm p-4 rounded-2xl border border-border flex flex-col items-center text-center gap-1 transition-all hover:bg-background">
                   <FileQuestion className="text-primary mb-1 size-8" />
                   <div className="font-bold text-xl text-primary">{exam.total_questions}</div>
@@ -522,13 +522,13 @@ export default function ExamPage() {
               { Icon: RefreshCw, text: "Do not refresh or close browser during the test" },
               { Icon: BarChart3, text: "Get detailed AI analysis instantly after submission" },
             ].map((item, i) => {
-                const ItemIcon = item.Icon
-                return (
-                    <div key={i} className="flex items-start gap-4 p-4 rounded-2xl bg-secondary/50 border border-border hover:bg-secondary transition-colors">
-                        <ItemIcon className="mt-0.5 size-5 shrink-0 text-green-600 dark:text-green-500" />
-                        <span className="text-sm font-medium text-primary leading-relaxed">{item.text}</span>
-                    </div>
-                )
+              const ItemIcon = item.Icon
+              return (
+                <div key={i} className="flex items-start gap-4 p-4 rounded-2xl bg-secondary/50 border border-border hover:bg-secondary transition-colors">
+                  <ItemIcon className="mt-0.5 size-5 shrink-0 text-green-600 dark:text-green-500" />
+                  <span className="text-sm font-medium text-primary leading-relaxed">{item.text}</span>
+                </div>
+              )
             })}
           </div>
 
@@ -551,7 +551,7 @@ export default function ExamPage() {
             <button
               onClick={handleStartExam}
               disabled={!isConfirmed || isStarting}
-              className="w-full py-5 px-8 rounded-2xl font-bold text-xl text-primary-foreground bg-primary hover:opacity-90 shadow-premium transition-all transform hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-3 group"
+              className="w-full py-2 px-4 rounded-2xl font-bold text-xl text-primary-foreground bg-primary hover:opacity-90 shadow-premium transition-all transform hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-3 group"
             >
               {isStarting ? (
                 <>
