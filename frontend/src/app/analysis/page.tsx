@@ -21,7 +21,7 @@ import {
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Navbar } from "@/components/navbar"
-import { apiClient } from "@/lib/apiClient"
+import { miscApi } from "@/lib/api"
 import { 
     ClipboardList, 
     BarChart3, 
@@ -49,7 +49,7 @@ export default function AnalysisPage() {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const res = await apiClient.get('/exams/dashboard_stats/')
+                const res = await miscApi.getDashboardStats()
                 if (res.ok) {
                     const data = await res.json()
                     setStats({

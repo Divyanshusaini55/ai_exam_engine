@@ -1,0 +1,310 @@
+.
+├── .DS_Store
+├── .gitignore
+├── CGL-syllabus-169635-.pdf
+├── DEPLOYMENT_GUIDE.md
+├── DOCKER_GUIDE.md
+├── PROJECT_STRUCTURE.txt
+├── README.md
+├── analysis_results.md
+├── backend
+│   ├── .dockerignore
+│   ├── .env
+│   ├── .env.example
+│   ├── .gitignore
+│   ├── Dockerfile
+│   ├── Procfile
+│   ├── build.sh
+│   ├── cache
+│   │   ├── __init__.py
+│   │   └── backends.py
+│   ├── check_gemini.py
+│   ├── check_translation.py
+│   ├── community
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── management
+│   │   │   ├── __init__.py
+│   │   │   └── commands
+│   │   │       ├── __init__.py
+│   │   │       └── recalculate_contributor_stats.py
+│   │   ├── migrations
+│   │   │   ├── 0001_initial.py
+│   │   │   ├── 0002_comment_parent_comment_upvotes.py
+│   │   │   ├── 0003_badge_alter_comment_options_and_more.py
+│   │   │   └── __init__.py
+│   │   ├── models.py
+│   │   ├── serializers.py
+│   │   ├── services.py
+│   │   ├── signals.py
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── core
+│   │   ├── __init__.py
+│   │   ├── asgi.py
+│   │   ├── celery.py
+│   │   ├── management
+│   │   │   ├── __init__.py
+│   │   │   └── commands
+│   │   │       ├── __init__.py
+│   │   │       └── create_admin.py
+│   │   ├── settings.py
+│   │   ├── urls.py
+│   │   └── wsgi.py
+│   ├── db.sqlite3
+│   ├── entrypoint.sh
+│   ├── events
+│   │   ├── __init__.py
+│   │   └── dispatch.py
+│   ├── health
+│   │   ├── __init__.py
+│   │   ├── apps.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── jobs
+│   │   └── migrations
+│   │       ├── 0001_initial.py
+│   │       └── __init__.py
+│   ├── manage.py
+│   ├── media
+│   │   ├── question_images
+│   │   │   ├── Screenshot_2026-01-08-23-49-57-91_40deb401b9ffe8e1df2f1cc5ba480b12.jpg
+│   │   │   └── Screenshot_2026-01-08-23-49-57-91_40deb401b9ffe8e1df2f1cc5ba480b12_ZvCFc30.jpg
+│   │   ├── question_papers
+│   │   │   ├── 26T1ETS1DS22F2000900.pdf
+│   │   │   └── 26T1ETS1DS22F2000900_gsWE7x0.pdf
+│   │   └── syllabus_pdfs
+│   │       └── CGL-syllabus-169635-.pdf
+│   ├── quiz
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── ai
+│   │   │   ├── __init__.py
+│   │   │   ├── aggregation_engine.py
+│   │   │   ├── concept_engine.py
+│   │   │   ├── formula_engine.py
+│   │   │   ├── gemini_client.py
+│   │   │   ├── markdown_formatter.py
+│   │   │   ├── pattern_engine.py
+│   │   │   ├── pdf_engine
+│   │   │   ├── prompt_builder.py
+│   │   │   ├── question_analyzer.py
+│   │   │   ├── roadmap_engine.py
+│   │   │   ├── roadmap_pipeline
+│   │   │   ├── serializers.py
+│   │   │   ├── summary_pipeline
+│   │   │   ├── summary_service.py
+│   │   │   └── validators.py
+│   │   ├── api.py
+│   │   ├── apps.py
+│   │   ├── management
+│   │   │   └── commands
+│   │   │       ├── fetch_current_affairs.py
+│   │   │       ├── generate_exam_summary.py
+│   │   │       └── generate_roadmap.py
+│   │   ├── migrations
+│   │   │   ├── 0001_initial.py
+│   │   │   ├── 0002_question_image_question_is_image_based.py
+│   │   │   ├── 0003_exam_category.py
+│   │   │   ├── 0004_question_explanation.py
+│   │   │   ├── 0005_userexamresult.py
+│   │   │   ├── 0006_category_subcategory_exam_subcategory.py
+│   │   │   ├── 0007_question_difficulty_question_subject_question_topic.py
+│   │   │   ├── 0008_alter_category_options_alter_subcategory_options_and_more.py
+│   │   │   ├── 0009_contactmessage.py
+│   │   │   ├── 0010_exam_marks_per_question_exam_total_marks.py
+│   │   │   ├── 0011_userexamresult_guest_email_userexamresult_guest_name_and_more.py
+│   │   │   ├── 0012_questionpaperupload.py
+│   │   │   ├── 0013_correctionsuggestion.py
+│   │   │   ├── 0014_currentaffair.py
+│   │   │   ├── 0015_examroadmap_roadmapphase_roadmaptopic_and_more.py
+│   │   │   ├── 0016_remove_usertopicprogress_is_completed_and_more.py
+│   │   │   ├── 0017_examroadmap_bookmarks.py
+│   │   │   ├── 0018_exam_ai_summary.py
+│   │   │   ├── 0019_topicresource_cms.py
+│   │   │   ├── 0020_exam_supported_languages_questiontranslation_and_more.py
+│   │   │   ├── 0021_examattempt_practicesession_useranswer_is_bookmarked_and_more.py
+│   │   │   ├── 0022_examattempt_current_question_index_and_more.py
+│   │   │   ├── 0023_subcategory_syllabus_pdf_roadmaptopic_prerequisites.py
+│   │   │   └── __init__.py
+│   │   ├── models.py
+│   │   ├── models_translations.py
+│   │   ├── serializers.py
+│   │   ├── services.py
+│   │   ├── static
+│   │   │   └── admin
+│   │   │       ├── css
+│   │   │       │   └── custom_admin.css
+│   │   │       └── img
+│   │   │           └── logo.png
+│   │   ├── urls.py
+│   │   └── views_auth.py
+│   ├── requirements.txt
+│   ├── resources
+│   │   ├── __init__.py
+│   │   ├── renderers.py
+│   │   ├── serializers.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── runtime.txt
+│   ├── scheduler
+│   ├── tasks
+│   │   ├── __init__.py
+│   │   └── base.py
+│   ├── test_compile.py
+│   ├── test_import.py
+│   ├── test_models.py
+│   ├── test_post.py
+│   ├── test_read.py
+│   ├── test_setup.py
+│   ├── tmp
+│   │   └── .keep
+│   └── update_db.py
+├── docker-compose.yml
+├── frontend
+│   ├── .dockerignore
+│   ├── .env.local
+│   ├── .eslintrc.json
+│   ├── .gitignore
+│   ├── Dockerfile
+│   ├── add-noindex-hook.sh
+│   ├── add-usenoindex-calls.sh
+│   ├── build_log.txt
+│   ├── build_log_navbar.txt
+│   ├── components.json
+│   ├── next-env.d.ts
+│   ├── next.config.js
+│   ├── output.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── public
+│   │   └── robots.txt
+│   ├── src
+│   │   ├── app
+│   │   │   ├── admin-messages
+│   │   │   │   └── page.tsx
+│   │   │   ├── analysis
+│   │   │   │   └── page.tsx
+│   │   │   ├── category
+│   │   │   │   └── [categorySlug]
+│   │   │   │       ├── [subcategorySlug]
+│   │   │   │       │   └── page.tsx
+│   │   │   │       └── page.tsx
+│   │   │   ├── contact
+│   │   │   │   └── page.tsx
+│   │   │   ├── contributors
+│   │   │   │   └── page.tsx
+│   │   │   ├── daily-dose
+│   │   │   │   ├── [slug]
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── dashboard
+│   │   │   │   ├── [examId]
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── exam
+│   │   │   │   └── [examId]
+│   │   │   │       └── page.tsx
+│   │   │   ├── exams
+│   │   │   │   └── page.tsx
+│   │   │   ├── forgot-password
+│   │   │   │   └── page.tsx
+│   │   │   ├── globals.css
+│   │   │   ├── help
+│   │   │   │   └── page.tsx
+│   │   │   ├── layout.tsx
+│   │   │   ├── leaderboard
+│   │   │   │   └── page.tsx
+│   │   │   ├── loading
+│   │   │   │   └── [examId]
+│   │   │   │       └── page.tsx
+│   │   │   ├── login
+│   │   │   │   └── page.tsx
+│   │   │   ├── page.tsx
+│   │   │   ├── privacy
+│   │   │   │   └── page.tsx
+│   │   │   ├── profile
+│   │   │   │   └── page.tsx
+│   │   │   ├── reset-password
+│   │   │   │   └── page.tsx
+│   │   │   ├── resources
+│   │   │   │   ├── [slug]
+│   │   │   │   │   ├── page.tsx
+│   │   │   │   │   └── resource-actions.tsx
+│   │   │   │   └── _old_resourceId
+│   │   │   │       └── page.tsx
+│   │   │   ├── roadmap
+│   │   │   │   └── [subcategorySlug]
+│   │   │   │       └── page.tsx
+│   │   │   ├── shift
+│   │   │   │   └── [shiftId]
+│   │   │   │       └── page.tsx
+│   │   │   ├── signup
+│   │   │   │   └── page.tsx
+│   │   │   ├── sitemap.xml
+│   │   │   │   └── route.ts
+│   │   │   ├── terms
+│   │   │   │   └── page.tsx
+│   │   │   └── upload
+│   │   │       └── page.tsx
+│   │   ├── components
+│   │   │   ├── AuthInput.tsx
+│   │   │   ├── Timer.tsx
+│   │   │   ├── article-viewer.tsx
+│   │   │   ├── article.css
+│   │   │   ├── auth-form.tsx
+│   │   │   ├── category-grid.tsx
+│   │   │   ├── category-home-icon.tsx
+│   │   │   ├── circular-progress.tsx
+│   │   │   ├── exam-card.tsx
+│   │   │   ├── exam-grid.tsx
+│   │   │   ├── exam-home.tsx
+│   │   │   ├── exam-taking-interface.tsx
+│   │   │   ├── footer.tsx
+│   │   │   ├── home-skeleton.tsx
+│   │   │   ├── latex-renderer.tsx
+│   │   │   ├── markdown-renderer.tsx
+│   │   │   ├── mobile-question-navigator.tsx
+│   │   │   ├── mode-toggle.tsx
+│   │   │   ├── navbar.tsx
+│   │   │   ├── performance-analysis.tsx
+│   │   │   ├── question-navigator.tsx
+│   │   │   ├── question-review.tsx
+│   │   │   ├── resource-header.tsx
+│   │   │   ├── resource-sidebar.tsx
+│   │   │   ├── stats-card.tsx
+│   │   │   ├── submission-loading-state.tsx
+│   │   │   ├── suggest-correction-modal.tsx
+│   │   │   ├── summary-modal.tsx
+│   │   │   ├── theme-provider.tsx
+│   │   │   ├── topic-resource-hub.tsx
+│   │   │   ├── ui
+│   │   │   │   ├── button.tsx
+│   │   │   │   ├── sheet.tsx
+│   │   │   │   └── skeleton.tsx
+│   │   │   └── xp-guide-modal.tsx
+│   │   ├── context
+│   │   │   ├── auth-context.tsx
+│   │   │   └── exam-language-context.tsx
+│   │   ├── hooks
+│   │   │   ├── useAuthGuard.ts
+│   │   │   └── useNoIndex.ts
+│   │   ├── lib
+│   │   │   ├── api.ts
+│   │   │   ├── apiClient.ts
+│   │   │   ├── category-home-icons.ts
+│   │   │   ├── debug.ts
+│   │   │   ├── processor.ts
+│   │   │   ├── seo.ts
+│   │   │   └── utils.ts
+│   │   └── styles
+│   │       └── article.css
+│   ├── tailwind.config.ts
+│   ├── tsconfig.json
+│   └── tsconfig.tsbuildinfo
+└── structure.txt
+
+78 directories, 230 files

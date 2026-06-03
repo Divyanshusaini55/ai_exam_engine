@@ -1,3 +1,4 @@
+import random
 import json
 import time
 import logging
@@ -50,7 +51,6 @@ class ExamSummaryService:
         validated_questions = self.analyzer.ingest_and_validate(raw_questions)
 
         # Step 1.5: Sample questions to prevent API timeouts for large exams
-        import random
         max_sample = 30
         if len(validated_questions) > max_sample:
             logger.info(f"Exam is large ({len(validated_questions)} questions). Sampling {max_sample} questions for summary generation to prevent timeout.")

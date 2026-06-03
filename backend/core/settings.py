@@ -3,21 +3,20 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv # Make sure to install this package
 import dj_database_url
+from kombu import Queue
 
 # Load environment variables from a .env file located in the base directory
-load_dotenv()
+if not os.environ.get('RUNNING_IN_DOCKER'):
+    load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-this-in-production')
 
-# SECURITY WARNING: don't run with debug turned on in production!
+
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
@@ -41,6 +40,12 @@ INSTALLED_APPS = [
     'core',  # Required for management commands
     'quiz',
     'community',
+    'health',
+    'jobs',
+    # Async infrastructure
+    'django_celery_beat',
+    # OpenAPI
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -103,6 +108,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -124,15 +132,22 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Logging Configuration for Cloud Run
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{asctime} [{levelname}] {name}: {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
         },
     },
     'root': {
@@ -150,6 +165,36 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'tasks': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'cache': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'events': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'jobs': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'health': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'celery': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
     },
 }
 
@@ -157,8 +202,111 @@ LOGGING = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Redis Configuration
+
 REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+# Handles both redis:// and rediss:// (TLS, e.g. Upstash).
+def _redis_db_url(base_url, db_number):
+    """Replace the trailing /N in a redis URL with /db_number."""
+    # Strip trailing slash and db number if present
+    if base_url.rstrip('/').split('/')[-1].isdigit():
+        base_url = '/'.join(base_url.rstrip('/').split('/')[:-1])
+    return f'{base_url.rstrip("/")}/{db_number}'
+
+REDIS_CACHE_URL = os.environ.get('REDIS_CACHE_URL', _redis_db_url(REDIS_URL, 1))
+REDIS_SESSION_URL = os.environ.get('REDIS_SESSION_URL', _redis_db_url(REDIS_URL, 2))
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': REDIS_CACHE_URL,
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'SOCKET_CONNECT_TIMEOUT': 5,
+            'SOCKET_TIMEOUT': 5,
+            'RETRY_ON_TIMEOUT': True,
+            'MAX_CONNECTIONS': 50,
+            'CONNECTION_POOL_KWARGS': {
+                'max_connections': 50,
+                'retry_on_timeout': True,
+            },
+        },
+        'KEY_PREFIX': 'exam_engine',
+        'TIMEOUT': 300,  # Default TTL: 5 minutes
+    }
+}
+
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'AUTH_HEADER_TYPES': ('Token', 'Bearer'),
+}
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', REDIS_URL)
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', REDIS_URL)
+
+# Serialization
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+# Timezone
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_ENABLE_UTC = True
+
+# Reliability
+CELERY_TASK_ACKS_LATE = True
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1  # Fair scheduling
+CELERY_TASK_REJECT_ON_WORKER_LOST = True
+CELERY_TASK_MAX_RETRIES = 3
+
+# Result expiry
+CELERY_RESULT_EXPIRES = 3600  # 1 hour
+
+# Queues and Routing
+CELERY_QUEUES = (
+    Queue('high', routing_key='high'),
+    Queue('normal', routing_key='normal'),
+    Queue('low', routing_key='low'),
+    Queue('maintenance', routing_key='maintenance'),
+)
+
+CELERY_TASK_ROUTES = {
+    'tasks.summary_tasks.*': {'queue': 'normal'},
+    'tasks.roadmap_tasks.*': {'queue': 'normal'},
+    'tasks.pdf_tasks.*': {'queue': 'high'},
+    'tasks.analytics_tasks.cleanup_stale_jobs': {'queue': 'maintenance'},
+    'tasks.analytics_tasks.*': {'queue': 'low'},
+    'tasks.notification_tasks.*': {'queue': 'high'},
+}
+
+CELERY_TASK_ANNOTATIONS = {
+    'tasks.summary_tasks.generate_exam_summary': {'time_limit': 600, 'soft_time_limit': 540},
+    'tasks.summary_tasks.generate_topic_explanation': {'time_limit': 300, 'soft_time_limit': 270},
+    'tasks.roadmap_tasks.generate_exam_roadmap': {'time_limit': 900, 'soft_time_limit': 840},
+    'tasks.roadmap_tasks.refresh_roadmap_resources': {'time_limit': 600, 'soft_time_limit': 540},
+    'tasks.pdf_tasks.parse_question_paper': {'time_limit': 600, 'soft_time_limit': 540},
+    'tasks.pdf_tasks.parse_syllabus_pdf': {'time_limit': 600, 'soft_time_limit': 540},
+    'tasks.analytics_tasks.recalculate_community_ranks': {'time_limit': 300, 'soft_time_limit': 270},
+    'tasks.analytics_tasks.refresh_leaderboard_cache': {'time_limit': 120, 'soft_time_limit': 100},
+    'tasks.analytics_tasks.cleanup_stale_jobs': {'time_limit': 120, 'soft_time_limit': 100},
+    'tasks.notification_tasks.send_email_notification': {'time_limit': 60, 'soft_time_limit': 45},
+    'tasks.notification_tasks.send_bulk_notification': {'time_limit': 300, 'soft_time_limit': 270},
+}
+
+
+# Task discovery — Celery will also look in tasks/ via core/celery.py
+CELERY_TASK_ALWAYS_EAGER = os.environ.get('CELERY_TASK_ALWAYS_EAGER', 'False') == 'True'
+CELERY_TASK_EAGER_PROPAGATES = True
+
+# Worker
+CELERY_WORKER_MAX_TASKS_PER_CHILD = 1000  # Recycle workers to avoid memory leaks
+CELERY_WORKER_HIJACK_ROOT_LOGGER = False  # Use our own logging config
+
+# Flower (monitoring)
+CELERY_FLOWER_PORT = int(os.environ.get('FLOWER_PORT', 5555))
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -170,6 +318,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000')
 CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_origins.split(',')]
 CORS_ALLOW_CREDENTIALS = True
+
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
 # CSRF settings - Django 4.0+ requires trusted origins for cross-origin POST requests
 CSRF_TRUSTED_ORIGINS = [
@@ -185,14 +335,31 @@ CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only True when DEBUG=True
 # REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticated',
     ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/minute',
+        'user': '300/minute',
+        'ai_heavy': '10/hour',
+        'ai_light': '30/hour',
+    },
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 20
+    'PAGE_SIZE': 20,
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Aspirant AI API',
+    'DESCRIPTION': 'API documentation for the Aspirant AI backend',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 
@@ -297,7 +464,6 @@ JAZZMIN_SETTINGS = {
 }
 
 JAZZMIN_UI_TWEAKS = {
-    # ---- Theme ----
     'navbar_small_text': False,
     'footer_small_text': False,
     'body_small_text': False,
@@ -310,7 +476,7 @@ JAZZMIN_UI_TWEAKS = {
     'layout_boxed': False,
     'footer_fixed': False,
     'sidebar_fixed': True,
-    'sidebar': 'sidebar-light-primary',
+    'sidebar': 'sidebar-light-primary',  # already light
     'sidebar_nav_small_text': False,
     'sidebar_disable_expand': False,
     'sidebar_nav_child_indent': True,
@@ -318,7 +484,7 @@ JAZZMIN_UI_TWEAKS = {
     'sidebar_nav_legacy_style': False,
     'sidebar_nav_flat_style': False,
     'theme': 'default',
-    'dark_mode_theme': 'darkly',
+    'default_theme_mode': 'light',
     'button_classes': {
         'primary': 'btn-primary',
         'secondary': 'btn-outline-secondary',
@@ -328,7 +494,6 @@ JAZZMIN_UI_TWEAKS = {
         'success': 'btn-success',
     },
 }
-
 
 # Email Backend for Development (Prints to Console)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

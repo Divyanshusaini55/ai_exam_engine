@@ -8,6 +8,7 @@ from .api import (
     update_contact_message_status, delete_contact_message,
 )
 from .views_auth import RegisterAPI, CustomLoginAPI, UserProfileAPI, PasswordResetRequestAPI, PasswordResetConfirmAPI
+from rest_framework_simplejwt.views import TokenRefreshView
 
 router = DefaultRouter()
 router.register(r'categories', CategoryViewSet, basename='category')
@@ -23,6 +24,7 @@ urlpatterns = [
     path('', include(router.urls)),
     path('auth/register/', RegisterAPI.as_view(), name='register'),
     path('auth/login/', CustomLoginAPI.as_view(), name='login'),
+    path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('auth/user/', UserProfileAPI.as_view(), name='user_profile'),
     path('auth/password-reset/', PasswordResetRequestAPI.as_view(), name='password_reset_request'),
     path('auth/password-reset/confirm/', PasswordResetConfirmAPI.as_view(), name='password_reset_confirm'),

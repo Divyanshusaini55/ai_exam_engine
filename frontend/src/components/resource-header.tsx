@@ -5,6 +5,14 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { Cormorant_Garamond } from 'next/font/google'
+
+const cormorantGaramond = Cormorant_Garamond({ 
+  subsets: ['latin'], 
+  weight: ['300', '400', '600', '700'],
+  style: ['normal', 'italic'],
+  variable: '--font-cormorant',
+});
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -85,100 +93,97 @@ export default function ResourceHeader({
       )}
     >
       <div className="mx-auto max-w-6xl px-4">
-
-        {/* ── Row 1: Back | ghost title | actions ─────────────────────────── */}
-        <div className="flex h-14 items-center gap-3">
-          {/* Back */}
-          <button
-            onClick={() => router.back()}
-            className="shrink-0 text-muted-foreground transition-colors hover:text-foreground"
-            aria-label="Back to roadmap"
-          >
-            <ArrowLeftIcon className="size-4" />
-          </button>
-
-          {/* Actions - Pushed to the right automatically because we use flex-1 on an empty div to take up space, or just keep it ml-auto */}
-          <div className="ml-auto flex shrink-0 items-center gap-2">
-            {/* Save / Bookmark */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onBookmark}
-              aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark this resource'}
-              className="gap-1.5 rounded-full"
+        <div className="flex min-h-16 items-center justify-between py-2">
+          
+          {/* ── Left: Back | Breadcrumb & Title ─────────────────────────── */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.back()}
+              className="shrink-0 rounded-full bg-muted/50 p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              aria-label="Back to roadmap"
             >
-              <BookmarkIcon
-                className={cn(
-                  'size-4 transition-colors',
-                  isBookmarked
-                    ? 'fill-primary stroke-primary'
-                    : 'fill-none stroke-current'
-                )}
-              />
-              <span className="hidden sm:inline">
-                {isBookmarked ? 'Saved' : 'Save'}
-              </span>
-            </Button>
-
-            {/* Mark Done */}
-            <Button
-              variant={isCompleted ? 'secondary' : 'outline'}
-              size="sm"
-              onClick={onMarkDone}
-              aria-label={isCompleted ? 'Mark as not done' : 'Mark as done'}
-              className="gap-1.5 rounded-full"
-            >
-              <CheckCircleIcon
-                className={cn(
-                  'size-4 transition-colors',
-                  isCompleted ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'
-                )}
-              />
-              <span className="hidden sm:inline">
-                {isCompleted ? 'Done' : 'Mark Done'}
-              </span>
-            </Button>
-          </div>
-        </div>
-
-        {/* ── Rows 2–5: article identity ───────────────────────────────────── */}
-        <div className="pb-5 pt-2">
-          {/* Row 2: Breadcrumb */}
-          <nav aria-label="Breadcrumb" className="mb-3">
-            <ol className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <li>
+              <ArrowLeftIcon className="size-4" />
+            </button>
+            <div className="flex flex-col">
+              <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
                 <button 
                   onClick={() => router.back()} 
                   className="hover:text-foreground hover:underline"
                 >
                   Roadmaps
                 </button>
-              </li>
-              <li aria-hidden>›</li>
-              <li className="font-medium text-foreground capitalize">
-                {resourceType.replace(/_/g, ' ')}
-              </li>
-            </ol>
-          </nav>
-
-          {/* Row 4: Title */}
-          <h1 className="mb-2 text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-3xl">
-            {title}
-          </h1>
-
-          {/* Row 5: Meta stats */}
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <ClockIcon className="size-4" />
-              {estimatedReadMinutes} min read
-            </span>
-            <span className="flex items-center gap-1.5">
-              <EyeIcon className="size-4" />
-              {viewCount.toLocaleString()} views
-            </span>
+                <span aria-hidden>›</span>
+                <span>{resourceType.replace(/_/g, ' ')}</span>
+              </nav>
+              <h1 
+                className={cn(
+                  "text-xl font-bold leading-none text-foreground mt-0.5",
+                  cormorantGaramond.className
+                )}
+              >
+                {title}
+              </h1>
+            </div>
           </div>
-        </div>
 
+          {/* ── Right: Meta Stats & Actions ─────────────────────────── */}
+          <div className="flex items-center gap-4 sm:gap-6">
+            
+            {/* Meta stats (hidden on mobile to save space) */}
+            <div className="hidden items-center gap-4 text-xs text-muted-foreground md:flex">
+              <span className="flex items-center gap-1.5">
+                <ClockIcon className="size-3.5" />
+                {estimatedReadMinutes} min read
+              </span>
+              <span className="flex items-center gap-1.5">
+                <EyeIcon className="size-3.5" />
+                {viewCount.toLocaleString()} views
+              </span>
+            </div>
+
+            {/* Actions */}
+            <div className="flex shrink-0 items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onBookmark}
+                aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark this resource'}
+                className="gap-1.5 rounded-full"
+              >
+                <BookmarkIcon
+                  className={cn(
+                    'size-4 transition-colors',
+                    isBookmarked
+                      ? 'fill-primary stroke-primary'
+                      : 'fill-none stroke-current'
+                  )}
+                />
+                <span className="hidden sm:inline">
+                  {isBookmarked ? 'Saved' : 'Save'}
+                </span>
+              </Button>
+
+              <Button
+                variant={isCompleted ? 'secondary' : 'outline'}
+                size="sm"
+                onClick={onMarkDone}
+                aria-label={isCompleted ? 'Mark as not done' : 'Mark as done'}
+                className="gap-1.5 rounded-full"
+              >
+                <CheckCircleIcon
+                  className={cn(
+                    'size-4 transition-colors',
+                    isCompleted ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'
+                  )}
+                />
+                <span className="hidden sm:inline">
+                  {isCompleted ? 'Done' : 'Mark Done'}
+                </span>
+              </Button>
+            </div>
+          </div>
+
+        </div>
       </div>
     </header>
   )

@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { Inter, Sora, Crimson_Pro, Cormorant_Garamond, JetBrains_Mono } from "next/font/google"
 import "./globals.css"
-import "katex/dist/katex.min.css"
+
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 const sora = Sora({ subsets: ["latin"], variable: "--font-heading" })

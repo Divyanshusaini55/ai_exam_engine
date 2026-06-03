@@ -116,7 +116,7 @@ export default function HelpPage() {
                             </div>
                             <div>
                                 <h2 className="text-[20px] md:text-[22px] font-bold font-heading text-primary-foreground leading-none">Still need help?</h2>
-                                <p className="text-white/70 text-[13px] md:text-[14px] font-medium mt-1.5 max-w-xl leading-relaxed">
+                                <p className="text-primary-foreground opacity-70 text-[13px] md:text-[14px] font-medium mt-1.5 max-w-xl leading-relaxed">
                                     Our support team is available to assist you with any issues or questions you might have.
                                 </p>
                             </div>

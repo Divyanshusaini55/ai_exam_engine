@@ -1,4 +1,11 @@
 from rest_framework import viewsets, status
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from .api_throttles import AIHeavyThrottle, AILightThrottle
+from .api_session import SessionMixin
+from .api_summary import SummaryMixin
+from .api_dashboard import DashboardMixin
+from .api_leaderboard import LeaderboardMixin
+from .api_upload import UploadMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
@@ -57,7 +64,7 @@ class SubCategoryViewSet(viewsets.ReadOnlyModelViewSet):
         return queryset
 
 
-class ExamViewSet(viewsets.ReadOnlyModelViewSet):
+class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, UploadMixin, viewsets.ReadOnlyModelViewSet):
     """
     ViewSet for listing and retrieving published exams.
     """
@@ -92,37 +99,6 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
         cache.set(cache_key, response.data, 300)
         return response
 
-    @action(detail=True, methods=['post'])
-    def parse_pdf(self, request, pk=None):
-        exam = self.get_object()
-        
-        # Optional: Allow uploading a new PDF to replace the old one
-        if 'pdf_file' in request.FILES:
-            exam.pdf_file = request.FILES['pdf_file']
-            exam.save()
-
-        if not exam.pdf_file:
-            return Response(
-                {'error': 'No PDF file associated with this exam.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        try:
-            # Trigger CPU-bound/Network-bound task
-            # In production, use Celery!
-            question_count = parse_exam_paper_with_ai(exam)
-            
-            return Response({
-                'message': 'Exam parsed successfully!',
-                'questions_created': question_count
-            })
-            
-        except Exception as e:
-            print(f"Parse Error: {e}")
-            return Response(
-                {'error': str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
 
     @action(detail=True, methods=['get'])
     def questions(self, request, pk=None):
@@ -202,67 +178,7 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = UserAnswerSerializer(user_answer)
         return Response(serializer.data)
 
-    @action(detail=True, methods=['get'])
-    def progress(self, request, pk=None):
-        exam = self.get_object()
-        session_id = request.query_params.get('session_id')
-        if not session_id:
-            return Response({'error': 'session_id is required'}, status=400)
-        
-        user_answers = UserAnswer.objects.filter(exam=exam, session_id=session_id)
-        
-        answers_dict = {ua.question_id: ua.selected_answer_id for ua in user_answers if ua.selected_answer_id is not None}
-        review_list = [ua.question_id for ua in user_answers if ua.is_flagged_for_review]
-        bookmarked_list = [ua.question_id for ua in user_answers if ua.is_bookmarked]
-        visited_list = list(user_answers.values_list('question_id', flat=True))
-        
-        return Response({
-            'answers': answers_dict,
-            'review': review_list,
-            'bookmarked': bookmarked_list,
-            'visited': visited_list
-        })
 
-    @action(detail=True, methods=['get', 'post'], permission_classes=[AllowAny])
-    def summary(self, request, pk=None):
-        exam = self.get_object()
-        
-        # Check if force parameter is passed to regenerate summary
-        force = request.data.get('force', False) or request.query_params.get('force', 'false').lower() == 'true'
-        if exam.ai_summary and not force:
-            return Response({'ai_summary': exam.ai_summary})
-            
-        from django.core.cache import cache
-        import threading
-        
-        cache_key = f"exam_{exam.id}_summary_generating"
-        
-        if not cache.get(cache_key):
-            cache.set(cache_key, True, timeout=300) # Lock for 5 minutes
-            
-            def background_generate(exam_id, is_force):
-                try:
-                    from quiz.models import Exam
-                    from quiz.ai.summary_service import ExamSummaryService
-                    import logging
-                    
-                    thread_exam = Exam.objects.get(pk=exam_id)
-                    service = ExamSummaryService()
-                    service.generate_summary(thread_exam, force=is_force)
-                except Exception as e:
-                    import logging
-                    logging.getLogger('quiz.ai').error(f"Background summary generation failed: {e}")
-                finally:
-                    cache.delete(f"exam_{exam_id}_summary_generating")
-
-            thread = threading.Thread(target=background_generate, args=(exam.id, force))
-            thread.daemon = True
-            thread.start()
-            
-        return Response({
-            'status': 'processing', 
-            'message': 'AI summary is currently being generated. This takes about a minute. Please check back shortly.'
-        }, status=202)
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def start(self, request, pk=None):
@@ -348,38 +264,6 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
                 'duration': 0
             })
 
-    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
-    def update_session(self, request, pk=None):
-        exam = self.get_object()
-        session_id = request.data.get('session_id')
-        mode = request.data.get('mode', 'exam')
-        duration = request.data.get('duration')
-        current_question_index = request.data.get('current_question_index')
-        question_id = request.data.get('question_id')
-        
-        if not session_id:
-            return Response({'error': 'session_id is required'}, status=status.HTTP_400_BAD_REQUEST)
-            
-        updates = {}
-        if duration is not None:
-            updates['duration'] = duration
-        if current_question_index is not None:
-            updates['current_question_index'] = current_question_index
-            
-        if updates:
-            if mode == 'exam':
-                ExamAttempt.objects.filter(session_id=session_id, exam=exam).update(**updates)
-            else:
-                PracticeSession.objects.filter(session_id=session_id, exam=exam).update(**updates)
-                
-        if question_id:
-            UserAnswer.objects.get_or_create(
-                session_id=session_id,
-                exam=exam,
-                question_id=question_id
-            )
-            
-        return Response({'success': True})
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def submit(self, request, pk=None):
@@ -499,54 +383,7 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
                 'weak_topics': weak_topics
             })
 
-    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
-    def pause(self, request, pk=None):
-        exam = self.get_object()
-        session_id = request.data.get('session_id')
-        mode = request.data.get('mode', 'learning')
-        duration = request.data.get('duration', 0)
-        
-        if mode == 'exam':
-            return Response(
-                {'error': 'Pause is disabled in Exam Mode'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-            
-        if not session_id:
-            return Response(
-                {'error': 'session_id is required'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-            
-        PracticeSession.objects.filter(session_id=session_id).update(duration=duration)
-        return Response({'success': True, 'message': 'Practice session paused successfully'})
 
-    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
-    def reset(self, request, pk=None):
-        exam = self.get_object()
-        session_id = request.data.get('session_id')
-        mode = request.data.get('mode', 'learning')
-        
-        if mode == 'exam':
-            return Response(
-                {'error': 'Reset is disabled in Exam Mode'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-            
-        if not session_id:
-            return Response(
-                {'error': 'session_id is required'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-            
-        UserAnswer.objects.filter(exam=exam, session_id=session_id).delete()
-        PracticeSession.objects.filter(session_id=session_id).update(
-            score=0,
-            correct_answers=0,
-            accuracy=0.0,
-            duration=0
-        )
-        return Response({'success': True, 'message': 'Practice session reset successfully'})
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def submit_exam(self, request, pk=None):
@@ -555,262 +392,8 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
         """
         return self.submit(request, pk=pk)
 
-    @action(detail=True, methods=['get'])
-    def results(self, request, pk=None):
-        """
-        Get exam results for the authenticated user OR guest (via session_id).
-        SECURITY: Results are scoped to user/session + exam.
-        """
-        exam = self.get_object()
-        session_id = request.query_params.get('session_id')
-        
-        # AUTH / SESSION CHECK
-        if not request.user.is_authenticated and not session_id:
-            return Response(
-                {'error': 'Authentication or Session ID required to view results'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-        
-        # CHECK IF USER HAS COMPLETED THIS EXAM OR PRACTICE SESSION
-        user_result = None
-        is_practice = False
-        
-        if session_id:
-            user_result = ExamAttempt.objects.filter(
-                session_id=session_id, 
-                exam=exam,
-                is_completed=True
-            ).order_by('-completed_at').first()
-            
-        if not user_result and request.user.is_authenticated:
-            user_result = ExamAttempt.objects.filter(
-                user=request.user, 
-                exam=exam,
-                is_completed=True
-            ).order_by('-completed_at').first()
-            
-        if not user_result:
-            if session_id:
-                user_result = PracticeSession.objects.filter(
-                    session_id=session_id,
-                    exam=exam,
-                    is_completed=True
-                ).order_by('-submitted_at').first()
-            if not user_result and request.user.is_authenticated:
-                user_result = PracticeSession.objects.filter(
-                    user=request.user,
-                    exam=exam,
-                    is_completed=True
-                ).order_by('-submitted_at').first()
-            if user_result:
-                is_practice = True
 
-        if not user_result:
-            return Response(
-                {'error': 'No results found for this exam. Please complete the exam first.'},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        
-        # FETCH USER'S ANSWERS using the session_id from their result
-        user_answers = UserAnswer.objects.filter(
-            exam=exam,
-            session_id=user_result.session_id
-        ).select_related('question', 'selected_answer')
 
-        total_questions = exam.questions.count()
-        correct_answers = user_answers.filter(is_correct=True).count()
-
-        total_points = user_answers.filter(is_correct=True).aggregate(
-            total=Sum('question__points')
-        )['total'] or 0
-
-        max_points = exam.questions.aggregate(
-            total=Sum('points')
-        )['total'] or 0
-        
-        percentage = user_result.accuracy if is_practice else user_result.percentage
-        completed_at = user_result.submitted_at if is_practice else user_result.completed_at
-
-        # SUMMARY DATA (using saved result)
-        summary_data = {
-            'exam_id': exam.id,
-            'exam_title': exam.title,
-            'session_id': user_result.session_id,
-            'total_questions': user_result.total_questions,
-            'answered_questions': user_answers.count(),
-            'correct_answers': user_result.correct_answers,
-            'total_points': user_result.score,
-            'max_points': max_points,
-            'percentage': percentage,
-            'completed_at': completed_at,
-        }
-
-        summary_serializer = ExamResultSerializer(summary_data)
-
-        # ANSWERS SERIALIZED SEPARATELY
-        answers_data = UserAnswerSerializer(
-            user_answers,
-            many=True
-        ).data
-
-        # FULL QUESTIONS WITH CORRECT ANSWERS (FOR REVIEW)
-        all_questions = exam.questions.all().prefetch_related('answers')
-        questions_data = QuestionSerializer(
-            all_questions,
-            many=True,
-            context={'hide_correct': False} # Explicitly Show Correct Answers
-        ).data
-
-        return Response({
-            **summary_serializer.data,
-            "answers": answers_data,
-            "questions": questions_data # New Field
-        })
-
-    @action(detail=False, methods=['get'])
-    def dashboard_stats(self, request):
-        print(f"DASHBOARD DEBUG: User={request.user}, Auth={request.auth}")
-        if not request.user.is_authenticated:
-            return Response(
-                {'error': 'Authentication required'}, 
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
-        results = ExamAttempt.objects.filter(user=request.user, is_completed=True)
-        
-        total_tests = results.count()
-        avg_score = results.aggregate(avg=models.Avg('percentage'))['avg'] or 0
-        tests_passed = results.filter(percentage__gte=50).count()
-
-        return Response({
-            'total_tests': total_tests,
-            'average_score': round(avg_score, 1),
-            'tests_passed': tests_passed,
-            'history': [
-                {
-                    'name': r.exam.title[:10] + '...',  # Shorten for chart
-                    'date': r.completed_at.strftime('%Y-%m-%d'),
-                    'score': r.percentage
-                }
-                for r in results.order_by('-completed_at')[:7][::-1] # Last 7, reversed for chrono order
-            ],
-            'subject_performance': [
-                {
-                    'name': item['exam__subcategory__category__name'], 
-                    'score': round(item['avg_score'], 1)
-                }
-                for item in results.values('exam__subcategory__category__name').annotate(avg_score=models.Avg('percentage'))
-                if item['exam__subcategory__category__name']  # Filter out None values
-            ],
-            'recent_activities': [
-                {
-                    'id': r.id,
-                    'exam_title': r.exam.title,
-                    'score': r.percentage,
-                    'date': r.completed_at.isoformat(),
-                    'category': r.exam.subcategory.category.name if r.exam.subcategory and r.exam.subcategory.category else 'Uncategorized'
-                }
-                for r in results.order_by('-completed_at')[:5]
-            ]
-        })
-
-    @action(detail=False, methods=['post'])
-    def explain_question(self, request):
-        # ... (implementation remains same) ...
-        question_id = request.data.get('question_id')
-        
-        if not question_id:
-            return Response({'error': 'Question ID required'}, status=400)
-            
-        question = get_object_or_404(Question, id=question_id)
-        
-        # 1. Check if we already have it (Cache logic)
-        if question.explanation:
-            return Response({'explanation': question.explanation})
-            
-        # 2. If not, generate it using AI
-        explanation = generate_explanation_for_question(question)
-        
-        # 3. Save it for next time
-        question.explanation = explanation
-        question.save()
-        
-        return Response({'explanation': explanation})
-
-    @action(detail=False, methods=['get'])
-    def leaderboard(self, request):
-        exam_id = request.query_params.get('exam_id')
-        leaderboard_data = []
-
-        if exam_id:
-            # Per-Exam Leaderboard (Highest Score per User/Guest)
-            results = ExamAttempt.objects.filter(exam_id=exam_id, is_completed=True).select_related('user', 'exam').order_by('-score')
-            
-            user_best_map = {}
-            for r in results:
-                identity = r.user_id if r.user_id else r.session_id
-                if identity not in user_best_map:
-                    user_best_map[identity] = r
-            
-            sorted_results = sorted(user_best_map.values(), key=lambda x: x.score, reverse=True)
-            
-            rank = 1
-            for r in sorted_results:
-                username = r.user.username if r.user else (r.guest_name or f"Guest-{str(r.session_id)[:4]}")
-                leaderboard_data.append({
-                    "rank": rank,
-                    "username": username,
-                    "score": r.score,
-                    "total_questions": r.total_questions,
-                    "percentage": r.percentage,
-                    "date": r.completed_at,
-                    "exam_title": r.exam.title
-                })
-                rank += 1
-                
-        else:
-            # Global Leaderboard (Reputation / Total Score sum)
-            from django.db.models import Q
-            
-            # Authenticated users
-            auth_users = User.objects.annotate(
-                total_score=Sum('exam_results__score', filter=Q(exam_results__is_completed=True)),
-                exams_taken=Count('exam_results', filter=Q(exam_results__is_completed=True))
-            ).filter(total_score__isnull=False)
-
-            for u in auth_users:
-                leaderboard_data.append({
-                    "username": u.username,
-                    "score": u.total_score,
-                    "exams_taken": u.exams_taken,
-                    "date": "-",
-                    "exam_title": "All Exams"
-                })
-
-            # Guest users
-            guest_attempts = ExamAttempt.objects.filter(user__isnull=True, is_completed=True).values('session_id', 'guest_name').annotate(
-                total_score=Sum('score'),
-                exams_taken=Count('id')
-            ).filter(total_score__isnull=False)
-
-            for g in guest_attempts:
-                username = g['guest_name'] or f"Guest-{str(g['session_id'])[:4]}"
-                leaderboard_data.append({
-                    "username": username,
-                    "score": g['total_score'],
-                    "exams_taken": g['exams_taken'],
-                    "date": "-",
-                    "exam_title": "All Exams"
-                })
-
-            # Sort by total score descending
-            leaderboard_data.sort(key=lambda x: x['score'], reverse=True)
-
-            # Assign ranks
-            for i, entry in enumerate(leaderboard_data):
-                entry['rank'] = i + 1
-
-        return Response(leaderboard_data)
 
 
 from rest_framework.decorators import api_view, permission_classes
@@ -1017,13 +600,28 @@ class TopicResourceViewSet(viewsets.ReadOnlyModelViewSet):
         if featured:
             qs = qs.filter(is_featured=True)
         if search:
-            from django.db.models import Q
-            qs = qs.filter(
-                Q(title__icontains=search)
-                | Q(short_description__icontains=search)
-                | Q(markdown_content__icontains=search)
-                | Q(ai_summary__icontains=search)
-            )
+            from django.db import connection
+            if connection.vendor == 'postgresql':
+                from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
+                
+                vector = SearchVector('title', weight='A') + \
+                         SearchVector('short_description', weight='B') + \
+                         SearchVector('ai_summary', weight='C') + \
+                         SearchVector('markdown_content', weight='D')
+                query = SearchQuery(search)
+                
+                qs = qs.annotate(
+                    search=vector,
+                    rank=SearchRank(vector, query)
+                ).filter(search=query).order_by('-rank')
+            else:
+                from django.db.models import Q
+                qs = qs.filter(
+                    Q(title__icontains=search)
+                    | Q(short_description__icontains=search)
+                    | Q(markdown_content__icontains=search)
+                    | Q(ai_summary__icontains=search)
+                )
 
         return qs.order_by('order', 'created_at')
 

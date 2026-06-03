@@ -5,7 +5,7 @@ import { useState, Suspense } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Navbar } from "@/components/navbar"
-import { apiClient } from "@/lib/apiClient"
+import { authApi } from "@/lib/api"
 import { Key } from "lucide-react"
 
 
@@ -47,7 +47,7 @@ function ResetPasswordForm() {
         setMessage("")
 
         try {
-            const res = await apiClient.post('/auth/password-reset/confirm/', {
+            const res = await authApi.resetPasswordConfirm({
                 uid,
                 token,
                 password

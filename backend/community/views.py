@@ -85,8 +85,11 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response(data)
 
 
+from core.pagination import StandardPagination
+
 class SolutionViewSet(viewsets.ModelViewSet):
     serializer_class = SolutionSerializer
+    pagination_class = StandardPagination
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
@@ -96,22 +99,47 @@ class SolutionViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
         # XP is handled in signals
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post', 'delete'])
     def upvote(self, request, pk=None):
+        from .models import SolutionUpvote
+        from django.db.models import F
         solution = self.get_object()
-        solution.upvotes += 1
-        solution.save(update_fields=['upvotes'])
+        
+        if request.method == 'POST':
+            upvote, created = SolutionUpvote.objects.get_or_create(
+                solution=solution, user=request.user
+            )
+            if not created:
+                return Response({'detail': 'Already upvoted'}, status=400)
+            solution.upvotes = F('upvotes') + 1
+            solution.save(update_fields=['upvotes'])
+        elif request.method == 'DELETE':
+            deleted = SolutionUpvote.objects.filter(
+                solution=solution, user=request.user
+            ).delete()
+            if deleted[0]:
+                solution.upvotes = F('upvotes') - 1
+                solution.save(update_fields=['upvotes'])
+            else:
+                return Response({'detail': 'Not upvoted yet'}, status=400)
+                
+        # Reload solution from DB to get the actual upvotes count after F expression
+        solution.refresh_from_db()
+                
         # Award XP to solution author
         from .services import award_xp
         profile, _ = Profile.objects.get_or_create(user=solution.user)
         profile.total_upvotes_received = Solution.objects.filter(user=solution.user).aggregate(t=Sum('upvotes'))['t'] or 0
         profile.save(update_fields=['total_upvotes_received'])
-        award_xp(solution.user, 3, 'Upvote received')
+        if request.method == 'POST':
+            award_xp(solution.user, 5, 'UPVOTE', f"Solution upvoted by {request.user.username}")
+        
         return Response({'upvotes': solution.upvotes})
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
+    pagination_class = StandardPagination
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
@@ -127,9 +155,11 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def upvote(self, request, pk=None):
+        from django.db.models import F
         comment = self.get_object()
-        comment.upvotes += 1
-        comment.save()
+        comment.upvotes = F('upvotes') + 1
+        comment.save(update_fields=['upvotes'])
+        comment.refresh_from_db()
         return Response({'upvotes': comment.upvotes})
 
     def update(self, request, *args, **kwargs):
@@ -157,6 +187,38 @@ class NotificationViewSet(viewsets.ModelViewSet):
         n.save()
         return Response({'status': 'read'})
 
+
+# ─── Utility Functions ────────────────────────────────────────────────────────
+
+def get_activity_heatmap(user, days=365):
+    from django.db.models.functions import TruncDate
+    from django.db.models import Count
+    from django.utils import timezone
+    from datetime import timedelta
+    
+    today = timezone.now().date()
+    cutoff = today - timedelta(days=days)
+    
+    daily_counts = (
+        ContributorActivity.objects.filter(
+            user=user, created_at__date__gte=cutoff
+        )
+        .annotate(date=TruncDate('created_at'))
+        .values('date')
+        .annotate(count=Count('id'))
+        .order_by('date')
+    )
+    
+    heatmap_activity = []
+    for item in daily_counts:
+        count = item['count']
+        level = 1 if count == 1 else 2 if count <= 3 else 3 if count <= 5 else 4
+        heatmap_activity.append({
+            'date': item['date'].isoformat(),
+            'count': count,
+            'level': level
+        })
+    return heatmap_activity
 
 # ─── Contributor Analytics Views ──────────────────────────────────────────────
 
@@ -196,26 +258,7 @@ class MyStatsView(APIView):
             weekly.append({'day': day.strftime('%a'), 'date': day.isoformat(), 'contributions': cnt})
 
         # Full year heatmap activity
-        from django.db.models.functions import TruncDate
-        one_year_ago = today - timedelta(days=365)
-        daily_counts = (
-            ContributorActivity.objects.filter(
-                user=request.user, created_at__date__gte=one_year_ago
-            )
-            .annotate(date=TruncDate('created_at'))
-            .values('date')
-            .annotate(count=Count('id'))
-            .order_by('date')
-        )
-        heatmap_activity = []
-        for item in daily_counts:
-            count = item['count']
-            level = 1 if count == 1 else 2 if count <= 3 else 3 if count <= 5 else 4
-            heatmap_activity.append({
-                'date': item['date'].isoformat(),
-                'count': count,
-                'level': level
-            })
+        heatmap_activity = get_activity_heatmap(request.user)
 
         badges = UserBadge.objects.filter(user=request.user).select_related('badge')
 
@@ -385,31 +428,7 @@ class ContributorProfileView(APIView):
         badges  = UserBadge.objects.filter(user=user).select_related('badge')
         recent  = Solution.objects.filter(user=user).order_by('-created_at')[:5]
 
-        from django.db.models.functions import TruncDate
-        from django.db.models import Count
-        from django.utils import timezone
-        from datetime import timedelta
-        
-        today = timezone.now().date()
-        one_year_ago = today - timedelta(days=365)
-        daily_counts = (
-            ContributorActivity.objects.filter(
-                user=user, created_at__date__gte=one_year_ago
-            )
-            .annotate(date=TruncDate('created_at'))
-            .values('date')
-            .annotate(count=Count('id'))
-            .order_by('date')
-        )
-        heatmap_activity = []
-        for item in daily_counts:
-            count = item['count']
-            level = 1 if count == 1 else 2 if count <= 3 else 3 if count <= 5 else 4
-            heatmap_activity.append({
-                'date': item['date'].isoformat(),
-                'count': count,
-                'level': level
-            })
+        heatmap_activity = get_activity_heatmap(user)
 
         return Response({
             'username':         user.username,

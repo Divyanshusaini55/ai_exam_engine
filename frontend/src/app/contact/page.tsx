@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { apiClient } from "@/lib/apiClient"
+import { miscApi } from "@/lib/api"
 import Link from "next/link"
 import { AuthInput } from "@/components/AuthInput"
 import { ArrowLeft, Headphones, Check, Send, Loader2 } from "lucide-react"
@@ -21,7 +21,7 @@ export default function ContactPage() {
         }
 
         try {
-            const res = await apiClient.post('/contact/submit/', data)
+            const res = await miscApi.submitContactForm(data)
             const responseData = await res.json()
 
             if (responseData.success === true) {

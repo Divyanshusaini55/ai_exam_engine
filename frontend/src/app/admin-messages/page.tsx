@@ -3,7 +3,7 @@ import { useNoIndex } from "@/hooks/useNoIndex"
 
 import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { apiClient } from "@/lib/apiClient"
+import { adminApi } from "@/lib/api"
 import { 
     Mail, 
     Calendar, 
@@ -39,7 +39,7 @@ export default function AdminContactMessagesPage() {
 
     const fetchMessages = async () => {
         try {
-            const res = await apiClient.get('/admin/contact-messages/')
+            const res = await adminApi.getContactMessages()
 
             if (res.status === 403 || res.status === 401) {
                 alert('You do not have permission to access this page.')
@@ -60,10 +60,7 @@ export default function AdminContactMessagesPage() {
 
     const updateMessageStatus = async (messageId: number, newStatus: "read" | "unread") => {
         try {
-            const res = await apiClient.fetch(`/admin/contact-messages/${messageId}/status/`, {
-                method: 'PATCH',
-                body: JSON.stringify({ status: newStatus })
-            })
+            const res = await adminApi.updateContactMessageStatus(messageId, newStatus)
 
             if (res.ok) {
                 fetchMessages()
@@ -80,7 +77,7 @@ export default function AdminContactMessagesPage() {
         if (!confirm('Are you sure you want to delete this message?')) return
 
         try {
-            const res = await apiClient.delete(`/admin/contact-messages/${messageId}/`)
+            const res = await adminApi.deleteContactMessage(messageId)
             if (res.ok || res.status === 204) {
                 fetchMessages()
                 setSelectedMessage(null)

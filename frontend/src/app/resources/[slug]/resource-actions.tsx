@@ -11,7 +11,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { apiClient } from '@/lib/apiClient'
+import { resourceHubApi } from '@/lib/api'
 import ResourceHeader from '@/components/resource-header'
 
 interface ResourceActionsProps {
@@ -56,18 +56,14 @@ export default function ResourceActions({
     setIsCompleted((prev) => !prev)
 
     try {
-      const res = await apiClient.post(
-        `/resource-hub/${slug}/mark-done/`,
-        {},
-        { requireAuth: true }
-      )
+      const res = await resourceHubApi.markDone(slug)
       if (res.ok) {
         const data = await res.json()
         setIsCompleted(data.is_completed)
       } else if (res.status === 401) {
         // Revert and redirect to login
         setIsCompleted((prev) => !prev)
-        router.push('/login')
+        router.push(`/login?redirectTo=${encodeURIComponent(window.location.pathname)}`)
       } else {
         // Revert on unexpected error
         setIsCompleted((prev) => !prev)
@@ -88,17 +84,13 @@ export default function ResourceActions({
     setIsBookmarked((prev) => !prev)
 
     try {
-      const res = await apiClient.post(
-        `/resource-hub/${slug}/bookmark/`,
-        {},
-        { requireAuth: true }
-      )
+      const res = await resourceHubApi.bookmark(slug)
       if (res.ok) {
         const data = await res.json()
         setIsBookmarked(data.is_bookmarked)
       } else if (res.status === 401) {
         setIsBookmarked((prev) => !prev)
-        router.push('/login')
+        router.push(`/login?redirectTo=${encodeURIComponent(window.location.pathname)}`)
       } else {
         setIsBookmarked((prev) => !prev)
       }

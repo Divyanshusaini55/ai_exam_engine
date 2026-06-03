@@ -41,7 +41,7 @@ api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem("auth_token")
     if (token) {
-      config.headers.Authorization = `Token ${token}`
+      config.headers.Authorization = `Bearer ${token}`
     }
   }
   return config
@@ -53,15 +53,45 @@ api.interceptors.response.use(
     logApi(response.config.url || '', response.config.method?.toUpperCase(), `END - Status: ${response.status}`);
     return response;
   },
-  (error) => {
+  async (error) => {
     if (axios.isCancel(error)) {
         logAbort(error.config?.url || '');
     } else {
         logApi(error.config?.url || '', error.config?.method?.toUpperCase(), `ERROR - ${error.message}`);
     }
     if (process.env.NODE_ENV === 'development') {
-        console.error('API Error:', error.config?.url, error.response?.status, error.message);
+        // Suppress expected 404s when polling/checking for results to keep console clean
+        const isExpected404 = error.response?.status === 404 && error.config?.url?.includes('/results/');
+        if (!isExpected404) {
+            console.error('API Error:', error.config?.url, error.response?.status, error.message);
+        }
     }
+    
+    // Auto-refresh logic
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
+        if (typeof window !== 'undefined') {
+            const refreshToken = localStorage.getItem("refresh_token");
+            if (refreshToken) {
+                try {
+                    const res = await axios.post(`${API_URL}/auth/token/refresh/`, {
+                        refresh: refreshToken
+                    });
+                    if (res.status === 200) {
+                        localStorage.setItem("auth_token", res.data.access);
+                        originalRequest.headers.Authorization = `Bearer ${res.data.access}`;
+                        return api(originalRequest);
+                    }
+                } catch (refreshError) {
+                    localStorage.removeItem("auth_token");
+                    localStorage.removeItem("refresh_token");
+                    window.location.href = '/login';
+                }
+            }
+        }
+    }
+    
     return Promise.reject(error);
   }
 );
@@ -203,8 +233,9 @@ export const communityApi = {
 };
 
 export const dailyDoseApi = {
-  getCurrentAffairs: (categorySlug?: string) => {
-    const params = categorySlug ? { category: categorySlug } : {}
+  getCurrentAffairs: (categorySlug?: string, page: number = 1) => {
+    const params: any = { page }
+    if (categorySlug) params.category = categorySlug
     return api.get('/current-affairs/', { params })
   },
   getAffairBySlug: (slug: string) => api.get(`/current-affairs/${slug}/`),
@@ -236,4 +267,54 @@ export const contributorApi = {
   /** Public profile for any username */
   getProfile: (username: string) =>
     api.get(`${COMM}/contributors/profile/${username}/`),
+};
+
+// -----------------------------------------------------------------------------
+// Legacy Wrappers (migrated from apiClient.ts)
+// These return a Response-like object to avoid breaking existing UI component logic
+// that expects `if (res.ok)` and `await res.json()`.
+// -----------------------------------------------------------------------------
+
+const legacyFetch = async (method: 'get' | 'post' | 'put' | 'delete' | 'patch', url: string, data?: any, config?: any) => {
+  try {
+    const res = await api({ method, url, data, ...config });
+    return {
+      ok: res.status >= 200 && res.status < 300,
+      status: res.status,
+      json: async () => res.data
+    };
+  } catch (error: any) {
+    if (error.response) {
+      return {
+        ok: false,
+        status: error.response.status,
+        json: async () => error.response.data
+      };
+    }
+    throw error;
+  }
+};
+
+export const authApi = {
+  login: (data: any) => legacyFetch('post', '/auth/login/', data),
+  register: (data: any) => legacyFetch('post', '/auth/register/', data),
+  getUser: (signal?: AbortSignal) => legacyFetch('get', '/auth/user/', undefined, { signal }),
+  resetPassword: (email: string) => legacyFetch('post', '/auth/password-reset/', { email }),
+  resetPasswordConfirm: (data: any) => legacyFetch('post', '/auth/password-reset/confirm/', data),
+};
+
+export const adminApi = {
+  getContactMessages: () => legacyFetch('get', '/admin/contact-messages/'),
+  updateContactMessageStatus: (id: number, status: string) => legacyFetch('patch', `/admin/contact-messages/${id}/status/`, { status }),
+  deleteContactMessage: (id: number) => legacyFetch('delete', `/admin/contact-messages/${id}/`),
+};
+
+export const miscApi = {
+  submitContactForm: (data: any) => legacyFetch('post', '/contact/submit/', data),
+  getDashboardStats: () => legacyFetch('get', '/exams/dashboard_stats/'),
+};
+
+export const resourceHubApi = {
+  markDone: (slug: string) => legacyFetch('post', `/resource-hub/${slug}/mark-done/`),
+  bookmark: (slug: string) => legacyFetch('post', `/resource-hub/${slug}/bookmark/`),
 };

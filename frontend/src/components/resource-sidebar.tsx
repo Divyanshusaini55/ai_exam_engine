@@ -36,8 +36,16 @@ function extractMarkdownHeadings(content: string): Heading[] {
   let m: RegExpExecArray | null
   while ((m = re.exec(content)) !== null) {
     const level = m[1].length as 1 | 2 | 3
-    const text = m[2].trim()
-    headings.push({ level, text, id: slugify(text) })
+    const rawText = m[2].trim()
+    
+    // Strip common markdown formatting for display
+    const text = rawText
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Remove links, keep text
+      .replace(/[*_~`]/g, '') // Remove emphasis, code, strikethrough characters
+      .trim()
+
+    // Pass rawText to slugify so it matches what rehype-slug might see (though both strip punctuation)
+    headings.push({ level, text, id: slugify(rawText) })
   }
   return headings
 }

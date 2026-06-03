@@ -535,7 +535,9 @@ export default function RoadmapPage() {
                                                     {currentStatus === 'done' ? (
                                                         <CheckCircle2 className={`size-5 ${statusInfo.color}`} />
                                                     ) : hasUnmetPrerequisites ? (
-                                                        <Lock className="size-5 text-amber-500 animate-pulse" title="Prerequisites pending" />
+                                                        <span title="Prerequisites pending">
+                                                            <Lock className="size-5 text-amber-500 animate-pulse" />
+                                                        </span>
                                                     ) : currentStatus === 'in_progress' ? (
                                                         <Circle className={`size-5 ${statusInfo.color} fill-yellow-100 dark:fill-yellow-900/50`} />
                                                     ) : currentStatus === 'skip' ? (

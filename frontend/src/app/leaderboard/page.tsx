@@ -46,7 +46,13 @@ export default function LeaderboardPage() {
             setLoading(true)
             const examId = selectedExam === "" ? undefined : selectedExam
             const res = await examApi.getLeaderboard(examId)
-            setLeaderboard(res.data)
+            if (res.data.results && Array.isArray(res.data.results)) {
+                setLeaderboard(res.data.results)
+            } else if (Array.isArray(res.data)) {
+                setLeaderboard(res.data)
+            } else {
+                setLeaderboard([])
+            }
         } catch (err) {
             console.error("Failed to fetch leaderboard", err)
         } finally {

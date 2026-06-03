@@ -163,3 +163,4 @@ Contributions are welcome! Please fork the repository and submit a pull request 
 ## License
 
 This project is open-source and available under the [MIT License](LICENSE).
+tree -a -I "node_modules|.git|dist|build|staticfiles|.venv|.next|node_modules.nosync|pdfs|venv|__pycache__" > PROJECT_STRUCTURE.txt

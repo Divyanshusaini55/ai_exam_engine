@@ -6,7 +6,7 @@ import { useRouter, usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Navbar } from "@/components/navbar"
 import Link from "next/link"
-import { apiClient } from "@/lib/apiClient"
+import { miscApi } from "@/lib/api"
 import { 
     GraduationCap, 
     BarChart3, 
@@ -22,6 +22,8 @@ import {
 
 interface Activity {
     id: number
+    exam_id: number
+    session_id: string
     exam_title: string
     score: number
     date: string
@@ -55,7 +57,7 @@ export default function DashboardPage() {
 
     const fetchStats = async () => {
         try {
-            const res = await apiClient.get('/exams/dashboard_stats/')
+            const res = await miscApi.getDashboardStats()
             if (res.ok) {
                 const data = await res.json()
                 setStats(data)
@@ -86,16 +88,15 @@ export default function DashboardPage() {
         ? Math.round((stats.tests_passed / stats.total_tests) * 100)
         : 0
 
-    const formatRelativeTime = (dateString: string) => {
+    const formatTakenDate = (dateString: string) => {
         const date = new Date(dateString)
-        const now = new Date()
-        const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
-
-        if (diffInSeconds < 60) return 'Just now'
-        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`
-        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`
-        if (diffInSeconds < 172800) return 'Yesterday'
-        return `${Math.floor(diffInSeconds / 86400)} days ago`
+        return date.toLocaleDateString("en-US", {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        })
     }
 
 
@@ -202,7 +203,7 @@ export default function DashboardPage() {
                                     {stats.recent_activities.map((activity) => (
                                         <div key={activity.id}
                                             className="p-5 flex items-center justify-between hover:bg-secondary/40 transition-colors group cursor-pointer"
-                                            onClick={() => router.push(`/dashboard/${activity.exam_title.toLowerCase().replace(/\s+/g, '-')}`)}
+                                            onClick={() => router.push(`/dashboard/${activity.exam_id}?session_id=${activity.session_id}`)}
                                         >
                                             <div className="flex items-center gap-4">
                                                 <div className="size-10 rounded-xl bg-secondary text-primary flex items-center justify-center font-bold text-sm uppercase">
@@ -210,7 +211,7 @@ export default function DashboardPage() {
                                                 </div>
                                                 <div>
                                                     <h4 className="font-bold text-primary">{activity.exam_title}</h4>
-                                                    <p className="text-xs text-muted-foreground font-medium">{formatRelativeTime(activity.date)}</p>
+                                                    <p className="text-xs text-muted-foreground font-medium">{formatTakenDate(activity.date)}</p>
                                                 </div>
                                             </div>
                                             <div className="text-right">

@@ -16,6 +16,10 @@ interface ArticleViewerProps {
   resourceType?: string
   externalUrl?: string
   className?: string
+  articleTitle?: string
+  articleAuthor?: string
+  articleAuthorLink?: string
+  articleImage?: string
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -121,6 +125,10 @@ export default function ArticleViewer({
   resourceType,
   externalUrl,
   className,
+  articleTitle,
+  articleAuthor,
+  articleAuthorLink,
+  articleImage,
 }: ArticleViewerProps) {
   // ── 1. External link / URL-only resource ──────────────────────────────────
   if (resourceType === 'external_link' || contentFormat === 'url') {
@@ -150,7 +158,13 @@ export default function ArticleViewer({
 
       {/* Main content */}
       {contentFormat === 'markdown' && (
-        <MarkdownRenderer content={content} />
+        <MarkdownRenderer 
+          content={content} 
+          title={articleTitle}
+          author={articleAuthor}
+          authorLink={articleAuthorLink}
+          image={articleImage}
+        />
       )}
 
       {contentFormat === 'html' && (

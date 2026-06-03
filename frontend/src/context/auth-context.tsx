@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { apiClient } from "@/lib/apiClient"
+import { authApi } from "@/lib/api"
 
 interface User {
     id: number
@@ -14,7 +14,7 @@ interface User {
 interface AuthContextType {
     user: User | null
     loading: boolean
-    login: (token: string, user: User) => void
+    login: (token: string, refresh: string | undefined, user: User) => void
     logout: () => void
 }
 
@@ -32,6 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const logout = useCallback(() => {
         localStorage.removeItem("auth_token")
+        localStorage.removeItem("refresh_token")
         setUser(null)
         // We do NOT redirect here anymore. 
         // Protected pages (Dashboard, Profile) will handle redirect via useAuthGuard or useEffect.
@@ -40,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const fetchUser = useCallback(async (token: string, signal?: AbortSignal) => {
         try {
-            const res = await apiClient.get('/auth/user/', { signal })
+            const res = await authApi.getUser(signal)
 
             if (res.ok) {
                 const data = await res.json()
@@ -71,8 +72,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return () => controller.abort()
     }, [fetchUser])
 
-    const login = (token: string, userData: User) => {
+    const login = (token: string, refresh: string | undefined, userData: User) => {
         localStorage.setItem("auth_token", token)
+        if (refresh) localStorage.setItem("refresh_token", refresh)
         setUser(userData)
         // Redirection should be handled by the component calling login
     }

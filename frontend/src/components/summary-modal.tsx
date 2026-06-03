@@ -1,10 +1,7 @@
 "use client"
 
 import { X } from "lucide-react"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
-import remarkMath from "remark-math"
-import rehypeKatex from "rehype-katex"
+import MarkdownRenderer from "./markdown-renderer"
 
 interface SummaryModalProps {
     isOpen: boolean
@@ -29,7 +26,7 @@ export function SummaryModal({ isOpen, onClose, examTitle, summaryText, isLoadin
             />
             
             {/* Modal Content */}
-            <div className="relative bg-white dark:bg-[#1A1A1A] w-full max-w-5xl h-[85vh] rounded-[32px] shadow-2xl flex flex-col overflow-hidden animate-scale-in border border-white/10">
+            <div className="relative bg-white dark:bg-[#1A1A1A] w-full max-w-3xl h-[85vh] rounded-[32px] shadow-2xl flex flex-col overflow-hidden animate-scale-in border border-white/10">
                 
                 {/* Header */}
                 <div className="flex items-center justify-between px-8 py-6 border-b border-border/50 bg-card/30 shrink-0">
@@ -46,7 +43,7 @@ export function SummaryModal({ isOpen, onClose, examTitle, summaryText, isLoadin
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 overflow-y-auto p-8 prose dark:prose-invert prose-sm md:prose-base max-w-none prose-headings:text-primary prose-a:text-blue-500">
+                <div className="flex-1 overflow-y-auto p-5 sm:p-8 prose dark:prose-invert prose-sm md:prose-base max-w-none prose-headings:text-primary prose-a:text-blue-500">
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center h-full py-20 space-y-4">
                             <div className="relative size-16 flex items-center justify-center">
@@ -59,12 +56,7 @@ export function SummaryModal({ isOpen, onClose, examTitle, summaryText, isLoadin
                             </div>
                         </div>
                     ) : (
-                        <ReactMarkdown
-                            remarkPlugins={[remarkGfm, remarkMath]}
-                            rehypePlugins={[rehypeKatex]}
-                        >
-                            {displaySummary}
-                        </ReactMarkdown>
+                        <MarkdownRenderer content={displaySummary} className="!p-0 !border-0 !shadow-none !bg-transparent" />
                     )}
                 </div>
                 

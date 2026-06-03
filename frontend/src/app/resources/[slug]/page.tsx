@@ -13,7 +13,7 @@ import ArticleViewer from '@/components/article-viewer'
 import ResourceHeader from '@/components/resource-header'
 import ResourceSidebar from '@/components/resource-sidebar'
 import ResourceActions from './resource-actions'
-import { processMarkdown } from '@/lib/processor'
+import matter from 'gray-matter'
 
 // ─── API base (server-side uses the internal URL if set) ──────────────────────
 const API_BASE =
@@ -97,11 +97,18 @@ export default async function ResourcePage({
 
   if (!resource) notFound()
 
-  // Process markdown into HTML string on the server!
-  const processedContent =
-    resource.rendered_content_format === 'markdown'
-      ? await processMarkdown(resource.content)
-      : resource.content
+  let finalContent = resource.content;
+  let frontmatterData: Record<string, any> = {};
+
+  if (resource.rendered_content_format === 'markdown') {
+    try {
+      const parsed = matter(resource.content);
+      finalContent = parsed.content;
+      frontmatterData = parsed.data;
+    } catch (e) {
+      // Ignore parsing errors
+    }
+  }
 
   return (
     <>
@@ -126,16 +133,20 @@ export default async function ResourcePage({
       <div className="mx-auto max-w-6xl px-4 py-8 flex gap-8">
         <main className="flex-1 min-w-0 max-w-3xl mx-auto">
           <ArticleViewer
-            content={processedContent}
+            content={finalContent}
             contentFormat={resource.rendered_content_format}
             aiSummary={resource.ai_summary}
             resourceType={resource.resource_type}
             externalUrl={resource.external_url}
+            articleTitle={frontmatterData.title || frontmatterData.Title}
+            articleAuthor={frontmatterData.author || frontmatterData.Author}
+            articleAuthorLink={frontmatterData.authorLink || frontmatterData.AuthorLink}
+            articleImage={frontmatterData.image || frontmatterData.Image}
           />
         </main>
 
         <ResourceSidebar
-          content={processedContent}
+          content={finalContent}
           contentFormat={resource.rendered_content_format}
         />
       </div>

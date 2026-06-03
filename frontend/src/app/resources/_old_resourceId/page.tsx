@@ -18,7 +18,7 @@ import rehypeKatex from "rehype-katex"
 import rehypeHighlight from "rehype-highlight"
 import rehypeSlug from "rehype-slug"
 
-import "katex/dist/katex.min.css"
+
 import "highlight.js/styles/github-dark.css"
 import "@/styles/article.css"
 

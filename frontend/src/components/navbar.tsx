@@ -162,7 +162,7 @@ export function Navbar() {
                                 </button>
 
                                 {isNotificationsOpen && (
-                                    <div className="absolute right-0 top-12 w-[380px] bg-card rounded-3xl shadow-premium border border-border p-4 transform origin-top-right animate-in fade-in slide-in-from-top-2 duration-200 z-[60]">
+                                    <div className="fixed sm:absolute right-4 sm:right-0 left-4 sm:left-auto top-[72px] sm:top-12 w-auto sm:w-[380px] bg-card rounded-3xl shadow-premium border border-border p-4 transform origin-top sm:origin-top-right animate-in fade-in slide-in-from-top-2 duration-200 z-[60]">
                                         <div className="flex items-center justify-between mb-4 px-2">
                                             <h3 className="text-sm font-bold text-primary">Notifications</h3>
                                             <button 

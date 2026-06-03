@@ -94,6 +94,10 @@ class ContributorActivity(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', 'created_at'], name='activity_user_date_idx'),
+            models.Index(fields=['created_at'], name='activity_date_idx'),
+        ]
 
     def __str__(self):
         return f"{self.user.username}: {self.activity_type}"
@@ -113,6 +117,31 @@ class Solution(models.Model):
 
     def __str__(self):
         return f"Solution by {self.user.username} for Q{self.question.id}"
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['question', 'created_at'], name='solution_question_date_idx'),
+            models.Index(fields=['user', 'created_at'], name='solution_author_date_idx'),
+        ]
+
+class SolutionUpvote(models.Model):
+    solution = models.ForeignKey(
+        Solution,
+        on_delete=models.CASCADE,
+        related_name='upvote_records'
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='solution_upvotes'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [['solution', 'user']]
+        indexes = [
+            models.Index(fields=['solution', 'user'])
+        ]
 
 
 class Comment(models.Model):
@@ -152,4 +181,23 @@ class Notification(models.Model):
     class Meta:
         ordering = ['-created_at']
 
+
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from cache import (
+    invalidate_user_profile, 
+    invalidate_user_dashboard, 
+    invalidate_leaderboard
+)
+
+@receiver([post_save, post_delete], sender=Profile)
+def invalidate_community_caches(sender, instance, **kwargs):
+    # Triggers on UserProfile saves
+    invalidate_user_profile(instance.user_id)
+    invalidate_user_dashboard(instance.user_id)
+    
+    # Check if community_rank was updated
+    update_fields = kwargs.get('update_fields')
+    if update_fields is None or 'community_rank' in update_fields:
+        invalidate_leaderboard()
 

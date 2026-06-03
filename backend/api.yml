@@ -1,0 +1,3875 @@
+openapi: 3.0.3
+info:
+  title: Aspirant AI API
+  version: 1.0.0
+  description: API documentation for the Aspirant AI backend
+paths:
+  /api/admin/contact-messages/:
+    get:
+      operationId: admin_contact_messages_retrieve
+      description: |-
+        Admin-only API endpoint to list all contact messages.
+        Ordered by newest first.
+      tags:
+      - admin
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/admin/contact-messages/{message_id}/:
+    delete:
+      operationId: admin_contact_messages_destroy
+      description: Admin-only API endpoint to delete a contact message.
+      parameters:
+      - in: path
+        name: message_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - admin
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/admin/contact-messages/{message_id}/status/:
+    patch:
+      operationId: admin_contact_messages_status_partial_update
+      description: Admin-only API endpoint to update message status (read/unread).
+      parameters:
+      - in: path
+        name: message_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - admin
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/auth/password-reset/:
+    post:
+      operationId: auth_password_reset_create
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/auth/password-reset/confirm/:
+    post:
+      operationId: auth_password_reset_confirm_create
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/auth/register/:
+    post:
+      operationId: auth_register_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Register'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Register'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Register'
+          description: ''
+  /api/auth/token/refresh/:
+    post:
+      operationId: auth_token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/auth/user/:
+    get:
+      operationId: auth_user_retrieve
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/categories/:
+    get:
+      operationId: categories_list
+      description: ViewSet for listing all active categories with exam counts.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - categories
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCategoryList'
+          description: ''
+  /api/categories/{slug}/:
+    get:
+      operationId: categories_retrieve
+      description: ViewSet for listing all active categories with exam counts.
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+          description: URL-safe identifier (e.g. 'ssc')
+        required: true
+      tags:
+      - categories
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+  /api/community/comments/:
+    get:
+      operationId: community_comments_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - community
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCommentList'
+          description: ''
+    post:
+      operationId: community_comments_create
+      tags:
+      - community
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+  /api/community/comments/{id}/:
+    get:
+      operationId: community_comments_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this comment.
+        required: true
+      tags:
+      - community
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+    put:
+      operationId: community_comments_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this comment.
+        required: true
+      tags:
+      - community
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+    patch:
+      operationId: community_comments_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this comment.
+        required: true
+      tags:
+      - community
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedComment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedComment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedComment'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+    delete:
+      operationId: community_comments_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this comment.
+        required: true
+      tags:
+      - community
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/community/comments/{id}/upvote/:
+    post:
+      operationId: community_comments_upvote_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this comment.
+        required: true
+      tags:
+      - community
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+  /api/community/contributors/:
+    get:
+      operationId: community_contributors_retrieve
+      description: GET /api/community/contributors/ — global community stats.
+      tags:
+      - community
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/community/contributors/activity/:
+    get:
+      operationId: community_contributors_activity_retrieve
+      description: GET /api/community/contributors/activity/?page=1
+      tags:
+      - community
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/community/contributors/badges/:
+    get:
+      operationId: community_contributors_badges_retrieve
+      description: GET /api/community/contributors/badges/ — all badges + earned status.
+      tags:
+      - community
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/community/contributors/leaderboard/:
+    get:
+      operationId: community_contributors_leaderboard_retrieve
+      description: GET /api/community/contributors/leaderboard/?days=30
+      tags:
+      - community
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/community/contributors/profile/{username}/:
+    get:
+      operationId: community_contributors_profile_retrieve
+      description: GET /api/community/contributors/profile/<username>/
+      parameters:
+      - in: path
+        name: username
+        schema:
+          type: string
+        required: true
+      tags:
+      - community
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/community/contributors/stats/me/:
+    get:
+      operationId: community_contributors_stats_me_retrieve
+      description: GET /api/community/contributors/stats/me/ — rich stats for logged-in
+        user.
+      tags:
+      - community
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/community/contributors/top/:
+    get:
+      operationId: community_contributors_top_retrieve
+      description: GET /api/community/contributors/top/?page=1&per_page=10
+      tags:
+      - community
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/community/notifications/:
+    get:
+      operationId: community_notifications_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - community
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedNotificationList'
+          description: ''
+    post:
+      operationId: community_notifications_create
+      tags:
+      - community
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Notification'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /api/community/notifications/{id}/:
+    get:
+      operationId: community_notifications_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - community
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+    put:
+      operationId: community_notifications_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - community
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Notification'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+    patch:
+      operationId: community_notifications_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - community
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedNotification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedNotification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedNotification'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+    delete:
+      operationId: community_notifications_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - community
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/community/notifications/{id}/read/:
+    post:
+      operationId: community_notifications_read_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - community
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Notification'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /api/community/profiles/:
+    get:
+      operationId: community_profiles_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - community
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProfileList'
+          description: ''
+    post:
+      operationId: community_profiles_create
+      tags:
+      - community
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Profile'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Profile'
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+          description: ''
+  /api/community/profiles/{id}/:
+    get:
+      operationId: community_profiles_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - community
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+          description: ''
+    put:
+      operationId: community_profiles_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - community
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Profile'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Profile'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+          description: ''
+    patch:
+      operationId: community_profiles_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - community
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProfile'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProfile'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProfile'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+          description: ''
+    delete:
+      operationId: community_profiles_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - community
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/community/profiles/me/:
+    get:
+      operationId: community_profiles_me_retrieve
+      tags:
+      - community
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+          description: ''
+  /api/community/solutions/:
+    get:
+      operationId: community_solutions_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - community
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSolutionList'
+          description: ''
+    post:
+      operationId: community_solutions_create
+      tags:
+      - community
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Solution'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Solution'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Solution'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Solution'
+          description: ''
+  /api/community/solutions/{id}/:
+    get:
+      operationId: community_solutions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this solution.
+        required: true
+      tags:
+      - community
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Solution'
+          description: ''
+    put:
+      operationId: community_solutions_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this solution.
+        required: true
+      tags:
+      - community
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Solution'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Solution'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Solution'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Solution'
+          description: ''
+    patch:
+      operationId: community_solutions_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this solution.
+        required: true
+      tags:
+      - community
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSolution'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSolution'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSolution'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Solution'
+          description: ''
+    delete:
+      operationId: community_solutions_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this solution.
+        required: true
+      tags:
+      - community
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/community/solutions/{id}/upvote/:
+    post:
+      operationId: community_solutions_upvote_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this solution.
+        required: true
+      tags:
+      - community
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Solution'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Solution'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Solution'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Solution'
+          description: ''
+    delete:
+      operationId: community_solutions_upvote_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this solution.
+        required: true
+      tags:
+      - community
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/contact/submit/:
+    post:
+      operationId: contact_submit_create
+      description: |-
+        Public API endpoint to submit a contact support message.
+        No authentication required.
+      tags:
+      - contact
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/current-affairs/:
+    get:
+      operationId: current_affairs_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - current-affairs
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCurrentAffairList'
+          description: ''
+  /api/current-affairs/{slug}/:
+    get:
+      operationId: current_affairs_retrieve
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - current-affairs
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentAffair'
+          description: ''
+  /api/exams/:
+    get:
+      operationId: exams_list
+      description: ViewSet for listing and retrieving published exams.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - exams
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedExamList'
+          description: ''
+  /api/exams/{id}/:
+    get:
+      operationId: exams_retrieve
+      description: ViewSet for listing and retrieving published exams.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam.
+        required: true
+      tags:
+      - exams
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+          description: ''
+  /api/exams/{id}/parse_pdf/:
+    post:
+      operationId: exams_parse_pdf_create
+      description: ViewSet for listing and retrieving published exams.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam.
+        required: true
+      tags:
+      - exams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Exam'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Exam'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Exam'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+          description: ''
+  /api/exams/{id}/pause/:
+    post:
+      operationId: exams_pause_create
+      description: ViewSet for listing and retrieving published exams.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam.
+        required: true
+      tags:
+      - exams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Exam'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Exam'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Exam'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+          description: ''
+  /api/exams/{id}/progress/:
+    get:
+      operationId: exams_progress_retrieve
+      description: ViewSet for listing and retrieving published exams.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam.
+        required: true
+      tags:
+      - exams
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+          description: ''
+  /api/exams/{id}/questions/:
+    get:
+      operationId: exams_questions_retrieve
+      description: ViewSet for listing and retrieving published exams.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam.
+        required: true
+      tags:
+      - exams
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+          description: ''
+  /api/exams/{id}/reset/:
+    post:
+      operationId: exams_reset_create
+      description: ViewSet for listing and retrieving published exams.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam.
+        required: true
+      tags:
+      - exams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Exam'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Exam'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Exam'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+          description: ''
+  /api/exams/{id}/results/:
+    get:
+      operationId: exams_results_retrieve
+      description: |-
+        Get exam results for the authenticated user OR guest (via session_id).
+        SECURITY: Results are scoped to user/session + exam.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam.
+        required: true
+      tags:
+      - exams
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+          description: ''
+  /api/exams/{id}/start/:
+    post:
+      operationId: exams_start_create
+      description: ViewSet for listing and retrieving published exams.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam.
+        required: true
+      tags:
+      - exams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Exam'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Exam'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Exam'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+          description: ''
+  /api/exams/{id}/submit/:
+    post:
+      operationId: exams_submit_create
+      description: ViewSet for listing and retrieving published exams.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam.
+        required: true
+      tags:
+      - exams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Exam'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Exam'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Exam'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+          description: ''
+  /api/exams/{id}/submit_answer/:
+    post:
+      operationId: exams_submit_answer_create
+      description: ViewSet for listing and retrieving published exams.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam.
+        required: true
+      tags:
+      - exams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Exam'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Exam'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Exam'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+          description: ''
+  /api/exams/{id}/submit_exam/:
+    post:
+      operationId: exams_submit_exam_create
+      description: Delegates to the submit action.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam.
+        required: true
+      tags:
+      - exams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Exam'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Exam'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Exam'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+          description: ''
+  /api/exams/{id}/summary/:
+    get:
+      operationId: exams_summary_retrieve
+      description: ViewSet for listing and retrieving published exams.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam.
+        required: true
+      tags:
+      - exams
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+          description: ''
+    post:
+      operationId: exams_summary_create
+      description: ViewSet for listing and retrieving published exams.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam.
+        required: true
+      tags:
+      - exams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Exam'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Exam'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Exam'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+          description: ''
+  /api/exams/{id}/update_session/:
+    post:
+      operationId: exams_update_session_create
+      description: ViewSet for listing and retrieving published exams.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam.
+        required: true
+      tags:
+      - exams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Exam'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Exam'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Exam'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+          description: ''
+  /api/exams/dashboard_stats/:
+    get:
+      operationId: exams_dashboard_stats_retrieve
+      description: ViewSet for listing and retrieving published exams.
+      tags:
+      - exams
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+          description: ''
+  /api/exams/explain_question/:
+    post:
+      operationId: exams_explain_question_create
+      description: ViewSet for listing and retrieving published exams.
+      tags:
+      - exams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Exam'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Exam'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Exam'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+          description: ''
+  /api/exams/leaderboard/:
+    get:
+      operationId: exams_leaderboard_retrieve
+      description: ViewSet for listing and retrieving published exams.
+      tags:
+      - exams
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+          description: ''
+  /api/resource-hub/{slug}/:
+    get:
+      operationId: resource_hub_retrieve
+      description: |-
+        GET /api/resources/<slug>/
+
+        Returns the full detail of a single published resource.
+        Atomically increments ``view_count`` via an ``F()`` expression on
+        every GET so no read-back query is needed.
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - resource-hub
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TopicResourceDetail'
+          description: ''
+  /api/resource-hub/{slug}/bookmark/:
+    post:
+      operationId: resource_hub_bookmark_create
+      description: |-
+        POST /api/resources/<slug>/bookmark/
+
+        Toggles the caller's ``ResourceBookmark`` for the given resource.
+        Deletes the bookmark if it already exists, creates it otherwise.
+
+        Requires authentication.
+
+        Response
+        --------
+        200 OK
+        {
+            "is_bookmarked": true | false,
+            "resource_slug": "<slug>"
+        }
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - resource-hub
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/resource-hub/{slug}/mark-done/:
+    post:
+      operationId: resource_hub_mark_done_create
+      description: |-
+        POST /api/resources/<slug>/mark-done/
+
+        Toggles the ``is_completed`` flag on the caller's ``ResourceProgress``
+        record for the given resource.  Creates the record on first call.
+
+        Requires authentication.
+
+        Response
+        --------
+        200 OK
+        {
+            "is_completed": true | false,
+            "resource_slug": "<slug>"
+        }
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - resource-hub
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/resource-hub/topic/{topic_slug}/:
+    get:
+      operationId: resource_hub_topic_list
+      description: |-
+        GET /api/resources/topic/<topic_slug>/
+
+        Returns all *published* resources belonging to the roadmap topic
+        identified by ``topic_slug``, ordered by ``order`` then ``created_at``.
+
+        The request object is forwarded to the serializer context so that
+        per-user fields (``is_completed``, ``is_bookmarked``) are resolved
+        correctly for authenticated callers.  Anonymous callers receive
+        ``False`` for both fields.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: topic_slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - resource-hub
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTopicResourceListList'
+          description: ''
+  /api/resources/:
+    get:
+      operationId: resources_list
+      description: |-
+        API endpoint for TopicResource.
+        - List: published resources, filterable by ?topic=, ?resource_type=, ?difficulty=, ?search=, ?featured=
+        - Retrieve: full resource including content + increments view_count
+        - bookmark/: toggle bookmark (auth required)
+        - complete/: toggle completed (auth required)
+        - ai_summary/: generate Gemini summary (admin only)
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - resources
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTopicResourceListList'
+          description: ''
+  /api/resources/{id}/:
+    get:
+      operationId: resources_retrieve
+      description: Increment view_count atomically on each fetch.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Topic Resource.
+        required: true
+      tags:
+      - resources
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TopicResource'
+          description: ''
+  /api/resources/{id}/ai_summary/:
+    post:
+      operationId: resources_ai_summary_create
+      description: Generate AI summary via Gemini and persist it.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Topic Resource.
+        required: true
+      tags:
+      - resources
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TopicResourceList'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TopicResourceList'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TopicResourceList'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TopicResourceList'
+          description: ''
+  /api/resources/{id}/bookmark/:
+    post:
+      operationId: resources_bookmark_create
+      description: Toggle bookmark for the current user.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Topic Resource.
+        required: true
+      tags:
+      - resources
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TopicResourceList'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TopicResourceList'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TopicResourceList'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TopicResourceList'
+          description: ''
+  /api/resources/{id}/complete/:
+    post:
+      operationId: resources_complete_create
+      description: Toggle completion status for the current user.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Topic Resource.
+        required: true
+      tags:
+      - resources
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TopicResourceList'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TopicResourceList'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TopicResourceList'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TopicResourceList'
+          description: ''
+  /api/roadmaps/:
+    get:
+      operationId: roadmaps_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - roadmaps
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedExamRoadmapList'
+          description: ''
+  /api/roadmaps/{subcategory__slug}/:
+    get:
+      operationId: roadmaps_retrieve
+      parameters:
+      - in: path
+        name: subcategory__slug
+        schema:
+          type: string
+          description: URL-safe identifier (e.g. 'ssc-cgl')
+        required: true
+      tags:
+      - roadmaps
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamRoadmap'
+          description: ''
+  /api/roadmaps/{subcategory__slug}/bookmark/:
+    post:
+      operationId: roadmaps_bookmark_create
+      parameters:
+      - in: path
+        name: subcategory__slug
+        schema:
+          type: string
+          description: URL-safe identifier (e.g. 'ssc-cgl')
+        required: true
+      tags:
+      - roadmaps
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamRoadmap'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExamRoadmap'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExamRoadmap'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamRoadmap'
+          description: ''
+  /api/roadmaps/topics/{topic_id}/status/:
+    post:
+      operationId: roadmaps_topics_status_create
+      parameters:
+      - in: path
+        name: topic_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - roadmaps
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamRoadmap'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExamRoadmap'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExamRoadmap'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamRoadmap'
+          description: ''
+  /api/subcategories/:
+    get:
+      operationId: subcategories_list
+      description: ViewSet for listing subcategories, optionally filtered by category
+        slug.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - subcategories
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSubCategoryList'
+          description: ''
+  /api/subcategories/{slug}/:
+    get:
+      operationId: subcategories_retrieve
+      description: ViewSet for listing subcategories, optionally filtered by category
+        slug.
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+          description: URL-safe identifier (e.g. 'ssc-cgl')
+        required: true
+      tags:
+      - subcategories
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubCategory'
+          description: ''
+  /api/suggestions/:
+    get:
+      operationId: suggestions_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - suggestions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCorrectionSuggestionList'
+          description: ''
+    post:
+      operationId: suggestions_create
+      tags:
+      - suggestions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CorrectionSuggestion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CorrectionSuggestion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CorrectionSuggestion'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CorrectionSuggestion'
+          description: ''
+  /api/suggestions/{id}/:
+    get:
+      operationId: suggestions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this correction suggestion.
+        required: true
+      tags:
+      - suggestions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CorrectionSuggestion'
+          description: ''
+    put:
+      operationId: suggestions_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this correction suggestion.
+        required: true
+      tags:
+      - suggestions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CorrectionSuggestion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CorrectionSuggestion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CorrectionSuggestion'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CorrectionSuggestion'
+          description: ''
+    patch:
+      operationId: suggestions_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this correction suggestion.
+        required: true
+      tags:
+      - suggestions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCorrectionSuggestion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCorrectionSuggestion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCorrectionSuggestion'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CorrectionSuggestion'
+          description: ''
+    delete:
+      operationId: suggestions_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this correction suggestion.
+        required: true
+      tags:
+      - suggestions
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/suggestions/{id}/upvote/:
+    post:
+      operationId: suggestions_upvote_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this correction suggestion.
+        required: true
+      tags:
+      - suggestions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CorrectionSuggestion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CorrectionSuggestion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CorrectionSuggestion'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CorrectionSuggestion'
+          description: ''
+  /api/uploads/:
+    get:
+      operationId: uploads_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - uploads
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedQuestionPaperUploadList'
+          description: ''
+    post:
+      operationId: uploads_create
+      tags:
+      - uploads
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuestionPaperUpload'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/QuestionPaperUpload'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/QuestionPaperUpload'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionPaperUpload'
+          description: ''
+  /api/uploads/{id}/:
+    get:
+      operationId: uploads_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this question paper upload.
+        required: true
+      tags:
+      - uploads
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionPaperUpload'
+          description: ''
+    put:
+      operationId: uploads_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this question paper upload.
+        required: true
+      tags:
+      - uploads
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuestionPaperUpload'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/QuestionPaperUpload'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/QuestionPaperUpload'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionPaperUpload'
+          description: ''
+    patch:
+      operationId: uploads_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this question paper upload.
+        required: true
+      tags:
+      - uploads
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedQuestionPaperUpload'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedQuestionPaperUpload'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedQuestionPaperUpload'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionPaperUpload'
+          description: ''
+    delete:
+      operationId: uploads_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this question paper upload.
+        required: true
+      tags:
+      - uploads
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        slug:
+          type: string
+          description: URL-safe identifier (e.g. 'ssc')
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          description: Display name (e.g. 'SSC')
+          maxLength: 100
+        description:
+          type: string
+        icon:
+          type: string
+          description: Material Symbol name
+          maxLength: 50
+        icon_color:
+          type: string
+          description: Tailwind color name (e.g. 'blue', 'purple')
+          maxLength: 20
+        bg_color:
+          type: string
+          description: Tailwind background class
+          maxLength: 50
+        order:
+          type: integer
+          description: Display order (lower = first)
+        is_active:
+          type: boolean
+          description: Show on frontend?
+        exam_count:
+          type: string
+          readOnly: true
+        subcategory_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - exam_count
+      - id
+      - name
+      - slug
+      - subcategory_count
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+        question:
+          type: integer
+          nullable: true
+        exam_id:
+          type: integer
+          readOnly: true
+        exam_title:
+          type: string
+          readOnly: true
+        solution:
+          type: integer
+          nullable: true
+        parent:
+          type: integer
+          nullable: true
+        text:
+          type: string
+        upvotes:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - exam_id
+      - exam_title
+      - id
+      - text
+      - user
+      - username
+    ContentFormatEnum:
+      enum:
+      - markdown
+      - html
+      - latex
+      - plaintext
+      - url
+      type: string
+      description: |-
+        * `markdown` - Markdown
+        * `html` - HTML
+        * `latex` - LaTeX
+        * `plaintext` - Plain Text
+        * `url` - URL Only
+    CorrectionSuggestion:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+        question:
+          type: integer
+        type:
+          $ref: '#/components/schemas/CorrectionSuggestionTypeEnum'
+        suggestion_data: {}
+        note:
+          type: string
+        status:
+          allOf:
+          - $ref: '#/components/schemas/CorrectionSuggestionStatusEnum'
+          readOnly: true
+        upvotes:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - question
+      - status
+      - suggestion_data
+      - type
+      - upvotes
+      - user
+      - username
+    CorrectionSuggestionStatusEnum:
+      enum:
+      - pending
+      - approved
+      - rejected
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `approved` - Approved
+        * `rejected` - Rejected
+    CorrectionSuggestionTypeEnum:
+      enum:
+      - question_text
+      - correct_answer
+      - option_text
+      type: string
+      description: |-
+        * `question_text` - Question Text
+        * `correct_answer` - Correct Answer
+        * `option_text` - Option Text
+    CurrentAffair:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 500
+        slug:
+          type: string
+          maxLength: 600
+          pattern: ^[-a-zA-Z0-9_]+$
+        content:
+          type: string
+          description: Full summarized content from AI
+        summary:
+          type: string
+          description: Short 2-sentence summary for list view
+        category:
+          type: integer
+          nullable: true
+        category_name:
+          type: string
+          readOnly: true
+        image_url:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 1000
+        source_name:
+          type: string
+          maxLength: 200
+        source_url:
+          type: string
+          format: uri
+          maxLength: 1000
+        published_date:
+          type: string
+          format: date
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - category_name
+      - content
+      - created_at
+      - id
+      - slug
+      - title
+    DifficultyEnum:
+      enum:
+      - beginner
+      - intermediate
+      - advanced
+      type: string
+      description: |-
+        * `beginner` - Beginner
+        * `intermediate` - Intermediate
+        * `advanced` - Advanced
+    Exam:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          description: Exam title
+          maxLength: 200
+        description:
+          type: string
+        ai_summary:
+          type: string
+          nullable: true
+          description: Markdown formatted AI summary
+        subcategory:
+          type: integer
+          nullable: true
+          description: Select the subcategory this exam belongs to
+        subcategory_name:
+          type: string
+          readOnly: true
+        category_name:
+          type: string
+          readOnly: true
+        category_slug:
+          type: string
+          readOnly: true
+        year:
+          type: integer
+          nullable: true
+          description: Exam year (e.g., 2024)
+        shift:
+          type: string
+          description: e.g., 'Shift 1', 'Morning', 'Afternoon'
+          maxLength: 50
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ExamStatusEnum'
+          description: |-
+            Draft exams are not visible to students
+
+            * `draft` - Draft
+            * `published` - Published
+            * `archived` - Archived
+        duration_minutes:
+          type: integer
+        total_questions:
+          type: integer
+        marks_per_question:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+          description: Marks awarded for each correct answer
+        total_marks:
+          type: integer
+          nullable: true
+          description: Total marks for this exam
+        question_count:
+          type: integer
+          readOnly: true
+        supported_languages:
+          description: Supported languages for this exam
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        is_active:
+          type: boolean
+          description: Inactive exams are hidden from students
+      required:
+      - category_name
+      - category_slug
+      - created_at
+      - id
+      - question_count
+      - subcategory_name
+      - title
+    ExamRoadmap:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        subcategory:
+          type: integer
+        subcategory_name:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          description: e.g. 'Complete Syllabus for SSC CGL'
+          maxLength: 200
+        description:
+          type: string
+        phases:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoadmapPhase'
+          readOnly: true
+        is_bookmarked:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - is_bookmarked
+      - phases
+      - subcategory
+      - subcategory_name
+      - title
+      - updated_at
+    ExamStatusEnum:
+      enum:
+      - draft
+      - published
+      - archived
+      type: string
+      description: |-
+        * `draft` - Draft
+        * `published` - Published
+        * `archived` - Archived
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        type:
+          $ref: '#/components/schemas/NotificationTypeEnum'
+        title:
+          type: string
+          maxLength: 200
+        message:
+          type: string
+        is_read:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - message
+      - title
+      - type
+    NotificationTypeEnum:
+      enum:
+      - REPLY
+      - UPVOTE
+      - REWARD
+      - BADGE
+      - SYSTEM
+      type: string
+      description: |-
+        * `REPLY` - Reply to comment
+        * `UPVOTE` - Solution upvoted
+        * `REWARD` - XP Reward
+        * `BADGE` - Badge Earned
+        * `SYSTEM` - System notification
+    PaginatedCategoryList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+    PaginatedCommentList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+    PaginatedCorrectionSuggestionList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CorrectionSuggestion'
+    PaginatedCurrentAffairList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CurrentAffair'
+    PaginatedExamList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Exam'
+    PaginatedExamRoadmapList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExamRoadmap'
+    PaginatedNotificationList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notification'
+    PaginatedProfileList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Profile'
+    PaginatedQuestionPaperUploadList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuestionPaperUpload'
+    PaginatedSolutionList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Solution'
+    PaginatedSubCategoryList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubCategory'
+    PaginatedTopicResourceListList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TopicResourceList'
+    PatchedComment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+        question:
+          type: integer
+          nullable: true
+        exam_id:
+          type: integer
+          readOnly: true
+        exam_title:
+          type: string
+          readOnly: true
+        solution:
+          type: integer
+          nullable: true
+        parent:
+          type: integer
+          nullable: true
+        text:
+          type: string
+        upvotes:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedCorrectionSuggestion:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+        question:
+          type: integer
+        type:
+          $ref: '#/components/schemas/CorrectionSuggestionTypeEnum'
+        suggestion_data: {}
+        note:
+          type: string
+        status:
+          allOf:
+          - $ref: '#/components/schemas/CorrectionSuggestionStatusEnum'
+          readOnly: true
+        upvotes:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedNotification:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        type:
+          $ref: '#/components/schemas/NotificationTypeEnum'
+        title:
+          type: string
+          maxLength: 200
+        message:
+          type: string
+        is_read:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedProfile:
+      type: object
+      properties:
+        username:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          readOnly: true
+        avatar_char:
+          type: string
+          maxLength: 1
+        xp:
+          type: integer
+        streak:
+          type: integer
+        best_streak:
+          type: integer
+        show_profile_pic:
+          type: boolean
+        bio:
+          type: string
+    PatchedQuestionPaperUpload:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+          nullable: true
+        username:
+          type: string
+          readOnly: true
+        exam:
+          type: integer
+        exam_title:
+          type: string
+          readOnly: true
+        subject:
+          type: string
+          maxLength: 200
+        exam_date:
+          type: string
+          format: date
+        file:
+          type: string
+          format: uri
+        status:
+          allOf:
+          - $ref: '#/components/schemas/QuestionPaperUploadStatusEnum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedSolution:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+        question:
+          type: integer
+        content:
+          type: string
+        upvotes:
+          type: integer
+        views:
+          type: integer
+        is_ai_generated:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    Profile:
+      type: object
+      properties:
+        username:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          readOnly: true
+        avatar_char:
+          type: string
+          maxLength: 1
+        xp:
+          type: integer
+        streak:
+          type: integer
+        best_streak:
+          type: integer
+        show_profile_pic:
+          type: boolean
+        bio:
+          type: string
+      required:
+      - email
+      - username
+    QuestionPaperUpload:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+          nullable: true
+        username:
+          type: string
+          readOnly: true
+        exam:
+          type: integer
+        exam_title:
+          type: string
+          readOnly: true
+        subject:
+          type: string
+          maxLength: 200
+        exam_date:
+          type: string
+          format: date
+        file:
+          type: string
+          format: uri
+        status:
+          allOf:
+          - $ref: '#/components/schemas/QuestionPaperUploadStatusEnum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - exam
+      - exam_date
+      - exam_title
+      - file
+      - id
+      - status
+      - subject
+      - user
+      - username
+    QuestionPaperUploadStatusEnum:
+      enum:
+      - pending
+      - approved
+      - rejected
+      - processed
+      type: string
+      description: |-
+        * `pending` - Pending Review
+        * `approved` - Approved
+        * `rejected` - Rejected
+        * `processed` - Processed
+    Register:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - password
+      - username
+    ResourceTag:
+      type: object
+      description: Lightweight serializer for resource tags used in nested contexts.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 50
+        slug:
+          type: string
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        color:
+          type: string
+          description: Tailwind color name e.g. 'blue', 'green', 'purple'
+          maxLength: 20
+      required:
+      - id
+      - name
+      - slug
+    ResourceTypeEnum:
+      enum:
+      - article
+      - markdown_note
+      - html_note
+      - latex_note
+      - video
+      - pdf
+      - external_link
+      - ai_note
+      - formula_sheet
+      - quiz
+      type: string
+      description: |-
+        * `article` - Article
+        * `markdown_note` - Markdown Note
+        * `html_note` - HTML Note
+        * `latex_note` - LaTeX Note
+        * `video` - Video
+        * `pdf` - PDF
+        * `external_link` - External Link
+        * `ai_note` - AI Note
+        * `formula_sheet` - Formula Sheet
+        * `quiz` - Quiz / Practice Set
+    RoadmapPhase:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          description: 'e.g. ''Phase 1: Basic Numeracy'''
+          maxLength: 200
+        description:
+          type: string
+        order:
+          type: integer
+          description: Order in the timeline
+        topics:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoadmapTopic'
+          readOnly: true
+      required:
+      - id
+      - title
+      - topics
+    RoadmapTopic:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          description: e.g. 'Percentage Basics'
+          maxLength: 200
+        description:
+          type: string
+        estimated_minutes:
+          type: integer
+          description: Estimated study time in minutes
+        order:
+          type: integer
+        status:
+          type: string
+          readOnly: true
+        resources:
+          description: 'List of resources e.g. [{''type'': ''video'', ''url'': ''...'',
+            ''title'': ''...''}]'
+        topic_resources:
+          type: string
+          readOnly: true
+        prerequisites:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - prerequisites
+      - status
+      - title
+      - topic_resources
+    Solution:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+        question:
+          type: integer
+        content:
+          type: string
+        upvotes:
+          type: integer
+        views:
+          type: integer
+        is_ai_generated:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - content
+      - created_at
+      - id
+      - question
+      - username
+    SubCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        slug:
+          type: string
+          description: URL-safe identifier (e.g. 'ssc-cgl')
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          description: Display name (e.g. 'SSC CGL')
+          maxLength: 100
+        description:
+          type: string
+        icon:
+          type: string
+          description: Material Symbol name
+          maxLength: 50
+        order:
+          type: integer
+          description: Display order within category
+        is_active:
+          type: boolean
+          description: Show on frontend?
+        category:
+          type: integer
+        category_name:
+          type: string
+          readOnly: true
+        category_slug:
+          type: string
+          readOnly: true
+        exam_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - category
+      - category_name
+      - category_slug
+      - created_at
+      - exam_count
+      - id
+      - name
+      - slug
+    TokenObtainPair:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - password
+      - refresh
+      - username
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          writeOnly: true
+      required:
+      - access
+      - refresh
+    TopicResource:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        topic:
+          type: integer
+          description: The roadmap topic this resource belongs to
+        title:
+          type: string
+          maxLength: 500
+        slug:
+          type: string
+          readOnly: true
+          description: Auto-generated from title
+          pattern: ^[-a-zA-Z0-9_]+$
+        short_description:
+          type: string
+          description: One-line summary shown in resource cards
+        resource_type:
+          allOf:
+          - $ref: '#/components/schemas/ResourceTypeEnum'
+          description: |-
+            What kind of content is this?
+
+            * `article` - Article
+            * `markdown_note` - Markdown Note
+            * `html_note` - HTML Note
+            * `latex_note` - LaTeX Note
+            * `video` - Video
+            * `pdf` - PDF
+            * `external_link` - External Link
+            * `ai_note` - AI Note
+            * `formula_sheet` - Formula Sheet
+            * `quiz` - Quiz / Practice Set
+        resource_type_display:
+          type: string
+          readOnly: true
+        content_format:
+          allOf:
+          - $ref: '#/components/schemas/ContentFormatEnum'
+          description: |-
+            Primary content format for the reader to render
+
+            * `markdown` - Markdown
+            * `html` - HTML
+            * `latex` - LaTeX
+            * `plaintext` - Plain Text
+            * `url` - URL Only
+        content_format_display:
+          type: string
+          readOnly: true
+        markdown_content:
+          type: string
+          description: Markdown source. Supports GFM, math ($$…$$), fenced code blocks,
+            tables.
+        html_content:
+          type: string
+          description: Raw HTML content. Will be sanitized via DOMPurify on the frontend.
+        latex_content:
+          type: string
+          description: LaTeX source for formula sheets or derivation notes.
+        external_url:
+          type: string
+          format: uri
+          description: External link (YouTube, PDF URL, article URL, etc.)
+          maxLength: 2000
+        thumbnail_url:
+          type: string
+          readOnly: true
+        estimated_read_minutes:
+          type: integer
+          description: Estimated reading/watching time in minutes
+        difficulty:
+          $ref: '#/components/schemas/DifficultyEnum'
+        difficulty_display:
+          type: string
+          readOnly: true
+        order:
+          type: integer
+          description: Display order within the topic (lower = first)
+        is_featured:
+          type: boolean
+          description: Pinned/highlighted at top of the resource hub
+        is_published:
+          type: boolean
+          description: Only published resources appear on the frontend
+        is_ai_generated:
+          type: boolean
+          description: True if content was generated by AI
+        ai_summary:
+          type: string
+          description: Short AI-generated summary shown as a callout in the article
+            reader
+        is_bookmarked:
+          type: string
+          readOnly: true
+        is_completed:
+          type: string
+          readOnly: true
+        view_count:
+          type: integer
+          readOnly: true
+          description: Auto-incremented on each API read
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResourceTag'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - content_format_display
+      - created_at
+      - difficulty_display
+      - id
+      - is_bookmarked
+      - is_completed
+      - resource_type_display
+      - slug
+      - tags
+      - thumbnail_url
+      - title
+      - topic
+      - updated_at
+      - view_count
+    TopicResourceDetail:
+      type: object
+      description: |-
+        Full serializer for the single-resource reader / detail view.
+
+        Extends ``TopicResourceListSerializer`` and adds:
+        - ``ai_summary``, ``is_published``, ``order``, ``created_at``,
+          ``updated_at``
+        - ``content``                – rendered, sanitised content string
+        - ``rendered_content_format`` – the format of the rendered content
+          (``'html'``, ``'markdown'``, ``'url'``, or ``'plaintext'``)
+
+        Raw source fields (``markdown_content``, ``html_content``,
+        ``latex_content``) are **never** exposed by this serializer.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 500
+        slug:
+          type: string
+          description: Auto-generated from title
+          maxLength: 550
+          pattern: ^[-a-zA-Z0-9_]+$
+        short_description:
+          type: string
+          description: One-line summary shown in resource cards
+        resource_type:
+          allOf:
+          - $ref: '#/components/schemas/ResourceTypeEnum'
+          description: |-
+            What kind of content is this?
+
+            * `article` - Article
+            * `markdown_note` - Markdown Note
+            * `html_note` - HTML Note
+            * `latex_note` - LaTeX Note
+            * `video` - Video
+            * `pdf` - PDF
+            * `external_link` - External Link
+            * `ai_note` - AI Note
+            * `formula_sheet` - Formula Sheet
+            * `quiz` - Quiz / Practice Set
+        content_format:
+          allOf:
+          - $ref: '#/components/schemas/ContentFormatEnum'
+          description: |-
+            Primary content format for the reader to render
+
+            * `markdown` - Markdown
+            * `html` - HTML
+            * `latex` - LaTeX
+            * `plaintext` - Plain Text
+            * `url` - URL Only
+        difficulty:
+          $ref: '#/components/schemas/DifficultyEnum'
+        estimated_read_minutes:
+          type: integer
+          description: Estimated reading/watching time in minutes
+        view_count:
+          type: integer
+          readOnly: true
+          description: Auto-incremented on each API read
+        is_featured:
+          type: boolean
+          description: Pinned/highlighted at top of the resource hub
+        is_ai_generated:
+          type: boolean
+          description: True if content was generated by AI
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResourceTag'
+          readOnly: true
+        thumbnail:
+          type: string
+          format: uri
+          nullable: true
+          description: Optional thumbnail image for resource cards
+        is_completed:
+          type: boolean
+          description: |-
+            Return ``True`` if the current user has a completed ``ResourceProgress``
+            record for this resource.  Returns ``False`` for anonymous users.
+          readOnly: true
+        is_bookmarked:
+          type: boolean
+          description: |-
+            Return ``True`` if the current user has bookmarked this resource.
+            Returns ``False`` for anonymous users.
+          readOnly: true
+        ai_summary:
+          type: string
+          description: Short AI-generated summary shown as a callout in the article
+            reader
+        is_published:
+          type: boolean
+          description: Only published resources appear on the frontend
+        order:
+          type: integer
+          description: Display order within the topic (lower = first)
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        content:
+          type: string
+          description: Return the rendered (and sanitised) content string.
+          readOnly: true
+        rendered_content_format:
+          type: string
+          description: |-
+            Return the effective format of ``content`` after rendering.
+
+            Possible values: ``'html'``, ``'markdown'``, ``'url'``,
+            ``'plaintext'``.
+          readOnly: true
+      required:
+      - content
+      - created_at
+      - id
+      - is_bookmarked
+      - is_completed
+      - rendered_content_format
+      - tags
+      - title
+      - updated_at
+      - view_count
+    TopicResourceList:
+      type: object
+      description: |-
+        Serializer for resource list / card views.
+
+        Per-user boolean fields (``is_completed``, ``is_bookmarked``) are derived
+        from the request user so that unauthenticated callers always receive
+        ``False`` without raising an error.
+
+        Raw content fields (``markdown_content``, ``html_content``,
+        ``latex_content``) are intentionally excluded.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 500
+        slug:
+          type: string
+          description: Auto-generated from title
+          maxLength: 550
+          pattern: ^[-a-zA-Z0-9_]+$
+        short_description:
+          type: string
+          description: One-line summary shown in resource cards
+        resource_type:
+          allOf:
+          - $ref: '#/components/schemas/ResourceTypeEnum'
+          description: |-
+            What kind of content is this?
+
+            * `article` - Article
+            * `markdown_note` - Markdown Note
+            * `html_note` - HTML Note
+            * `latex_note` - LaTeX Note
+            * `video` - Video
+            * `pdf` - PDF
+            * `external_link` - External Link
+            * `ai_note` - AI Note
+            * `formula_sheet` - Formula Sheet
+            * `quiz` - Quiz / Practice Set
+        content_format:
+          allOf:
+          - $ref: '#/components/schemas/ContentFormatEnum'
+          description: |-
+            Primary content format for the reader to render
+
+            * `markdown` - Markdown
+            * `html` - HTML
+            * `latex` - LaTeX
+            * `plaintext` - Plain Text
+            * `url` - URL Only
+        difficulty:
+          $ref: '#/components/schemas/DifficultyEnum'
+        estimated_read_minutes:
+          type: integer
+          description: Estimated reading/watching time in minutes
+        view_count:
+          type: integer
+          readOnly: true
+          description: Auto-incremented on each API read
+        is_featured:
+          type: boolean
+          description: Pinned/highlighted at top of the resource hub
+        is_ai_generated:
+          type: boolean
+          description: True if content was generated by AI
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResourceTag'
+          readOnly: true
+        thumbnail:
+          type: string
+          format: uri
+          nullable: true
+          description: Optional thumbnail image for resource cards
+        is_completed:
+          type: boolean
+          description: |-
+            Return ``True`` if the current user has a completed ``ResourceProgress``
+            record for this resource.  Returns ``False`` for anonymous users.
+          readOnly: true
+        is_bookmarked:
+          type: boolean
+          description: |-
+            Return ``True`` if the current user has bookmarked this resource.
+            Returns ``False`` for anonymous users.
+          readOnly: true
+      required:
+      - id
+      - is_bookmarked
+      - is_completed
+      - tags
+      - title
+      - view_count
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        date_joined:
+          type: string
+          format: date-time
+      required:
+      - id
+      - username
+  securitySchemes:
+    jwtAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"

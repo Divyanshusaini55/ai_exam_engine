@@ -5,7 +5,7 @@ import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
-import { apiClient } from "@/lib/apiClient";
+import { authApi } from "@/lib/api";
 import { ArrowLeft, Loader2 } from "lucide-react";
 
 export function AuthForm({ defaultMode = "login" }: { defaultMode?: "login" | "register" }) {
@@ -31,11 +31,11 @@ export function AuthForm({ defaultMode = "login" }: { defaultMode?: "login" | "r
 
     try {
       if (mode === "login") {
-        const res = await apiClient.post('/auth/login/', { username, password });
+        const res = await authApi.login({ username, password });
         const data = await res.json();
         
         if (res.ok) {
-            login(data.token, {
+            login(data.token, data.refresh, {
                 id: data.user_id,
                 username: data.username,
                 email: data.email,
@@ -46,11 +46,11 @@ export function AuthForm({ defaultMode = "login" }: { defaultMode?: "login" | "r
             setError(data.non_field_errors?.[0] || "Invalid credentials");
         }
       } else {
-        const res = await apiClient.post('/auth/register/', { username, email, password });
+        const res = await authApi.register({ username, email, password });
         const data = await res.json();
         
         if (res.ok) {
-            login(data.token, data.user);
+            login(data.token, data.refresh, data.user);
             setSuccess("Account created successfully! Redirecting...");
             setTimeout(() => {
                 router.replace("/dashboard");
@@ -76,12 +76,12 @@ export function AuthForm({ defaultMode = "login" }: { defaultMode?: "login" | "r
       <div className="w-full max-w-md animate-fade-in">
         {/* TOP */}
         <div className="mb-10 text-center">
-          <Link
-            href="/"
-            className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground transition-colors hover:text-primary flex items-center justify-center gap-2"
+          <button
+            onClick={() => router.back()}
+            className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground transition-colors hover:text-primary flex items-center justify-center gap-2 mx-auto"
           >
-            <ArrowLeft className="size-3" /> Back to Home
-          </Link>
+            <ArrowLeft className="size-3" /> Go Back
+          </button>
 
           <h1 className="mt-6 text-4xl font-bold font-heading tracking-tight text-primary">
             {mode === "login" ? "Welcome back" : "Create account"}

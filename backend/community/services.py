@@ -24,17 +24,31 @@ XP_RULES = {
 def award_xp(user, amount, reason=''):
     """Award XP to a user. Celery-ready."""
     from .models import Profile
+    from django.db.models import F
+    from django.db.models.functions import Greatest
     profile, _ = Profile.objects.get_or_create(user=user)
-    profile.xp = max(0, profile.xp + amount)
+    profile.xp = Greatest(F('xp') + amount, 0)
     profile.save(update_fields=['xp'])
     recalculate_reputation(user)
     check_and_award_badges(user)
-    recalculate_ranks()
-
+    from jobs.models import BackgroundJob
+    from jobs.services import create_job
+    from tasks.analytics_tasks import recalculate_community_ranks
+    
+    # Dedup check
+    is_queued = BackgroundJob.objects.filter(
+        type='analytics.recalculate_ranks',
+        status__in=['QUEUED', 'RUNNING']
+    ).exists()
+    
+    if not is_queued:
+        job = create_job(type='analytics.recalculate_ranks', payload={})
+        recalculate_community_ranks.apply_async(args=[str(job.id)], countdown=60)
 
 def update_streak(user):
     """Maintain daily streak. Call once per day per action."""
     from .models import Profile
+    from django.db.models import F
     profile, _ = Profile.objects.get_or_create(user=user)
     today = date.today()
     last = profile.last_activity
@@ -42,7 +56,9 @@ def update_streak(user):
     if last is None or last < today - timedelta(days=1):
         profile.streak = 1
     elif last == today - timedelta(days=1):
-        profile.streak += 1
+        profile.streak = F('streak') + 1
+        profile.save(update_fields=['streak'])
+        profile.refresh_from_db(fields=['streak'])
     # if last == today: already counted
 
     if profile.streak > profile.best_streak:
@@ -73,20 +89,16 @@ def recalculate_reputation(user):
 def recalculate_ranks():
     """Bulk update community_rank + percentile for all users with XP > 0."""
     from .models import Profile
-    profiles = list(
-        Profile.objects.filter(xp__gt=0)
-        .order_by('-xp', '-reputation_score')
-        .values_list('id', flat=True)
-    )
+    profiles = list(Profile.objects.filter(xp__gt=0).order_by('-xp', '-reputation_score'))
     total = len(profiles)
     if total == 0:
         return
-    for rank, profile_id in enumerate(profiles, start=1):
-        percentile = round((1 - rank / total) * 100, 1)
-        Profile.objects.filter(id=profile_id).update(
-            community_rank=rank,
-            percentile=percentile,
-        )
+        
+    for rank, profile in enumerate(profiles, start=1):
+        profile.community_rank = rank
+        profile.percentile = round((1 - rank / total) * 100, 1)
+        
+    Profile.objects.bulk_update(profiles, ['community_rank', 'percentile'])
 
 
 def check_and_award_badges(user):

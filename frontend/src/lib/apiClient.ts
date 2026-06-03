@@ -1,3 +1,8 @@
+/**
+ * @deprecated Use api.ts instead.
+ * This file will be deleted after migration is verified.
+ */
+
 import { redirect } from 'next/navigation';
 import { logApi, logAbort } from './debug';
 

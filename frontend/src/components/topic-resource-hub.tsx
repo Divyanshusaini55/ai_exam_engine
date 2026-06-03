@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import MarkdownRenderer from "./markdown-renderer"
 import {
   X, Clock, Eye, ExternalLink, ChevronRight,
   BookOpen, FileText, Video, Link2, Zap,
@@ -219,7 +220,9 @@ function ResourceCard({
         {resource.ai_summary && (
           <div className="flex gap-2 p-3 rounded-xl bg-sky-50 border border-sky-100 text-xs text-sky-800">
             <Zap className="size-3.5 shrink-0 mt-0.5 text-sky-500" />
-            <span className="line-clamp-2">{resource.ai_summary}</span>
+            <div className="line-clamp-2 overflow-hidden [&>*]:m-0 [&_p]:m-0 text-xs">
+              <MarkdownRenderer content={resource.ai_summary} />
+            </div>
           </div>
         )}
 

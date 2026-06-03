@@ -253,12 +253,12 @@ export function SuggestCorrectionModal({ isOpen, onClose, question }: SuggestCor
                                         <button
                                             key={type.id}
                                             onClick={() => setCorrectionType(type.id as any)}
-                                            className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all ${correctionType === type.id ? 'border-primary bg-secondary/50 shadow-sm' : 'border-border bg-card hover:bg-secondary/20'}`}
+                                            className={`flex items-center gap-2 p-3 rounded-xl border-2 transition-all ${correctionType === type.id ? 'border-primary bg-secondary/50 shadow-sm' : 'border-border bg-card hover:bg-secondary/20'}`}
                                         >
-                                            <div className={`size-10 rounded-xl flex items-center justify-center ${correctionType === type.id ? 'bg-primary text-white' : 'bg-secondary text-muted-foreground'}`}>
-                                                <type.icon className="size-5" />
+                                            <div className={`size-8 rounded-lg flex items-center justify-center ${correctionType === type.id ? 'bg-primary text-white' : 'bg-secondary text-muted-foreground'}`}>
+                                                <type.icon className="size-4" />
                                             </div>
-                                            <span className={`text-sm font-bold ${correctionType === type.id ? 'text-primary' : 'text-muted-foreground'}`}>{type.label}</span>
+                                            <span className={`text-xs font-bold ${correctionType === type.id ? 'text-primary' : 'text-muted-foreground'}`}>{type.label}</span>
                                         </button>
                                     ))}
                                 </div>
@@ -347,7 +347,7 @@ export function SuggestCorrectionModal({ isOpen, onClose, question }: SuggestCor
                             <button 
                                 onClick={handleSubmit}
                                 disabled={submitting}
-                                className="w-full py-5 bg-black dark:bg-white text-white dark:text-black rounded-2xl font-bold text-lg flex items-center justify-center gap-3 shadow-xl hover:brightness-105 active:scale-[0.98] transition-all disabled:opacity-50"
+                                className="w-full py-2 bg-black dark:bg-white text-white dark:text-black rounded-2xl font-bold text-lg flex items-center justify-center gap-3 shadow-xl hover:brightness-105 active:scale-[0.98] transition-all disabled:opacity-50"
                             >
                                 {submitting ? <RotateCw className="size-6 animate-spin" /> : <Send className="size-5" />}
                                 Submit Correction Suggestion

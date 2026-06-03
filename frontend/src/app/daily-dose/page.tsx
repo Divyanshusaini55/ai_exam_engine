@@ -9,18 +9,28 @@ import { Newspaper, Calendar, ArrowRight, Loader2 } from "lucide-react"
 export default function DailyDosePage() {
     const [news, setNews] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
+    const [page, setPage] = useState(1)
+    const [hasNext, setHasNext] = useState(false)
+    const [hasPrev, setHasPrev] = useState(false)
+    const [totalPages, setTotalPages] = useState(1)
 
     useEffect(() => {
-        dailyDoseApi.getCurrentAffairs()
+        setLoading(true)
+        dailyDoseApi.getCurrentAffairs(undefined, page)
             .then(res => {
                 setNews(res.data.results || res.data || [])
+                setHasNext(!!res.data.next)
+                setHasPrev(!!res.data.previous)
+                if (res.data.count) {
+                    setTotalPages(Math.ceil(res.data.count / 20)) // Assuming PAGE_SIZE = 20
+                }
                 setLoading(false)
             })
             .catch(err => {
                 console.error(err)
                 setLoading(false)
             })
-    }, [])
+    }, [page])
 
     return (
         <div className="min-h-screen bg-background">
@@ -80,6 +90,31 @@ export default function DailyDosePage() {
                                 </div>
                             </Link>
                         ))}
+                    </div>
+                )}
+
+                {/* Pagination Controls */}
+                {!loading && (hasNext || hasPrev) && (
+                    <div className="flex items-center justify-center gap-4 mt-12 pt-8 border-t border-border/50">
+                        <button
+                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                            disabled={!hasPrev}
+                            className="px-4 py-2 text-sm rounded-lg border border-border bg-card text-primary font-bold shadow-sm hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        >
+                            Previous
+                        </button>
+                        
+                        <div className="text-sm font-medium text-muted-foreground">
+                            Page <span className="text-primary font-bold">{page}</span> {totalPages > 1 && `of ${totalPages}`}
+                        </div>
+
+                        <button
+                            onClick={() => setPage(p => p + 1)}
+                            disabled={!hasNext}
+                            className="px-4 py-2 text-sm rounded-lg border border-border bg-card text-primary font-bold shadow-sm hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        >
+                            Next
+                        </button>
                     </div>
                 )}
             </main>

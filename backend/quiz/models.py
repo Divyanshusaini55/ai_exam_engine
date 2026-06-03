@@ -1,6 +1,8 @@
 
 from django.db import models
 from django.utils import timezone
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVector
 
 
 
@@ -219,6 +221,9 @@ class ExamAttempt(models.Model):
 
     class Meta:
         ordering = ['-completed_at']
+        indexes = [
+            models.Index(fields=['user', 'completed_at'], name='attempt_user_date_idx'),
+        ]
 
 
 class PracticeSession(models.Model):
@@ -675,4 +680,20 @@ def answer_translation_cache_clear(sender, instance, **kwargs):
     if hasattr(instance, 'answer') and instance.answer and hasattr(instance.answer, 'question') and instance.answer.question:
         clear_exam_cache(instance.answer.question.exam_id)
 
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from cache import (
+    invalidate_exam_summary,
+    invalidate_exam_roadmap,
+    invalidate_user_dashboard
+)
 
+@receiver([post_save, post_delete], sender=Exam)
+def invalidate_exam_caches(sender, instance, **kwargs):
+    invalidate_exam_summary(instance.id)
+    invalidate_exam_roadmap(instance.id)
+
+@receiver([post_save, post_delete], sender=ExamAttempt)
+def invalidate_dashboard_on_attempt(sender, instance, **kwargs):
+    if hasattr(instance, 'user_id'):
+        invalidate_user_dashboard(instance.user_id)
