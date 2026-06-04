@@ -6,11 +6,6 @@ from rest_framework.permissions import AllowAny
 from .models import UserAnswer, PracticeSession, ExamAttempt
 
 class SessionMixin:
-    """
-    Mixin for ExamViewSet.
-    Handles session state management: progress, update_session, pause, reset.
-    """
-
     @action(detail=True, methods=['get'])
     def progress(self, request, pk=None):
         exam = self.get_object()

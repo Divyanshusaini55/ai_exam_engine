@@ -1,18 +1,8 @@
-"""
-Job lifecycle exceptions.
-
-These are raised by the service layer in ``jobs.services`` when
-a requested state transition is invalid or the target job does not exist.
-"""
-
-
 class JobError(Exception):
-    """Base class for all job-related errors."""
     pass
 
 
 class JobNotFound(JobError):
-    """Raised when a job_id does not match any existing BackgroundJob."""
 
     def __init__(self, job_id):
         self.job_id = job_id
@@ -20,11 +10,6 @@ class JobNotFound(JobError):
 
 
 class InvalidJobTransition(JobError):
-    """
-    Raised when a state transition is not allowed by the lifecycle rules.
-
-    For example, transitioning from COMPLETED → RUNNING.
-    """
 
     def __init__(self, job_id, current_status, target_status):
         self.job_id = job_id
@@ -37,10 +22,6 @@ class InvalidJobTransition(JobError):
 
 
 class JobAlreadyTerminal(JobError):
-    """
-    Raised when an operation targets a job that has already reached
-    a terminal state (COMPLETED, FAILED, or CANCELLED).
-    """
 
     def __init__(self, job_id, current_status):
         self.job_id = job_id
@@ -51,11 +32,6 @@ class JobAlreadyTerminal(JobError):
 
 
 class DuplicateJobError(JobError):
-    """
-    Raised when a task is submitted but an identical job (same task
-    name + dedup key) is already running and holds the Redis lock.
-    """
-
     def __init__(self, task_name, dedup_key, existing_job_id=None):
         self.task_name = task_name
         self.dedup_key = dedup_key

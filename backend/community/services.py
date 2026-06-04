@@ -9,7 +9,7 @@ from django.db.models import Count, Sum, Avg
 from datetime import date, timedelta
 import math
 
-# ─── XP Rules ───────────────────────────────────────────────────────────────
+# XP Rules
 XP_RULES = {
     'upload_approved':      50,
     'suggestion_approved':  20,
@@ -22,7 +22,6 @@ XP_RULES = {
 
 
 def award_xp(user, amount, reason=''):
-    """Award XP to a user. Celery-ready."""
     from .models import Profile
     from django.db.models import F
     from django.db.models.functions import Greatest
@@ -46,7 +45,6 @@ def award_xp(user, amount, reason=''):
         recalculate_community_ranks.apply_async(args=[str(job.id)], countdown=60)
 
 def update_streak(user):
-    """Maintain daily streak. Call once per day per action."""
     from .models import Profile
     from django.db.models import F
     profile, _ = Profile.objects.get_or_create(user=user)
@@ -69,7 +67,6 @@ def update_streak(user):
 
 
 def recalculate_reputation(user):
-    """Weighted reputation formula → 0–100 score."""
     from .models import Profile
     profile, _ = Profile.objects.get_or_create(user=user)
 
@@ -87,7 +84,6 @@ def recalculate_reputation(user):
 
 
 def recalculate_ranks():
-    """Bulk update community_rank + percentile for all users with XP > 0."""
     from .models import Profile
     profiles = list(Profile.objects.filter(xp__gt=0).order_by('-xp', '-reputation_score'))
     total = len(profiles)
@@ -102,7 +98,6 @@ def recalculate_ranks():
 
 
 def check_and_award_badges(user):
-    """Evaluate all badge criteria and award newly earned badges."""
     from .models import Profile, Badge, UserBadge, ContributorActivity
     profile, _ = Profile.objects.get_or_create(user=user)
     earned_slugs = set(
@@ -134,7 +129,6 @@ def check_and_award_badges(user):
 
 
 def get_category_leaderboard(days=30):
-    """Top 3 contributors per category by upvotes+solutions. Cached 5 min."""
     from quiz.models import Category, Question
     from .models import Solution, Profile
 
@@ -183,7 +177,6 @@ def get_category_leaderboard(days=30):
 
 
 def seed_default_badges():
-    """Create default badges if they don't exist. Call from management command."""
     from .models import Badge
     defaults = [
         {'name': 'First Solution',       'slug': 'first-solution',    'description': 'Posted your very first solution',        'icon': 'lightbulb',   'color_gradient': 'from-yellow-400 to-amber-500',  'criteria_type': 'solutions_count', 'criteria_value': 1},

@@ -19,14 +19,6 @@ class ExamSummaryService:
         self.analyzer = QuestionAnalyzer(self.client)
 
     def generate_summary(self, exam: Exam, force: bool = False) -> str:
-        """
-        Orchestrates the Generic AI Exam Intelligence Pipeline:
-        1. Ingest & Validate questions
-        2. Analyze questions in batches (inferring subjects, concepts, subtopics, cognitive levels, skills, formulas)
-        3. Aggregate analyzed data into statistics and patterns JSON
-        4. Generate final Markdown summary using ONLY the aggregated JSON data
-        5. Quality validate and atomically persist summary in database
-        """
         if exam.ai_summary and not force:
             logger.info(f"Summary already exists for exam {exam.id} ({exam.title}). Skipping.")
             return exam.ai_summary
@@ -34,7 +26,7 @@ class ExamSummaryService:
         start_time = time.time()
         logger.info(f"Starting generic summary pipeline for exam={exam.id}, title='{exam.title}'")
 
-        # 1. Fetch questions optimally (load only required fields)
+        # Fetch questions optimally (load only required fields)
         questions_qs = Question.objects.filter(exam=exam).only(
             'id', 'question_text', 'subject', 'topic', 'difficulty', 'points'
         )

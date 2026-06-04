@@ -227,7 +227,6 @@ def fetch_current_affairs(self, job_id=None, dedup_key='global'):
     from django.core.management import call_command
     lock_key = None
     try:
-        # Allow running without explicit job_id (e.g. from beat)
         if not job_id:
             job = BackgroundJob.objects.create(
                 type='analytics.fetch_current_affairs',

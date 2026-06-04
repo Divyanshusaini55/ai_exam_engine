@@ -3,14 +3,9 @@ from .models import Exam
 from .ai import generate_questions_from_pdf
 
 def extract_questions_async(exam_id):
-    """
-    Retrieves the exam by ID and triggers AI question generation.
-    Designed to be run in a background thread.
-    """
     print(f"Starting Gemini extraction background thread for Exam ID: {exam_id}")
     
     try:
-        # Re-fetch exam to ensure we have fresh data and it exists
         exam = Exam.objects.get(id=exam_id)
         
         if not exam.pdf_file:

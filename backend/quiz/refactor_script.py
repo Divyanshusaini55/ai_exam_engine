@@ -18,12 +18,6 @@ content = content.replace(
 
 # Function to remove a method block
 def remove_method(content, method_name):
-    # Match decorators + def method_name
-    # Then match everything until either:
-    # 1. 4 spaces followed by @ (next method)
-    # 2. 4 spaces followed by def (next method)
-    # 3. An unindented line (\n\S)
-    # 4. End of string
     pattern = r"(?: {4}@action[^\n]*\n)* {4}def " + method_name + r"\(.*?(?=\n {4}@|\n {4}def |\n\S|$)"
     return re.sub(pattern, "", content, flags=re.DOTALL)
 

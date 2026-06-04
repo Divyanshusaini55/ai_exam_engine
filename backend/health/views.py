@@ -1,10 +1,3 @@
-"""
-Health check views — unauthenticated, lightweight probes.
-
-These are designed for Docker HEALTHCHECK, Kubernetes liveness/readiness
-probes, and uptime monitors.  They MUST NOT require authentication.
-"""
-
 import time
 import logging
 
@@ -15,12 +8,6 @@ logger = logging.getLogger('health')
 
 
 def health_check(request):
-    """
-    GET /health/
-
-    Verifies the Django process is alive and the database is reachable.
-    Returns 200 on success, 503 on failure.
-    """
     checks = {
         'status': 'healthy',
         'database': 'ok',
@@ -72,7 +59,6 @@ def worker_check(request):
     from core.celery import debug_task
 
     try:
-        # Send to 'low' queue — analytics_worker listens on this
         result = debug_task.apply_async(queue='low', timeout=10)
         value = result.get(timeout=10)  # increase timeout to 10s
         return JsonResponse({
@@ -91,12 +77,6 @@ def worker_check(request):
         }, status=503)
 
 def cache_check(request):
-    """
-    GET /health/cache/
-
-    Writes and reads a throwaway key to verify Redis cache connectivity.
-    Returns 200 on success, 503 on failure.
-    """
     from django.core.cache import cache
 
     test_key = '_health_check_probe'

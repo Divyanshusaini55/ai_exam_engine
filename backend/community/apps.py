@@ -6,8 +6,7 @@ class CommunityConfig(AppConfig):
     name = 'community'
 
     def ready(self):
-        import community.signals  # noqa: F401 — auto-creates profile on User save
-        # Connect cross-app signals (quiz models → community XP)
+        import community.signals  
         from community.signals import (
             connect_upload_signal,
             connect_suggestion_signal,

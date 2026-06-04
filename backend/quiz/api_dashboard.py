@@ -8,28 +8,15 @@ from .models import ExamAttempt, PracticeSession, UserAnswer
 from .serializers import ExamResultSerializer, UserAnswerSerializer, QuestionSerializer
 
 class DashboardMixin:
-    """
-    Mixin for ExamViewSet.
-    Handles user dashboard statistics and exam results.
-    """
-
     @action(detail=True, methods=['get'])
     def results(self, request, pk=None):
-        """
-        Get exam results for the authenticated user OR guest (via session_id).
-        SECURITY: Results are scoped to user/session + exam.
-        """
         exam = self.get_object()
         session_id = request.query_params.get('session_id')
-        
-        # AUTH / SESSION CHECK
         if not request.user.is_authenticated and not session_id:
             return Response(
                 {'error': 'Authentication or Session ID required to view results'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-        
-        # CHECK IF USER HAS COMPLETED THIS EXAM OR PRACTICE SESSION
         user_result = None
         is_practice = False
         
@@ -68,8 +55,6 @@ class DashboardMixin:
                 {'error': 'No results found for this exam. Please complete the exam first.'},
                 status=status.HTTP_404_NOT_FOUND
             )
-        
-        # FETCH USER'S ANSWERS using the session_id from their result
         user_answers = UserAnswer.objects.filter(
             exam=exam,
             session_id=user_result.session_id
@@ -88,8 +73,6 @@ class DashboardMixin:
         
         percentage = user_result.accuracy if is_practice else user_result.percentage
         completed_at = user_result.submitted_at if is_practice else user_result.completed_at
-
-        # SUMMARY DATA (using saved result)
         summary_data = {
             'exam_id': exam.id,
             'exam_title': exam.title,
@@ -104,19 +87,16 @@ class DashboardMixin:
         }
 
         summary_serializer = ExamResultSerializer(summary_data)
-
-        # ANSWERS SERIALIZED SEPARATELY
         answers_data = UserAnswerSerializer(
             user_answers,
             many=True
         ).data
 
-        # FULL QUESTIONS WITH CORRECT ANSWERS (FOR REVIEW)
         all_questions = exam.questions.all().prefetch_related('answers')
         questions_data = QuestionSerializer(
             all_questions,
             many=True,
-            context={'hide_correct': False} # Explicitly Show Correct Answers
+            context={'hide_correct': False}
         ).data
 
         return Response({
@@ -162,7 +142,7 @@ class DashboardMixin:
                     'score': round(item['avg_score'], 1)
                 }
                 for item in results.values('exam__subcategory__category__name').annotate(avg_score=models.Avg('percentage'))
-                if item['exam__subcategory__category__name']  # Filter out None values
+                if item['exam__subcategory__category__name'] 
             ],
             'recent_activities': [
                 {

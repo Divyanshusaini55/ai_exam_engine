@@ -7,18 +7,12 @@ from django.contrib.auth.models import User
 from .models import ExamAttempt
 
 class LeaderboardMixin:
-    """
-    Mixin for ExamViewSet.
-    Handles global and per-exam leaderboards.
-    """
-
     @action(detail=False, methods=['get'], permission_classes=[AllowAny])
     def leaderboard(self, request):
         exam_id = request.query_params.get('exam_id')
         leaderboard_data = []
 
         if exam_id:
-            # Per-Exam Leaderboard (Highest Score per User/Guest)
             results = ExamAttempt.objects.filter(exam_id=exam_id, is_completed=True).select_related('user', 'exam').order_by('-score')
             
             user_best_map = {}
@@ -50,9 +44,6 @@ class LeaderboardMixin:
                 return paginator.get_paginated_response(page)
                 
         else:
-            # Global Leaderboard (Reputation / Total Score sum)
-            
-            # Authenticated users
             auth_users = User.objects.annotate(
                 total_score=Sum('exam_results__score', filter=Q(exam_results__is_completed=True)),
                 exams_taken=Count('exam_results', filter=Q(exam_results__is_completed=True))

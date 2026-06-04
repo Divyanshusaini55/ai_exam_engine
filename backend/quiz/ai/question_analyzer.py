@@ -11,12 +11,6 @@ class QuestionAnalyzer:
         self.client = client
 
     def ingest_and_validate(self, raw_questions: list) -> list:
-        """
-        STEP 1: Ingestion & Validation
-        - check for missing text
-        - check and filter duplicates (case-insensitive normalized text)
-        - normalize empty fields
-        """
         validated = []
         seen_texts = set()
 
@@ -50,14 +44,7 @@ class QuestionAnalyzer:
         return validated
 
     def analyze_questions(self, questions: list, batch_size: int = 30) -> list:
-        """
-        STEP 2: Question Intelligence Engine
-        - Batch questions list.
-        - Infer subject-agnostic statistics (subtopic, difficulty, skills, concepts, formulas, cognitive level).
-        """
         analyzed_results = []
-        
-        # Batch questions
         for start_idx in range(0, len(questions), batch_size):
             batch = questions[start_idx : start_idx + batch_size]
             logger.info(f"Analyzing batch of size {len(batch)} (questions {start_idx + 1} to {start_idx + len(batch)})")
@@ -90,7 +77,6 @@ class QuestionAnalyzer:
                 for q in batch:
                     analyzed_results.append(self._make_default_analysis(q))
 
-        # Re-align IDs to ensure dictionary mapping works
         return analyzed_results
 
     def _make_default_analysis(self, q: dict) -> dict:

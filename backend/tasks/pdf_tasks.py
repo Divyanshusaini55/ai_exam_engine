@@ -1,12 +1,3 @@
-"""
-PDF tasks — PDF parsing and question extraction.
-
-Routes to queue: ``high`` (user-facing, latency-sensitive)
-
-Wraps the existing PDF parsing pipeline in
-``quiz.ai.pdf_engine`` and ``quiz.ai.question_analyzer``.
-"""
-
 import logging
 import traceback
 
@@ -30,38 +21,24 @@ logger = logging.getLogger('tasks')
     name='tasks.pdf_tasks.parse_question_paper',
     max_retries=3,
     default_retry_delay=60,
-    time_limit=600,           # PDF parsing + AI extraction — 10 min
+    time_limit=600,        
     soft_time_limit=540,
     acks_late=True,
     reject_on_worker_lost=True,
 )
 def parse_question_paper(self, job_id, upload_id, dedup_key=None):
-    """
-    Parse a question paper PDF and extract questions.
-
-    Args:
-        job_id:     BackgroundJob UUID (str).
-        upload_id:  PK of the QuestionPaperUpload record.
-        dedup_key:  Dedup key (defaults to upload_id).
-    """
     dedup_key = dedup_key or str(upload_id)
     lock_key = None
 
     try:
         lock_key = acquire_job_lock(self.name, dedup_key, job_id, ttl=660)
         start_job(job_id)
-
-        # ── Stage 1: Read PDF ───────────────────────────────────────
         update_progress(job_id, stage='loading_pdf', progress=10,
                         message='Reading and extracting text from PDF')
 
         upload = QuestionPaperUpload.objects.get(pk=upload_id)
-
-        # ── Stage 2: AI extraction ──────────────────────────────────
         update_progress(job_id, stage='parsing', progress=20,
                         message='Parsing PDF')
-
-        # The function parses and saves to DB internally.
         update_progress(job_id, stage='extracting_questions', progress=50,
                         message='Extracting questions via Gemini')
         
@@ -106,28 +83,16 @@ def parse_question_paper(self, job_id, upload_id, dedup_key=None):
     reject_on_worker_lost=True,
 )
 def parse_syllabus_pdf(self, job_id, subcategory_id, dedup_key=None):
-    """
-    Parse a syllabus PDF and extract topic structure.
-
-    Args:
-        job_id:          BackgroundJob UUID (str).
-        subcategory_id:  PK of the SubCategory whose syllabus to parse.
-        dedup_key:       Dedup key (defaults to subcategory_id).
-    """
     dedup_key = dedup_key or str(subcategory_id)
     lock_key = None
 
     try:
         lock_key = acquire_job_lock(self.name, dedup_key, job_id, ttl=660)
         start_job(job_id)
-
-        # ── Stage 1: Read PDF ───────────────────────────────────────
         update_progress(job_id, stage='loading_pdf', progress=10,
                         message='Reading syllabus PDF')
 
         subcategory = SubCategory.objects.get(pk=subcategory_id)
-
-        # ── Stage 2: Extract topics ─────────────────────────────────
         update_progress(job_id, stage='parsing', progress=20,
                         message='Extracting topic structure via Gemini')
 
@@ -138,13 +103,8 @@ def parse_syllabus_pdf(self, job_id, subcategory_id, dedup_key=None):
             syllabus_text = engine.extract_and_clean_pdf(subcategory.syllabus_pdf.path)
 
         data = engine.parse_syllabus(subcategory.name, syllabus_text)
-
-        # ── Stage 3: Save ───────────────────────────────────────────
         update_progress(job_id, stage='saving', progress=90,
                         message='Saving topic structure')
-
-        # Real implementation handled by roadmap_tasks.
-        # This function acts as a standalone syllabus parser.
 
         complete_job(job_id, result={
             'subcategory_id': subcategory_id,

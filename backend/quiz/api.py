@@ -38,9 +38,6 @@ from .serializers import (
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    ViewSet for listing all active categories with exam counts.
-    """
     queryset = Category.objects.filter(is_active=True).prefetch_related('subcategories')
     serializer_class = CategorySerializer
     permission_classes = [AllowAny]
@@ -48,9 +45,6 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class SubCategoryViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    ViewSet for listing subcategories, optionally filtered by category slug.
-    """
     queryset = SubCategory.objects.filter(is_active=True).select_related('category')
     serializer_class = SubCategorySerializer
     permission_classes = [AllowAny]
@@ -387,9 +381,6 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def submit_exam(self, request, pk=None):
-        """
-        Delegates to the submit action.
-        """
         return self.submit(request, pk=pk)
 
 
@@ -405,10 +396,6 @@ from .serializers import ContactMessageSerializer
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def submit_contact_message(request):
-    """
-    Public API endpoint to submit a contact support message.
-    No authentication required.
-    """
     serializer = ContactMessageSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -425,10 +412,6 @@ def submit_contact_message(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsAdminUser])
 def list_contact_messages(request):
-    """
-    Admin-only API endpoint to list all contact messages.
-    Ordered by newest first.
-    """
     messages = ContactMessage.objects.all()
     serializer = ContactMessageSerializer(messages, many=True)
     return Response(serializer.data)
@@ -437,9 +420,6 @@ def list_contact_messages(request):
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated, IsAdminUser])
 def update_contact_message_status(request, message_id):
-    """
-    Admin-only API endpoint to update message status (read/unread).
-    """
     try:
         message = ContactMessage.objects.get(id=message_id)
         new_status = request.data.get('status', 'read')
@@ -457,9 +437,6 @@ def update_contact_message_status(request, message_id):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated, IsAdminUser])
 def delete_contact_message(request, message_id):
-    """
-    Admin-only API endpoint to delete a contact message.
-    """
     try:
         message = ContactMessage.objects.get(id=message_id)
         message.delete()
@@ -570,14 +547,6 @@ class ExamRoadmapViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class TopicResourceViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    API endpoint for TopicResource.
-    - List: published resources, filterable by ?topic=, ?resource_type=, ?difficulty=, ?search=, ?featured=
-    - Retrieve: full resource including content + increments view_count
-    - bookmark/: toggle bookmark (auth required)
-    - complete/: toggle completed (auth required)
-    - ai_summary/: generate Gemini summary (admin only)
-    """
     permission_classes = [AllowAny]
 
     def get_queryset(self):
@@ -631,7 +600,6 @@ class TopicResourceViewSet(viewsets.ReadOnlyModelViewSet):
         return TopicResourceListSerializer
 
     def retrieve(self, request, *args, **kwargs):
-        """Increment view_count atomically on each fetch."""
         instance = self.get_object()
         TopicResource.objects.filter(pk=instance.pk).update(
             view_count=models.F('view_count') + 1
@@ -642,7 +610,6 @@ class TopicResourceViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def bookmark(self, request, pk=None):
-        """Toggle bookmark for the current user."""
         resource = self.get_object()
         bookmark, created = ResourceBookmark.objects.get_or_create(
             user=request.user, resource=resource
@@ -654,7 +621,6 @@ class TopicResourceViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def complete(self, request, pk=None):
-        """Toggle completion status for the current user."""
         resource = self.get_object()
         progress, _ = ResourceProgress.objects.get_or_create(
             user=request.user, resource=resource

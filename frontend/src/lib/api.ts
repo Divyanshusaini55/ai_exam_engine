@@ -269,12 +269,6 @@ export const contributorApi = {
     api.get(`${COMM}/contributors/profile/${username}/`),
 };
 
-// -----------------------------------------------------------------------------
-// Legacy Wrappers (migrated from apiClient.ts)
-// These return a Response-like object to avoid breaking existing UI component logic
-// that expects `if (res.ok)` and `await res.json()`.
-// -----------------------------------------------------------------------------
-
 const legacyFetch = async (method: 'get' | 'post' | 'put' | 'delete' | 'patch', url: string, data?: any, config?: any) => {
   try {
     const res = await api({ method, url, data, ...config });

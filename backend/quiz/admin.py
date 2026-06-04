@@ -199,10 +199,6 @@ class RoadmapTopicInline(admin.TabularInline):
 
 
 class TopicResourceInline(admin.StackedInline):
-    """
-    Inline editor for TopicResource inside RoadmapTopic.
-    Gives admins a full structured form per resource without leaving the topic page.
-    """
     model = TopicResource
     extra = 1
     show_change_link = True
@@ -645,10 +641,6 @@ class ResourceTagAdmin(admin.ModelAdmin):
 
 @admin.register(TopicResource)
 class TopicResourceAdmin(admin.ModelAdmin):
-    """
-    Full standalone admin for TopicResource.
-    Supports bulk publish/unpublish, AI summary generation, and rich content editing.
-    """
     list_display = (
         'title_with_type', 'topic', 'difficulty_badge',
         'published_badge', 'featured_badge', 'ai_badge',

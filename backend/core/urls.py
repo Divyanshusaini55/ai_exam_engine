@@ -2,10 +2,9 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.http import JsonResponse # <--- Import this
+from django.http import JsonResponse 
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
-# Simple Welcome View
 def home(request):
     return JsonResponse({"message": "Welcome to Exam Engine API! Go to localhost:3000 to use the app."})
 

@@ -24,12 +24,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         User = get_user_model()
         
-        # Get credentials from environment variables
         username = os.environ.get('ADMIN_USERNAME', 'admin')
         email = os.environ.get('ADMIN_EMAIL', 'admin@example.com')
         password = os.environ.get('ADMIN_PASSWORD')
         
-        # Validate password is provided
         if not password:
             self.stdout.write(
                 self.style.WARNING(
@@ -37,8 +35,7 @@ class Command(BaseCommand):
                 )
             )
             return
-        
-        # Check if user already exists
+
         if User.objects.filter(username=username).exists():
             self.stdout.write(
                 self.style.SUCCESS(
@@ -47,7 +44,6 @@ class Command(BaseCommand):
             )
             return
         
-        # Create the superuser
         try:
             User.objects.create_superuser(
                 username=username,
@@ -65,5 +61,4 @@ class Command(BaseCommand):
                     f'Error creating admin user: {str(e)}'
                 )
             )
-            # Don't raise exception - we don't want to fail the build
-            # Just log the error and continue
+          

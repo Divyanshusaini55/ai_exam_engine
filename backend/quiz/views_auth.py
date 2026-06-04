@@ -63,13 +63,9 @@ class PasswordResetRequestAPI(APIView):
             return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         user = User.objects.filter(email=email).first()
-        
-        # Security: Always return success even if user doesn't exist
-        # to prevent email enumeration.
         if user:
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
-            # In production, use your actual domain
             reset_link = f"{settings.FRONTEND_URL}/reset-password?uid={uid}&token={token}"
             
             send_mail(

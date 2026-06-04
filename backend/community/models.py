@@ -10,13 +10,13 @@ class Profile(models.Model):
     full_name = models.CharField(max_length=200, blank=True)
     show_profile_pic = models.BooleanField(default=True)
 
-    # --- Gamification ---
+    # Gamification 
     xp = models.IntegerField(default=0)
     streak = models.IntegerField(default=0)
     best_streak = models.IntegerField(default=0)
     last_activity = models.DateField(null=True, blank=True)
 
-    # --- Denormalized counters (updated via signals, O(1) reads) ---
+    # Denormalized counters (updated via signals, O(1) reads)
     total_solutions = models.IntegerField(default=0)
     total_comments = models.IntegerField(default=0)
     total_upvotes_received = models.IntegerField(default=0)
@@ -25,7 +25,7 @@ class Profile(models.Model):
     suggestions_approved = models.IntegerField(default=0)
     ai_verified_count = models.IntegerField(default=0)
 
-    # --- Computed scores (updated via services) ---
+    # Computed scores (updated via services)
     reputation_score = models.FloatField(default=0.0)   # 0-100
     community_rank = models.IntegerField(default=0)
     percentile = models.FloatField(default=0.0)

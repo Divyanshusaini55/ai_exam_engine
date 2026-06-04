@@ -8,11 +8,6 @@ logger = logging.getLogger('quiz.ai.aggregation_engine')
 class AggregationEngine:
     @staticmethod
     def aggregate(analyzed_questions: list) -> dict:
-        """
-        STEP 3: Aggregator
-        Consolidates subjects, concepts, formulas, patterns, and difficulty levels into a single JSON package,
-        including direct question citations and examples.
-        """
         total = len(analyzed_questions)
         if total == 0:
             return {}

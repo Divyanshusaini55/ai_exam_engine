@@ -262,7 +262,6 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class ContactMessageSerializer(serializers.ModelSerializer):
-    """Serializer for contact form messages"""
     class Meta:
         model = ContactMessage
         fields = ['id', 'name', 'email', 'message', 'status', 'created_at']
@@ -320,31 +319,23 @@ class TopicResourceSerializer(serializers.ModelSerializer):
             'resource_type_display',
             'content_format',
             'content_format_display',
-            # Content (all three fields — frontend picks the right one based on content_format)
             'markdown_content',
             'html_content',
             'latex_content',
             'external_url',
-            # Media
             'thumbnail_url',
-            # Metadata
             'estimated_read_minutes',
             'difficulty',
             'difficulty_display',
             'order',
-            # State
             'is_featured',
             'is_published',
             'is_ai_generated',
             'ai_summary',
-            # User state (computed)
             'is_bookmarked',
             'is_completed',
-            # Analytics
             'view_count',
-            # Relations
             'tags',
-            # Timestamps
             'created_at',
             'updated_at',
         ]
@@ -371,7 +362,6 @@ class TopicResourceSerializer(serializers.ModelSerializer):
 
 
 class TopicResourceListSerializer(serializers.ModelSerializer):
-    """Lightweight serializer for list views — omits heavy content fields."""
     tags = ResourceTagSerializer(many=True, read_only=True)
     is_bookmarked = serializers.SerializerMethodField()
     is_completed = serializers.SerializerMethodField()
@@ -429,7 +419,6 @@ class RoadmapTopicSerializer(serializers.ModelSerializer):
         return 'pending'
 
     def get_topic_resources(self, obj):
-        """Return published resources for this topic (list view — no heavy content)."""
         qs = obj.topic_resources.filter(is_published=True).order_by('order', 'created_at')
         return TopicResourceListSerializer(qs, many=True, context=self.context).data
 

@@ -11,9 +11,6 @@ class RoadmapEngine:
         self.client = GeminiClient()
 
     def extract_and_clean_pdf(self, pdf_path: str) -> str:
-        """
-        Stage 1 & 2: PDF Extraction & Text Cleaning
-        """
         logger.info(f"Extracting text from PDF syllabus: {pdf_path}")
         text = ""
         try:
@@ -34,9 +31,6 @@ class RoadmapEngine:
         return text.strip()
 
     def parse_syllabus(self, subcategory_name: str, syllabus_text: str = None) -> dict:
-        """
-        Stage 3, 4 & 5: AI Syllabus Parser + Knowledge Graph Builder
-        """
         if syllabus_text:
             logger.info(f"Generating question-grounded syllabus roadmap from PDF text for {subcategory_name}")
             prompt = f"""

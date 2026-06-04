@@ -5,7 +5,6 @@ from .models import BackgroundJob, Status, Priority
 
 
 def _status_badge(status):
-    """Coloured pill badge for job status."""
     COLOURS = {
         Status.QUEUED:    ('#A16207', '#FEF9C3'),   # amber
         Status.RUNNING:   ('#1D4ED8', '#DBEAFE'),   # blue
@@ -23,7 +22,6 @@ def _status_badge(status):
 
 
 def _priority_badge(priority):
-    """Coloured pill badge for job priority."""
     COLOURS = {
         Priority.LOW:      ('#64748B', '#F1F5F9'),
         Priority.NORMAL:   ('#1D4ED8', '#DBEAFE'),
@@ -41,7 +39,6 @@ def _priority_badge(priority):
 
 
 def _progress_bar(progress):
-    """Inline CSS progress bar for list display."""
     colour = '#15803D' if progress >= 100 else '#3B82F6'
     return format_html(
         '<div style="background:#E2E8F0;border-radius:6px;width:100px;height:14px;'
@@ -55,7 +52,6 @@ def _progress_bar(progress):
 
 @admin.register(BackgroundJob)
 class BackgroundJobAdmin(admin.ModelAdmin):
-    # ── List view ─────────────────────────────────────────────────────
     list_display = (
         'short_id',
         'type',
@@ -74,7 +70,6 @@ class BackgroundJobAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     ordering = ('-created_at',)
 
-    # ── Detail view ───────────────────────────────────────────────────
     readonly_fields = (
         'id', 'payload', 'result', 'error',
         'created_at', 'started_at', 'completed_at',
@@ -98,11 +93,8 @@ class BackgroundJobAdmin(admin.ModelAdmin):
         }),
     )
 
-    # ── Custom columns ────────────────────────────────────────────────
-
     @admin.display(description='ID', ordering='id')
     def short_id(self, obj):
-        """Display first 8 chars of UUID for readability."""
         return format_html(
             '<code style="font-size:12px;color:#475569;">{}</code>',
             str(obj.id)[:8],

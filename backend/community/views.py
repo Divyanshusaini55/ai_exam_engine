@@ -19,7 +19,7 @@ from .serializers import (
 )
 
 
-# ─── Existing ViewSets (unchanged) ────────────────────────────────────────────
+#Existing ViewSets
 
 class ProfileViewSet(viewsets.ModelViewSet):
     serializer_class = ProfileSerializer
@@ -97,7 +97,6 @@ class SolutionViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-        # XP is handled in signals
 
     @action(detail=True, methods=['post', 'delete'])
     def upvote(self, request, pk=None):
@@ -123,10 +122,8 @@ class SolutionViewSet(viewsets.ModelViewSet):
             else:
                 return Response({'detail': 'Not upvoted yet'}, status=400)
                 
-        # Reload solution from DB to get the actual upvotes count after F expression
         solution.refresh_from_db()
                 
-        # Award XP to solution author
         from .services import award_xp
         profile, _ = Profile.objects.get_or_create(user=solution.user)
         profile.total_upvotes_received = Solution.objects.filter(user=solution.user).aggregate(t=Sum('upvotes'))['t'] or 0
@@ -188,7 +185,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
         return Response({'status': 'read'})
 
 
-# ─── Utility Functions ────────────────────────────────────────────────────────
+# Utility Functions 
 
 def get_activity_heatmap(user, days=365):
     from django.db.models.functions import TruncDate
@@ -220,7 +217,7 @@ def get_activity_heatmap(user, days=365):
         })
     return heatmap_activity
 
-# ─── Contributor Analytics Views ──────────────────────────────────────────────
+# Contributor Analytics Views 
 
 class CommunityOverviewView(APIView):
     """GET /api/community/contributors/ — global community stats."""
@@ -247,7 +244,6 @@ class MyStatsView(APIView):
         avg_score    = ExamAttempt.objects.filter(user=request.user, is_completed=True).aggregate(a=Avg('percentage'))['a'] or 0
         roadmap_done = UserTopicProgress.objects.filter(user=request.user, status='done').count()
 
-        # 7-day activity chart
         today = timezone.now().date()
         weekly = []
         for i in range(6, -1, -1):
@@ -256,8 +252,6 @@ class MyStatsView(APIView):
                 user=request.user, created_at__date=day
             ).count()
             weekly.append({'day': day.strftime('%a'), 'date': day.isoformat(), 'contributions': cnt})
-
-        # Full year heatmap activity
         heatmap_activity = get_activity_heatmap(request.user)
 
         badges = UserBadge.objects.filter(user=request.user).select_related('badge')
@@ -298,7 +292,6 @@ class MyStatsView(APIView):
 
 
 class TopContributorsView(APIView):
-    """GET /api/community/contributors/top/?page=1&per_page=10"""
     permission_classes = [AllowAny]
 
     def get(self, request):
@@ -344,7 +337,6 @@ class TopContributorsView(APIView):
 
 
 class ActivityFeedView(APIView):
-    """GET /api/community/contributors/activity/?page=1"""
     permission_classes = [AllowAny]
 
     def get(self, request):
@@ -378,7 +370,6 @@ class ActivityFeedView(APIView):
 
 
 class CategoryLeaderboardView(APIView):
-    """GET /api/community/contributors/leaderboard/?days=30"""
     permission_classes = [AllowAny]
 
     def get(self, request):
@@ -388,7 +379,6 @@ class CategoryLeaderboardView(APIView):
 
 
 class BadgesListView(APIView):
-    """GET /api/community/contributors/badges/ — all badges + earned status."""
     permission_classes = [AllowAny]
 
     def get(self, request):
@@ -414,7 +404,6 @@ class BadgesListView(APIView):
 
 
 class ContributorProfileView(APIView):
-    """GET /api/community/contributors/profile/<username>/"""
     permission_classes = [AllowAny]
 
     def get(self, request, username):

@@ -1,11 +1,4 @@
 """
-BackgroundJob — generic job lifecycle model.
-
-This model tracks the state of any asynchronous unit of work in the
-system.  It is executor-agnostic: Celery tasks, management commands,
-or any other mechanism can drive the lifecycle through the service
-functions in ``jobs.services``.
-
 State machine:
 
     QUEUED ──→ RUNNING ──→ COMPLETED
@@ -37,19 +30,14 @@ class Status(models.TextChoices):
     COMPLETED = 'COMPLETED', 'Completed'
     CANCELLED = 'CANCELLED', 'Cancelled'
 
-
-# Which status values represent a terminal (irreversible) state.
 TERMINAL_STATUSES = frozenset({
     Status.COMPLETED,
     Status.FAILED,
     Status.CANCELLED,
 })
-
-# Allowed transitions: current_status → set of valid target statuses.
 VALID_TRANSITIONS = {
     Status.QUEUED: {Status.RUNNING, Status.CANCELLED},
     Status.RUNNING: {Status.COMPLETED, Status.FAILED, Status.CANCELLED},
-    # Terminal states cannot transition anywhere.
     Status.COMPLETED: set(),
     Status.FAILED: set(),
     Status.CANCELLED: set(),
@@ -57,15 +45,6 @@ VALID_TRANSITIONS = {
 
 
 class BackgroundJob(models.Model):
-    """
-    A single tracked unit of asynchronous work.
-
-    Create via ``jobs.services.create_job()``.
-    Drive lifecycle via ``start_job``, ``update_progress``,
-    ``complete_job``, ``fail_job``, ``cancel_job``.
-    """
-
-    # ── Identity ──────────────────────────────────────────────────────
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
@@ -84,8 +63,6 @@ class BackgroundJob(models.Model):
         default=Priority.NORMAL,
         help_text='Job priority.  Higher value = more urgent.',
     )
-
-    # ── Ownership ─────────────────────────────────────────────────────
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -94,8 +71,6 @@ class BackgroundJob(models.Model):
         related_name='background_jobs',
         help_text='User who initiated the job.  NULL for system jobs.',
     )
-
-    # ── Lifecycle ─────────────────────────────────────────────────────
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
@@ -112,8 +87,6 @@ class BackgroundJob(models.Model):
         default=0,
         help_text='Completion percentage, 0–100.',
     )
-
-    # ── Data ──────────────────────────────────────────────────────────
     payload = models.JSONField(
         default=dict,
         blank=True,
@@ -135,13 +108,11 @@ class BackgroundJob(models.Model):
         help_text='Error message and traceback on failure.',
     )
 
-    # ── Retry tracking ────────────────────────────────────────────────
     retries = models.IntegerField(
         default=0,
         help_text='Number of retry attempts executed so far.',
     )
 
-    # ── Timestamps ────────────────────────────────────────────────────
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     started_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
@@ -157,19 +128,15 @@ class BackgroundJob(models.Model):
             models.Index(fields=['status', 'created_at'], name='jobs_status_created_idx'),
         ]
 
-    # ── Computed helpers ──────────────────────────────────────────────
-
     @property
     def is_terminal(self):
-        """True if the job has reached a final state."""
         return self.status in TERMINAL_STATUSES
 
     @property
     def duration_seconds(self):
-        """Wall-clock duration in seconds, or None if not yet started."""
         if not self.started_at:
             return None
-        end = self.completed_at or self.started_at  # still running → 0
+        end = self.completed_at or self.started_at 
         return (end - self.started_at).total_seconds()
 
     def __str__(self):

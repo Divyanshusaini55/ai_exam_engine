@@ -1,18 +1,14 @@
 
 from pathlib import Path
 import os
-from dotenv import load_dotenv # Make sure to install this package
+from dotenv import load_dotenv
 import dj_database_url
 from kombu import Queue
 
-# Load environment variables from a .env file located in the base directory
 if not os.environ.get('RUNNING_IN_DOCKER'):
     load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-this-in-production')
 
@@ -25,34 +21,30 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(','
 # Application definition
 
 INSTALLED_APPS = [
-    'jazzmin',  # Must be before django.contrib.admin
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Third party apps
     'rest_framework',
     'rest_framework.authtoken',  
     'corsheaders',
-    # Local apps
-    'core',  # Required for management commands
+    'core',
     'quiz',
     'community',
     'health',
     'jobs',
-    # Async infrastructure
     'django_celery_beat',
-    # OpenAPI
     'drf_spectacular',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # For serving static files in production
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware', # CORS middleware must be high up
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -80,9 +72,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-
-# Database
-# Use PostgreSQL in production via DATABASE_URL, SQLite for local development
 if os.environ.get('DATABASE_URL'):
     DATABASES = {
         'default': dj_database_url.config(
@@ -92,7 +81,6 @@ if os.environ.get('DATABASE_URL'):
         )
     }
 else:
-    # Default SQLite for local development
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -121,15 +109,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
-USE_I18N = False  # Disabled: avoids corrupt gettext .mo file on macOS Python 3.9
+USE_I18N = False
 USE_TZ = True
-
-
-
-# Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
@@ -198,16 +181,13 @@ LOGGING = {
     },
 }
 
-# Media files (For PDF Uploads)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
-# Handles both redis:// and rediss:// (TLS, e.g. Upstash).
+
 def _redis_db_url(base_url, db_number):
-    """Replace the trailing /N in a redis URL with /db_number."""
-    # Strip trailing slash and db number if present
     if base_url.rstrip('/').split('/')[-1].isdigit():
         base_url = '/'.join(base_url.rstrip('/').split('/')[:-1])
     return f'{base_url.rstrip("/")}/{db_number}'
@@ -231,7 +211,7 @@ CACHES = {
             },
         },
         'KEY_PREFIX': 'exam_engine',
-        'TIMEOUT': 300,  # Default TTL: 5 minutes
+        'TIMEOUT': 300,
     }
 }
 
@@ -297,31 +277,21 @@ CELERY_TASK_ANNOTATIONS = {
 }
 
 
-# Task discovery — Celery will also look in tasks/ via core/celery.py
 CELERY_TASK_ALWAYS_EAGER = os.environ.get('CELERY_TASK_ALWAYS_EAGER', 'False') == 'True'
 CELERY_TASK_EAGER_PROPAGATES = True
 
-# Worker
-CELERY_WORKER_MAX_TASKS_PER_CHILD = 1000  # Recycle workers to avoid memory leaks
-CELERY_WORKER_HIJACK_ROOT_LOGGER = False  # Use our own logging config
+CELERY_WORKER_MAX_TASKS_PER_CHILD = 1000
+CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 
-# Flower (monitoring)
 CELERY_FLOWER_PORT = int(os.environ.get('FLOWER_PORT', 5555))
 
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# CORS settings - configured via environment variable
-# For local development, defaults to localhost:3000
-# For production, set CORS_ALLOWED_ORIGINS env var to your frontend URLs (comma-separated)
-# CORS settings
 cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000')
 CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_origins.split(',')]
 CORS_ALLOW_CREDENTIALS = True
 
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
-# CSRF settings - Django 4.0+ requires trusted origins for cross-origin POST requests
 CSRF_TRUSTED_ORIGINS = [
     'https://ai-exam-engine.vercel.app',
     'http://localhost:3000',
@@ -329,10 +299,8 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.run.app', 
 ] + CORS_ALLOWED_ORIGINS
 
-# Only allow all origins in development
-CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only True when DEBUG=True
+CORS_ALLOW_ALL_ORIGINS = DEBUG
 
-# REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -362,13 +330,9 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
 }
 
-
-# Get key from .env file. Do NOT provide a fallback value here.
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 
 if not GEMINI_API_KEY:
-    # This ensures the server won't start if the key is missing,
-    # preventing silent failures later.
     raise ValueError(
         "GEMINI_API_KEY is missing from environment variables! "
         "Please create a .env file in the backend/ folder and add your key."
@@ -379,7 +343,6 @@ GEMINI_SUMMARY_MODEL = os.environ.get('GEMINI_SUMMARY_MODEL', 'models/gemini-2.5
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 20000
 
 JAZZMIN_SETTINGS = {
-    # ---- Branding ----
     'site_title': 'Aspirant AI',
     'site_header': 'Aspirant AI',
     'site_brand': 'Aspirant AI',
@@ -388,26 +351,20 @@ JAZZMIN_SETTINGS = {
     'site_icon': 'admin/img/logo.png',
     'welcome_sign': 'Welcome to Aspirant AI Control Center',
     'copyright': 'Aspirant AI — Internal Dashboard',
-
-    # ---- Search ----
+    
     'search_model': ['quiz.Exam', 'quiz.Question', 'auth.User'],
 
-    # ---- User Avatar ----
     'user_avatar': None,
 
-    # ---- Topbar ----
     'topmenu_links': [
         {'name': 'Platform', 'url': 'http://localhost:3000', 'new_window': True, 'icon': 'fas fa-external-link-alt'},
         {'name': 'API Docs', 'url': '/api/', 'new_window': True, 'icon': 'fas fa-code'},
         {'model': 'auth.User'},
     ],
 
-    # ---- User Menu ----
     'usermenu_links': [
         {'name': 'Platform', 'url': 'http://localhost:3000', 'new_window': True, 'icon': 'fas fa-external-link-alt'},
     ],
-
-    # ---- Sidebar ----
     'show_sidebar': True,
     'navigation_expanded': True,
     'hide_apps': [],
@@ -448,14 +405,12 @@ JAZZMIN_SETTINGS = {
     'default_icon_parents': 'fas fa-chevron-circle-right',
     'default_icon_children': 'fas fa-circle',
 
-    # ---- UI ----
     'related_modal_active': True,
     'custom_css': 'admin/css/custom_admin.css',
     'custom_js': None,
     'use_google_fonts_cdn': True,
     'show_ui_builder': False,
 
-    # ---- Change view ----
     'changeform_format': 'horizontal_tabs',
     'changeform_format_overrides': {
         'auth.user': 'collapsible',
@@ -495,7 +450,6 @@ JAZZMIN_UI_TWEAKS = {
     },
 }
 
-# Email Backend for Development (Prints to Console)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1025
@@ -504,18 +458,14 @@ EMAIL_HOST_PASSWORD = ''
 EMAIL_USE_TLS = False
 DEFAULT_FROM_EMAIL = 'noreply@examplatform.com'
 
-# Production Security Settings (Only active when DEBUG=False)
 if not DEBUG:
-    # Tell Django that we are behind a proxy that handles SSL (Render/Heroku/etc)
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     
     SECURE_SSL_REDIRECT = True
     
-    # Cookie Security for Cross-Site (Vercel <-> Render)
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     
-    # CRITICAL: Allow cookies to be sent in cross-site requests
     SESSION_COOKIE_SAMESITE = 'None'
     CSRF_COOKIE_SAMESITE = 'None'
     

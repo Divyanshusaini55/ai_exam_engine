@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from .models import Profile, Solution, Comment, ContributorActivity
 
 
-# ─── Auto-create Profile ──────────────────────────────────────────────────────
+# Auto-create Profile
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
@@ -18,7 +18,7 @@ def save_user_profile(sender, instance, **kwargs):
         instance.profile.save()
 
 
-# ─── Solution ─────────────────────────────────────────────────────────────────
+# Solution
 @receiver(post_save, sender=Solution)
 def on_solution_saved(sender, instance, created, **kwargs):
     if not created:
@@ -46,7 +46,7 @@ def on_solution_saved(sender, instance, created, **kwargs):
     )
 
 
-# ─── Comment ──────────────────────────────────────────────────────────────────
+# Comment
 @receiver(post_save, sender=Comment)
 def on_comment_saved(sender, instance, created, **kwargs):
     if not created:
@@ -68,7 +68,7 @@ def on_comment_saved(sender, instance, created, **kwargs):
     )
 
 
-# ─── QuestionPaperUpload ──────────────────────────────────────────────────────
+# QuestionPaperUpload
 def connect_upload_signal():
     from quiz.models import QuestionPaperUpload
 
@@ -97,7 +97,7 @@ def connect_upload_signal():
         )
 
 
-# ─── CorrectionSuggestion ─────────────────────────────────────────────────────
+# CorrectionSuggestion
 def connect_suggestion_signal():
     from quiz.models import CorrectionSuggestion
 
@@ -125,7 +125,7 @@ def connect_suggestion_signal():
         )
 
 
-# ─── ExamAttempt ──────────────────────────────────────────────────────────────
+# ExamAttempt
 def connect_exam_result_signal():
     from quiz.models import ExamAttempt
 
@@ -161,7 +161,7 @@ def connect_exam_result_signal():
         )
 
 
-# ─── UserTopicProgress ────────────────────────────────────────────────────────
+# UserTopicProgress
 def connect_topic_progress_signal():
     from quiz.models import UserTopicProgress
 

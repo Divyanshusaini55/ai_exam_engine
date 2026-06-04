@@ -40,11 +40,10 @@ class ContributorActivityAdmin(admin.ModelAdmin):
     readonly_fields = ['user', 'activity_type', 'description', 'metadata', 'created_at']
 
     def has_add_permission(self, request):
-        return False  # Activities are auto-generated
+        return False  
 
     def has_change_permission(self, request, obj=None):
-        return False  # Read-only log
-
+        return False 
 
 @admin.register(Solution)
 class SolutionAdmin(admin.ModelAdmin):

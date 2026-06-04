@@ -8,16 +8,9 @@ from .ai import generate_explanation_for_question
 from .api_throttles import AIHeavyThrottle, AILightThrottle # We will extract throttles to api_throttles.py
 
 class SummaryMixin:
-    """
-    Mixin for ExamViewSet.
-    Handles AI summary generation and question explanations.
-    """
-
     @action(detail=True, methods=['get', 'post'], permission_classes=[IsAuthenticated], throttle_classes=[AIHeavyThrottle])
     def summary(self, request, pk=None):
         exam = self.get_object()
-        
-        # Check if force parameter is passed to regenerate summary
         force = request.data.get('force', False) or request.query_params.get('force', 'false').lower() == 'true'
         if exam.ai_summary and not force:
             return Response({'ai_summary': exam.ai_summary})
@@ -46,15 +39,10 @@ class SummaryMixin:
             return Response({'error': 'Question ID required'}, status=400)
             
         question = get_object_or_404(Question, id=question_id)
-        
-        # 1. Check if we already have it (Cache logic)
+    
         if question.explanation:
             return Response({'explanation': question.explanation})
-            
-        # 2. If not, generate it using AI
         explanation = generate_explanation_for_question(question)
-        
-        # 3. Save it for next time
         question.explanation = explanation
         question.save()
         

@@ -27,34 +27,19 @@ from django.core.cache import cache
 from jobs.exceptions import DuplicateJobError
 
 logger = logging.getLogger('tasks')
-
-# ─── Deduplication lock TTL (seconds) ─────────────────────────────────
-# Default: 10 minutes — should be longer than the longest expected task.
 DEFAULT_LOCK_TTL = 600
 
 
 class BaseTask(Task):
-    """
-    Abstract base for all project tasks.
-
-    Features:
-        • Automatic exponential backoff on retries
-        • Structured logging on start / success / failure
-        • Configurable max_retries via settings (default 3)
-    """
-
     abstract = True
-
-    # Defaults — can be overridden per-task with decorator kwargs
-    autoretry_for = ()                # We handle retries manually in task bodies
+    autoretry_for = ()               
     max_retries = 3
-    default_retry_delay = 60         # Seconds; exponential: 60 → 120 → 240
-    time_limit = 300                 # Hard kill after 5 minutes
-    soft_time_limit = 270            # Raise SoftTimeLimitExceeded after 4.5 min
-    acks_late = True                 # Re-deliver if worker dies mid-task
-    reject_on_worker_lost = True     # Reject (requeue) if worker is killed
+    default_retry_delay = 60       
+    time_limit = 300               
+    soft_time_limit = 270           
+    acks_late = True                 
+    reject_on_worker_lost = True     
 
-    # ── Lifecycle hooks ──────────────────────────────────────────────
 
     def before_start(self, task_id, args, kwargs):
         logger.info(
@@ -82,35 +67,11 @@ class BaseTask(Task):
             self.request.retries + 1, self.max_retries, exc,
         )
 
-
-# ─── Deduplication helpers ────────────────────────────────────────────
-
-
 def _lock_key(task_name, dedup_key):
-    """Build the Redis key for a deduplication lock."""
     return f'job_lock:{task_name}:{dedup_key}'
 
 
 def acquire_job_lock(task_name, dedup_key, job_id, ttl=DEFAULT_LOCK_TTL):
-    """
-    Attempt to acquire a Redis-based deduplication lock.
-
-    Uses ``SET key value NX EX ttl`` semantics:
-    - If the key does not exist → set it to *job_id* and return the lock key.
-    - If the key already exists → raise ``DuplicateJobError``.
-
-    Args:
-        task_name:  Fully-qualified Celery task name.
-        dedup_key:  Caller-defined deduplication key (e.g. exam_id, user+exam hash).
-        job_id:     The BackgroundJob UUID that owns this lock.
-        ttl:        Lock expiry in seconds (safety net for crashed workers).
-
-    Returns:
-        The lock key string (pass to ``release_job_lock``).
-
-    Raises:
-        DuplicateJobError: if a lock already exists for this task + dedup_key.
-    """
     key = _lock_key(task_name, dedup_key)
     acquired = cache.set(key, str(job_id), nx=True, timeout=ttl)
 
@@ -127,12 +88,6 @@ def acquire_job_lock(task_name, dedup_key, job_id, ttl=DEFAULT_LOCK_TTL):
 
 
 def release_job_lock(lock_key):
-    """
-    Release a previously acquired deduplication lock.
-
-    Always safe to call — silently does nothing if the lock has
-    already expired or been deleted.
-    """
     if lock_key:
         cache.delete(lock_key)
         logger.debug('Released lock %s', lock_key)

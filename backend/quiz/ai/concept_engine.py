@@ -5,12 +5,6 @@ logger = logging.getLogger('quiz.ai.concept_engine')
 class ConceptEngine:
     @staticmethod
     def clean_and_normalize(concepts_list: list) -> list:
-        """
-        Normalizes concept names:
-        - strips whitespaces
-        - capitalizes first letter
-        - deduplicates case-insensitively
-        """
         if not concepts_list:
             return []
 

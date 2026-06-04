@@ -6,9 +6,6 @@ logger = logging.getLogger('quiz.ai.formula_engine')
 class FormulaEngine:
     @staticmethod
     def clean_and_format(formulas_list: list) -> list:
-        """
-        Deduplicates formulas and ensures proper LaTeX formatting.
-        """
         if not formulas_list:
             return []
 
@@ -20,9 +17,7 @@ class FormulaEngine:
                 continue
 
             form = formula.strip()
-            # If it doesn't start with standard LaTeX math block marker ($), wrap it if it looks mathematical
             if re.search(r'[+\-*/=^_\\]', form) and not (form.startswith('$') and form.endswith('$')):
-                # Ensure correct LaTeX escaping inside f-string
                 form = f"${form}$"
 
             form_lower = form.lower()
