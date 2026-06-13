@@ -45,3 +45,8 @@ env/
 *.pdf
 backend/test_*.py
 backend/update_db.py
+
+backend/make_logo.py
+backend/pib.html
+pib_test.png
+question_fromat.json
