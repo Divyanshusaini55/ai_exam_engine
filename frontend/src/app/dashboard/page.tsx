@@ -34,6 +34,7 @@ interface DashboardStats {
     total_tests: number
     average_score: number
     tests_passed: number
+    total_study_seconds: number
     recent_activities: Activity[]
 }
 
@@ -45,6 +46,7 @@ export default function DashboardPage() {
         total_tests: 0,
         average_score: 0,
         tests_passed: 0,
+        total_study_seconds: 0,
         recent_activities: []
     })
     const [isLoadingStats, setIsLoadingStats] = useState(true)
@@ -87,6 +89,14 @@ export default function DashboardPage() {
     const successRate = stats.total_tests > 0
         ? Math.round((stats.tests_passed / stats.total_tests) * 100)
         : 0
+
+    const formatStudyTime = (totalSeconds: number) => {
+        if (totalSeconds <= 0) return '0m'
+        const hours = Math.floor(totalSeconds / 3600)
+        const minutes = Math.floor((totalSeconds % 3600) / 60)
+        if (hours > 0) return `${hours}h ${minutes > 0 ? `${minutes}m` : ''}`
+        return `${minutes}m`
+    }
 
     const formatTakenDate = (dateString: string) => {
         const date = new Date(dateString)
@@ -135,7 +145,7 @@ export default function DashboardPage() {
                         { label: "Tests Taken", value: stats.total_tests, icon: GraduationCap, delay: 0.1, badge: "All Time" },
                         { label: "Avg. Score",  value: `${stats.average_score}%`, icon: BarChart3, delay: 0.2 },
                         { label: "Success Rate", value: `${successRate}%`, icon: CheckCircle2, delay: 0.3 },
-                        { label: "Study Time",  value: "12h", icon: Clock, delay: 0.4 },
+                        { label: "Study Time",  value: formatStudyTime(stats.total_study_seconds), icon: Clock, delay: 0.4 },
                     ].map((stat) => {
                         const Icon = stat.icon
                         return (
@@ -260,7 +270,7 @@ export default function DashboardPage() {
                         <div className="card-premium p-6 rounded-3xl">
                             <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">Quick Actions</h3>
                             <div className="space-y-1">
-                                <Link prefetch={false} href="/profile"
+                                <Link prefetch={false} href="/settings"
                                     className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-secondary text-muted-foreground hover:text-primary transition-all duration-200 group font-medium">
                                     <CircleUserRound className="size-5 group-hover:text-primary transition-colors" />
                                     Edit Profile

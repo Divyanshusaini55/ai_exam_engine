@@ -14,7 +14,13 @@ router.register(r'notifications', NotificationViewSet, basename='notification')
 
 urlpatterns = [
     path('', include(router.urls)),
-
+    
+    # Settings endpoints
+    path('settings/', include([
+        path('', __import__('community.views_settings', fromlist=['SettingsView']).SettingsView.as_view(), name='settings-main'),
+        path('export/', __import__('community.views_settings', fromlist=['ExportDataView']).ExportDataView.as_view(), name='settings-export'),
+        path('delete-account/', __import__('community.views_settings', fromlist=['DeleteAccountView']).DeleteAccountView.as_view(), name='settings-delete-account'),
+    ])),
     # Contributor analytics endpoints
     path('contributors/',                          CommunityOverviewView.as_view(),      name='contributors-overview'),
     path('contributors/stats/me/',                 MyStatsView.as_view(),                name='contributors-my-stats'),

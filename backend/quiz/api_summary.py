@@ -40,10 +40,13 @@ class SummaryMixin:
             
         question = get_object_or_404(Question, id=question_id)
     
-        if question.explanation:
+        if question.explanation and question.explanation != "Explanation could not be generated at this time.":
             return Response({'explanation': question.explanation})
+            
         explanation = generate_explanation_for_question(question)
-        question.explanation = explanation
-        question.save()
         
+        if explanation != "Explanation could not be generated at this time.":
+            question.explanation = explanation
+            question.save()
+            
         return Response({'explanation': explanation})

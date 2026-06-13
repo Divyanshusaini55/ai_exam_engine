@@ -671,6 +671,10 @@ input[readonly], textarea[readonly], .form-control[readonly] {
     padding: 6px !important;
     min-width: 180px !important;
 }
+.main-header .dropdown-menu {
+    right: 0 !important;
+    left: auto !important;
+}
 .dropdown-menu .dropdown-header {
     color: rgba(255,255,255,0.5) !important;
     font-size: 11px !important;
@@ -760,4 +764,14 @@ table a,
   color: #111111 !important;
 }
 
-
+/* =============================================
+   LOGIN PAGE FIXES
+   ============================================= */
+.login-logo img,
+.login-box img {
+    max-height: 120px !important;
+    max-width: 100% !important;
+    width: auto !important;
+    margin: 0 auto !important;
+    display: block !important;
+}

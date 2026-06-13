@@ -69,12 +69,10 @@ export function MobileQuestionNavigator({
                         buttonStyle = "bg-success/10 text-success border-success/20"
                     } else if (mode === 'exam' && isSkipped) {
                         buttonStyle = "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20"
-                    } else if (mode === 'learning') {
-                        if (isReview) {
-                            buttonStyle = "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20"
-                        } else if (isBookmarked) {
-                            buttonStyle = "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20"
-                        }
+                    } else if (isReview) {
+                        buttonStyle = "bg-indigo-500/10 dark:bg-white/10 text-indigo-600 dark:text-white border-indigo-500/20 dark:border-white/20"
+                    } else if (isBookmarked) {
+                        buttonStyle = "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20"
                     }
 
                     // Accessibility label
@@ -98,11 +96,11 @@ export function MobileQuestionNavigator({
                             {(isAnswered || isCurrent) && !isReview && !isBookmarked && (
                                 <span className={`absolute -top-1 left-1/2 -translate-x-1/2 size-1.5 rounded-full ${isCurrent ? (isAnswered ? 'bg-success' : 'bg-primary') : 'bg-success'}`} aria-hidden="true"></span>
                             )}
-                            {isBookmarked && mode === 'learning' && (
+                            {isBookmarked && (
                                 <span className="absolute -top-1 -right-1 size-2 rounded-full bg-yellow-500" title="Bookmarked"></span>
                             )}
-                            {isReview && mode === 'learning' && (
-                                <span className="absolute -bottom-1 -right-1 size-2 rounded-full bg-indigo-500" title="Review"></span>
+                            {isReview && (
+                                <span className="absolute -bottom-1 -right-1 size-2 rounded-full bg-indigo-500 dark:bg-white" title="Review"></span>
                             )}
                         </button>
                     )
@@ -116,28 +114,23 @@ export function MobileQuestionNavigator({
                     <span>Current</span>
                 </div>
                 <div className="flex items-center gap-1">
-                    <div className="size-2.5 rounded-full bg-success/10 border border-success/20 flex items-center justify-center">
-                        <span className="size-1 rounded-full bg-success"></span>
-                    </div>
+                    <span className="size-2.5 rounded-full bg-success"></span>
                     <span>Done</span>
                 </div>
-                {mode === 'exam' ? (
+                {mode === 'exam' && (
                     <div className="flex items-center gap-1">
-                        <span className="size-2.5 rounded-full bg-orange-500/10 border border-orange-500/20"></span>
+                        <span className="size-2.5 rounded-full bg-orange-500"></span>
                         <span>Skipped</span>
                     </div>
-                ) : (
-                    <>
-                        <div className="flex items-center gap-1">
-                            <span className="size-2.5 rounded-full bg-indigo-500/10 border border-indigo-500/20"></span>
-                            <span>Review</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                            <span className="size-2.5 rounded-full bg-yellow-500/10 border border-yellow-500/20"></span>
-                            <span>Bookmarked</span>
-                        </div>
-                    </>
                 )}
+                <div className="flex items-center gap-1">
+                    <span className="size-2.5 rounded-full bg-indigo-500 dark:bg-white"></span>
+                    <span>Review</span>
+                </div>
+                <div className="flex items-center gap-1">
+                    <span className="size-2.5 rounded-full bg-yellow-500"></span>
+                    <span>Bookmarked</span>
+                </div>
                 <div className="flex items-center gap-1">
                     <span className="size-2.5 rounded-full bg-background border border-border"></span>
                     <span>Unvisited</span>

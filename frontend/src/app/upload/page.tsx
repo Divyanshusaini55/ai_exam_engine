@@ -17,9 +17,9 @@ import { examApi } from "@/lib/api"
 import { cn } from "@/lib/utils"
 
 export default function UploadPage() {
-    const [exams, setExams] = useState<any[]>([])
+    const [categories, setCategories] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
-    const [selectedExam, setSelectedExam] = useState("")
+    const [selectedCategory, setSelectedCategory] = useState("")
     const [selectedSubject, setSelectedSubject] = useState("")
     const [examDate, setExamDate] = useState("")
     const [file, setFile] = useState<File | null>(null)
@@ -28,18 +28,18 @@ export default function UploadPage() {
     const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null)
 
     useEffect(() => {
-        async function fetchExams() {
+        async function fetchCategories() {
             try {
-                const res = await examApi.list()
+                const res = await examApi.getCategories()
                 const data = Array.isArray(res.data) ? res.data : res.data.results || []
-                setExams(data)
+                setCategories(data)
             } catch (err) {
-                console.error("Failed to fetch exams", err)
+                console.error("Failed to fetch categories", err)
             } finally {
                 setLoading(false)
             }
         }
-        fetchExams()
+        fetchCategories()
     }, [])
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,7 +69,7 @@ export default function UploadPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!selectedExam || !selectedSubject || !examDate || !file) {
+        if (!selectedCategory || !selectedSubject || !examDate || !file) {
             setStatus({ type: 'error', message: 'Please fill in all required fields.' })
             return
         }
@@ -78,7 +78,7 @@ export default function UploadPage() {
         setStatus(null)
 
         const formData = new FormData()
-        formData.append('exam', selectedExam)
+        formData.append('category', selectedCategory)
         formData.append('subject', selectedSubject)
         formData.append('exam_date', examDate)
         formData.append('file', file)
@@ -87,7 +87,7 @@ export default function UploadPage() {
             await examApi.uploadPaper(formData)
             setStatus({ type: 'success', message: 'Question paper uploaded successfully! It is now under review.' })
             // Reset form
-            setSelectedExam("")
+            setSelectedCategory("")
             setSelectedSubject("")
             setExamDate("")
             setFile(null)
@@ -139,18 +139,18 @@ export default function UploadPage() {
                                     {/* Exam Select */}
                                     <div className="space-y-2">
                                         <label className="text-[13px] font-bold text-primary uppercase tracking-widest ml-1">
-                                            Exam <span className="text-destructive">*</span>
+                                            Category <span className="text-destructive">*</span>
                                         </label>
                                         <div className="relative group">
                                             <select 
-                                                value={selectedExam}
-                                                onChange={(e) => setSelectedExam(e.target.value)}
+                                                value={selectedCategory}
+                                                onChange={(e) => setSelectedCategory(e.target.value)}
                                                 className="w-full appearance-none bg-secondary/30 border border-border rounded-xl px-4 py-3.5 text-sm font-medium text-primary focus:ring-2 focus:ring-primary/5 outline-none cursor-pointer transition-all hover:bg-secondary/50 pr-12"
                                                 required
                                             >
-                                                <option value="" disabled>Select exam</option>
-                                                {exams.map(exam => (
-                                                    <option key={exam.id} value={exam.id}>{exam.title}</option>
+                                                <option value="" disabled>Select category</option>
+                                                {categories.map(cat => (
+                                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
                                                 ))}
                                             </select>
                                             <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none group-hover:text-primary transition-colors" />
@@ -160,12 +160,12 @@ export default function UploadPage() {
                                     {/* Subject Select */}
                                     <div className="space-y-2">
                                         <label className="text-[13px] font-bold text-primary uppercase tracking-widest ml-1">
-                                            Subject <span className="text-destructive">*</span>
+                                            Exam Name <span className="text-destructive">*</span>
                                         </label>
                                         <div className="relative group">
                                             <input 
                                                 type="text"
-                                                placeholder="e.g. Mathematics, History..."
+                                                placeholder="e.g. SSC CGL, NTPC ..."
                                                 value={selectedSubject}
                                                 onChange={(e) => setSelectedSubject(e.target.value)}
                                                 className="w-full bg-secondary/30 border border-border rounded-xl px-4 py-3.5 text-sm font-medium text-primary focus:ring-2 focus:ring-primary/5 outline-none transition-all hover:bg-secondary/50 pr-12"
@@ -280,10 +280,10 @@ export default function UploadPage() {
 
                             <ul className="space-y-6">
                                 {[
-                                    { text: "Upload only subject-specific question papers", icon: CheckCircle2 },
+                                    { text: "Upload only exam-specific question papers", icon: CheckCircle2 },
                                     { text: "Ensure the PDF is complete and not corrupted", icon: CheckCircle2 },
-                                    { text: "Select the correct exam and subject to help us categorize it", icon: CheckCircle2 },
-                                    { text: "PDF should follow latest format from Dec 2025", icon: CheckCircle2 },
+                                    { text: "Select the correct category and exam to help us categorize it", icon: CheckCircle2 },
+                                    { text: "PDF should follow latest format", icon: CheckCircle2 },
                                 ].map((item, i) => (
                                     <li key={i} className="flex items-start gap-4 group">
                                         <item.icon className="size-5 text-success shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
@@ -302,7 +302,7 @@ export default function UploadPage() {
 
                             <div className="mt-10 pt-6 border-t border-border">
                                 <p className="text-[13px] text-muted-foreground font-medium italic leading-relaxed">
-                                    Your submission will be reviewed by our team. Once approved, the questions will be available for practice.
+                                    Your submission will be reviewed. The questions will be available for practice.
                                 </p>
                             </div>
                         </div>

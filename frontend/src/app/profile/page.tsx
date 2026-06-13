@@ -291,7 +291,14 @@ export default function ProfilePage() {
                         </div>
 
                         {/* Manage Account Link */}
-                        <div className="mt-2">
+                        <div className="mt-2 space-y-2">
+                            <button 
+                                onClick={() => router.push('/settings')}
+                                className="w-full py-4 rounded-[20px] border border-border bg-card text-muted-foreground text-sm font-bold hover:bg-secondary hover:text-primary transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm"
+                            >
+                                <Settings className="size-4" />
+                                Settings
+                            </button>
                             <button 
                                 onClick={logout}
                                 className="w-full py-4 rounded-[20px] border border-border bg-card text-muted-foreground text-sm font-bold hover:bg-secondary hover:text-destructive transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm"

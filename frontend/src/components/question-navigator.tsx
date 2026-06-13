@@ -94,14 +94,11 @@ export function QuestionNavigator({
                     </p>
                     <div className="flex gap-1">
                         <span className="size-2 rounded-full bg-success" title="Answered" />
-                        {mode === 'exam' ? (
+                        {mode === 'exam' && (
                             <span className="size-2 rounded-full bg-orange-500" title="Skipped" />
-                        ) : (
-                            <>
-                                <span className="size-2 rounded-full bg-indigo-500" title="Review" />
-                                <span className="size-2 rounded-full bg-yellow-500" title="Bookmarked" />
-                            </>
                         )}
+                        <span className="size-2 rounded-full bg-indigo-500 dark:bg-white" title="Review" />
+                        <span className="size-2 rounded-full bg-yellow-500" title="Bookmarked" />
                         <span className="size-2 rounded-full bg-muted" title="Not Visited" />
                     </div>
                 </div>
@@ -128,12 +125,10 @@ export function QuestionNavigator({
                             buttonStyle = "bg-success/10 text-success border-success/20 hover:bg-success/20"
                         } else if (mode === 'exam' && isSkipped) {
                             buttonStyle = "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20 hover:bg-orange-500/20"
-                        } else if (mode === 'learning') {
-                            if (isReview) {
-                                buttonStyle = "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20 hover:bg-indigo-500/20"
-                            } else if (isBookmarked) {
-                                buttonStyle = "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20 hover:bg-yellow-500/20"
-                            }
+                        } else if (isReview) {
+                            buttonStyle = "bg-indigo-500/10 dark:bg-white/10 text-indigo-600 dark:text-white border-indigo-500/20 dark:border-white/20 hover:bg-indigo-500/20 dark:hover:bg-white/20"
+                        } else if (isBookmarked) {
+                            buttonStyle = "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20 hover:bg-yellow-500/20"
                         }
 
                         return (
@@ -150,11 +145,11 @@ export function QuestionNavigator({
                                 {(isAnswered || isCurrent) && !isReview && !isBookmarked && (
                                     <span className={`absolute -top-1 left-1/2 -translate-x-1/2 size-1.5 rounded-full ${isCurrent ? (isAnswered ? 'bg-success' : 'bg-primary') : 'bg-success'}`}></span>
                                 )}
-                                {isBookmarked && mode === 'learning' && (
+                                {isBookmarked && (
                                     <span className="absolute -top-1 -right-1 size-2 rounded-full bg-yellow-500" title="Bookmarked"></span>
                                 )}
-                                {isReview && mode === 'learning' && (
-                                    <span className="absolute -bottom-1 -right-1 size-2 rounded-full bg-indigo-500" title="Review"></span>
+                                {isReview && (
+                                    <span className="absolute -bottom-1 -right-1 size-2 rounded-full bg-indigo-500 dark:bg-white" title="Review"></span>
                                 )}
                             </button>
                         )
@@ -168,24 +163,19 @@ export function QuestionNavigator({
                         <span className="size-3 rounded-full bg-primary"></span> Current
                     </div>
                     <div className="flex items-center gap-2">
-                        <span className="size-3 rounded-full bg-success/10 border border-success/20 flex items-center justify-center">
-                            <span className="size-1 rounded-full bg-success"></span>
-                        </span> Answered
+                        <span className="size-3 rounded-full bg-success"></span> Answered
                     </div>
-                    {mode === 'exam' ? (
+                    {mode === 'exam' && (
                         <div className="flex items-center gap-2">
-                            <span className="size-3 rounded-full bg-orange-500/10 border border-orange-500/20"></span> Skipped
+                            <span className="size-3 rounded-full bg-orange-500"></span> Skipped
                         </div>
-                    ) : (
-                        <>
-                            <div className="flex items-center gap-2">
-                                <span className="size-3 rounded-full bg-indigo-500/10 border border-indigo-500/20"></span> Review
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="size-3 rounded-full bg-yellow-500/10 border border-yellow-500/20"></span> Bookmarked
-                            </div>
-                        </>
                     )}
+                    <div className="flex items-center gap-2">
+                        <span className="size-3 rounded-full bg-indigo-500 dark:bg-white"></span> Review
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span className="size-3 rounded-full bg-yellow-500"></span> Bookmarked
+                    </div>
                     <div className="flex items-center gap-2">
                         <span className="size-3 rounded-full bg-background border border-border"></span> Not Visited
                     </div>

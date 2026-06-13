@@ -1,11 +1,3 @@
-"""
-Analytics tasks — rank recalculation and leaderboard refresh.
-
-Routes to queue: ``low``
-
-Non-urgent, batch-oriented work.  These tasks aggregate data
-and update computed fields / leaderboards.
-"""
 
 import logging
 import traceback

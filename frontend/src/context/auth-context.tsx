@@ -50,13 +50,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 // Invalid token
                 logout()
             }
+            setLoading(false)
         } catch (error: any) {
-            if (error.name === 'AbortError') {
+            if (error.name === 'AbortError' || error.name === 'CanceledError' || error.code === 'ERR_CANCELED') {
                 return; // Do nothing on abort
             }
             console.error("Auth check failed", error)
             logout()
-        } finally {
             setLoading(false)
         }
     }, [logout])

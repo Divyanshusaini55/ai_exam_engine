@@ -19,11 +19,11 @@ function timeAgo(iso: string) {
 }
 
 const ACTIVITY_COLORS: Record<string, string> = {
-  SOLUTION: "text-blue-500 bg-blue-500/10",
+  SOLUTION: "text-sky-500 bg-sky-500/10",
   COMMENT: "text-pink-500 bg-pink-500/10",
   UPLOAD: "text-emerald-500 bg-emerald-500/10",
   SUGGESTION: "text-amber-500 bg-amber-500/10",
-  EXAM: "text-indigo-500 bg-indigo-500/10",
+  EXAM: "text-violet-500 bg-violet-500/10",
   BADGE: "text-purple-500 bg-purple-500/10",
   ROADMAP: "text-teal-500 bg-teal-500/10",
 }
@@ -71,12 +71,12 @@ export default function ContributorsPage() {
   useEffect(() => { loadAll() }, [loadAll])
 
   const stats = myStats ? [
-    { label: "Solutions Posted", value: myStats.total_solutions, Icon: FileText, color: "text-blue-500", bg: "bg-blue-500/10" },
+    { label: "Solutions Posted", value: myStats.total_solutions, Icon: FileText, color: "text-sky-500", bg: "bg-sky-500/10" },
     { label: "Total Upvotes", value: myStats.total_upvotes_received, Icon: ArrowUpRight, color: "text-orange-500", bg: "bg-orange-500/10" },
     { label: "Content Views", value: myStats.total_views, Icon: TrendingUp, color: "text-green-500", bg: "bg-green-500/10" },
     { label: "Reputation XP", value: myStats.xp, Icon: Zap, color: "text-purple-500", bg: "bg-purple-500/10" },
     { label: "Discussions", value: myStats.total_comments, Icon: MessageSquare, color: "text-pink-500", bg: "bg-pink-500/10" },
-    { label: "Tests Solved", value: myStats.exams_solved, Icon: CheckCircle2, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+    { label: "Tests Solved", value: myStats.exams_solved, Icon: CheckCircle2, color: "text-violet-500", bg: "bg-violet-500/10" },
   ] : null
 
   const earnedBadges = badges.filter(b => b.earned)
@@ -139,7 +139,7 @@ export default function ContributorsPage() {
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={myStats.weekly_activity}>
                       <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="var(--primary)" stopOpacity={0.15}/><stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/></linearGradient></defs>
-                      <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }} />
+                      <Tooltip contentStyle={{ backgroundColor: 'var(--card)', color: 'var(--primary)', borderRadius: '12px', border: '1px solid var(--border)', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }} />
                       <Area type="monotone" dataKey="contributions" stroke="var(--primary)" strokeWidth={3} fillOpacity={1} fill="url(#cg)" />
                     </AreaChart>
                   </ResponsiveContainer>

@@ -10,6 +10,8 @@ def create_user_profile(sender, instance, created, **kwargs):
     if created:
         avatar_char = instance.username[0].upper() if instance.username else 'U'
         Profile.objects.create(user=instance, avatar_char=avatar_char)
+        from .models import UserSettings
+        UserSettings.objects.create(user=instance)
 
 
 @receiver(post_save, sender=User)

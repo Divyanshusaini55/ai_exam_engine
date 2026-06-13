@@ -6,6 +6,7 @@ from quiz.models import Question
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     avatar_char = models.CharField(max_length=1, blank=True)
+    avatar_image = models.ImageField(upload_to='avatars/', null=True, blank=True)
     bio = models.TextField(blank=True)
     full_name = models.CharField(max_length=200, blank=True)
     show_profile_pic = models.BooleanField(default=True)
@@ -200,4 +201,36 @@ def invalidate_community_caches(sender, instance, **kwargs):
     update_fields = kwargs.get('update_fields')
     if update_fields is None or 'community_rank' in update_fields:
         invalidate_leaderboard()
+
+
+from quiz.models import SubCategory
+
+class UserSettings(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='settings')
+    
+    # Exam Preferences
+    primary_exam = models.ForeignKey(SubCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
+    secondary_exams = models.ManyToManyField(SubCategory, blank=True)
+    preferred_language = models.CharField(max_length=10, choices=[('en', 'English'), ('hi', 'Hindi'), ('bi', 'Bilingual')], default='en')
+    daily_study_goal = models.IntegerField(default=60) # Minutes
+    
+    # Notifications
+    notify_exam_results = models.BooleanField(default=True)
+    notify_roadmap_updates = models.BooleanField(default=True)
+    notify_contributor_activity = models.BooleanField(default=True)
+    notify_weekly_report = models.BooleanField(default=True)
+    notify_new_resources = models.BooleanField(default=True)
+    
+    # Appearance
+    theme = models.CharField(max_length=10, choices=[('light', 'Light'), ('dark', 'Dark'), ('system', 'System')], default='system')
+    
+    # Contributor Preferences
+    is_public_profile = models.BooleanField(default=True)
+    show_xp = models.BooleanField(default=True)
+    show_streak = models.BooleanField(default=True)
+    show_rank = models.BooleanField(default=True)
+    show_contribution_activity = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s Settings"
 

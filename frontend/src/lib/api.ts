@@ -25,7 +25,7 @@ export const getSessionId = () => {
   return '';
 };
 
-const api = axios.create({
+export const api = axios.create({
   baseURL: API_URL,
   withCredentials: true, // Send cookies with requests
   headers: {
@@ -99,6 +99,10 @@ api.interceptors.response.use(
 export const examApi = {
   // Get list of all exams (filters can be applied in frontend)
   list: (params?: any) => api.get('/exams/', { params }),
+
+  // Get categories and subcategories
+  getCategories: () => api.get('/categories/'),
+  getSubcategories: (params?: any) => api.get('/subcategories/', { params }),
 
   // Get details (questions) for a specific exam
   get: (id: string, params?: any) => api.get(`/exams/${id}/`, { params }),

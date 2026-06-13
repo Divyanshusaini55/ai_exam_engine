@@ -315,8 +315,8 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'anon': '100/minute',
         'user': '300/minute',
-        'ai_heavy': '10/hour',
-        'ai_light': '30/hour',
+        'ai_heavy': '100/hour',
+        'ai_light': '1000/hour',
     },
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
@@ -324,8 +324,8 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Aspirant AI API',
-    'DESCRIPTION': 'API documentation for the Aspirant AI backend',
+    'TITLE': 'Exam Intel API',
+    'DESCRIPTION': 'API documentation for the Exam Intel backend',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
 }
@@ -343,14 +343,14 @@ GEMINI_SUMMARY_MODEL = os.environ.get('GEMINI_SUMMARY_MODEL', 'models/gemini-2.5
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 20000
 
 JAZZMIN_SETTINGS = {
-    'site_title': 'Aspirant AI',
-    'site_header': 'Aspirant AI',
-    'site_brand': 'Aspirant AI',
+    'site_title': 'Exam Intel',
+    'site_header': 'Exam Intel',
+    'site_brand': 'Exam Intel',
     'site_logo': 'admin/img/logo.png',
     'site_logo_classes': 'img-circle elevation-3',
     'site_icon': 'admin/img/logo.png',
-    'welcome_sign': 'Welcome to Aspirant AI Control Center',
-    'copyright': 'Aspirant AI — Internal Dashboard',
+    'welcome_sign': 'Welcome to Exam Intel Control Center',
+    'copyright': 'Exam Intel — Internal Dashboard',
     
     'search_model': ['quiz.Exam', 'quiz.Question', 'auth.User'],
 

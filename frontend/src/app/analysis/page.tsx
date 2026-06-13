@@ -40,7 +40,8 @@ export default function AnalysisPage() {
     const [stats, setStats] = useState({
         total_tests: 0,
         average_score: 0,
-        tests_passed: 0
+        tests_passed: 0,
+        total_study_seconds: 0
     })
     const [historyData, setHistoryData] = useState<any[]>([])
     const [subjectData, setSubjectData] = useState<any[]>([])
@@ -55,7 +56,8 @@ export default function AnalysisPage() {
                     setStats({
                         total_tests: data.total_tests,
                         average_score: data.average_score,
-                        tests_passed: data.tests_passed
+                        tests_passed: data.tests_passed,
+                        total_study_seconds: data.total_study_seconds || 0
                     })
                     setHistoryData(data.history || [])
 
@@ -88,6 +90,14 @@ export default function AnalysisPage() {
     // User must be authenticated to reach this point (auth guard handles redirect)
     if (!user) {
         return null
+    }
+
+    const formatStudyTime = (totalSeconds: number) => {
+        if (totalSeconds <= 0) return '0m'
+        const hours = Math.floor(totalSeconds / 3600)
+        const minutes = Math.floor((totalSeconds % 3600) / 60)
+        if (hours > 0) return `${hours}h ${minutes > 0 ? `${minutes}m` : ''}`
+        return `${minutes}m`
     }
 
     // Only show loading stats spinner for authenticated users
@@ -138,7 +148,7 @@ export default function AnalysisPage() {
                                 { label: "Tests Taken", value: stats.total_tests, icon: ClipboardList, delay: 0.1 },
                                 { label: "Avg. Score", value: `${stats.average_score}%`, icon: BarChart3, delay: 0.2 },
                                 { label: "Tests Passed", value: stats.tests_passed, icon: CheckCircle2, delay: 0.3 },
-                                { label: "Study Time", value: "12h", icon: Clock, delay: 0.4 },
+                                { label: "Study Time", value: formatStudyTime(stats.total_study_seconds), icon: Clock, delay: 0.4 },
                             ].map((stat) => {
                                 const Icon = stat.icon
                                 return (
@@ -262,7 +272,7 @@ export default function AnalysisPage() {
                                                 btn.classList.add('cursor-not-allowed', 'opacity-90');
 
                                                 setTimeout(() => {
-                                                    router.push('/exams?subject=general_awareness&mode=practice');
+                                                    router.push('/exams');
                                                 }, 1500);
                                             }
                                         }}
@@ -274,7 +284,10 @@ export default function AnalysisPage() {
                                     </button>
 
                                     <div className="text-center">
-                                        <button className="text-xs md:text-sm font-medium text-primary-foreground/60 hover:text-primary-foreground transition-colors flex items-center justify-center gap-1 mx-auto hover:gap-2 duration-300 group">
+                                        <button 
+                                            onClick={() => router.push('/daily-dose')}
+                                            className="text-xs md:text-sm font-medium text-primary-foreground/60 hover:text-primary-foreground transition-colors flex items-center justify-center gap-1 mx-auto hover:gap-2 duration-300 group"
+                                        >
                                             View weak General Awareness topics
                                             <ArrowRight className="size-4 group-hover:translate-x-0.5 transition-transform" />
                                         </button>

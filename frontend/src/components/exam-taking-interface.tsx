@@ -61,6 +61,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
     const [timerKey, setTimerKey] = useState(0) // Used to force reset TimerDisplay
     const [isPaused, setIsPaused] = useState(false)
     const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false)
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [summaryText, setSummaryText] = useState("")
     const [loadingSummary, setLoadingSummary] = useState(false)
     const searchParams = useSearchParams()
@@ -89,6 +90,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
 
     const handleViewSummary = async () => {
         setIsSummaryModalOpen(true)
+        setIsMobileMenuOpen(false)
         if (summaryText && summaryText !== "AI is currently generating the summary for this exam. This takes about a minute. Please check back shortly.") return
 
         if (exam?.ai_summary) {
@@ -698,7 +700,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
 
                     <ModeToggle className="hidden md:flex size-10 rounded-[14px]" />
 
-                    <Sheet>
+                    <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                         <SheetTrigger asChild>
                             <button className="md:hidden flex items-center justify-center size-8 rounded-[12px] bg-secondary hover:bg-secondary/80 text-primary transition-colors shrink-0 border border-border">
                                 <MoreVertical className="size-4" />
@@ -867,26 +869,22 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                         </>
                                     )}
                                 </button>
-                                {mode === 'learning' && (
-                                    <>
-                                        <button
-                                            onClick={handleToggleReview}
-                                            className={`flex items-center gap-1.5 px-3 py-1 rounded-[12px] text-[10px] font-bold transition-colors ${reviewQuestions[currentQ?.id] ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-secondary text-primary hover:bg-secondary/80'}`}
-                                            title="Flag for Review"
-                                        >
-                                            <Flag className="size-3" />
-                                            {reviewQuestions[currentQ?.id] ? "Flagged" : "Flag"}
-                                        </button>
-                                        <button
-                                            onClick={handleToggleBookmark}
-                                            className={`flex items-center gap-1.5 px-3 py-1 rounded-[12px] text-[10px] font-bold transition-colors ${bookmarkedQuestions[currentQ?.id] ? 'bg-yellow-500 text-black hover:bg-yellow-600' : 'bg-secondary text-primary hover:bg-secondary/80'}`}
-                                            title="Bookmark Question"
-                                        >
-                                            <Bookmark className="size-3" />
-                                            {bookmarkedQuestions[currentQ?.id] ? "Bookmarked" : "Bookmark"}
-                                        </button>
-                                    </>
-                                )}
+                                <button
+                                    onClick={handleToggleReview}
+                                    className={`flex items-center gap-1.5 px-3 py-1 rounded-[12px] text-[10px] font-bold transition-colors ${reviewQuestions[currentQ?.id] ? 'bg-indigo-500 dark:bg-white text-white dark:text-black hover:bg-indigo-600 dark:hover:bg-white/90' : 'bg-secondary text-primary hover:bg-secondary/80'}`}
+                                    title="Flag for Review"
+                                >
+                                    <Flag className="size-3" />
+                                    {reviewQuestions[currentQ?.id] ? "Flagged" : "Flag"}
+                                </button>
+                                <button
+                                    onClick={handleToggleBookmark}
+                                    className={`flex items-center gap-1.5 px-3 py-1 rounded-[12px] text-[10px] font-bold transition-colors ${bookmarkedQuestions[currentQ?.id] ? 'bg-yellow-500 text-black hover:bg-yellow-600' : 'bg-secondary text-primary hover:bg-secondary/80'}`}
+                                    title="Bookmark Question"
+                                >
+                                    <Bookmark className="size-3" />
+                                    {bookmarkedQuestions[currentQ?.id] ? "Bookmarked" : "Bookmark"}
+                                </button>
                                 <span className="text-xs font-bold bg-secondary text-muted-foreground px-3 py-1 rounded-full">{currentQ?.points} Point(s)</span>
                             </div>
                         </div>

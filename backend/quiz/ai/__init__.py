@@ -193,12 +193,17 @@ Provide a ONE-TWO SENTENCE explanation of why this answer is correct.
 Keep it extremely concise and direct.
 """
 
-    try:
-        response = model.generate_content(prompt)
-        return response.text.strip()
-    except Exception as e:
-        print(" Explanation error:", e)
-        return "Explanation could not be generated at this time."
+    import time
+    for attempt in range(3):
+        try:
+            response = model.generate_content(prompt)
+            return response.text.strip()
+        except Exception as e:
+            print(f" Explanation error (attempt {attempt+1}):", e)
+            if attempt < 2:
+                time.sleep(1.5)
+                
+    return "Explanation could not be generated at this time."
 
 
 def parse_exam_paper_with_ai(exam: Exam):

@@ -515,13 +515,13 @@ class ContactMessageAdmin(admin.ModelAdmin):
 
 @admin.register(QuestionPaperUpload)
 class QuestionPaperUploadAdmin(admin.ModelAdmin):
-    list_display = ('exam', 'subject', 'exam_date', 'user', 'status_badge', 'created_at')
-    list_filter = ('status', 'exam_date', 'created_at', 'exam')
-    search_fields = ('subject', 'exam__title', 'user__username')
+    list_display = ('category', 'subject', 'exam_date', 'user', 'status_badge', 'created_at')
+    list_filter = ('status', 'exam_date', 'created_at', 'category')
+    search_fields = ('subject', 'category__name', 'user__username')
     readonly_fields = ('created_at', 'updated_at')
 
     fieldsets = (
-        ('Submission Info', {'fields': ('user', 'exam', 'subject', 'exam_date', 'file')}),
+        ('Submission Info', {'fields': ('user', 'category', 'subject', 'exam_date', 'file')}),
         ('Status & Review', {'fields': ('status', 'created_at', 'updated_at')}),
     )
 

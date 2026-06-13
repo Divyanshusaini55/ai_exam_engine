@@ -90,7 +90,7 @@ export default function ContactPage() {
                             <AuthInput
                                 label="Full Name"
                                 name="name"
-                                placeholder="John Doe"
+                                placeholder="Your Name"
                                 required
                             />
 
@@ -98,7 +98,7 @@ export default function ContactPage() {
                                 label="Email Address"
                                 type="email"
                                 name="email"
-                                placeholder="john@example.com"
+                                placeholder="Your Email Address"
                                 required
                             />
 

@@ -124,10 +124,18 @@ class DashboardMixin:
         avg_score = results.aggregate(avg=models.Avg('percentage'))['avg'] or 0
         tests_passed = results.filter(percentage__gte=50).count()
 
+        # Calculate total study time from both exam attempts and practice sessions (in seconds)
+        exam_duration = results.aggregate(total=models.Sum('duration'))['total'] or 0
+        practice_duration = PracticeSession.objects.filter(
+            user=request.user, is_completed=True
+        ).aggregate(total=models.Sum('duration'))['total'] or 0
+        total_study_seconds = exam_duration + practice_duration
+
         return Response({
             'total_tests': total_tests,
             'average_score': round(avg_score, 1),
             'tests_passed': tests_passed,
+            'total_study_seconds': total_study_seconds,
             'history': [
                 {
                     'name': r.exam.title[:10] + '...',  # Shorten for chart

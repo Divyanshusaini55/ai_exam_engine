@@ -28,7 +28,6 @@ import {
 const mainNavItems = [
     { label: "Home", href: "/", icon: Home },
     { label: "Daily Dose", href: "/daily-dose", icon: Newspaper },
-    { label: "Analysis", href: "/analysis", icon: BarChart3 },
     { label: "Leaderboard", href: "/leaderboard", icon: Trophy },
     { label: "Upload QP", href: "/upload", icon: Upload },
     { label: "Contributors", href: "/contributors", icon: Users },
@@ -38,6 +37,7 @@ const mainNavItems = [
 const userMenuItems = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { label: "Profile", href: "/profile", icon: CircleUserRound },
+    { label: "Analysis", href: "/analysis", icon: BarChart3 },
     { label: "Settings", href: "/settings", icon: Settings },
     { label: "Help Center", href: "/help", icon: HelpCircle },
 ]

@@ -93,7 +93,7 @@ export function Footer() {
                         © {currentYear} ExamIntel. All rights reserved.
                     </p>
                     <div className="flex gap-6 text-[14px] font-medium text-muted-foreground">
-                        <span>A premium SaaS experience.</span>
+                        <span>Built for you by <a href="https://divyanshusaini.me" target="_blank" rel="noopener noreferrer" className="font-bold text-primary hover:underline transition-all underline-offset-4">divyanshu</a></span>
                     </div>
                 </div>
             </div>

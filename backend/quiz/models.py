@@ -280,7 +280,7 @@ class QuestionPaperUpload(models.Model):
     ]
     
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     subject = models.CharField(max_length=200)
     exam_date = models.DateField()
     file = models.FileField(upload_to='question_papers/')
@@ -290,7 +290,7 @@ class QuestionPaperUpload(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.exam.title if self.exam else 'Unknown'} - {self.subject} ({self.status})"
+        return f"{self.category.name if self.category else 'Unknown'} - {self.subject} ({self.status})"
 
     class Meta:
         ordering = ['-created_at']

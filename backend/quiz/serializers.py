@@ -268,11 +268,11 @@ class ContactMessageSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'status']
 class QuestionPaperUploadSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
-    exam_title = serializers.CharField(source='exam.title', read_only=True)
+    category_name = serializers.CharField(source='category.name', read_only=True)
 
     class Meta:
         model = QuestionPaperUpload
-        fields = ['id', 'user', 'username', 'exam', 'exam_title', 'subject', 'exam_date', 'file', 'status', 'created_at']
+        fields = ['id', 'user', 'username', 'category', 'category_name', 'subject', 'exam_date', 'file', 'status', 'created_at']
         read_only_fields = ['id', 'user', 'status', 'created_at']
 
 class CorrectionSuggestionSerializer(serializers.ModelSerializer):
