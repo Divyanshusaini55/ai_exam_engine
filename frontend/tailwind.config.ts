@@ -22,6 +22,7 @@ const config = {
         sans: ["var(--font-sans)", "Inter", "sans-serif"],
         heading: ["var(--font-heading)", "Sora", "sans-serif"],
         mono: ["var(--font-mono)", "monospace"],
+        crimson: ["var(--font-crimson-pro)", "serif"],
       },
       colors: {
         border: "var(--border)",

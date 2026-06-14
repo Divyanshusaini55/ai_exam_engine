@@ -50,9 +50,6 @@
   body {
     @apply font-sans bg-background text-foreground;
   }
-  html {
-    --font-heading: var(--font-heading, "Sora", sans-serif);
-  }
   :root {
     --background: #F8F6F2;
     --foreground: #111111;

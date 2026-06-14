@@ -164,24 +164,35 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def upvote(self, request, pk=None):
-        from django.db.models import F
         comment = self.get_object()
+        from django.db.models import F
+        from .models import CommentUpvote
+
+        upvote_obj, created = CommentUpvote.objects.get_or_create(
+            comment=comment,
+            user=request.user
+        )
+
+        if not created:
+            upvote_obj.delete()
+            comment.upvotes = F('upvotes') - 1
+            comment.save(update_fields=['upvotes'])
+            comment.refresh_from_db()
+            return Response({'upvotes': comment.upvotes, 'has_upvoted': False})
+
         comment.upvotes = F('upvotes') + 1
         comment.save(update_fields=['upvotes'])
-        
-        # Send Notification to comment author
-        if comment.user != request.user:
-            from .models import Notification, UserSettings
-            settings, _ = UserSettings.objects.get_or_create(user=comment.user)
-            if settings.notify_contributor_activity:
-                Notification.objects.create(
-                    user=comment.user,
-                    type='UPVOTE',
-                    title='Comment Upvoted',
-                    message=f"{request.user.username} upvoted your comment."
-                )
         comment.refresh_from_db()
-        return Response({'upvotes': comment.upvotes})
+
+        if comment.user != request.user:
+            Notification.objects.create(
+                user=comment.user,
+                type='UPVOTE',
+                title='Comment Upvoted!',
+                message=f"{request.user.username} upvoted your comment."
+            )
+
+        return Response({'upvotes': comment.upvotes, 'has_upvoted': True})
 
     def update(self, request, *args, **kwargs):
         if self.get_object().user != request.user:

@@ -62,7 +62,7 @@ export default function DailyDoseDetail() {
         <div className="min-h-screen bg-background pb-20">
             <Navbar />
             
-            <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+            <main className="max-w-3xl mx-auto px-2 sm:px-6 lg:px-8 py-8 md:py-12">
                 <button 
                     onClick={() => router.push('/daily-dose')}
                     className="flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-primary transition-colors mb-8"
@@ -81,7 +81,7 @@ export default function DailyDoseDetail() {
                         </div>
                     )}
                     
-                    <div className="p-6 md:p-10">
+                    <div className="p-3 md:p-6">
                         <div className="flex flex-wrap items-center gap-3 text-xs font-bold text-muted-foreground mb-6">
                             <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-md">
                                 {article.category_name || "General"}
@@ -96,7 +96,7 @@ export default function DailyDoseDetail() {
                             {article.title}
                         </h1>
 
-                        <div className="prose prose-lg md:prose-xl font-['var(--font-crimson-pro)'] leading-relaxed dark:prose-invert max-w-none prose-headings:font-heading prose-headings:font-bold prose-headings:text-primary prose-a:text-primary prose-strong:text-primary prose-p:text-primary/90 prose-li:text-primary/90">
+                        <div className="prose prose-lg md:prose-xl font-crimson leading-relaxed dark:prose-invert max-w-none prose-headings:font-heading prose-headings:font-bold prose-headings:text-primary prose-a:text-primary prose-strong:text-primary prose-p:text-primary/90 prose-li:text-primary/90">
                             <ReactMarkdown>{article.content}</ReactMarkdown>
                         </div>
 

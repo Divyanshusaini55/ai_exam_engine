@@ -109,7 +109,7 @@ export default function SummaryPage() {
                             </div>
                         </div>
                         <h2 className="text-lg font-bold leading-tight tracking-tight text-primary">
-                            ExamPlatform
+                            ExamIntel
                         </h2>
                     </button>
 
@@ -169,7 +169,7 @@ export default function SummaryPage() {
                     </div>
 
                     {/* Content Section */}
-                    <div className="glass-panel rounded-2xl md:rounded-[32px] p-6 md:p-12 shadow-sm border border-border bg-card relative overflow-hidden animate-fade-in" style={{ animationDelay: '0.1s' }}>
+                    <div className="glass-panel rounded-2xl md:rounded-[32px] p-4 md:p-6 shadow-sm border border-border bg-card relative overflow-hidden animate-fade-in" style={{ animationDelay: '0.1s' }}>
                         
                         <div className="flex items-center justify-between mb-8 border-b border-border/50 pb-6">
                             <div>
@@ -203,8 +203,8 @@ export default function SummaryPage() {
                                 </div>
                             </div>
                         ) : (
-                            <div className="prose dark:prose-invert prose-sm md:prose-base max-w-none prose-headings:text-primary prose-a:text-blue-500">
-                                <MarkdownRenderer content={displaySummary} className="!p-0 !border-0 !shadow-none !bg-transparent" />
+                            <div className="prose dark:prose-invert prose-sm md:prose-base max-w-none prose-headings:text-primary prose-a:text-blue-500 font-crimson prose-headings:font-heading prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-p:text-[17px] prose-li:text-[17px]">
+                                <MarkdownRenderer content={displaySummary} variant="prose" className="!p-0 !border-0 !shadow-none !bg-transparent" />
                             </div>
                         )}
                         

@@ -148,7 +148,7 @@ export function PerformanceAnalysisDashboard({ examId, onRetake }: PerformanceAn
               </div>
             </div>
             <h2 className="text-lg font-bold leading-tight tracking-tight text-primary">
-              ExamPlatform
+              ExamIntel
             </h2>
           </button>
 

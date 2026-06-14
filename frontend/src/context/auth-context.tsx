@@ -9,6 +9,7 @@ interface User {
     username: string
     email: string
     date_joined: string
+    avatar_image?: string | null
 }
 
 interface AuthContextType {

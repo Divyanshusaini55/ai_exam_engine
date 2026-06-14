@@ -108,7 +108,7 @@ export function MobileQuestionNavigator({
             </div>
 
             {/* Status Legend - Compact */}
-            <div className="flex items-center justify-center gap-4 px-4 py-2 text-[10px] text-muted-foreground bg-background/30">
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 px-4 py-2 text-[10px] text-muted-foreground bg-background/30">
                 <div className="flex items-center gap-1">
                     <span className="size-2 rounded-full bg-primary"></span>
                     <span>Current</span>

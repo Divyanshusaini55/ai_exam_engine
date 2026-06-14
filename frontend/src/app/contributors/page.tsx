@@ -324,7 +324,7 @@ export default function ContributorsPage() {
             <p className="text-lg md:text-xl text-muted-foreground font-medium max-w-2xl mx-auto mb-10 leading-relaxed">Share knowledge, help fellow aspirants, and climb the global ranks. Your contributions power the next generation of AI learning.</p>
             <div className="flex flex-wrap items-center justify-center gap-6">
               <Link href={user ? "/upload" : "/login"} className="px-8 py-2 bg-primary text-primary-foreground font-bold rounded-2xl shadow-premium hover:-translate-y-0.5 transition-all active:scale-95 inline-block">Start Contributing</Link>
-              <Link href={user ? "/discussions" : "/login"} className="px-8 py-2 bg-card border border-border text-primary font-bold rounded-2xl shadow-sm hover:bg-secondary transition-all active:scale-95 inline-block">Browse Discussions</Link>
+              <Link href={user ? "/exams" : "/login"} className="px-8 py-2 bg-card border border-border text-primary font-bold rounded-2xl shadow-sm hover:bg-secondary transition-all active:scale-95 inline-block">Browse Exams</Link>
             </div>
           </div>
         </section>

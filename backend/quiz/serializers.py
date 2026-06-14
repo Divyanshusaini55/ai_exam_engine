@@ -224,9 +224,19 @@ class ExamResultSerializer(serializers.Serializer):
 from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
+    avatar_image = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'date_joined']
+        fields = ['id', 'username', 'email', 'date_joined', 'avatar_image']
+
+    def get_avatar_image(self, obj):
+        request = self.context.get('request')
+        if hasattr(obj, 'profile') and obj.profile and obj.profile.avatar_image:
+            if request:
+                return request.build_absolute_uri(obj.profile.avatar_image.url)
+            return obj.profile.avatar_image.url
+        return None
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)

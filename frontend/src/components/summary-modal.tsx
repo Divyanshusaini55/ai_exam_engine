@@ -43,7 +43,7 @@ export function SummaryModal({ isOpen, onClose, examTitle, summaryText, isLoadin
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 overflow-y-auto px-3 py-5 sm:p-8 prose dark:prose-invert prose-sm md:prose-base max-w-none prose-headings:text-primary prose-a:text-blue-500">
+                <div className="flex-1 overflow-y-auto px-3 py-4 sm:p-5 prose dark:prose-invert prose-sm md:prose-base max-w-none prose-headings:text-primary prose-a:text-blue-500 font-crimson prose-headings:font-heading prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-p:text-[17px] prose-li:text-[17px]">
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center h-full py-20 space-y-4">
                             <div className="relative size-16 flex items-center justify-center">
@@ -56,7 +56,7 @@ export function SummaryModal({ isOpen, onClose, examTitle, summaryText, isLoadin
                             </div>
                         </div>
                     ) : (
-                        <MarkdownRenderer content={displaySummary} className="!p-0 !border-0 !shadow-none !bg-transparent" />
+                        <MarkdownRenderer content={displaySummary} variant="prose" className="!p-0 !border-0 !shadow-none !bg-transparent" />
                     )}
                 </div>
                 

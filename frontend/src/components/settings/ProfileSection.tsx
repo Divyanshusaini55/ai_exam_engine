@@ -36,8 +36,10 @@ export function ProfileSection({ settings, setSettings, updateSettings, loading 
                     </div>
                     <div>
                         <div className="flex items-center gap-3">
-                            <label htmlFor="avatar-upload" className="inline-block cursor-pointer px-4 py-2 bg-secondary text-primary font-bold rounded-xl text-sm hover:bg-secondary/80 transition-colors">
-                                Upload new avatar
+                            <label htmlFor="avatar-upload" className="flex items-center justify-center gap-2 cursor-pointer px-4 py-2 bg-secondary text-primary font-bold rounded-xl text-sm hover:bg-secondary/80 transition-colors">
+                                <Upload className="size-4 shrink-0" />
+                                <span className="hidden sm:inline">Upload new avatar</span>
+                                <span className="sm:hidden"></span>
                             </label>
                             {settings.profile.avatar_image && (
                                 <button 

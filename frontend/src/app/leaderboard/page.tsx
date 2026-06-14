@@ -65,7 +65,7 @@ export default function LeaderboardPage() {
     const restOfLeaderboard = leaderboard.slice(3)
 
     return (
-        <div className="min-h-screen bg-background font-sans transition-colors duration-500 overflow-hidden">
+        <div className="min-h-screen relative bg-background font-sans transition-colors duration-500 overflow-hidden">
             <Navbar />
             
             {/* Soft Ambient Blurs */}

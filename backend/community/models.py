@@ -160,6 +160,25 @@ class Comment(models.Model):
     class Meta:
         ordering = ['-created_at']
 
+class CommentUpvote(models.Model):
+    comment = models.ForeignKey(
+        Comment,
+        on_delete=models.CASCADE,
+        related_name='upvote_records'
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='comment_upvotes'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [['comment', 'user']]
+        indexes = [
+            models.Index(fields=['comment', 'user'])
+        ]
+
 
 class Notification(models.Model):
     TYPES = [

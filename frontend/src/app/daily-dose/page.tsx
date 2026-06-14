@@ -41,7 +41,7 @@ export default function DailyDosePage() {
                         <Newspaper className="size-6 text-primary" />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-bold text-primary tracking-tight">Daily Dose</h1>
+                        <h1 className="text-3xl font-heading font-extrabold text-primary tracking-tight">Daily Dose</h1>
                         <p className="text-muted-foreground mt-1">AI-Curated Current Affairs for Competitive Exams</p>
                     </div>
                 </div>
@@ -76,7 +76,7 @@ export default function DailyDosePage() {
                                     {item.title}
                                 </h2>
                                 
-                                <p className="text-muted-foreground/90 font-['var(--font-crimson-pro)'] text-[18px] leading-relaxed line-clamp-3 mb-6 flex-1">
+                                <p className="text-muted-foreground/90 font-crimson text-[18px] leading-relaxed line-clamp-3 mb-6 flex-1">
                                     {item.summary}
                                 </p>
                                 

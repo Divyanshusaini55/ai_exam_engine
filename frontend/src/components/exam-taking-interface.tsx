@@ -40,7 +40,8 @@ import {
     Trash2,
     Download,
     Flag,
-    Bookmark
+    Bookmark,
+    X
 } from "lucide-react"
 
 import { SuggestCorrectionModal } from "./suggest-correction-modal"
@@ -285,6 +286,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
         if (targetMode === mode) return
         setPendingMode(targetMode)
         setShowConfirmModal(true)
+        setIsMobileMenuOpen(false)
     }
 
     const confirmModeSwitch = () => {
@@ -484,7 +486,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
     const handleUpvote = async (commentId: number) => {
         try {
             const res = await communityApi.upvoteComment(commentId)
-            setComments(prev => prev.map(c => c.id === commentId ? { ...c, upvotes: res.data.upvotes } : c))
+            setComments(prev => prev.map(c => c.id === commentId ? { ...c, upvotes: res.data.upvotes, has_upvoted: res.data.has_upvoted } : c))
         } catch (error) {
             console.error("Upvote failed:", error)
         }
@@ -554,7 +556,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                         onClick={() => handleUpvote(comment.id)}
                                         className="flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-secondary transition-colors text-muted-foreground group-hover:text-primary"
                                     >
-                                        <Heart className={`size-4 ${comment.upvotes > 0 ? 'fill-red-500 text-red-500' : ''}`} />
+                                        <Heart className={`size-4 ${comment.has_upvoted ? 'fill-red-500 text-red-500' : ''}`} />
                                         <span className="text-xs font-bold">{comment.upvotes}</span>
                                     </button>
                                 </div>
@@ -592,7 +594,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
     }
 
     return (
-        <div className="flex flex-col min-h-screen bg-background ">
+        <div className="flex flex-col min-h-screen relative overflow-hidden bg-background">
             {/* Sticky Header Group */}
             <div className="sticky top-0 z-50 flex flex-col w-full">
                 <header className="bg-card border-b border-border shadow-sm h-14 md:h-16 px-2 md:px-8 flex items-center justify-between transition-colors duration-300 gap-1 md:gap-4 shrink-0">
@@ -818,7 +820,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                 />
             </div>
 
-            <div className="flex-1 max-w-7xl mx-auto w-full p-4 pb-24 md:p-8 flex gap-8 items-start">
+            <div className="flex-1 max-w-7xl mx-auto w-full px-2 py-4 pb-24 md:p-8 flex gap-8 items-start">
 
                 {/* Navigator Sidebar */}
                 <QuestionNavigator
@@ -839,7 +841,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
 
                 {/* Main Question Card */}
                 <main className="flex-1 min-w-0">
-                    <div className="bg-card rounded-2xl border border-border shadow-sm p-4 pt-6 md:p-10 relative overflow-hidden">
+                    <div className="bg-card rounded-2xl border border-border shadow-sm p-3 pt-5 md:p-10 relative overflow-hidden">
 
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                             <div className="flex flex-col gap-1">
@@ -859,7 +861,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between md:justify-end gap-3">
+                            <div className="flex flex-wrap items-center justify-between md:justify-end gap-2 md:gap-3">
                                 <button
                                     onClick={handleExplain}
                                     disabled={explaining || mode === 'exam'}
@@ -873,8 +875,8 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                         </>
                                     ) : (
                                         <>
-                                            <Sparkles className="size-3" />
-                                            {user ? "AI Explain" : "Login to Explain"}
+                                            <Sparkles className="size-3 shrink-0" />
+                                            <span className="hidden md:inline">{user ? "AI Explain" : "Login to Explain"}</span>
                                         </>
                                     )}
                                 </button>
@@ -883,18 +885,18 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                     className={`flex items-center gap-1.5 px-3 py-1 rounded-[12px] text-[10px] font-bold transition-colors ${reviewQuestions[currentQ?.id] ? 'bg-indigo-500 dark:bg-white text-white dark:text-black hover:bg-indigo-600 dark:hover:bg-white/90' : 'bg-secondary text-primary hover:bg-secondary/80'}`}
                                     title="Flag for Review"
                                 >
-                                    <Flag className="size-3" />
-                                    {reviewQuestions[currentQ?.id] ? "Flagged" : "Flag"}
+                                    <Flag className="size-3 shrink-0" />
+                                    <span className="hidden md:inline">{reviewQuestions[currentQ?.id] ? "Flagged" : "Flag"}</span>
                                 </button>
                                 <button
                                     onClick={handleToggleBookmark}
                                     className={`flex items-center gap-1.5 px-3 py-1 rounded-[12px] text-[10px] font-bold transition-colors ${bookmarkedQuestions[currentQ?.id] ? 'bg-yellow-500 text-black hover:bg-yellow-600' : 'bg-secondary text-primary hover:bg-secondary/80'}`}
                                     title="Bookmark Question"
                                 >
-                                    <Bookmark className="size-3" />
-                                    {bookmarkedQuestions[currentQ?.id] ? "Bookmarked" : "Bookmark"}
+                                    <Bookmark className="size-3 shrink-0" />
+                                    <span className="hidden md:inline">{bookmarkedQuestions[currentQ?.id] ? "Bookmarked" : "Bookmark"}</span>
                                 </button>
-                                <span className="text-xs font-bold bg-secondary text-muted-foreground px-3 py-1 rounded-full">{currentQ?.points} Point(s)</span>
+                                <span className="text-xs font-bold bg-secondary text-muted-foreground px-3 py-1 rounded-full whitespace-nowrap shrink-0">{currentQ?.points} Point(s)</span>
                             </div>
                         </div>
 
@@ -955,7 +957,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                             {String.fromCharCode(65 + ans.order)}
                                         </div>
                                         <span className="text-sm md:text-base transition-colors font-medium">
-                                            {ans.answer_text}
+                                            {ans.answer_text.replace(/^[A-Z][).:-]\s*/i, '')}
                                         </span>
                                     </label>
                                 )
@@ -1080,7 +1082,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                     <div className="grid grid-cols-2 gap-4 mb-6">
                                         <div className="bg-secondary/50 p-4 rounded-2xl border border-border text-center">
                                             <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Score</div>
-                                            <div className="text-2xl font-extrabold text-primary mt-1">{scoreData.score} / {questions.length}</div>
+                                            <div className="text-2xl font-extrabold text-primary mt-1">{scoreData.score} / {questions.reduce((acc, q) => acc + (q.points || 1), 0)}</div>
                                         </div>
                                         <div className="bg-secondary/50 p-4 rounded-2xl border border-border text-center">
                                             <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Accuracy</div>
@@ -1184,28 +1186,29 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                 <div className="relative bg-white dark:bg-[#1A1A1A] w-full max-w-6xl h-[85vh] rounded-[32px] shadow-2xl flex flex-col overflow-hidden animate-scale-in border border-white/10">
                                     
                                     {/* Header */}
-                                    <div className="flex items-center justify-between px-8 py-6 border-b border-border/50 bg-card/30 shrink-0">
-                                        <div className="flex items-center gap-4">
-                                            <h2 className="text-xl font-bold text-primary tracking-tight">
-                                                Discussions - <span className="opacity-60">{currentQ.id}</span>
+                                    <div className="flex items-center justify-between px-4 py-4 md:px-8 md:py-6 border-b border-border/50 bg-card/30 shrink-0">
+                                        <div className="flex items-center gap-2 md:gap-4">
+                                            <h2 className="text-lg md:text-xl font-bold text-primary tracking-tight flex items-center gap-1.5 md:gap-2">
+                                                Discussions <span className="opacity-60">- {currentQ.id}</span>
                                             </h2>
                                         </div>
-                                        <div className="flex items-center gap-3">
-                                            <button className="flex items-center gap-2 px-4 py-2 bg-black dark:bg-white dark:text-black text-white rounded-full text-xs font-bold hover:opacity-90 transition-all active:scale-95">
-                                                <Navigation className="size-3.5 rotate-45" />
-                                                Share
+                                        <div className="flex items-center gap-2 md:gap-3">
+                                            <button className="flex items-center gap-1.5 md:gap-2 px-3 py-2 md:px-4 md:py-2 bg-black dark:bg-white dark:text-black text-white rounded-full text-xs font-bold hover:opacity-90 transition-all active:scale-95">
+                                                <Navigation className="size-3 md:size-3.5 rotate-45" />
+                                                <span className="hidden md:inline">Share</span>
+                                                <span className="md:hidden">Share</span>
                                             </button>
                                             <button 
                                                 onClick={() => setIsDiscussionOpen(false)}
                                                 className="size-10 rounded-full hover:bg-secondary flex items-center justify-center text-muted-foreground transition-colors"
                                             >
-                                                <RefreshCw className="size-5 rotate-45" />
+                                                <X className="size-5" />
                                             </button>
                                         </div>
                                     </div>
 
                                     {/* Comments List Area */}
-                                    <div className="flex-1 overflow-y-auto p-12 scrollbar-hide">
+                                    <div className="flex-1 overflow-y-auto p-4 md:p-12 scrollbar-hide">
                                         {commentLoading ? (
                                             <div className="h-full flex flex-col items-center justify-center gap-4 text-muted-foreground/40">
                                                 <RefreshCw className="size-12 animate-spin" />
@@ -1223,7 +1226,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                     </div>
 
                                     {/* Bottom Input Section */}
-                                    <div className="px-12 py-10 border-t border-border/50 bg-secondary/5 shrink-0">
+                                    <div className="px-4 py-4 md:px-12 md:py-10 border-t border-border/50 bg-secondary/5 shrink-0">
                                         <div className="max-w-5xl">
                                             <div className="flex items-center justify-between mb-1">
                                                 <h3 className="text-lg font-bold text-primary">
@@ -1253,16 +1256,16 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                                         value={newComment}
                                                         onChange={(e) => setNewComment(e.target.value)}
                                                         placeholder={replyingTo ? `Write your reply...` : "Share your doubts or points regarding the question...📝"}
-                                                        className="w-full bg-card border border-border rounded-2xl p-6 text-sm text-primary placeholder:text-muted-foreground/40 focus:ring-4 focus:ring-primary/5 transition-all resize-none h-32 shadow-inner"
+                                                        className="w-full bg-card border border-border rounded-2xl p-4 md:p-6 text-sm text-primary placeholder:text-muted-foreground/40 focus:ring-4 focus:ring-primary/5 transition-all resize-none h-20 md:h-32 shadow-inner"
                                                     />
-                                                    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                                                    <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6">
                                                         <p className="text-[10px] text-muted-foreground font-medium max-w-[350px]">
                                                             By posting content to this discussion panel, you agree to the <span className="underline cursor-pointer">Posting Policy and Terms of Use</span>
                                                         </p>
                                                         <button 
                                                             onClick={handlePostComment}
                                                             disabled={postingComment || !newComment.trim()}
-                                                            className="flex items-center gap-2.5 px-10 py-3 bg-[#7CB342] text-white rounded-full text-sm font-bold shadow-lg hover:brightness-105 transition-all active:scale-95 disabled:opacity-50"
+                                                            className="flex w-full md:w-auto justify-center items-center gap-2.5 px-4 py-3 md:px-10 md:py-3 bg-[#7CB342] text-white rounded-full text-sm font-bold shadow-lg hover:brightness-105 transition-all active:scale-95 disabled:opacity-50"
                                                         >
                                                             {postingComment ? (
                                                                 <RefreshCw className="size-4 animate-spin" />

@@ -272,10 +272,14 @@ export function Navbar() {
                                     onClick={() => setIsMenuOpen(!isMenuOpen)}
                                     className="group relative size-10 rounded-full border border-border p-[3px] shadow-sm hover:shadow-premium transition-all duration-300 hover:-translate-y-[2px]"
                                 >
-                                    <div className="flex h-full w-full items-center justify-center rounded-full bg-secondary">
-                                        <span className="text-sm font-bold text-primary transition-transform duration-300 group-hover:scale-110">
-                                            {user.username[0].toUpperCase()}
-                                        </span>
+                                    <div className="flex h-full w-full items-center justify-center rounded-full bg-secondary overflow-hidden">
+                                        {user.avatar_image ? (
+                                            <img src={user.avatar_image} alt={user.username} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+                                        ) : (
+                                            <span className="text-sm font-bold text-primary transition-transform duration-300 group-hover:scale-110">
+                                                {user.username[0].toUpperCase()}
+                                            </span>
+                                        )}
                                     </div>
                                 </button>
 
@@ -285,8 +289,12 @@ export function Navbar() {
                                         {/* User Info Header */}
                                         <div className="p-4 border-b border-border mb-2">
                                             <div className="flex items-center gap-3">
-                                                <div className="size-10 rounded-full bg-secondary flex items-center justify-center text-lg font-bold text-primary">
-                                                    {user.username[0].toUpperCase()}
+                                                <div className="size-10 rounded-full bg-secondary flex items-center justify-center text-lg font-bold text-primary overflow-hidden shrink-0">
+                                                    {user.avatar_image ? (
+                                                        <img src={user.avatar_image} alt={user.username} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        user.username[0].toUpperCase()
+                                                    )}
                                                 </div>
                                                 <div className="overflow-hidden">
                                                     <p className="font-bold font-heading text-primary truncate">{user.username}</p>
