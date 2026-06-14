@@ -1,17 +1,30 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Loader2 } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { CategoryHomeIcon } from "@/components/category-home-icon"
+import { examApi } from "@/lib/api"
 
 export default function ExamsPage() {
-    const categories = [
-        { id: "ssc", name: "SSC Exams", count: 4, icon: "school" },
-        { id: "banking", name: "Banking & Insurance", count: 3, icon: "account_balance" },
-        { id: "railways", name: "Railways", count: 2, icon: "train" },
-        { id: "teaching", name: "Teaching", count: 5, icon: "menu_book" },
-    ]
+    const [categories, setCategories] = useState<any[]>([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await examApi.getCategories()
+                // Depending on pagination, API might return { results: [...] } or just [...]
+                setCategories(res.data.results || res.data || [])
+            } catch (error) {
+                console.error("Failed to fetch categories", error)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchCategories()
+    }, [])
 
     return (
         <div className="min-h-screen bg-background">
@@ -22,12 +35,21 @@ export default function ExamsPage() {
                     <p className="text-muted-foreground font-medium">Choose a category to start your preparation.</p>
                 </header>
 
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {loading ? (
+                    <div className="flex h-64 items-center justify-center">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                ) : categories.length === 0 ? (
+                    <div className="flex h-64 items-center justify-center">
+                        <p className="text-muted-foreground font-medium">No categories found.</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {categories.map((cat) => (
                         <Link
                             prefetch={false}
-                            key={cat.id}
-                            href={`/exam/${cat.id}`}
+                            key={cat.slug}
+                            href={`/category/${cat.slug}`}
                             className="block h-full"
                         >
                             <div className="group card-premium relative flex h-full cursor-pointer flex-col gap-5 overflow-hidden p-6">
@@ -36,11 +58,11 @@ export default function ExamsPage() {
                                 <div className="relative z-10 flex h-full flex-col gap-5">
                                     <div className="flex items-start justify-between gap-3">
                                         <CategoryHomeIcon
-                                            iconName={cat.icon}
+                                            iconName={cat.icon || "school"}
                                             categoryLabel={cat.name}
                                         />
                                         <span className="rounded-full border border-border bg-secondary/50 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-primary">
-                                            {cat.count} {cat.count === 1 ? "Exam" : "Exams"}
+                                            {cat.exam_count || 0} {cat.exam_count === 1 ? "Exam" : "Exams"}
                                         </span>
                                     </div>
 
@@ -66,6 +88,7 @@ export default function ExamsPage() {
                         </Link>
                     ))}
                 </div>
+                )}
             </div>
         </div>
     )

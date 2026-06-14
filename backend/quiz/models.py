@@ -91,7 +91,7 @@ class Exam(models.Model):
         help_text="Draft exams are not visible to students"
     )
 
-    pdf_file = models.FileField(upload_to='pdfs/')
+    pdf_file = models.FileField(upload_to='pdfs/', null=True, blank=True)
     duration_minutes = models.IntegerField(default=60)
     total_questions = models.IntegerField(default=10)
     
@@ -147,6 +147,8 @@ class Question(models.Model):
     )
     order = models.IntegerField(default=0)
     points = models.IntegerField(default=1)
+    
+    metadata = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     question_text = models.TextField()

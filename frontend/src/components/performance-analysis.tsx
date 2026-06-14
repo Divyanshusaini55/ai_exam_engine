@@ -96,6 +96,10 @@ export function PerformanceAnalysisDashboard({ examId, onRetake }: PerformanceAn
     router.replace("/analysis")
   }
 
+  const handleGoToSummary = () => {
+    router.push(`/summary/${examId}`)
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background  gap-4">
@@ -200,6 +204,12 @@ export function PerformanceAnalysisDashboard({ examId, onRetake }: PerformanceAn
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-secondary border border-border hover:bg-background text-primary transition-all text-sm font-bold active:scale-95"
               >
                 <BarChart3 className="size-4.5" /> View Analysis
+              </button>
+              <button
+                onClick={handleGoToSummary}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-secondary border border-border hover:bg-background text-primary transition-all text-sm font-bold active:scale-95"
+              >
+                <FileText className="size-4.5" /> View Question Paper Summary
               </button>
               <button
                 onClick={onRetake}

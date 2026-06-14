@@ -15,9 +15,24 @@ class SummaryMixin:
         if exam.ai_summary and not force:
             return Response({'ai_summary': exam.ai_summary})
             
+        from jobs.models import BackgroundJob
         from jobs.services import create_job
         from tasks.summary_tasks import generate_exam_summary
         
+        # Check if there is already an active job for this exam
+        active_job = BackgroundJob.objects.filter(
+            type='ai.summary',
+            payload__exam_id=exam.id,
+            status__in=['QUEUED', 'RUNNING']
+        ).first()
+
+        if active_job:
+            return Response({
+                'job_id': str(active_job.id),
+                'status': active_job.status.lower(), 
+                'message': 'AI summary is currently being generated. This takes about a minute. Please check back shortly.'
+            }, status=202)
+
         job = create_job(
             type='ai.summary', 
             payload={'exam_id': exam.id, 'force': force}, 

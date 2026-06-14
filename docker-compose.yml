@@ -127,7 +127,7 @@ services:
   roadmap_worker:
     build:
       context: ./backend
-    command: celery -A core worker -Q normal,maintenance -n roadmap_worker@%h --loglevel=info --concurrency=2
+    command: celery -A core worker -Q normal,maintenance -n roadmap_worker@%h --loglevel=info --pool=threads --concurrency=4
     volumes:
       - ./backend:/app
     env_file:
@@ -164,7 +164,7 @@ services:
   pdf_worker:
     build:
       context: ./backend
-    command: celery -A core worker -Q high,normal -n pdf_worker@%h --loglevel=info --concurrency=2
+    command: celery -A core worker -Q high,normal -n pdf_worker@%h --loglevel=info --pool=threads --concurrency=4
     volumes:
       - ./backend:/app
     env_file:
@@ -201,7 +201,7 @@ services:
   analytics_worker:
     build:
       context: ./backend
-    command: celery -A core worker -Q low,maintenance -n analytics_worker@%h --loglevel=info --concurrency=2
+    command: celery -A core worker -Q low,maintenance -n analytics_worker@%h --loglevel=info --pool=threads --concurrency=4
     volumes:
       - ./backend:/app
     env_file:
@@ -238,7 +238,7 @@ services:
   notification_worker:
     build:
       context: ./backend
-    command: celery -A core worker -Q high -n notification_worker@%h --loglevel=info --concurrency=2
+    command: celery -A core worker -Q high -n notification_worker@%h --loglevel=info --pool=threads --concurrency=4
     volumes:
       - ./backend:/app
     env_file:

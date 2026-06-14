@@ -92,11 +92,11 @@ export default function DailyDoseDetail() {
                             </span>
                         </div>
 
-                        <h1 className="text-2xl md:text-4xl font-bold text-primary leading-tight mb-8">
+                        <h1 className="text-2xl md:text-3xl font-heading font-extrabold text-primary leading-[1.15] mb-8 tracking-tight">
                             {article.title}
                         </h1>
 
-                        <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none prose-headings:text-primary prose-a:text-primary prose-strong:text-primary">
+                        <div className="prose prose-lg md:prose-xl font-['var(--font-crimson-pro)'] leading-relaxed dark:prose-invert max-w-none prose-headings:font-heading prose-headings:font-bold prose-headings:text-primary prose-a:text-primary prose-strong:text-primary prose-p:text-primary/90 prose-li:text-primary/90">
                             <ReactMarkdown>{article.content}</ReactMarkdown>
                         </div>
 

@@ -1,5 +1,7 @@
 "use client"
 import { useState, useEffect, useCallback } from "react"
+import Link from "next/link"
+import { useAuth } from "@/context/auth-context"
 import { Navbar } from "@/components/navbar"
 import { contributorApi } from "@/lib/api"
 import { Users, Award, Zap, MessageSquare, FileText, TrendingUp, CheckCircle2, Star, Clock, Trophy, Flame, BarChart3, Sparkles, ShieldCheck, Cpu, ArrowUpRight, HelpCircle, Eye, Check, RefreshCw } from "lucide-react"
@@ -29,6 +31,7 @@ const ACTIVITY_COLORS: Record<string, string> = {
 }
 
 export default function ContributorsPage() {
+  const { user } = useAuth()
   const [overview, setOverview] = useState<any>(null)
   const [myStats, setMyStats] = useState<any>(null)
   const [top, setTop] = useState<any[]>([])
@@ -180,27 +183,35 @@ export default function ContributorsPage() {
                 </div>
                 <button onClick={() => setIsXPModalOpen(true)} className="text-sm font-bold text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><HelpCircle className="size-4" />How XP works</button>
               </div>
-              <div className="flex gap-6 overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0">
-                {loading && !leaderboard.length ? Array.from({length:4}).map((_,i) => <Skeleton key={i} className="min-w-[240px] h-48" />) :
-                  leaderboard.length === 0 ? <p className="text-muted-foreground text-sm">No category data yet. Start contributing!</p> :
-                  leaderboard.map((board, i) => (
-                    <div key={i} className="min-w-[240px] bg-card border border-border rounded-premium p-6 shadow-sm hover:shadow-premium transition-all duration-300 shrink-0">
-                      <div className="mb-5"><p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-0.5">{board.category_slug?.toUpperCase()}</p><h3 className="text-base font-bold text-primary">{board.category_name}</h3></div>
-                      {board.contributors.length === 0 ? <p className="text-xs text-muted-foreground">No solutions yet</p> :
-                        <div className="space-y-4">
-                          {board.contributors.map((u: any, j: number) => (
-                            <div key={j} className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <span className="text-sm">{j===0?'🥇':j===1?'🥈':'🥉'}</span>
-                                <div className="size-8 rounded-full bg-secondary flex items-center justify-center text-xs font-bold text-primary border border-border">{u.username[0].toUpperCase()}</div>
-                                <span className="text-[13px] font-bold text-primary truncate max-w-[90px]">{u.username}</span>
+              <div className="overflow-hidden relative -mx-4 md:mx-0 md:px-0 py-4">
+                {loading && !leaderboard.length ? (
+                  <div className="flex px-4 md:px-0">
+                    {Array.from({length:4}).map((_,i) => <Skeleton key={i} className="w-[280px] mr-6 h-48 shrink-0" />)}
+                  </div>
+                ) : leaderboard.length === 0 ? (
+                  <p className="text-muted-foreground text-sm px-4 md:px-0">No category data yet. Start contributing!</p>
+                ) : (
+                  <div className="flex w-max animate-marquee hover:[animation-play-state:paused] px-4 md:px-0">
+                    {[...leaderboard, ...leaderboard].map((board, i) => (
+                      <div key={i} className="w-[280px] mr-6 bg-card border border-border rounded-premium p-6 shadow-sm hover:shadow-premium transition-all duration-300 shrink-0">
+                        <div className="mb-5"><p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-0.5">{board.category_slug?.toUpperCase()}</p><h3 className="text-base font-bold text-primary">{board.category_name}</h3></div>
+                        {board.contributors.length === 0 ? <p className="text-xs text-muted-foreground">No solutions yet</p> :
+                          <div className="space-y-4">
+                            {board.contributors.map((u: any, j: number) => (
+                              <div key={j} className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <span className="text-sm">{j===0?'🥇':j===1?'🥈':'🥉'}</span>
+                                  <div className="size-8 rounded-full bg-secondary flex items-center justify-center text-xs font-bold text-primary border border-border shrink-0">{u.username[0].toUpperCase()}</div>
+                                  <span className="text-[13px] font-bold text-primary truncate max-w-[90px]">{u.username}</span>
+                                </div>
+                                <span className="text-[12px] font-bold text-amber-600 whitespace-nowrap">{u.xp} xp</span>
                               </div>
-                              <span className="text-[12px] font-bold text-amber-600 whitespace-nowrap">{u.xp} xp</span>
-                            </div>
-                          ))}
-                        </div>}
-                    </div>
-                  ))}
+                            ))}
+                          </div>}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </section>
 
@@ -283,7 +294,7 @@ export default function ContributorsPage() {
             )}
 
             {/* BADGES */}
-            <section>
+            {/* <section>
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-[20px] font-bold font-heading text-primary">Badges</h2>
                 <span className="text-xs font-bold text-muted-foreground">{earnedBadges.length}/{badges.length} earned</span>
@@ -300,7 +311,7 @@ export default function ContributorsPage() {
                     </div>
                   ))}
                 </div>}
-            </section>
+            </section> */}
           </div>
         </div>
 
@@ -309,11 +320,11 @@ export default function ContributorsPage() {
           <div className="bg-secondary/30 rounded-[40px] p-12 md:p-16 text-center border border-border relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent pointer-events-none" />
             <Users className="size-16 text-primary/10 mx-auto mb-8 group-hover:scale-110 transition-transform duration-500" />
-            <h2 className="text-3xl md:text-5xl font-bold font-heading text-primary tracking-tight mb-6">Built for the Community</h2>
+            <h2 className="text-2xl md:text-4xl font-bold font-heading text-primary tracking-tight mb-6">Built for the Community</h2>
             <p className="text-lg md:text-xl text-muted-foreground font-medium max-w-2xl mx-auto mb-10 leading-relaxed">Share knowledge, help fellow aspirants, and climb the global ranks. Your contributions power the next generation of AI learning.</p>
             <div className="flex flex-wrap items-center justify-center gap-6">
-              <button className="px-10 py-4 bg-primary text-primary-foreground font-bold rounded-2xl shadow-premium hover:-translate-y-1 transition-all active:scale-95">Start Contributing</button>
-              <button className="px-10 py-4 bg-card border border-border text-primary font-bold rounded-2xl shadow-sm hover:bg-secondary transition-all active:scale-95">Browse Discussions</button>
+              <Link href={user ? "/upload" : "/login"} className="px-8 py-2 bg-primary text-primary-foreground font-bold rounded-2xl shadow-premium hover:-translate-y-0.5 transition-all active:scale-95 inline-block">Start Contributing</Link>
+              <Link href={user ? "/discussions" : "/login"} className="px-8 py-2 bg-card border border-border text-primary font-bold rounded-2xl shadow-sm hover:bg-secondary transition-all active:scale-95 inline-block">Browse Discussions</Link>
             </div>
           </div>
         </section>

@@ -1,0 +1,116 @@
+{
+  "title": "SSC CGL General Awareness Mock Test 1",
+  "category_slug": "ssc", 
+  "sub_category_slug": "cgl",
+  "duration_minutes": 30,
+  "negative_marks": 0.50,
+  "positive_marks": 2.0,
+  "questions": [
+    {
+      "id": "q_000001",
+      "question_type": "mcq",
+      "question": {
+        "text": "Who was the first President of India?"
+      },
+      "options": [
+        {"id": "A", "text": "Jawaharlal Nehru"},
+        {"id": "B", "text": "Dr. Rajendra Prasad"},
+        {"id": "C", "text": "Sardar Patel"},
+        {"id": "D", "text": "B. R. Ambedkar"}
+      ],
+      "answer": {
+        "correct_option": "B",
+        "correct_text": "Dr. Rajendra Prasad"
+      },
+      "explanation": "Dr. Rajendra Prasad became the first President of India in 1950, taking office after the republic was established. He is the only president to serve two terms.",
+      "classification": {
+        "subject": "History",
+        "topic": "Modern India",
+        "subtopic": "Constitutional History",
+        "difficulty": "Easy"
+      },
+      "exam_history": [
+        {"exam": "SSC CGL", "year": 2021, "shift": "Shift 1"}
+      ],
+      "source": {
+        "book": "SSC PYQ 2025",
+        "page": 42
+      },
+      "metadata": {
+        "verified": true,
+        "language": "en"
+      }
+    },
+    {
+      "id": "q_000002",
+      "question_type": "mcq",
+      "question": {
+        "text": "Which of the following elements is a noble gas?"
+      },
+      "options": [
+        {"id": "A", "text": "Nitrogen"},
+        {"id": "B", "text": "Hydrogen"},
+        {"id": "C", "text": "Helium"},
+        {"id": "D", "text": "Oxygen"}
+      ],
+      "answer": {
+        "correct_option": "C",
+        "correct_text": "Helium"
+      },
+      "explanation": "Helium (He) is a noble gas. Noble gases are located in Group 18 of the periodic table and are highly unreactive because they have a full outer electron shell.",
+      "classification": {
+        "subject": "Science",
+        "topic": "Chemistry",
+        "subtopic": "Periodic Table",
+        "difficulty": "Medium"
+      },
+      "exam_history": [
+        {"exam": "SSC CHSL", "year": 2022, "shift": "Shift 3"}
+      ],
+      "source": {
+        "book": "NCERT Class 10 Chemistry",
+        "page": 89
+      },
+      "metadata": {
+        "verified": true,
+        "language": "en"
+      }
+    },
+    {
+      "id": "q_000003",
+      "question_type": "mcq",
+      "question": {
+        "text": "If a train traveling at 60 km/h crosses a pole in 9 seconds, what is the length of the train?"
+      },
+      "options": [
+        {"id": "A", "text": "120 meters"},
+        {"id": "B", "text": "150 meters"},
+        {"id": "C", "text": "180 meters"},
+        {"id": "D", "text": "200 meters"}
+      ],
+      "answer": {
+        "correct_option": "B",
+        "correct_text": "150 meters"
+      },
+      "explanation": "Speed = 60 km/h = 60 * (5/18) m/s = 50/3 m/s. \nDistance (length of train) = Speed * Time = (50/3) * 9 = 150 meters.",
+      "classification": {
+        "subject": "Quantitative Aptitude",
+        "topic": "Speed, Time and Distance",
+        "subtopic": "Trains",
+        "difficulty": "Hard"
+      },
+      "exam_history": [
+        {"exam": "SSC CGL Tier 2", "year": 2020, "shift": "Shift 1"}
+      ],
+      "source": {
+        "book": "Quantitative Aptitude by R.S. Aggarwal",
+        "page": 412
+      },
+      "metadata": {
+        "verified": true,
+        "language": "en",
+        "has_formula": true
+      }
+    }
+  ]
+}

@@ -78,10 +78,26 @@ export function SuggestCorrectionModal({ isOpen, onClose, question }: SuggestCor
         try {
             let suggestion_data = {}
             if (correctionType === 'question_text') {
+                if (!questionText.trim()) {
+                    alert("Please enter the proposed question text.")
+                    setSubmitting(false)
+                    return
+                }
                 suggestion_data = { question_text: questionText }
             } else if (correctionType === 'correct_answer') {
+                if (!correctAnswerId) {
+                    alert("Please select the correct answer.")
+                    setSubmitting(false)
+                    return
+                }
                 suggestion_data = { correct_answer_id: correctAnswerId }
             } else if (correctionType === 'option_text') {
+                const hasEmptyOption = options.some(o => !o.answer_text.trim())
+                if (hasEmptyOption) {
+                    alert("Options cannot be empty.")
+                    setSubmitting(false)
+                    return
+                }
                 suggestion_data = { options: options.map(o => ({ id: o.id, text: o.answer_text })) }
             }
 

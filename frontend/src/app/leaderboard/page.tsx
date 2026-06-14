@@ -6,7 +6,7 @@ import { examApi } from "@/lib/api"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Navbar } from "@/components/navbar"
-import { Trophy, Sparkles, ChevronDown, Rocket, HelpCircle } from "lucide-react"
+import { Trophy, Sparkles, ChevronDown, Rocket, HelpCircle, Sparkle } from "lucide-react"
 import { XPGuideModal } from "@/components/xp-guide-modal"
 
 export default function LeaderboardPage() {
@@ -268,19 +268,18 @@ export default function LeaderboardPage() {
                         )}
 
                         {/* Motivational Footer */}
-                        <div className="mt-16 text-center animate-fade-in" style={{ animationDelay: '0.5s' }}>
-                            <div className="inline-block p-12 rounded-premium bg-primary text-primary-foreground shadow-premium relative overflow-hidden max-w-3xl w-full border border-primary">
-                                <div className="absolute top-0 left-0 p-32 bg-secondary/10 rounded-full blur-3xl -translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
+                        <div className="mt-12 text-center animate-fade-in" style={{ animationDelay: '0.5s' }}>
+                            <div className="inline-block p-6 md:p-8 rounded-[24px] bg-primary text-primary-foreground relative overflow-hidden max-w-3xl w-full">
                                 <div className="relative z-10 flex flex-col items-center">
-                                    <Sparkles className="size-10 text-primary-foreground/80 mb-6" />
-                                    <p className="text-[22px] md:text-[26px] font-medium font-heading leading-tight mb-8 italic">
+                                    <Sparkle className="size-6 text-primary-foreground mb-3" strokeWidth={1.5} />
+                                    <p className="text-[18px] md:text-[22px] font-medium font-heading leading-snug mb-6 italic max-w-2xl text-primary-foreground/90">
                                         &ldquo;Consistency beats talent when talent doesn&apos;t practice.&rdquo;
                                     </p>
                                     <Link prefetch={false}
-                                        href="/"
-                                        className="inline-flex items-center gap-2 px-2 py-3 bg-card text-primary font-bold rounded-xl hover:-translate-y-1 shadow-2xl transition-all duration-300"
+                                        href="/exams"
+                                        className="inline-flex items-center gap-2.5 px-5 py-3 bg-background text-primary text-[14px] font-bold rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
                                     >
-                                        <Rocket className="size-5" />
+                                        <Rocket className="size-[16px]" strokeWidth={2} />
                                         Take a Test & Improve Rank
                                     </Link>
                                 </div>

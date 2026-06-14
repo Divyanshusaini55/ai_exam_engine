@@ -130,6 +130,18 @@ class SolutionViewSet(viewsets.ModelViewSet):
         profile.save(update_fields=['total_upvotes_received'])
         if request.method == 'POST':
             award_xp(solution.user, 5, 'UPVOTE', f"Solution upvoted by {request.user.username}")
+            
+            # Send Notification to solution author
+            if solution.user != request.user:
+                from .models import Notification, UserSettings
+                settings, _ = UserSettings.objects.get_or_create(user=solution.user)
+                if settings.notify_contributor_activity:
+                    Notification.objects.create(
+                        user=solution.user,
+                        type='UPVOTE',
+                        title='Solution Upvoted',
+                        message=f"{request.user.username} upvoted your solution to Q{solution.question.id}."
+                    )
         
         return Response({'upvotes': solution.upvotes})
 
@@ -156,6 +168,18 @@ class CommentViewSet(viewsets.ModelViewSet):
         comment = self.get_object()
         comment.upvotes = F('upvotes') + 1
         comment.save(update_fields=['upvotes'])
+        
+        # Send Notification to comment author
+        if comment.user != request.user:
+            from .models import Notification, UserSettings
+            settings, _ = UserSettings.objects.get_or_create(user=comment.user)
+            if settings.notify_contributor_activity:
+                Notification.objects.create(
+                    user=comment.user,
+                    type='UPVOTE',
+                    title='Comment Upvoted',
+                    message=f"{request.user.username} upvoted your comment."
+                )
         comment.refresh_from_db()
         return Response({'upvotes': comment.upvotes})
 

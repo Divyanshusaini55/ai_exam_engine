@@ -36,7 +36,7 @@ TERMINAL_STATUSES = frozenset({
     Status.CANCELLED,
 })
 VALID_TRANSITIONS = {
-    Status.QUEUED: {Status.RUNNING, Status.CANCELLED},
+    Status.QUEUED: {Status.RUNNING, Status.FAILED, Status.CANCELLED},
     Status.RUNNING: {Status.COMPLETED, Status.FAILED, Status.CANCELLED},
     Status.COMPLETED: set(),
     Status.FAILED: set(),

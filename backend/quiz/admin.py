@@ -309,6 +309,8 @@ class SubCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Exam)
 class ExamAdmin(admin.ModelAdmin):
+    change_list_template = "admin/quiz_exam_changelist.html"
+    
     list_display = ('title', 'subcategory', 'year', 'shift', 'status_badge', 'duration_minutes', 'total_questions', 'active_badge', 'created_at')
     list_editable = ()
     list_filter = ('status', 'is_active', 'subcategory__category', 'subcategory', 'year', 'created_at')
@@ -323,6 +325,40 @@ class ExamAdmin(admin.ModelAdmin):
     )
     inlines = [QuestionInline]
     actions = [generate_questions]
+
+    def get_urls(self):
+        from django.urls import path
+        urls = super().get_urls()
+        custom_urls = [
+            path('import-json/', self.admin_site.admin_view(self.import_json_view), name='quiz_exam_import_json'),
+        ]
+        return custom_urls + urls
+
+    def import_json_view(self, request):
+        import json
+        from django.shortcuts import render, redirect
+        from django.contrib import messages
+        from .utils.json_importer import ExamJSONImporter
+        
+        if request.method == 'POST':
+            json_file = request.FILES.get('json_file')
+            if not json_file:
+                messages.error(request, 'Please select a file.')
+                return redirect('..')
+            
+            try:
+                data = json.load(json_file)
+                success, msg = ExamJSONImporter.import_from_json(data)
+                if success:
+                    messages.success(request, msg)
+                else:
+                    messages.error(request, msg)
+            except Exception as e:
+                messages.error(request, f'Invalid JSON: {e}')
+                
+            return redirect('..')
+            
+        return render(request, 'admin/import_json.html', {'opts': self.model._meta})
 
     def status_badge(self, obj):
         return _status_badge(obj.status)

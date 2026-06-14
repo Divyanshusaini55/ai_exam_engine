@@ -69,6 +69,30 @@ def on_comment_saved(sender, instance, created, **kwargs):
         metadata={'comment_id': instance.id},
     )
 
+    # Notify parent author or solution author
+    from .models import Notification
+    from .models import UserSettings
+    
+    target_user = None
+    if instance.parent and instance.parent.user != instance.user:
+        target_user = instance.parent.user
+        title = "New Reply"
+        msg = f"{instance.user.username} replied to your comment."
+    elif instance.solution and instance.solution.user != instance.user:
+        target_user = instance.solution.user
+        title = "New Comment on your Solution"
+        msg = f"{instance.user.username} commented on your solution."
+        
+    if target_user:
+        settings, _ = UserSettings.objects.get_or_create(user=target_user)
+        if settings.notify_contributor_activity:
+            Notification.objects.create(
+                user=target_user,
+                type='REPLY',
+                title=title,
+                message=msg
+            )
+
 
 # QuestionPaperUpload
 def connect_upload_signal():
@@ -161,6 +185,17 @@ def connect_exam_result_signal():
                 'attempt_id': instance.id,
             },
         )
+        
+        # Send notification to user
+        from .models import Notification, UserSettings
+        settings, _ = UserSettings.objects.get_or_create(user=instance.user)
+        if settings.notify_exam_results:
+            Notification.objects.create(
+                user=instance.user,
+                type='SYSTEM',
+                title='Exam Results Ready',
+                message=f'Your results for "{instance.exam.title}" are ready. You scored {round(instance.percentage, 1)}%.'
+            )
 
 
 # UserTopicProgress

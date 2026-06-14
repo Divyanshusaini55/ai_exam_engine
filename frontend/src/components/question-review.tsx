@@ -96,12 +96,12 @@ export function QuestionReview({
         {/* ROW 3: Answers Comparison */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* User Answer */}
-          <div className={`flex flex-col gap-1 p-4 rounded-xl border-l-4 ${
+          <div className={`flex flex-col gap-1 p-4 rounded-xl border transition-all duration-300 hover:shadow-sm hover:scale-[1.01] ${
             isCorrect
-              ? "bg-success/5 border-success"
+              ? "bg-success/5 border-success/50 hover:bg-success/10 hover:border-success"
               : isSkipped
-                ? "bg-secondary/50 border-muted-foreground/30"
-                : "bg-destructive/5 border-destructive"
+                ? "bg-secondary/50 border-muted-foreground/30 hover:bg-secondary/70"
+                : "bg-destructive/5 border-destructive/50 hover:bg-destructive/10 hover:border-destructive"
           }`}>
             <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
               Your Answer
@@ -118,7 +118,7 @@ export function QuestionReview({
           </div>
 
           {/* Correct Answer — always on-brand success green */}
-          <div className="flex flex-col gap-1 p-4 rounded-xl border-l-4 bg-success/5 border-success">
+          <div className="flex flex-col gap-1 p-4 rounded-xl border border-success/50 bg-success/5 transition-all duration-300 hover:bg-success/10 hover:border-success hover:shadow-sm hover:scale-[1.01]">
             <span className="text-[10px] font-bold uppercase tracking-widest text-success mb-1">
               Correct Answer
             </span>

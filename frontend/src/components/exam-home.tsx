@@ -7,6 +7,8 @@ import { useAuth } from "@/context/auth-context"
 import { CategoryGrid } from "@/components/category-grid"
 import { Navbar } from "@/components/navbar"
 import { HomeSkeleton } from "@/components/home-skeleton"
+import { LayoutTextFlip } from "@/components/ui/layout-text-flip"
+import { motion } from "motion/react"
 import {
   BookOpen,
   FileQuestion,
@@ -62,8 +64,13 @@ export function ExamHome() {
                 <span>The Future of Exam Prep is Here</span>
               </div>
 
-              <h1 className="text-5xl md:text-6xl lg:text-[72px] leading-[1.1] font-bold font-heading text-primary tracking-tight text-balance">
-                Master your exams with AI precision.
+              <h1 className="text-4xl md:text-5xl lg:text-[60px] leading-[1.1] font-bold font-heading text-primary tracking-tight text-balance flex flex-wrap justify-center items-center gap-x-3 gap-y-2">
+                <LayoutTextFlip
+                  text="Master your exams with"
+                  words={["AI precision.", "deep analytics.", "smart learning."]}
+                  textClassName="!font-heading font-bold text-primary"
+                  className="!font-heading font-bold text-blue-600 dark:text-blue-400"
+                />
               </h1>
 
               <p className="text-lg md:text-xl text-muted-foreground font-medium max-w-2xl mt-2 leading-relaxed">
@@ -89,21 +96,27 @@ export function ExamHome() {
                 {/* Mock Navbar */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-background/80">
                   <div className="flex items-center gap-3">
-                    <div className="size-7 bg-primary rounded-lg" />
-                    <div className="h-4 w-28 bg-primary/20 rounded-md" />
+                    <motion.div 
+                      animate={{ opacity: [0.7, 1, 0.7] }}
+                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                      className="size-7 bg-primary rounded-lg" 
+                    />
+                    <div className="h-4 w-28 bg-primary/20 rounded-md overflow-hidden relative">
+                       <motion.div className="absolute inset-0 bg-gradient-to-r from-transparent dark:via-white/20 via-black/10 to-transparent -translate-x-full" animate={{ translateX: ["-100%", "200%"] }} transition={{ duration: 3, repeat: Infinity, ease: "linear", repeatDelay: 2 }} />
+                    </div>
                   </div>
                   <div className="hidden md:flex items-center gap-6">
                     {[60, 50, 70, 55].map((w, i) => (
-                      <div key={i} className="h-3 bg-primary/15 rounded-full" style={{ width: `${w}px` }} />
+                      <motion.div key={i} animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 3, delay: i * 0.2, repeat: Infinity }} className="h-3 bg-primary/15 rounded-full" style={{ width: `${w}px` }} />
                     ))}
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="h-8 w-20 bg-secondary rounded-lg border border-border flex items-center justify-center">
                       <div className="h-2 w-12 bg-primary/20 rounded-full" />
                     </div>
-                    <div className="size-8 rounded-full bg-secondary border border-border flex items-center justify-center overflow-hidden">
+                    <motion.div whileHover={{ scale: 1.1 }} className="size-8 rounded-full bg-secondary border border-border flex items-center justify-center overflow-hidden cursor-pointer">
                       <CircleUserRound className="size-4 text-muted-foreground/50" />
-                    </div>
+                    </motion.div>
                   </div>
                 </div>
 
@@ -126,17 +139,29 @@ export function ExamHome() {
                       { label: "Rank", value: "#12", icon: Trophy, color: "bg-primary/5" },
                       { label: "Streak", value: "7d", icon: Flame, color: "bg-primary/5" },
                     ].map((stat, i) => (
-                      <div key={i} className={`${stat.color} rounded-2xl p-4 border border-border flex flex-col items-start text-left`}>
+                      <motion.div 
+                        key={i} 
+                        whileHover={{ scale: 1.02 }}
+                        className={`${stat.color} rounded-2xl p-4 border border-border flex flex-col items-start text-left relative overflow-hidden`}
+                      >
+                        {/* Soft sleek shimmer */}
+                        <motion.div
+                          className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent dark:via-white/10 via-black/5 to-transparent skew-x-12"
+                          animate={{ translateX: ['-100%', '200%'] }}
+                          transition={{ duration: 3, repeat: Infinity, delay: i * 0.4, ease: "easeInOut", repeatDelay: 2 }}
+                        />
                         <div className="size-8 rounded-lg bg-card border border-border flex items-center justify-center text-primary shadow-sm mb-3">
                           <stat.icon className="size-4.5" />
                         </div>
                         <div className="h-6 flex items-center">
-                          <span className="text-[18px] font-bold text-primary tracking-tight">{stat.value}</span>
+                          <span className="text-[18px] font-bold text-primary tracking-tight">
+                            {stat.value}
+                          </span>
                         </div>
                         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">
                           {stat.label}
                         </p>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
 
@@ -145,14 +170,20 @@ export function ExamHome() {
                     {/* Chart */}
                     <div className="md:col-span-2 bg-secondary/20 rounded-2xl border border-border p-5 text-left">
                       <div className="flex justify-between items-center mb-5">
-                        <div className="h-4 w-36 bg-primary/20 rounded-lg" />
+                        <div className="h-4 w-36 bg-primary/20 rounded-lg overflow-hidden relative">
+                           <motion.div className="absolute inset-0 bg-gradient-to-r from-transparent dark:via-white/30 via-black/10 to-transparent -translate-x-full" animate={{ translateX: ["-100%", "200%"] }} transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 1.5 }} />
+                        </div>
                         <div className="h-3 w-20 bg-primary/10 rounded-full" />
                       </div>
                       {/* Bar Chart */}
                       <div className="flex items-end gap-2 h-20">
                         {[40, 65, 50, 80, 60, 90, 72].map((h, i) => (
-                          <div key={i} className="flex-1 rounded-t-lg bg-primary/10" style={{ height: `${h}%` }}>
-                            <div className="w-full rounded-t-lg bg-primary/40 transition-all" style={{ height: `${h * 0.6}%` }} />
+                          <div key={i} className="flex-1 rounded-t-lg bg-primary/10 relative overflow-hidden" style={{ height: `${h}%` }}>
+                            <motion.div 
+                              className="absolute bottom-0 inset-x-0 w-full rounded-t-lg bg-primary/40 origin-bottom" 
+                              animate={{ height: [`${h * 0.4}%`, `${Math.min(100, h * 0.9)}%`, `${h * 0.4}%`] }}
+                              transition={{ duration: 4 + i * 0.5, repeat: Infinity, ease: "easeInOut" }}
+                            />
                           </div>
                         ))}
                       </div>
@@ -164,19 +195,30 @@ export function ExamHome() {
                     </div>
 
                     {/* Recent Activity */}
-                    <div className="bg-secondary/20 rounded-2xl border border-border p-5 text-left">
+                    <div className="bg-secondary/20 rounded-2xl border border-border p-5 text-left overflow-hidden">
                       <div className="h-4 w-24 bg-primary/20 rounded-lg mb-4" />
                       <div className="flex flex-col gap-3">
                         {[85, 72, 91].map((score, i) => (
-                          <div key={i} className="flex items-center gap-3 p-2 bg-card rounded-xl border border-border shadow-sm">
+                          <div 
+                            key={i} 
+                            className="flex items-center gap-3 p-2 bg-card rounded-xl border border-border shadow-sm"
+                          >
                             <div className="size-7 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
                               <Activity className="size-3.5 text-primary" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="h-2.5 w-full bg-primary/15 rounded-full mb-1.5" />
+                              <div className="h-2.5 w-full bg-primary/15 rounded-full mb-1.5 overflow-hidden relative">
+                                <motion.div 
+                                  className="absolute left-0 top-0 bottom-0 bg-primary/40 rounded-full"
+                                  animate={{ width: [`${score - 15}%`, `${score}%`, `${score - 15}%`] }}
+                                  transition={{ duration: 4 + i * 0.5, repeat: Infinity, ease: "easeInOut" }}
+                                />
+                              </div>
                               <div className="h-2 w-2/3 bg-primary/10 rounded-full" />
                             </div>
-                            <span className="text-[13px] font-bold text-primary flex-shrink-0">{score}%</span>
+                            <span className="text-[13px] font-bold text-primary flex-shrink-0">
+                              {score}%
+                            </span>
                           </div>
                         ))}
                       </div>

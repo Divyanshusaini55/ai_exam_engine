@@ -72,11 +72,11 @@ export default function DailyDosePage() {
                                     </span>
                                 </div>
                                 
-                                <h2 className="text-xl font-bold text-primary leading-tight mb-3 group-hover:text-primary/80 transition-colors">
+                                <h2 className="text-xl font-heading font-extrabold tracking-tight text-primary leading-[1.2] mb-3 group-hover:text-primary/80 transition-colors">
                                     {item.title}
                                 </h2>
                                 
-                                <p className="text-muted-foreground text-sm line-clamp-3 mb-6 flex-1">
+                                <p className="text-muted-foreground/90 font-['var(--font-crimson-pro)'] text-[18px] leading-relaxed line-clamp-3 mb-6 flex-1">
                                     {item.summary}
                                 </p>
                                 

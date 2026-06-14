@@ -26,18 +26,28 @@ class ExamSummaryService:
         start_time = time.time()
         logger.info(f"Starting generic summary pipeline for exam={exam.id}, title='{exam.title}'")
 
-        # Fetch questions optimally (load only required fields)
-        questions_qs = Question.objects.filter(exam=exam).only(
-            'id', 'question_text', 'subject', 'topic', 'difficulty', 'points'
-        )
+        # Fetch questions optimally (load only required fields + answers relation)
+        questions_qs = Question.objects.filter(exam=exam).prefetch_related('answers')
         total_questions = questions_qs.count()
         if total_questions == 0:
             raise ValueError(f"Exam {exam.id} has no questions. Cannot generate summary.")
 
-        # Convert queryset to dictionary list
+        # Convert queryset to dictionary list with options
         raw_questions = []
-        for q in questions_qs.values('id', 'question_text', 'subject', 'topic', 'difficulty', 'points'):
-            raw_questions.append(q)
+        for q in questions_qs:
+            options = [{'text': ans.answer_text, 'is_correct': ans.is_correct} for ans in q.answers.all()]
+            raw_questions.append({
+                'id': q.id,
+                'question_text': q.question_text,
+                'subject': q.subject,
+                'topic': q.topic,
+                'difficulty': q.difficulty,
+                'points': q.points,
+                'question_type': q.question_type,
+                'options': options,
+                'metadata': q.metadata,
+                'explanation': q.explanation
+            })
 
         # Step 1: Question Ingestion & Validation
         validated_questions = self.analyzer.ingest_and_validate(raw_questions)

@@ -1,0 +1,19 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div class="module">
+    <h2>Import Exam from JSON</h2>
+    <p>Select a beautifully structured JSON file to import an exam and all its questions and options instantly.</p>
+    <br>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div>
+            <input type="file" name="json_file" accept=".json" required>
+        </div>
+        <br>
+        <div class="submit-row">
+            <input type="submit" value="Upload & Import" class="default" name="_save">
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -437,7 +437,16 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
     }, [isDiscussionOpen, currentQuestionIndex, currentQ])
 
     const handlePostComment = async () => {
-        if (!newComment.trim() || !currentQ || !user) return
+        if (!user) {
+            alert("Please login to share your thoughts.")
+            return
+        }
+        if (!newComment.trim()) {
+            alert("Please write a comment before submitting.")
+            return
+        }
+        if (!currentQ) return
+        
         setPostingComment(true)
         try {
             if (editingComment) {

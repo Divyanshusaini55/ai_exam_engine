@@ -43,6 +43,18 @@ def award_xp(user, amount, reason=''):
     if not is_queued:
         job = create_job(type='analytics.recalculate_ranks', payload={})
         recalculate_community_ranks.apply_async(args=[str(job.id)], countdown=60)
+        
+    # Send XP reward notification
+    from .models import Notification, UserSettings
+    if amount > 0:
+        settings, _ = UserSettings.objects.get_or_create(user=user)
+        if settings.notify_contributor_activity:
+            Notification.objects.create(
+                user=user,
+                type='REWARD',
+                title=f'+{amount} XP',
+                message=f'You earned {amount} XP for: {reason or "contribution"}'
+            )
 
 def update_streak(user):
     from .models import Profile
@@ -126,6 +138,17 @@ def check_and_award_badges(user):
                 description=f'{user.username} earned the "{badge.name}" badge',
                 metadata={'badge_slug': badge.slug, 'badge_name': badge.name},
             )
+            
+            # Send notification
+            from .models import Notification, UserSettings
+            settings, _ = UserSettings.objects.get_or_create(user=user)
+            if settings.notify_contributor_activity:
+                Notification.objects.create(
+                    user=user,
+                    type='BADGE',
+                    title='Badge Earned!',
+                    message=f'Congratulations! You earned the "{badge.name}" badge.'
+                )
 
 
 def get_category_leaderboard(days=30):

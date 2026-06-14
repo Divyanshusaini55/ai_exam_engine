@@ -28,6 +28,7 @@ import {
 const mainNavItems = [
     { label: "Home", href: "/", icon: Home },
     { label: "Daily Dose", href: "/daily-dose", icon: Newspaper },
+    { label: "Exams", href: "/exams", icon: GraduationCap},
     { label: "Leaderboard", href: "/leaderboard", icon: Trophy },
     { label: "Upload QP", href: "/upload", icon: Upload },
     { label: "Contributors", href: "/contributors", icon: Users },
