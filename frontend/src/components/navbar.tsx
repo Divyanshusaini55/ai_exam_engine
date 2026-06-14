@@ -147,7 +147,7 @@ export function Navbar() {
                     {/* Right Actions */}
                     <div className="flex items-center gap-3">
                         {/* Dark / Light toggle */}
-                        <ModeToggle className="size-9" />
+                        <ModeToggle className="!size-8 md:!size-9" />
 
                         {/* Notification bell */}
                         {user && (
@@ -221,13 +221,13 @@ export function Navbar() {
                                 </Link>
                                 <Link prefetch={false}
                                     href="/signup"
-                                    className="hidden md:block px-5 py-2.5 text-sm font-semibold bg-primary text-primary-foreground rounded-xl shadow-premium hover:-translate-y-[2px] hover:shadow-[0_15px_30_rgba(0,0,0,0.12)] transition-all duration-300"
+                                    className="hidden md:block px-4 py-2 text-[13px] font-semibold bg-primary text-primary-foreground rounded-lg shadow-premium hover:-translate-y-[2px] hover:shadow-[0_15px_30_rgba(0,0,0,0.12)] transition-all duration-300"
                                 >
                                     Register
                                 </Link>
                                 <Link prefetch={false}
                                     href="/login"
-                                    className="md:hidden px-4 py-2 text-sm font-semibold bg-primary text-primary-foreground rounded-xl shadow-premium hover:-translate-y-[2px] transition-all duration-300"
+                                    className="md:hidden px-3.5 py-1.5 text-[13px] font-semibold bg-primary text-primary-foreground rounded-lg shadow-premium hover:-translate-y-[1px] transition-all duration-300"
                                 >
                                     Sign In
                                 </Link>
@@ -236,9 +236,9 @@ export function Navbar() {
                                 <div className="relative md:hidden" ref={menuRef}>
                                     <button
                                         onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                        className="p-2 text-muted-foreground hover:text-primary rounded-xl hover:bg-secondary transition-all duration-300"
+                                        className="md:hidden size-8 flex items-center justify-center rounded-lg hover:bg-secondary text-foreground transition-colors"
                                     >
-                                        {isMenuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
+                                        {isMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
                                     </button>
                                     
                                     {isMenuOpen && (
