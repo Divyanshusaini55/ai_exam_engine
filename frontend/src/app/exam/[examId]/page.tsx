@@ -234,23 +234,25 @@ export default function ExamPage() {
               </label>
             </div>
 
-            <button
-              onClick={handleStartExam}
-              disabled={!isConfirmed || isStarting}
-              className="w-full py-2 px-4 rounded-2xl font-bold text-xl text-primary-foreground bg-primary hover:opacity-90 shadow-premium transition-all transform hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-3 group"
-            >
-              {isStarting ? (
-                <>
-                  <div className="size-6 border-3 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                  <span>Preparing Test...</span>
-                </>
-              ) : (
-                <>
-                  <span>Start Assessment Now</span>
-                  <ArrowRight className="size-7 transition-transform duration-300 group-hover:translate-x-2" />
-                </>
-              )}
-            </button>
+            <div className="flex justify-center w-full">
+              <button
+                onClick={handleStartExam}
+                disabled={!isConfirmed || isStarting}
+                className="py-2 px-8 rounded-2xl font-bold text-xl text-primary-foreground bg-primary hover:opacity-90 shadow-premium transition-all transform hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-3 group"
+              >
+                {isStarting ? (
+                  <>
+                    <div className="size-6 border-3 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                    <span>Preparing Test...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Start Assessment Now</span>
+                    <ArrowRight className="size-7 transition-transform duration-300 group-hover:translate-x-2" />
+                  </>
+                )}
+              </button>
+            </div>
 
             {!isConfirmed && (
               <p className="text-center text-xs font-bold text-destructive animate-pulse flex items-center justify-center gap-2">

@@ -118,7 +118,7 @@ export default function ContactPage() {
                             <button
                                 type="submit"
                                 disabled={status === "submitting"}
-                                className="w-full py-4 mt-2 bg-primary text-primary-foreground font-bold rounded-xl shadow-premium hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(0,0,0,0.15)] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex justify-center items-center gap-2 group"
+                                className="w-full py-2 mt-2 bg-primary text-primary-foreground font-bold rounded-xl shadow-premium hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(0,0,0,0.15)] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex justify-center items-center gap-2 group"
                             >
                                 {status === "submitting" ? (
                                     <>

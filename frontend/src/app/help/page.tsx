@@ -125,7 +125,7 @@ export default function HelpPage() {
                         <div className="relative z-10 shrink-0 flex justify-center md:justify-end w-full md:w-auto">
                             <Link prefetch={false}
                                 href="/contact"
-                                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-card text-primary font-bold rounded-xl hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300 group whitespace-nowrap w-full md:w-auto"
+                                className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-card text-primary font-bold rounded-xl hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300 group whitespace-nowrap w-full md:w-auto"
                             >
                                 Contact Support
                                 <ArrowRight className="size-4.5 transition-transform duration-300 group-hover:translate-x-1" />

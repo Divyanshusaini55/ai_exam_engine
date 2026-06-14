@@ -132,7 +132,7 @@ export default function DashboardPage() {
                         </span>
                         <Link prefetch={false}
                             href="/"
-                            className="px-6 py-2.5 bg-primary text-primary-foreground font-bold rounded-xl shadow-premium hover:-translate-y-0.5 transition-all duration-300 active:scale-95 flex items-center gap-2"
+                            className="px-4 py-2 bg-primary text-primary-foreground font-bold rounded-xl shadow-premium hover:-translate-y-0.5 transition-all duration-300 active:scale-95 flex items-center gap-2"
                         >
                             <PlusCircle className="size-5" />
                             Start New Test

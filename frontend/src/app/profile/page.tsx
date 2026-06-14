@@ -182,7 +182,7 @@ export default function ProfilePage() {
                     <div className="lg:col-span-4 flex flex-col gap-6">
                         
                         {/* Support Us Card */}
-                        <div className="card-premium p-6 bg-card border border-border shadow-sm flex flex-col gap-4">
+                        {/* <div className="card-premium p-6 bg-card border border-border shadow-sm flex flex-col gap-4">
                             <div className="flex items-center gap-3">
                                 <div className="size-8 rounded-lg bg-pink-500/10 flex items-center justify-center text-pink-600">
                                     <Heart className="size-4 fill-current" />
@@ -192,10 +192,10 @@ export default function ProfilePage() {
                             <p className="text-xs text-muted-foreground font-medium leading-relaxed">
                                 Donate to remove ads and help keep this platform free for all students.
                             </p>
-                            <button className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-xs font-bold shadow-sm hover:opacity-90 transition-opacity active:scale-[0.98]">
+                            <button className="px-2 py-2.5 bg-primary text-primary-foreground rounded-lg text-xs font-bold shadow-sm hover:opacity-90 transition-opacity active:scale-[0.98]">
                                 Remove Ads
                             </button>
-                        </div>
+                        </div> */}
 
                         {/* Profile Picture Toggle */}
                         <div className="card-premium p-6 bg-card border border-border shadow-sm flex items-center justify-between group">
@@ -294,14 +294,14 @@ export default function ProfilePage() {
                         <div className="mt-2 space-y-2">
                             <button 
                                 onClick={() => router.push('/settings')}
-                                className="w-full py-4 rounded-[20px] border border-border bg-card text-muted-foreground text-sm font-bold hover:bg-secondary hover:text-primary transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm"
+                                className="w-full py-3 rounded-[20px] border border-border bg-card text-muted-foreground text-sm font-bold hover:bg-secondary hover:text-primary transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm"
                             >
                                 <Settings className="size-4" />
                                 Settings
                             </button>
                             <button 
                                 onClick={logout}
-                                className="w-full py-4 rounded-[20px] border border-border bg-card text-muted-foreground text-sm font-bold hover:bg-secondary hover:text-destructive transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm"
+                                className="w-full py-3 rounded-[20px] border border-border bg-card text-muted-foreground text-sm font-bold hover:bg-secondary hover:text-destructive transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm"
                             >
                                 <LogOut className="size-4" />
                                 Sign Out
@@ -343,7 +343,7 @@ export default function ProfilePage() {
                             <button 
                                 onClick={() => setActiveTab("official")}
                                 className={cn(
-                                    "flex-1 py-2.5 sm:py-3 px-3 sm:px-6 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap min-w-max",
+                                    "flex-1 py-2 sm:py-2 px-3 sm:px-6 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap min-w-max",
                                     activeTab === "official" 
                                         ? "bg-primary text-primary-foreground shadow-lg scale-[1.02]" 
                                         : "text-muted-foreground hover:bg-secondary/50"
@@ -355,7 +355,7 @@ export default function ProfilePage() {
                             <button 
                                 onClick={() => setActiveTab("practice")}
                                 className={cn(
-                                    "flex-1 py-2.5 sm:py-3 px-3 sm:px-6 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap min-w-max",
+                                    "flex-1 py-2 sm:py-2 px-3 sm:px-6 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap min-w-max",
                                     activeTab === "practice" 
                                         ? "bg-primary text-primary-foreground shadow-lg scale-[1.02]" 
                                         : "text-muted-foreground hover:bg-secondary/50"
@@ -367,7 +367,7 @@ export default function ProfilePage() {
                             <button 
                                 onClick={() => setActiveTab("comments")}
                                 className={cn(
-                                    "flex-1 py-2.5 sm:py-3 px-3 sm:px-6 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap min-w-max",
+                                    "flex-1 py-2 sm:py-2 px-3 sm:px-6 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap min-w-max",
                                     activeTab === "comments" 
                                         ? "bg-primary text-primary-foreground shadow-lg scale-[1.02]" 
                                         : "text-muted-foreground hover:bg-secondary/50"
@@ -379,7 +379,7 @@ export default function ProfilePage() {
                             <button 
                                 onClick={() => setActiveTab("roadmaps")}
                                 className={cn(
-                                    "flex-1 py-2.5 sm:py-3 px-3 sm:px-6 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap min-w-max",
+                                    "flex-1 py-2 sm:py-2 px-3 sm:px-6 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap min-w-max",
                                     activeTab === "roadmaps" 
                                         ? "bg-primary text-primary-foreground shadow-lg scale-[1.02]" 
                                         : "text-muted-foreground hover:bg-secondary/50"

@@ -109,7 +109,7 @@ export default function UploadPage() {
             <main className="max-w-[1200px] mx-auto px-4 md:px-8 py-16 animate-fade-in">
                 {/* Header Section */}
                 <div className="mb-12">
-                    <h1 className="text-[44px] md:text-[56px] font-bold font-heading text-primary tracking-tight leading-tight mb-4">
+                    <h1 className="text-[30px] md:text-[36px] font-bold font-heading text-primary tracking-tight leading-tight mb-4">
                         Upload Question Paper
                     </h1>
                     <p className="text-[17px] text-muted-foreground font-medium max-w-2xl leading-relaxed">
@@ -249,23 +249,25 @@ export default function UploadPage() {
                                 </div>
 
                                 {/* Submit Button */}
-                                <button
-                                    type="submit"
-                                    disabled={submitting}
-                                    className={cn(
-                                        "w-full py-4 rounded-xl font-bold text-[15px] shadow-premium transition-all active:scale-95 flex items-center justify-center gap-2 group",
-                                        submitting 
-                                            ? "bg-primary/50 cursor-not-allowed text-primary-foreground/70" 
-                                            : "bg-primary text-primary-foreground hover:-translate-y-1"
-                                    )}
-                                >
-                                    {submitting ? (
-                                        <div className="size-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                                    ) : (
-                                        <Upload className="size-5 transition-transform group-hover:-translate-y-1" />
-                                    )}
-                                    {submitting ? "Uploading..." : "Submit for Review"}
-                                </button>
+                                <div className="flex justify-center w-full pt-4">
+                                    <button
+                                        type="submit"
+                                        disabled={submitting}
+                                        className={cn(
+                                            "px-6 py-2.5 rounded-xl font-bold text-[15px] shadow-premium transition-all active:scale-95 flex items-center justify-center gap-2 group",
+                                            submitting 
+                                                ? "bg-primary/50 cursor-not-allowed text-primary-foreground/70" 
+                                                : "bg-primary text-primary-foreground hover:-translate-y-1"
+                                        )}
+                                    >
+                                        {submitting ? (
+                                            <div className="size-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                                        ) : (
+                                            <Upload className="size-5 transition-transform group-hover:-translate-y-1" />
+                                        )}
+                                        {submitting ? "Uploading..." : "Submit for Review"}
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </div>
