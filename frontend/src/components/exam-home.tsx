@@ -7,6 +7,7 @@ import { useAuth } from "@/context/auth-context"
 import { CategoryGrid } from "@/components/category-grid"
 import { Navbar } from "@/components/navbar"
 import { HomeSkeleton } from "@/components/home-skeleton"
+import { DailyDosePromo } from "@/components/daily-dose-promo"
 import { LayoutTextFlip } from "@/components/ui/layout-text-flip"
 import { motion } from "motion/react"
 import {
@@ -309,6 +310,7 @@ export function ExamHome() {
           </div>
         </main>
       </div>
+      <DailyDosePromo />
     </>
   )
 }

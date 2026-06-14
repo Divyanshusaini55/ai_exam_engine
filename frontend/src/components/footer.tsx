@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import React from "react"
-import { GraduationCap, Globe, Mail } from "lucide-react"
+import { GraduationCap, Globe, Mail, Twitter } from "lucide-react"
 
 const platformLinks = [
     { label: "Dashboard", href: "/dashboard" },
@@ -41,12 +41,15 @@ export function Footer() {
                             Prepare smarter for competitive exams with our advanced AI-driven analysis and comprehensive test series. Built for ambitious students.
                         </p>
                         <div className="flex items-center gap-4 mt-2">
-                            <button className="size-10 flex items-center justify-center rounded-full bg-secondary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300">
+                            <a href="/" target="_blank" rel="noopener noreferrer" className="size-10 flex items-center justify-center rounded-full bg-secondary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300">
                                 <Globe className="size-5" />
-                            </button>
-                            <button className="size-10 flex items-center justify-center rounded-full bg-secondary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300">
+                            </a>
+                            <a href="mailto:support@examintel.com" className="size-10 flex items-center justify-center rounded-full bg-secondary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300">
                                 <Mail className="size-5" />
-                            </button>
+                            </a>
+                            <a href="https://x.com/resultintel" target="_blank" rel="noopener noreferrer" className="size-10 flex items-center justify-center rounded-full bg-secondary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300">
+                                <Twitter className="size-5 fill-current" />
+                            </a>
                         </div>
                     </div>
 
