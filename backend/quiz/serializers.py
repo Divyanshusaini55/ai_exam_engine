@@ -95,7 +95,7 @@ class QuestionSerializer(serializers.ModelSerializer):
             'question_text',
             'question_type',
             'order',
-            'points',
+            'marks',
             'subject',    
             'topic',      
             'difficulty', 
@@ -165,6 +165,7 @@ class ExamSerializer(serializers.ModelSerializer):
             'duration_minutes',
             'total_questions',
             'marks_per_question',
+            'negative_marks',
             'total_marks',
             'question_count',
             'supported_languages',
@@ -215,9 +216,11 @@ class ExamResultSerializer(serializers.Serializer):
     total_questions = serializers.IntegerField()
     answered_questions = serializers.IntegerField()
     correct_answers = serializers.IntegerField()
-    total_points = serializers.IntegerField()
-    max_points = serializers.IntegerField()
+    total_marks = serializers.FloatField()
+    max_marks = serializers.FloatField()
     percentage = serializers.FloatField()
+    penalty = serializers.FloatField(required=False)
+    wrong_answers = serializers.IntegerField(required=False)
 
     answers = UserAnswerSerializer(many=True, required=False)
 

@@ -75,10 +75,10 @@ def node_sample(state: SummaryState) -> dict:
     """Fetch questions for the exam and sample ≤30."""
     exam = Exam.objects.get(pk=state["exam_id"])
     qs = Question.objects.filter(exam=exam).only(
-        "id", "question_text", "subject", "topic", "difficulty", "points"
+        "id", "question_text", "subject", "topic", "difficulty", "marks"
     )
     raw = list(
-        qs.values("id", "question_text", "subject", "topic", "difficulty", "points")
+        qs.values("id", "question_text", "subject", "topic", "difficulty", "marks")
     )
     if not raw:
         raise ValueError(f"Exam {state['exam_id']} has no questions.")

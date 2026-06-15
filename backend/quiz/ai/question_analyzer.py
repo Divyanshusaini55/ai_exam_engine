@@ -36,7 +36,7 @@ class QuestionAnalyzer:
                 'subject': q.get('subject') or 'General',
                 'topic': q.get('topic') or 'General',
                 'difficulty': q.get('difficulty') or 'Medium',
-                'marks': q.get('points') or q.get('marks') or 1,
+                'marks': q.get('marks') or q.get('points') or 1,
                 'question_type': q.get('question_type') or 'MCQ'
             })
 

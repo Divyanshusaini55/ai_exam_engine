@@ -36,12 +36,14 @@ class ExamJSONImporter:
                     title=title,
                     subcategory=sub_category,
                     duration_minutes=duration,
+                    marks_per_question=positive_marks,
+                    negative_marks=negative_marks,
                     total_marks=0,  # Will calculate later
                     is_active=False # Keep inactive until reviewed
                 )
 
                 questions_data = json_data.get('questions', [])
-                total_points = 0
+                total_marks = 0
                 
                 # Track bulk creations for performance
                 questions_to_create = []
@@ -73,7 +75,7 @@ class ExamJSONImporter:
                         question_text=q_text,
                         question_type='multiple_choice',
                         order=idx,
-                        points=positive_marks,
+                        marks=positive_marks,
                         subject=subject,
                         topic=topic,
                         difficulty=difficulty,
@@ -81,7 +83,7 @@ class ExamJSONImporter:
                         metadata=metadata
                     )
                     
-                    total_points += positive_marks
+                    total_marks += positive_marks
                     
                     # Create Answers
                     options_data = q_data.get('options', [])
@@ -101,7 +103,7 @@ class ExamJSONImporter:
                         )
 
                 # Update exam total marks
-                exam.total_marks = total_points
+                exam.total_marks = total_marks
                 exam.save()
                 
                 return True, f"Successfully imported exam '{exam.title}' with {len(questions_data)} questions."

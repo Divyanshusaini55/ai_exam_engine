@@ -62,13 +62,15 @@ class DashboardMixin:
 
         total_questions = exam.questions.count()
         correct_answers = user_answers.filter(is_correct=True).count()
+        wrong_answers = user_answers.filter(is_correct=False).exclude(selected_answer__isnull=True).count()
+        penalty = float(wrong_answers) * float(exam.negative_marks or 0.0)
 
-        total_points = user_answers.filter(is_correct=True).aggregate(
-            total=models.Sum('question__points')
+        total_marks = user_answers.filter(is_correct=True).aggregate(
+            total=models.Sum('question__marks')
         )['total'] or 0
 
-        max_points = exam.questions.aggregate(
-            total=models.Sum('points')
+        max_marks = exam.questions.aggregate(
+            total=models.Sum('marks')
         )['total'] or 0
         
         percentage = user_result.accuracy if is_practice else user_result.percentage
@@ -80,10 +82,12 @@ class DashboardMixin:
             'total_questions': user_result.total_questions,
             'answered_questions': user_answers.count(),
             'correct_answers': user_result.correct_answers,
-            'total_points': user_result.score,
-            'max_points': max_points,
+            'total_marks': user_result.score,
+            'max_marks': max_marks,
             'percentage': percentage,
             'completed_at': completed_at,
+            'penalty': penalty,
+            'wrong_answers': wrong_answers,
         }
 
         summary_serializer = ExamResultSerializer(summary_data)
@@ -114,54 +118,97 @@ class DashboardMixin:
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-        results = ExamAttempt.objects.select_related(
+        results_attempts = list(ExamAttempt.objects.select_related(
             'exam',
             'exam__subcategory',
             'exam__subcategory__category'
-        ).filter(user=request.user, is_completed=True)
+        ).filter(user=request.user, is_completed=True))
         
-        total_tests = results.count()
-        avg_score = results.aggregate(avg=models.Avg('percentage'))['avg'] or 0
-        tests_passed = results.filter(percentage__gte=50).count()
+        results_practice = list(PracticeSession.objects.select_related(
+            'exam',
+            'exam__subcategory',
+            'exam__subcategory__category'
+        ).filter(user=request.user, is_completed=True))
 
-        # Calculate total study time from both exam attempts and practice sessions (in seconds)
-        exam_duration = results.aggregate(total=models.Sum('duration'))['total'] or 0
-        practice_duration = PracticeSession.objects.filter(
-            user=request.user, is_completed=True
-        ).aggregate(total=models.Sum('duration'))['total'] or 0
-        total_study_seconds = exam_duration + practice_duration
+        # Normalize practice session fields to match exam attempts
+        all_results = []
+        for r in results_attempts:
+            all_results.append({
+                'id': r.id,
+                'exam_id': r.exam.id,
+                'session_id': r.session_id,
+                'exam_title': r.exam.title,
+                'score': r.percentage,
+                'date_obj': r.completed_at,
+                'duration': r.duration,
+                'category_name': r.exam.subcategory.category.name if r.exam.subcategory and r.exam.subcategory.category else 'Uncategorized',
+                'type': 'exam'
+            })
+            
+        for r in results_practice:
+            all_results.append({
+                'id': r.id,
+                'exam_id': r.exam.id,
+                'session_id': r.session_id,
+                'exam_title': r.exam.title,
+                'score': r.accuracy,  # PracticeSession uses 'accuracy'
+                'date_obj': r.submitted_at, # PracticeSession uses 'submitted_at'
+                'duration': r.duration,
+                'category_name': r.exam.subcategory.category.name if r.exam.subcategory and r.exam.subcategory.category else 'Uncategorized',
+                'type': 'practice'
+            })
+            
+        all_results.sort(key=lambda x: x['date_obj'], reverse=True)
+        
+        total_tests = len(all_results)
+        tests_passed = sum(1 for r in all_results if r['score'] >= 50)
+        avg_score = sum(r['score'] for r in all_results) / total_tests if total_tests > 0 else 0
+        total_study_seconds = sum(r['duration'] for r in all_results)
+
+        # Subject performance
+        subject_scores = {}
+        subject_counts = {}
+        for r in all_results:
+            cat = r['category_name']
+            subject_scores[cat] = subject_scores.get(cat, 0) + r['score']
+            subject_counts[cat] = subject_counts.get(cat, 0) + 1
+
+        subject_performance = [
+            {'name': cat, 'score': round(subject_scores[cat] / subject_counts[cat], 1)}
+            for cat in subject_scores
+        ]
+
+        # History (last 7, chronological)
+        history = [
+            {
+                'name': r['exam_title'][:10] + '...',
+                'date': r['date_obj'].strftime('%Y-%m-%d'),
+                'score': r['score']
+            }
+            for r in all_results[:7]
+        ][::-1]
+
+        # Recent activities (last 5)
+        recent_activities = [
+            {
+                'id': r['id'],
+                'exam_id': r['exam_id'],
+                'session_id': r['session_id'],
+                'exam_title': r['exam_title'],
+                'score': r['score'],
+                'date': r['date_obj'].isoformat(),
+                'category': r['category_name'],
+                'type': r['type']
+            }
+            for r in all_results[:5]
+        ]
 
         return Response({
             'total_tests': total_tests,
             'average_score': round(avg_score, 1),
             'tests_passed': tests_passed,
             'total_study_seconds': total_study_seconds,
-            'history': [
-                {
-                    'name': r.exam.title[:10] + '...',  # Shorten for chart
-                    'date': r.completed_at.strftime('%Y-%m-%d'),
-                    'score': r.percentage
-                }
-                for r in results.order_by('-completed_at')[:7][::-1] # Last 7, reversed for chrono order
-            ],
-            'subject_performance': [
-                {
-                    'name': item['exam__subcategory__category__name'], 
-                    'score': round(item['avg_score'], 1)
-                }
-                for item in results.values('exam__subcategory__category__name').annotate(avg_score=models.Avg('percentage'))
-                if item['exam__subcategory__category__name'] 
-            ],
-            'recent_activities': [
-                {
-                    'id': r.id,
-                    'exam_id': r.exam.id,
-                    'session_id': r.session_id,
-                    'exam_title': r.exam.title,
-                    'score': r.percentage,
-                    'date': r.completed_at.isoformat(),
-                    'category': r.exam.subcategory.category.name if r.exam.subcategory and r.exam.subcategory.category else 'Uncategorized'
-                }
-                for r in results.order_by('-completed_at')[:5]
-            ]
+            'history': history,
+            'subject_performance': subject_performance,
+            'recent_activities': recent_activities
         })

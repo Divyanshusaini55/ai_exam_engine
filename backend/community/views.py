@@ -227,26 +227,48 @@ def get_activity_heatmap(user, days=365):
     from django.db.models import Count
     from django.utils import timezone
     from datetime import timedelta
+    from quiz.models import ExamAttempt, PracticeSession
     
     today = timezone.now().date()
     cutoff = today - timedelta(days=days)
     
-    daily_counts = (
-        ContributorActivity.objects.filter(
-            user=user, created_at__date__gte=cutoff
+    exam_counts = (
+        ExamAttempt.objects.filter(
+            user=user, completed_at__date__gte=cutoff, is_completed=True
         )
-        .annotate(date=TruncDate('created_at'))
+        .annotate(date=TruncDate('completed_at'))
         .values('date')
         .annotate(count=Count('id'))
-        .order_by('date')
     )
     
+    practice_counts = (
+        PracticeSession.objects.filter(
+            user=user, submitted_at__date__gte=cutoff, is_completed=True
+        )
+        .annotate(date=TruncDate('submitted_at'))
+        .values('date')
+        .annotate(count=Count('id'))
+    )
+    
+    daily_totals = {}
+    for item in exam_counts:
+        d = item['date']
+        date_str = d.isoformat() if hasattr(d, 'isoformat') else str(d)
+        daily_totals[date_str] = daily_totals.get(date_str, 0) + item['count']
+
+    for item in practice_counts:
+        d = item['date']
+        date_str = d.isoformat() if hasattr(d, 'isoformat') else str(d)
+        daily_totals[date_str] = daily_totals.get(date_str, 0) + item['count']
+        
+    sorted_dates = sorted(daily_totals.keys())
+    
     heatmap_activity = []
-    for item in daily_counts:
-        count = item['count']
+    for date_str in sorted_dates:
+        count = daily_totals[date_str]
         level = 1 if count == 1 else 2 if count <= 3 else 3 if count <= 5 else 4
         heatmap_activity.append({
-            'date': item['date'].isoformat(),
+            'date': date_str,
             'count': count,
             'level': level
         })

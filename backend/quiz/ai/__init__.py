@@ -74,7 +74,7 @@ Return ONLY valid JSON:
         {{"answer_text": "...", "is_correct": false}},
         {{"answer_text": "...", "is_correct": false}}
       ],
-      "points": 1
+      "marks": 1
     }}
   ]
 }}
@@ -159,7 +159,7 @@ def generate_questions_from_pdf(exam: Exam):
             exam=exam,
             question_text=q.get("question_text", ""),
             order=idx,
-            points=q.get("points", 1),
+            marks=q.get("marks", q.get("points", 1)),
         )
 
         for a_idx, a in enumerate(q.get("answers", [])):
@@ -260,7 +260,7 @@ def parse_exam_paper_with_ai(exam: Exam):
             "subject": "Reasoning",
             "topic": "Analogy",
             "difficulty": "Medium",
-            "points": 1
+            "marks": 1
           }}
         ]
         
@@ -291,7 +291,7 @@ def parse_exam_paper_with_ai(exam: Exam):
             subject=q_data.get("subject", "General Awareness"),
             topic=q_data.get("topic", "General"),
             difficulty=q_data.get("difficulty", "Medium"),
-            points=q_data.get("points", 1),
+            marks=q_data.get("marks", q_data.get("points", 1)),
             order=idx
         )
 

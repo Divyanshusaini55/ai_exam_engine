@@ -103,6 +103,12 @@ class Exam(models.Model):
         blank=True,
         help_text="Marks awarded for each correct answer"
     )
+    negative_marks = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2,
+        default=0.00,
+        help_text="Marks deducted for each wrong answer"
+    )
     total_marks = models.IntegerField(
         null=True,
         blank=True,
@@ -118,6 +124,28 @@ class Exam(models.Model):
         year_str = f" ({self.year})" if self.year else ""
         shift_str = f" - {self.shift}" if self.shift else ""
         return f"{self.title}{year_str}{shift_str}"
+
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        old_marks_per_question = None
+        if not is_new:
+            old_exam = Exam.objects.filter(pk=self.pk).first()
+            if old_exam:
+                old_marks_per_question = old_exam.marks_per_question
+                
+        super().save(*args, **kwargs)
+        
+        if self.marks_per_question is not None:
+            if is_new or old_marks_per_question != self.marks_per_question:
+                self.questions.all().update(marks=self.marks_per_question)
+                
+        # Recalculate total marks
+        if self.pk:
+            from django.db.models import Sum
+            total = self.questions.aggregate(total=Sum('marks'))['total'] or 0
+            if self.total_marks != total:
+                self.total_marks = total
+                super().save(update_fields=['total_marks'])
 
     class Meta:
         ordering = ['-created_at']
@@ -146,7 +174,7 @@ class Question(models.Model):
         default='multiple_choice'
     )
     order = models.IntegerField(default=0)
-    points = models.IntegerField(default=1)
+    marks = models.IntegerField(default=1)
     
     metadata = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -205,7 +233,7 @@ class ExamAttempt(models.Model):
     guest_name = models.CharField(max_length=100, null=True, blank=True)
     guest_email = models.EmailField(null=True, blank=True)
     exam = models.ForeignKey(Exam, related_name='results', on_delete=models.CASCADE)
-    score = models.IntegerField()
+    score = models.FloatField()
     total_questions = models.IntegerField()
     correct_answers = models.IntegerField()
     percentage = models.FloatField()
@@ -229,7 +257,7 @@ class ExamAttempt(models.Model):
 class PracticeSession(models.Model):
     user = models.ForeignKey(User, related_name='practice_sessions', on_delete=models.SET_NULL, null=True, blank=True)
     exam = models.ForeignKey(Exam, related_name='practice_sessions', on_delete=models.CASCADE)
-    score = models.IntegerField()
+    score = models.FloatField()
     total_questions = models.IntegerField()
     correct_answers = models.IntegerField()
     accuracy = models.FloatField()

@@ -171,7 +171,8 @@ class QuestionInline(admin.StackedInline):
         'is_image_based',
         'question_type',
         'order',
-        'points',
+        'marks',
+        'explanation',
     )
     show_change_link = True
 
@@ -319,7 +320,7 @@ class ExamAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Categorization', {'fields': ('subcategory', 'status')}),
         ('Exam Details', {'fields': ('title', 'description', 'year', 'shift')}),
-        ('Configuration', {'fields': ('duration_minutes', 'total_questions', 'marks_per_question', 'total_marks', 'supported_languages', 'pdf_file')}),
+        ('Configuration', {'fields': ('duration_minutes', 'total_questions', 'marks_per_question', 'negative_marks', 'total_marks', 'supported_languages', 'pdf_file')}),
         ('AI Summary', {'fields': ('ai_summary',), 'classes': ('collapse',)}),
         ('Status', {'fields': ('is_active',)}),
     )
@@ -391,13 +392,13 @@ class ExamAdmin(admin.ModelAdmin):
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'question_type', 'points', 'order')
+    list_display = ('__str__', 'question_type', 'marks', 'order')
     list_filter = ('question_type', 'exam')
     search_fields = ('question_text', 'exam__title')
     ordering = ('exam', 'order')
 
     fieldsets = (
-        ('Reference', {'fields': ('exam', 'question_type', 'points', 'order')}),
+        ('Reference', {'fields': ('exam', 'question_type', 'marks', 'order')}),
         ('Content', {'fields': ('question_text', 'explanation', 'image', 'is_image_based')}),
         ('AI Translation', {'fields': ('generate_hindi_button',)}),
         ('Side-by-Side Preview', {'fields': ('translation_preview',)}),

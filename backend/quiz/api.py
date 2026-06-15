@@ -278,9 +278,12 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
         correct_answers = user_answers.filter(is_correct=True).count()
         wrong_answers = user_answers.filter(is_correct=False).exclude(selected_answer__isnull=True).count()
         
-        score = user_answers.filter(is_correct=True).aggregate(
-            total=models.Sum('question__points')
+        positive_score = user_answers.filter(is_correct=True).aggregate(
+            total=models.Sum('question__marks')
         )['total'] or 0
+        
+        penalty = float(wrong_answers) * float(exam.negative_marks or 0.0)
+        score = float(positive_score) - penalty
         
         accuracy = round((correct_answers / total_questions * 100) if total_questions > 0 else 0, 2)
         
@@ -320,6 +323,10 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
                 'message': 'Exam submitted successfully!',
                 'result_id': attempt.id,
                 'score': score,
+                'positive_score': positive_score,
+                'penalty': penalty,
+                'correct': correct_answers,
+                'wrong': wrong_answers,
                 'total': total_questions,
                 'percentage': attempt.percentage,
                 'attempt_id': attempt.id 
@@ -371,6 +378,8 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
                     
             return Response({
                 'score': score,
+                'positive_score': positive_score,
+                'penalty': penalty,
                 'accuracy': accuracy,
                 'correct': correct_answers,
                 'wrong': wrong_answers,

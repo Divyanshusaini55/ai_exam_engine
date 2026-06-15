@@ -42,7 +42,7 @@ class ExamSummaryService:
                 'subject': q.subject,
                 'topic': q.topic,
                 'difficulty': q.difficulty,
-                'points': q.points,
+                'marks': q.marks,
                 'question_type': q.question_type,
                 'options': options,
                 'metadata': q.metadata,
