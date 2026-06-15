@@ -155,7 +155,7 @@ server {
     server_name examintel.in www.examintel.in;
 
     location / {
-        proxy_pass http://127.0.0.1:3000; # Points to Frontend Next.js Docker
+        proxy_pass http://127.0.0.1:4005; # Points to Frontend Next.js Docker
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
