@@ -59,22 +59,39 @@ Rules:
 - Focus only on NEW concepts
 - Avoid generic wording
 - Each question must test a distinct concept
+- Each question MUST have exactly 4 options (A, B, C, D)
+- Provide a brief, one-sentence explanation of the correct answer
+- Classify each question with subject, topic, subtopic, and difficulty
 
 Content:
 {chunk}
 
-Return ONLY valid JSON:
+Return ONLY valid JSON (no markdown, no code fences):
 {{
   "questions": [
     {{
-      "question_text": "...",
-      "answers": [
-        {{"answer_text": "...", "is_correct": true}},
-        {{"answer_text": "...", "is_correct": false}},
-        {{"answer_text": "...", "is_correct": false}},
-        {{"answer_text": "...", "is_correct": false}}
+      "id": "q_{{part}}_{{index}}",
+      "question_type": "mcq",
+      "question": {{
+        "text": "..."
+      }},
+      "options": [
+        {{"id": "A", "text": "..."}},
+        {{"id": "B", "text": "..."}},
+        {{"id": "C", "text": "..."}},
+        {{"id": "D", "text": "..."}}
       ],
-      "marks": 1
+      "answer": {{
+        "correct_option": "A",
+        "correct_text": "Full text of the correct option"
+      }},
+      "explanation": "One-sentence explanation of why the answer is correct.",
+      "classification": {{
+        "subject": "General Awareness",
+        "topic": "History",
+        "subtopic": "Ancient India",
+        "difficulty": "Medium"
+      }}
     }}
   ]
 }}
@@ -141,34 +158,97 @@ def generate_questions_from_pdf(exam: Exam):
             print(f" Skipping chunk {i+1}")
             continue
 
-        all_questions.extend(data.get("questions", []))
+        # Handle both wrapped {"questions": [...]} and bare [...] formats
+        if isinstance(data, list):
+            all_questions.extend(data)
+        elif isinstance(data, dict):
+            all_questions.extend(data.get("questions", []))
 
 
+    # Deduplicate by question text
     unique_questions = {}
     for q in all_questions:
-        key = q.get("question_text", "").strip().lower()
-        if key:
-            unique_questions[key] = q
+        question_dict = q.get("question", {})
+        q_text = question_dict.get("text", q.get("question_text", "")).strip().lower()
+        if q_text:
+            unique_questions[q_text] = q
 
     final_questions = list(unique_questions.values())[:total_questions]
 
     exam.questions.all().delete()
 
-    for idx, q in enumerate(final_questions):
+    for idx, q_data in enumerate(final_questions):
+        # Extract question text (new nested format with flat fallback)
+        question_dict = q_data.get("question", {})
+        q_text = question_dict.get("text", q_data.get("question_text", ""))
+
+        # Extract classification (new nested format with flat fallback)
+        classification = q_data.get("classification", {})
+        subject = classification.get("subject", q_data.get("subject", ""))
+        topic = classification.get("topic", q_data.get("topic", ""))
+        difficulty = classification.get("difficulty", q_data.get("difficulty", "Medium"))
+        explanation = q_data.get("explanation", "")
+
+        # Build metadata from extra fields
+        metadata = {}
+        if "id" in q_data:
+            metadata["external_id"] = q_data["id"]
+        if "subtopic" in classification:
+            metadata["subtopic"] = classification["subtopic"]
+
         question = Question.objects.create(
             exam=exam,
-            question_text=q.get("question_text", ""),
+            question_text=q_text,
+            question_type='multiple_choice',
             order=idx,
-            marks=q.get("marks", q.get("points", 1)),
+            marks=1,
+            subject=subject,
+            topic=topic,
+            difficulty=difficulty,
+            explanation=explanation,
+            metadata=metadata,
         )
 
-        for a_idx, a in enumerate(q.get("answers", [])):
-            Answer.objects.create(
-                question=question,
-                answer_text=a.get("answer_text", ""),
-                is_correct=a.get("is_correct", False),
-                order=a_idx,
-            )
+        # Extract answer info (new nested format with flat fallback)
+        options = q_data.get("options", [])
+        answer_data = q_data.get("answer", {})
+        correct_option_id = answer_data.get("correct_option", "")
+        correct_option_text = answer_data.get("correct_text", "").strip()
+
+        # Fallback: old "answers" format with inline is_correct
+        old_answers = q_data.get("answers", [])
+
+        if options:
+            # New schema: options are objects with id + text
+            for opt_idx, opt in enumerate(options):
+                if isinstance(opt, str):
+                    opt_id = chr(65 + opt_idx)
+                    opt_text = opt
+                else:
+                    opt_id = opt.get("id", chr(65 + opt_idx))
+                    opt_text = opt.get("text", "")
+
+                is_correct = False
+                if correct_option_id and opt_id == correct_option_id:
+                    is_correct = True
+                elif correct_option_text and opt_text.strip() == correct_option_text:
+                    is_correct = True
+
+                Answer.objects.create(
+                    question=question,
+                    answer_text=f"{opt_id}) {opt_text}" if opt_id else opt_text,
+                    is_correct=is_correct,
+                    order=opt_idx,
+                )
+        elif old_answers:
+            # Legacy fallback: answers array with is_correct booleans
+            for a_idx, a in enumerate(old_answers):
+                Answer.objects.create(
+                    question=question,
+                    answer_text=a.get("answer_text", ""),
+                    is_correct=a.get("is_correct", False),
+                    order=a_idx,
+                )
 
     print(" Question generation completed")
     return True
@@ -231,7 +311,7 @@ def parse_exam_paper_with_ai(exam: Exam):
         You are an expert exam question parser.
         
         TASK:
-        Extract multiple-choice questions from the text below and classify them.
+        Extract multiple-choice questions from the text below and classify them according to the provided schema.
         
         ALLOWED SUBJECTS:
         - Reasoning
@@ -246,21 +326,37 @@ def parse_exam_paper_with_ai(exam: Exam):
         - Logic, series, analogy → Reasoning
         - Grammar, vocabulary, comprehension → English
         - History, Polity, Science, Current Affairs → General Awareness
-        - Maintain the original question number if possible.
+        - Maintain the original question number if possible, and set it as the ID if available (e.g., 'Q1').
+        - Provide a brief, one-sentence explanation of the correct answer.
 
         CONTENT:
         {chunk}
 
-        OUTPUT FORMAT (STRICT JSON ARRAY):
+        OUTPUT FORMAT (STRICT JSON ARRAY OF OBJECTS):
         [
           {{
-            "question_text": "...",
-            "options": ["Option A", "Option B", "Option C", "Option D"],
-            "correct_answer": "Option A", 
-            "subject": "Reasoning",
-            "topic": "Analogy",
-            "difficulty": "Medium",
-            "marks": 1
+            "id": "q_000001",
+            "question_type": "mcq",
+            "question": {{
+              "text": "..."
+            }},
+            "options": [
+              {{"id": "A", "text": "Option A"}},
+              {{"id": "B", "text": "Option B"}},
+              {{"id": "C", "text": "Option C"}},
+              {{"id": "D", "text": "Option D"}}
+            ],
+            "answer": {{
+              "correct_option": "A",
+              "correct_text": "Option A text"
+            }},
+            "explanation": "...",
+            "classification": {{
+              "subject": "Reasoning",
+              "topic": "Analogy",
+              "subtopic": "Word Analogy",
+              "difficulty": "Medium"
+            }}
           }}
         ]
         
@@ -273,6 +369,8 @@ def parse_exam_paper_with_ai(exam: Exam):
             
             if data and isinstance(data, list):
                 all_parsed_questions.extend(data)
+            elif data and isinstance(data, dict) and 'questions' in data:
+                all_parsed_questions.extend(data['questions'])
             else:
                 print(f" Chunk {i+1} returned invalid data format.")
 
@@ -285,28 +383,59 @@ def parse_exam_paper_with_ai(exam: Exam):
     exam.questions.all().delete()
 
     for idx, q_data in enumerate(all_parsed_questions):
+        question_dict = q_data.get("question", {})
+        q_text = question_dict.get("text", q_data.get("question_text", "Untitled Question"))
+        
+        classification = q_data.get("classification", {})
+        subject = classification.get("subject", q_data.get("subject", "General Awareness"))
+        topic = classification.get("topic", q_data.get("topic", "General"))
+        difficulty = classification.get("difficulty", q_data.get("difficulty", "Medium"))
+        explanation = q_data.get("explanation", "")
+        
+        metadata = {}
+        if 'id' in q_data:
+            metadata['external_id'] = q_data['id']
+        if 'subtopic' in classification:
+            metadata['subtopic'] = classification['subtopic']
+
         question = Question.objects.create(
             exam=exam,
-            question_text=q_data.get("question_text", "Untitled Question"),
-            subject=q_data.get("subject", "General Awareness"),
-            topic=q_data.get("topic", "General"),
-            difficulty=q_data.get("difficulty", "Medium"),
-            marks=q_data.get("marks", q_data.get("points", 1)),
+            question_text=q_text,
+            question_type='multiple_choice',
+            subject=subject,
+            topic=topic,
+            difficulty=difficulty,
+            explanation=explanation,
+            metadata=metadata,
+            marks=1,
             order=idx
         )
 
         options = q_data.get("options", [])
-        correct_option_text = q_data.get("correct_answer", "").strip()
+        answer_data = q_data.get("answer", {})
+        
+        correct_option_id = answer_data.get("correct_option", "")
+        correct_option_text = answer_data.get("correct_text", q_data.get("correct_answer", "")).strip()
 
-        for opt_idx, opt_text in enumerate(options):
-            is_correct = (opt_text.strip() == correct_option_text)
-            if not is_correct and len(correct_option_text) == 1:
-                 if correct_option_text.upper() == chr(65 + opt_idx):
-                     is_correct = True
+        for opt_idx, opt in enumerate(options):
+            if isinstance(opt, str):
+                opt_id = chr(65 + opt_idx)
+                opt_text = opt
+            else:
+                opt_id = opt.get("id", chr(65 + opt_idx))
+                opt_text = opt.get("text", "")
+            
+            is_correct = False
+            if correct_option_id and opt_id == correct_option_id:
+                is_correct = True
+            elif correct_option_text and opt_text.strip() == correct_option_text:
+                is_correct = True
+            if not is_correct and len(correct_option_text) == 1 and correct_option_text.upper() == opt_id:
+                is_correct = True
 
             Answer.objects.create(
                 question=question,
-                answer_text=opt_text,
+                answer_text=f"{opt_id}) {opt_text}" if opt_id else opt_text,
                 is_correct=is_correct,
                 order=opt_idx
             )

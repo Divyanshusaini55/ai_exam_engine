@@ -45,6 +45,7 @@ env/
 *.pdf
 backend/test_*.py
 backend/update_db.py
+backend/datadump.json
 
 backend/make_logo.py
 backend/pib.html

@@ -59,8 +59,13 @@ class ExamJSONImporter:
                     
                     explanation = q_data.get('explanation', '')
                     
+                    question_type_raw = q_data.get('question_type', 'mcq')
+                    question_type = 'multiple_choice' if question_type_raw == 'mcq' else question_type_raw
+                    
                     # Store extra structured metadata for LLM fine-tuning
                     metadata = {}
+                    if 'id' in q_data:
+                        metadata['external_id'] = q_data['id']
                     if 'exam_history' in q_data:
                         metadata['exam_history'] = q_data['exam_history']
                     if 'source' in q_data:
@@ -73,7 +78,7 @@ class ExamJSONImporter:
                     question = Question.objects.create(
                         exam=exam,
                         question_text=q_text,
-                        question_type='multiple_choice',
+                        question_type=question_type,
                         order=idx,
                         marks=positive_marks,
                         subject=subject,
