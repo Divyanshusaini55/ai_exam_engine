@@ -1,0 +1,168 @@
+# =============================================================================
+# AI Exam Engine — Docker Compose (Production using Neon & Upstash)
+# =============================================================================
+# Services:
+#   backend             — Django/DRF Gunicorn API Server (Port 8000)
+#   summary_worker      — Celery worker (Low/Normal priority tasks)
+#   roadmap_worker      — Celery worker (Roadmaps & Maintenance)
+#   pdf_worker          — Celery worker (High priority PDF parsing)
+#   analytics_worker    — Celery worker (Low priority analytics/leaderboards)
+#   notification_worker — Celery worker (High priority emails/notifications)
+#   beat                — Celery beat periodic scheduler
+#   flower              — Celery monitoring dashboard (Port 5555)
+#   frontend            — Next.js production build server (Port 3000)
+# =============================================================================
+
+version: '3.8'
+
+services:
+  # ─── Backend (Django API) ───────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: /app/entrypoint.sh gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    volumes:
+      - django_prod_media:/app/media
+      - django_prod_static:/app/staticfiles
+    ports:
+      - "127.0.0.1:8000:8000" # Exposed to Nginx reverse proxy
+    env_file:
+      - ./backend/.env
+    environment:
+      - RUNNING_IN_DOCKER=true
+      - DEBUG=False
+    restart: always
+
+  # ─── Celery Workers ─────────────────────────────────────────────────
+  summary_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A core worker -Q normal,low -n summary_worker@%h --loglevel=info --concurrency=2
+    volumes:
+      - django_prod_media:/app/media
+    env_file:
+      - ./backend/.env
+    environment:
+      - RUNNING_IN_DOCKER=true
+      - DEBUG=False
+    depends_on:
+      - backend
+    restart: always
+
+  roadmap_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A core worker -Q normal,maintenance -n roadmap_worker@%h --loglevel=info --pool=threads --concurrency=4
+    volumes:
+      - django_prod_media:/app/media
+    env_file:
+      - ./backend/.env
+    environment:
+      - RUNNING_IN_DOCKER=true
+      - DEBUG=False
+    depends_on:
+      - backend
+    restart: always
+
+  pdf_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A core worker -Q high,normal -n pdf_worker@%h --loglevel=info --pool=threads --concurrency=4
+    volumes:
+      - django_prod_media:/app/media
+    env_file:
+      - ./backend/.env
+    environment:
+      - RUNNING_IN_DOCKER=true
+      - DEBUG=False
+    depends_on:
+      - backend
+    restart: always
+
+  analytics_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A core worker -Q low,maintenance -n analytics_worker@%h --loglevel=info --pool=threads --concurrency=4
+    volumes:
+      - django_prod_media:/app/media
+    env_file:
+      - ./backend/.env
+    environment:
+      - RUNNING_IN_DOCKER=true
+      - DEBUG=False
+    depends_on:
+      - backend
+    restart: always
+
+  notification_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A core worker -Q high -n notification_worker@%h --loglevel=info --pool=threads --concurrency=4
+    volumes:
+      - django_prod_media:/app/media
+    env_file:
+      - ./backend/.env
+    environment:
+      - RUNNING_IN_DOCKER=true
+      - DEBUG=False
+    depends_on:
+      - backend
+    restart: always
+
+  # ─── Celery Beat (Scheduler) ───────────────────────────────────────
+  beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A core beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - django_prod_media:/app/media
+    env_file:
+      - ./backend/.env
+    environment:
+      - RUNNING_IN_DOCKER=true
+      - DEBUG=False
+    depends_on:
+      - backend
+    restart: always
+
+  # ─── Flower (Celery Monitoring) ────────────────────────────────────
+  flower:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A core flower --port=5555 --basic_auth=admin:Admin@examintel123
+    ports:
+      - "127.0.0.1:5555:5555" # Bound to localhost for security
+    env_file:
+      - ./backend/.env
+    environment:
+      - RUNNING_IN_DOCKER=true
+    depends_on:
+      - backend
+    restart: always
+
+  # ─── Frontend (Next.js) ────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+      args:
+        - NEXT_PUBLIC_API_BASE_URL=https://api.examintel.in/api
+    ports:
+      - "127.0.0.1:3000:3000" # Exposed to Nginx reverse proxy
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - backend
+    restart: always
+
+volumes:
+  django_prod_media:
+  django_prod_static:
