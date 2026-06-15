@@ -156,7 +156,7 @@ services:
       args:
         - NEXT_PUBLIC_API_BASE_URL=https://api.examintel.in/api
     ports:
-      - "127.0.0.1:4005:3000" # Exposed to Nginx reverse proxy on port 4005
+      - "127.0.0.1:4005:4005" # Exposed to Nginx reverse proxy on port 4005
     environment:
       - NODE_ENV=production
     depends_on:

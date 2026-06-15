@@ -286,16 +286,16 @@ CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 CELERY_FLOWER_PORT = int(os.environ.get('FLOWER_PORT', 5555))
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000')
+cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:4005,http://127.0.0.1:4005')
 CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_origins.split(',')]
 CORS_ALLOW_CREDENTIALS = True
 
-FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:4005')
 
 CSRF_TRUSTED_ORIGINS = [
     'https://ai-exam-engine.vercel.app',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
+    'http://localhost:4005',
+    'http://127.0.0.1:4005',
     'https://*.run.app', 
 ] + CORS_ALLOWED_ORIGINS
 
@@ -357,14 +357,14 @@ JAZZMIN_SETTINGS = {
     'user_avatar': None,
 
     'topmenu_links': [
-        {'name': 'Platform', 'url': 'http://localhost:3000', 'new_window': True, 'icon': 'fas fa-external-link-alt'},
+        {'name': 'Platform', 'url': 'http://localhost:4005', 'new_window': True, 'icon': 'fas fa-external-link-alt'},
         {'name': 'API Docs', 'url': '/api/', 'new_window': True, 'icon': 'fas fa-code'},
         {'model': 'auth.User'},
-    ],
+      ],
 
     'usermenu_links': [
-        {'name': 'Platform', 'url': 'http://localhost:3000', 'new_window': True, 'icon': 'fas fa-external-link-alt'},
-    ],
+        {'name': 'Platform', 'url': 'http://localhost:4005', 'new_window': True, 'icon': 'fas fa-external-link-alt'},
+      ],
     'show_sidebar': True,
     'navigation_expanded': True,
     'hide_apps': [],

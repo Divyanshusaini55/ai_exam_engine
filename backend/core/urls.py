@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 def home(request):
-    return JsonResponse({"message": "Welcome to Exam Engine API! Go to localhost:3000 to use the app."})
+    return JsonResponse({"message": "Welcome to Exam Engine API! Go to localhost:4005 to use the app."})
 
 urlpatterns = [
     path('health/', include('health.urls')),
