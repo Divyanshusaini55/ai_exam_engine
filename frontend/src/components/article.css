@@ -21,7 +21,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  padding: 1.5rem 1.25rem;
+  padding: 1.25rem 0.75rem;
   border-radius: 1rem;
   border: 1px solid var(--border);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
@@ -127,8 +127,8 @@
 
 /* Math */
 .academic-article .katex-display {
-  margin: 2rem 0;
-  padding: 1.5rem 0;
+  margin: 0.75rem 0;
+  padding: 0.75rem 0;
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
@@ -142,7 +142,7 @@
 }
 
 .academic-article .katex-display > .katex {
-  padding: 0 1.5rem;
+  padding: 0 1rem;
 }
 
 .academic-article .katex {
@@ -158,8 +158,8 @@
 .academic-article pre[class*="language-"],
 .academic-article figure[data-rehype-pretty-code-figure] pre {
   border-radius: 8px;
-  margin: 2.5rem 0;
-  padding: 1.75rem;
+  margin: 1rem 0;
+  padding: 1rem;
   background: var(--bg-code) !important;
   border: 1px solid var(--border);
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);

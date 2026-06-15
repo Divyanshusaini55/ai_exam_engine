@@ -59,7 +59,7 @@ api.interceptors.response.use(
     } else {
         logApi(error.config?.url || '', error.config?.method?.toUpperCase(), `ERROR - ${error.message}`);
     }
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development' && !axios.isCancel(error)) {
         // Suppress expected 404s when polling/checking for results to keep console clean
         const isExpected404 = error.response?.status === 404 && error.config?.url?.includes('/results/');
         if (!isExpected404) {

@@ -378,7 +378,7 @@ export function TopicResourceHub({
       />
 
       {/* Modal panel */}
-      <div className="relative w-full sm:max-w-3xl h-[92svh] sm:h-[88vh] flex flex-col bg-background rounded-t-3xl sm:rounded-3xl border border-border shadow-2xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300 overflow-hidden">
+      <div className="relative w-full sm:max-w-3xl h-[100svh] sm:h-[88vh] flex flex-col bg-background rounded-t-3xl sm:rounded-3xl border border-border shadow-2xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300 overflow-hidden">
 
         {/* ── Header ── */}
         <div className="px-6 pt-5 pb-4 border-b border-border shrink-0">

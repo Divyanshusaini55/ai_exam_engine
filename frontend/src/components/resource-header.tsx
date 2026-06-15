@@ -92,7 +92,7 @@ export default function ResourceHeader({
         className
       )}
     >
-      <div className="mx-auto max-w-6xl px-4">
+      <div className="mx-auto max-w-6xl px-2 sm:px-4">
         <div className="flex min-h-16 items-center justify-between py-2">
           
           {/* ── Left: Back | Breadcrumb & Title ─────────────────────────── */}
