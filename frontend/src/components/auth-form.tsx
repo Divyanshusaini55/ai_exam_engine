@@ -39,6 +39,7 @@ export function AuthForm({ defaultMode = "login" }: { defaultMode?: "login" | "r
                 id: data.user_id,
                 username: data.username,
                 email: data.email,
+                avatar_image: data.avatar_image,
                 date_joined: new Date().toISOString()
             });
             router.replace(redirectTo);

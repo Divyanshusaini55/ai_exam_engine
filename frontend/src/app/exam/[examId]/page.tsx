@@ -163,7 +163,7 @@ export default function ExamPage() {
                 </h1>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
                 <div className="bg-background/50 backdrop-blur-sm p-4 rounded-2xl border border-border flex flex-col items-center text-center gap-1 transition-all hover:bg-background">
                   <Clock className="text-primary mb-1 size-8" />
                   <div className="font-bold text-xl text-primary">{exam.duration_minutes}</div>
@@ -180,6 +180,12 @@ export default function ExamPage() {
                   <Award className="text-success mb-1 size-8" />
                   <div className="font-bold text-xl text-primary">{exam.marks_per_question ?? 1}</div>
                   <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Mark/Q</div>
+                </div>
+
+                <div className="bg-background/50 backdrop-blur-sm p-4 rounded-2xl border border-border flex flex-col items-center text-center gap-1 transition-all hover:bg-background">
+                  <AlertCircle className="text-destructive mb-1 size-8" />
+                  <div className="font-bold text-xl text-primary">-{exam.negative_marks ?? 0}</div>
+                  <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Negative Marks</div>
                 </div>
 
                 <div className="bg-background/50 backdrop-blur-sm p-4 rounded-2xl border border-border flex flex-col items-center text-center gap-1 transition-all hover:bg-background">

@@ -254,10 +254,24 @@ export function PerformanceAnalysisDashboard({ examId, onRetake }: PerformanceAn
                     </p>
                   </div>
                 </div>
-                <p className="text-muted-foreground leading-relaxed max-w-xl">
-                  You scored <span className="font-bold text-primary">{result.score || (correctAnswers * 1)}</span> points.
-                  Review the questions below to understand your mistakes.
-                </p>
+                <div className="flex flex-col gap-4 mt-2">
+                  <div className="flex items-center gap-3 bg-secondary/30 w-fit px-5 py-3 rounded-xl border border-border">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Final Marks</span>
+                      <span className="text-2xl font-black text-primary ml-2">{result.total_marks ?? result.score ?? (correctAnswers * 1)}</span>
+                    </div>
+                    {result.penalty > 0 && (
+                      <div className="flex items-center ml-2 border-l pl-4 border-border/50">
+                        <span className="text-xs font-semibold text-destructive bg-destructive/10 px-2 py-1 rounded-md">
+                          -{result.penalty} Penalty
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-muted-foreground leading-relaxed max-w-xl text-sm">
+                    Review the questions below to understand your mistakes.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

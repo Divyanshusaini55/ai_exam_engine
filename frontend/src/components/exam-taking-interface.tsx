@@ -896,7 +896,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                     <Bookmark className="size-3 shrink-0" />
                                     <span className="hidden md:inline">{bookmarkedQuestions[currentQ?.id] ? "Bookmarked" : "Bookmark"}</span>
                                 </button>
-                                <span className="text-xs font-bold bg-secondary text-muted-foreground px-3 py-1 rounded-full whitespace-nowrap shrink-0">{currentQ?.points} Point(s)</span>
+                                <span className="text-xs font-bold bg-secondary text-muted-foreground px-3 py-1 rounded-full whitespace-nowrap shrink-0">{currentQ?.marks} Mark(s)</span>
                             </div>
                         </div>
 
@@ -1082,7 +1082,10 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                     <div className="grid grid-cols-2 gap-4 mb-6">
                                         <div className="bg-secondary/50 p-4 rounded-2xl border border-border text-center">
                                             <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Score</div>
-                                            <div className="text-2xl font-extrabold text-primary mt-1">{scoreData.score} / {questions.reduce((acc, q) => acc + (q.points || 1), 0)}</div>
+                                            <div className="text-2xl font-extrabold text-primary mt-1">{scoreData.score} / {questions.reduce((acc, q) => acc + (q.marks || 1), 0)}</div>
+                                            {scoreData.penalty > 0 && (
+                                                <div className="text-[10px] text-destructive mt-1 font-bold">- {scoreData.penalty} Penalty Applied</div>
+                                            )}
                                         </div>
                                         <div className="bg-secondary/50 p-4 rounded-2xl border border-border text-center">
                                             <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Accuracy</div>

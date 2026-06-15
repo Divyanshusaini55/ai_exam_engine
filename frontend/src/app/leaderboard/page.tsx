@@ -190,7 +190,7 @@ export default function LeaderboardPage() {
                                                 </h3>
                                                 <div className="flex items-center gap-1.5 mt-1.5 mb-5">
                                                     <span className={`text-lg font-bold ${isFirst ? "text-primary" : "text-primary"}`}>{entry.score}</span>
-                                                    <span className="text-[13px] font-bold text-muted-foreground uppercase tracking-widest">Points</span>
+                                                    <span className="text-[13px] font-bold text-muted-foreground uppercase tracking-widest">Marks</span>
                                                 </div>
 
                                                 <div className="w-full py-3 bg-secondary/50 border border-border rounded-xl text-center">

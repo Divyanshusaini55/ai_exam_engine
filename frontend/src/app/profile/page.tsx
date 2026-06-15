@@ -123,7 +123,11 @@ export default function ProfilePage() {
                                 <div className="flex flex-col md:flex-row items-end gap-6 w-full">
                                     {/* Avatar */}
                                     <div className="size-32 rounded-full border-[6px] border-card bg-secondary shadow-lg flex items-center justify-center text-4xl font-bold text-primary overflow-hidden shrink-0">
-                                        {profileData?.avatar_char || user.username[0].toUpperCase()}
+                                        {user.avatar_image && showProfilePic ? (
+                                            <img src={user.avatar_image} alt={user.username} className="w-full h-full object-cover" />
+                                        ) : (
+                                            profileData?.avatar_char || user.username[0].toUpperCase()
+                                        )}
                                     </div>
 
                                     {/* User Details */}
@@ -314,7 +318,7 @@ export default function ProfilePage() {
                         
                         {/* Activity Heatmap */}
                         <div className="card-premium p-6 bg-card border border-border shadow-sm flex flex-col">
-                            <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-[0.1em] mb-4">Contribution Activity</h3>
+                            <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-[0.1em] mb-4">Exam Activity</h3>
                             <div className="w-full overflow-x-auto pb-4 custom-scrollbar pl-2">
                                 {!statsLoading && heatmapData.length > 0 && (
                                     <div className="min-w-max">
@@ -326,7 +330,7 @@ export default function ProfilePage() {
                                             }}
                                             colorScheme={theme === 'dark' ? 'dark' : 'light'}
                                             labels={{
-                                                totalCount: '{{count}} contributions in the last year',
+                                                totalCount: '{{count}} exams taken in the last year',
                                             }}
                                             showWeekdayLabels
                                             blockSize={12}
