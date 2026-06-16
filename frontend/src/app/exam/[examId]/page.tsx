@@ -244,7 +244,7 @@ export default function ExamPage() {
               <button
                 onClick={handleStartExam}
                 disabled={!isConfirmed || isStarting}
-                className="py-2 px-8 rounded-2xl font-bold text-xl text-primary-foreground bg-primary hover:opacity-90 shadow-premium transition-all transform hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-3 group"
+                className="py-2 px-3 sm:px-8 rounded-2xl font-bold text-xl text-primary-foreground bg-primary hover:opacity-90 shadow-premium transition-all transform hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-3 group"
               >
                 {isStarting ? (
                   <>
