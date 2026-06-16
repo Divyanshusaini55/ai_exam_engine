@@ -230,6 +230,18 @@ SESSION_CACHE_ALIAS = 'default'
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', REDIS_URL)
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', REDIS_URL)
 
+if CELERY_BROKER_URL and CELERY_BROKER_URL.startswith('rediss://'):
+    import ssl
+    CELERY_BROKER_USE_SSL = {
+        'ssl_cert_reqs': ssl.CERT_NONE
+    }
+if CELERY_RESULT_BACKEND and CELERY_RESULT_BACKEND.startswith('rediss://'):
+    import ssl
+    CELERY_REDIS_BACKEND_USE_SSL = {
+        'ssl_cert_reqs': ssl.CERT_NONE
+    }
+
+
 # Serialization
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
