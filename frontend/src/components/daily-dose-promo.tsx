@@ -43,7 +43,7 @@ export function DailyDosePromo() {
                         }}
                         className="self-start py-2 px-4 bg-primary text-primary-foreground font-bold rounded-lg shadow-premium hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-1.5 group text-xs"
                     >
-                        Try Today's Dose
+                        Try Today&apos;s Dose
                         <ArrowRight className="size-3 transition-transform duration-300 group-hover:translate-x-1" />
                     </button>
                 </div>

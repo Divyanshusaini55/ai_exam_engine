@@ -107,7 +107,7 @@ export function ExamPreferencesSection({ settings, setSettings, updateSettings, 
                     {selectedCategory && (
                         <div className="animate-fade-in">
                             <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Secondary Exams (Optional)</label>
-                            <p className="text-xs text-muted-foreground mb-2">Select other exams you're interested in</p>
+                            <p className="text-xs text-muted-foreground mb-2">Select other exams you&apos;re interested in</p>
                             <div className="space-y-4">
                                 <div className="grid grid-cols-2 gap-2">
                                     {groupedExams[selectedCategory]?.map((exam) => {

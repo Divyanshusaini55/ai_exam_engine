@@ -48,7 +48,7 @@ export function DangerZoneSection({ settings }: any) {
                     
                     <div className="space-y-4 max-w-md">
                         <div>
-                            <label className="text-xs font-bold text-red-600/80 dark:text-red-500/80 uppercase tracking-wider">Type 'DELETE_ACCOUNT' to confirm</label>
+                            <label className="text-xs font-bold text-red-600/80 dark:text-red-500/80 uppercase tracking-wider">Type &apos;DELETE_ACCOUNT&apos; to confirm</label>
                             <input 
                                 type="text" 
                                 value={confirmText}
