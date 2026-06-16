@@ -205,7 +205,7 @@ def generate_questions_from_pdf(exam: Exam):
             subject=subject,
             topic=topic,
             difficulty=difficulty,
-            explanation=explanation,
+            explanation="",
             metadata=metadata,
         )
 
