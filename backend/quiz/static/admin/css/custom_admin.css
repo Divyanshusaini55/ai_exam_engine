@@ -775,3 +775,18 @@ table a,
     margin: 0 auto !important;
     display: block !important;
 }
+
+/* Hide the dark logo in light mode */
+.login-logo .logo-dark {
+    display: none !important;
+}
+
+/* Hide the light logo in dark mode */
+html[data-bs-theme="dark"] .login-logo .logo-light {
+    display: none !important;
+}
+
+/* Show the dark logo in dark mode */
+html[data-bs-theme="dark"] .login-logo .logo-dark {
+    display: block !important;
+}
