@@ -10,7 +10,7 @@ import {
   CheckCircle2, Circle, Search, ChevronDown, Lock,
 } from "lucide-react"
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:9000/api"
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 export type TopicResourceItem = {

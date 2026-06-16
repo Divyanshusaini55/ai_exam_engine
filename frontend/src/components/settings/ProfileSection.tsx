@@ -22,7 +22,7 @@ export function ProfileSection({ settings, setSettings, updateSettings, loading 
                                 src={
                                     settings.profile.avatar_image.startsWith('http') || settings.profile.avatar_image.startsWith('data:') 
                                         ? settings.profile.avatar_image 
-                                        : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000'}${settings.profile.avatar_image}`
+                                        : `${process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api', '') || 'http://127.0.0.1:9000'}${settings.profile.avatar_image}`
                                 } 
                                 alt="Avatar" 
                                 className="w-full h-full object-cover" 

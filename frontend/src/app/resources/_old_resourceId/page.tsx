@@ -22,7 +22,7 @@ import rehypeSlug from "rehype-slug"
 import "highlight.js/styles/github-dark.css"
 import "@/styles/article.css"
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:9000/api"
 
 type Resource = {
   id: number
