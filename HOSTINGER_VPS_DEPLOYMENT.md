@@ -171,11 +171,6 @@ server {
 server {
     server_name api.examintel.in;
 
-    # Serve django static files directly (efficient)
-    location /static/ {
-        alias /var/lib/docker/volumes/ai_exam_engine_django_prod_static/_data/;
-    }
-
     # Serve django media files directly (user uploads)
     location /media/ {
         alias /var/lib/docker/volumes/ai_exam_engine_django_prod_media/_data/;
