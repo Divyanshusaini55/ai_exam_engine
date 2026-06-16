@@ -173,7 +173,8 @@ server {
 
     # Serve django media files directly (user uploads)
     location /media/ {
-        alias /var/lib/docker/volumes/ai_exam_engine_django_prod_media/_data/;
+        alias /var/www/examintel/media/;
+        autoindex off;
     }
 
     # Celery Flower monitoring dashboard

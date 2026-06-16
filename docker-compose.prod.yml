@@ -23,7 +23,7 @@ services:
       dockerfile: Dockerfile
     command: /app/entrypoint.sh gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3
     volumes:
-      - django_prod_media:/app/media
+      - /var/www/examintel/media:/app/media
       - django_prod_static:/app/staticfiles
     ports:
       - "127.0.0.1:9000:8000" # Exposed to Nginx reverse proxy (host port 9000)
@@ -41,7 +41,7 @@ services:
       dockerfile: Dockerfile
     command: celery -A core worker -Q normal,low -n summary_worker@%h --loglevel=info --concurrency=2
     volumes:
-      - django_prod_media:/app/media
+      - /var/www/examintel/media:/app/media
     env_file:
       - ./backend/.env
     environment:
@@ -57,7 +57,7 @@ services:
       dockerfile: Dockerfile
     command: celery -A core worker -Q normal,maintenance -n roadmap_worker@%h --loglevel=info --pool=threads --concurrency=4
     volumes:
-      - django_prod_media:/app/media
+      - /var/www/examintel/media:/app/media
     env_file:
       - ./backend/.env
     environment:
@@ -73,7 +73,7 @@ services:
       dockerfile: Dockerfile
     command: celery -A core worker -Q high,normal -n pdf_worker@%h --loglevel=info --pool=threads --concurrency=4
     volumes:
-      - django_prod_media:/app/media
+      - /var/www/examintel/media:/app/media
     env_file:
       - ./backend/.env
     environment:
@@ -89,7 +89,7 @@ services:
       dockerfile: Dockerfile
     command: celery -A core worker -Q low,maintenance -n analytics_worker@%h --loglevel=info --pool=threads --concurrency=4
     volumes:
-      - django_prod_media:/app/media
+      - /var/www/examintel/media:/app/media
     env_file:
       - ./backend/.env
     environment:
@@ -105,7 +105,7 @@ services:
       dockerfile: Dockerfile
     command: celery -A core worker -Q high -n notification_worker@%h --loglevel=info --pool=threads --concurrency=4
     volumes:
-      - django_prod_media:/app/media
+      - /var/www/examintel/media:/app/media
     env_file:
       - ./backend/.env
     environment:
@@ -122,7 +122,7 @@ services:
       dockerfile: Dockerfile
     command: celery -A core beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     volumes:
-      - django_prod_media:/app/media
+      - /var/www/examintel/media:/app/media
     env_file:
       - ./backend/.env
     environment:
@@ -164,5 +164,4 @@ services:
     restart: always
 
 volumes:
-  django_prod_media:
   django_prod_static:
