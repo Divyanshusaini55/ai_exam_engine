@@ -2,7 +2,7 @@
 # AI Exam Engine — Docker Compose (Production using Neon & Upstash)
 # =============================================================================
 # Services:
-#   backend             — Django/DRF Gunicorn API Server (Port 8000)
+#   backend             — Django/DRF Gunicorn API Server (Port 9000 on host)
 #   summary_worker      — Celery worker (Low/Normal priority tasks)
 #   roadmap_worker      — Celery worker (Roadmaps & Maintenance)
 #   pdf_worker          — Celery worker (High priority PDF parsing)
@@ -26,7 +26,7 @@ services:
       - django_prod_media:/app/media
       - django_prod_static:/app/staticfiles
     ports:
-      - "127.0.0.1:8000:8000" # Exposed to Nginx reverse proxy
+      - "127.0.0.1:9000:8000" # Exposed to Nginx reverse proxy (host port 9000)
     env_file:
       - ./backend/.env
     environment:
