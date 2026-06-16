@@ -6,6 +6,7 @@ import { QuestionNavigator } from "./question-navigator"
 import { MobileQuestionNavigator } from "./mobile-question-navigator"
 import { ModeToggle } from "./mode-toggle"
 import { examApi, communityApi, getSessionId } from "@/lib/api"
+import { getAvatarUrl } from "@/lib/utils"
 import ReactMarkdown from 'react-markdown'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
@@ -518,7 +519,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                         )}
 
                         <div className="size-12 rounded-2xl bg-secondary flex items-center justify-center text-primary font-bold text-lg border border-border shadow-sm shrink-0 overflow-hidden">
-                            {comment.avatar ? <img src={comment.avatar} alt={comment.username} /> : comment.username[0].toUpperCase()}
+                            {comment.avatar ? <img src={getAvatarUrl(comment.avatar) || ''} alt={comment.username} /> : comment.username[0].toUpperCase()}
                         </div>
                         <div className="flex flex-col gap-2 flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-3">

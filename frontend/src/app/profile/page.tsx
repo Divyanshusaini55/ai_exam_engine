@@ -29,7 +29,7 @@ import {
     Bookmark,
     Map as MapIcon
 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, getAvatarUrl } from "@/lib/utils"
 
 export default function ProfilePage() {
     const { user, loading, logout } = useAuth()
@@ -124,7 +124,7 @@ export default function ProfilePage() {
                                     {/* Avatar */}
                                     <div className="size-32 rounded-full border-[6px] border-card bg-secondary shadow-lg flex items-center justify-center text-4xl font-bold text-primary overflow-hidden shrink-0">
                                         {user.avatar_image && showProfilePic ? (
-                                            <img src={user.avatar_image} alt={user.username} className="w-full h-full object-cover" />
+                                            <img src={getAvatarUrl(user.avatar_image) || ''} alt={user.username} className="w-full h-full object-cover" />
                                         ) : (
                                             profileData?.avatar_char || user.username[0].toUpperCase()
                                         )}

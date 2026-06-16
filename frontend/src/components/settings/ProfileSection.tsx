@@ -1,5 +1,6 @@
 "use client"
 import { User, Upload } from "lucide-react"
+import { getAvatarUrl } from "@/lib/utils"
 
 export function ProfileSection({ settings, setSettings, updateSettings, loading }: any) {
     if (!settings) return null;
@@ -19,11 +20,7 @@ export function ProfileSection({ settings, setSettings, updateSettings, loading 
                     <div className="size-24 rounded-full border-[4px] border-secondary bg-primary/10 flex items-center justify-center text-3xl font-bold text-primary overflow-hidden shrink-0 relative group">
                         {settings.profile.avatar_image ? (
                             <img 
-                                src={
-                                    settings.profile.avatar_image.startsWith('http') || settings.profile.avatar_image.startsWith('data:') 
-                                        ? settings.profile.avatar_image 
-                                        : `${process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api', '') || 'http://127.0.0.1:9000'}${settings.profile.avatar_image}`
-                                } 
+                                src={getAvatarUrl(settings.profile.avatar_image) || ''} 
                                 alt="Avatar" 
                                 className="w-full h-full object-cover" 
                             />

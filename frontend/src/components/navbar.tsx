@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useAuth } from "@/context/auth-context"
 import { useState, useRef, useEffect, useCallback } from "react"
 import { communityApi } from "@/lib/api"
+import { getAvatarUrl } from "@/lib/utils"
 import { ModeToggle } from "./mode-toggle"
 import { 
     Home, 
@@ -274,7 +275,7 @@ export function Navbar() {
                                 >
                                     <div className="flex h-full w-full items-center justify-center rounded-full bg-secondary overflow-hidden">
                                         {user.avatar_image ? (
-                                            <img src={user.avatar_image} alt={user.username} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+                                            <img src={getAvatarUrl(user.avatar_image) || ''} alt={user.username} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
                                         ) : (
                                             <span className="text-sm font-bold text-primary transition-transform duration-300 group-hover:scale-110">
                                                 {user.username[0].toUpperCase()}
@@ -291,7 +292,7 @@ export function Navbar() {
                                             <div className="flex items-center gap-3">
                                                 <div className="size-10 rounded-full bg-secondary flex items-center justify-center text-lg font-bold text-primary overflow-hidden shrink-0">
                                                     {user.avatar_image ? (
-                                                        <img src={user.avatar_image} alt={user.username} className="w-full h-full object-cover" />
+                                                        <img src={getAvatarUrl(user.avatar_image) || ''} alt={user.username} className="w-full h-full object-cover" />
                                                     ) : (
                                                         user.username[0].toUpperCase()
                                                     )}
