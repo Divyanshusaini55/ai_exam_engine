@@ -16,8 +16,12 @@ if [ "$1" != "celery" ]; then
     echo "Collecting static files..."
     python manage.py collectstatic --noinput
 
-    echo "Creating superuser (if not exists)..."
-    python manage.py createsuperuser --noinput || true
+    if [ -n "$DJANGO_SUPERUSER_USERNAME" ] && [ -n "$DJANGO_SUPERUSER_PASSWORD" ]; then
+        echo "Creating superuser (if not exists)..."
+        python manage.py createsuperuser --noinput || true
+    else
+        echo "Skipping superuser creation: DJANGO_SUPERUSER_USERNAME and DJANGO_SUPERUSER_PASSWORD are not set in environment."
+    fi
 fi
 
 echo "Starting server..."

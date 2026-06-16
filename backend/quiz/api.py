@@ -64,7 +64,7 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
     """
     queryset = Exam.objects.filter(is_active=True, status='published').annotate(
         question_count=Count('questions')
-    ).select_related('subcategory__category')
+    ).select_related('subcategory__category').order_by('-created_at')
     serializer_class = ExamSerializer
     permission_classes = [AllowAny]
 
