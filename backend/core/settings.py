@@ -115,7 +115,8 @@ USE_I18N = False
 USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+# WHITENOISE_MANIFEST_STRICT is no longer needed but kept safe
 WHITENOISE_MANIFEST_STRICT = False
 
 
