@@ -88,6 +88,15 @@ api.interceptors.response.use(
                     localStorage.removeItem("refresh_token");
                     window.location.href = '/login';
                 }
+            } else {
+                // If there's no refresh token, the auth_token is dead and cannot be refreshed.
+                // Clear it to prevent further 401 errors on public (AllowAny) endpoints,
+                // and retry the original request without authorization.
+                localStorage.removeItem("auth_token");
+                if (originalRequest.headers) {
+                    delete originalRequest.headers.Authorization;
+                }
+                return api(originalRequest);
             }
         }
     }
