@@ -281,6 +281,32 @@ class CategoryAdmin(admin.ModelAdmin):
     exam_count.short_description = 'Exams'
 
 
+@admin.action(description='Generate/Regenerate AI Roadmap (Celery)')
+def trigger_roadmap_generation(modeladmin, request, queryset):
+    from jobs.services import create_job
+    from tasks.roadmap_tasks import generate_exam_roadmap
+    from jobs.models import BackgroundJob
+    
+    triggered_count = 0
+    for subcategory in queryset:
+        active_job = BackgroundJob.objects.filter(
+            type='ai.roadmap',
+            payload__subcategory_id=subcategory.id,
+            status__in=['QUEUED', 'RUNNING']
+        ).exists()
+        
+        if not active_job:
+            job = create_job(
+                type='ai.roadmap',
+                payload={'subcategory_id': subcategory.id},
+                user=request.user if request.user.is_authenticated else None
+            )
+            generate_exam_roadmap.delay(str(job.id), subcategory.id)
+            triggered_count += 1
+            
+    modeladmin.message_user(request, f"Queued AI roadmap generation task for {triggered_count} subcategories on the Celery worker.")
+
+
 @admin.register(SubCategory)
 class SubCategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'category', 'slug', 'order', 'status_active', 'exam_count', 'created_at')
@@ -297,6 +323,30 @@ class SubCategoryAdmin(admin.ModelAdmin):
         ('Timestamps', {'fields': ('created_at', 'updated_at'), 'classes': ('collapse',)}),
     )
     inlines = [ExamInline]
+    actions = [trigger_roadmap_generation]
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        
+        # Check if there is already an active job for this subcategory
+        from jobs.models import BackgroundJob
+        from jobs.services import create_job
+        from tasks.roadmap_tasks import generate_exam_roadmap
+        
+        active_job = BackgroundJob.objects.filter(
+            type='ai.roadmap',
+            payload__subcategory_id=obj.id,
+            status__in=['QUEUED', 'RUNNING']
+        ).exists()
+        
+        if not active_job:
+            job = create_job(
+                type='ai.roadmap',
+                payload={'subcategory_id': obj.id},
+                user=request.user if request.user.is_authenticated else None
+            )
+            generate_exam_roadmap.delay(str(job.id), obj.id)
+            self.message_user(request, f"Queued background AI task to generate syllabus roadmap for '{obj.name}' on the Celery worker.")
 
     def status_active(self, obj):
         return _bool_badge(obj.is_active)
