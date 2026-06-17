@@ -67,6 +67,10 @@ def generate_exam_roadmap(self, job_id, subcategory_id, dedup_key=None):
                 title=data.get('title', f'Roadmap for {subcategory.name}'),
                 description=data.get('description', '')
             )
+            
+            topic_map = {}
+            topic_prereqs = {}
+
             for p_idx, p_data in enumerate(data.get('phases', [])):
                 phase = RoadmapPhase.objects.create(
                     roadmap=roadmap,
@@ -75,14 +79,27 @@ def generate_exam_roadmap(self, job_id, subcategory_id, dedup_key=None):
                     order=p_idx
                 )
                 for t_idx, t_data in enumerate(p_data.get('topics', [])):
-                    RoadmapTopic.objects.create(
+                    topic = RoadmapTopic.objects.create(
                         phase=phase,
                         title=t_data.get('title', ''),
                         description=t_data.get('description', ''),
                         estimated_minutes=t_data.get('estimated_minutes', 60),
-                        prerequisites=t_data.get('prerequisites', []),
                         order=t_idx
                     )
+                    topic_map[topic.title.strip().lower()] = topic
+                    topic_prereqs[topic.id] = t_data.get('prerequisites', [])
+
+            # Associate prerequisites using ManyToMany relation set() method
+            for topic_id, prereq_titles in topic_prereqs.items():
+                if prereq_titles:
+                    topic = RoadmapTopic.objects.get(id=topic_id)
+                    prereq_topics = []
+                    for title in prereq_titles:
+                        cleaned_title = title.strip().lower()
+                        if cleaned_title in topic_map:
+                            prereq_topics.append(topic_map[cleaned_title])
+                    if prereq_topics:
+                        topic.prerequisites.set(prereq_topics)
         update_progress(job_id, stage='finalising', progress=95,
                         message='Saving roadmap to database')
 
