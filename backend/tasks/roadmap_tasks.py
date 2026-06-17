@@ -46,7 +46,14 @@ def generate_exam_roadmap(self, job_id, subcategory_id, dedup_key=None):
         engine = RoadmapEngine()
         syllabus_text = None
         if subcategory.syllabus_pdf:
-            syllabus_text = engine.extract_and_clean_pdf(subcategory.syllabus_pdf.path)
+            try:
+                syllabus_text = engine.extract_and_clean_pdf(subcategory.syllabus_pdf.path)
+            except (FileNotFoundError, OSError) as e:
+                logger.warning(
+                    f"Syllabus PDF file not found at {subcategory.syllabus_pdf.path}. "
+                    f"Falling back to generating roadmap without PDF text. Error: {e}"
+                )
+                syllabus_text = None
 
         data = engine.parse_syllabus(subcategory.name, syllabus_text)
         update_progress(job_id, stage='building_roadmap', progress=70,
@@ -95,7 +102,7 @@ def generate_exam_roadmap(self, job_id, subcategory_id, dedup_key=None):
     except Exception as exc:
         logger.exception('generate_exam_roadmap failed for subcategory %s', subcategory_id)
         if self.request.retries < self.max_retries:
-            fail_job(job_id, error=traceback.format_exc())
+            update_progress(job_id, stage='retrying', progress=50, message=f'Attempt {self.request.retries + 1} failed, scheduling retry: {str(exc)[:100]}')
             raise self.retry(exc=exc, countdown=60 * (2 ** self.request.retries))
         else:
             fail_job(job_id, error=traceback.format_exc())
