@@ -1,5 +1,6 @@
 
 from django.db import models
+from django.core.validators import RegexValidator
 from django.utils import timezone
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVector
@@ -7,7 +8,7 @@ from django.contrib.postgres.search import SearchVector
 
 
 class Category(models.Model):
-    slug = models.SlugField(unique=True, help_text="URL-safe identifier (e.g. 'ssc')")
+    slug = models.SlugField(unique=True, validators=[RegexValidator(regex=r'^[a-z0-9-]+$', message='Slug must be lowercase alphanumeric and hyphens only')], help_text="URL-safe identifier (e.g. 'ssc')")
     name = models.CharField(max_length=100, help_text="Display name (e.g. 'SSC')")
     description = models.TextField(blank=True)
     icon = models.CharField(max_length=50, default='school', help_text="Material Symbol name")
@@ -29,7 +30,7 @@ class Category(models.Model):
 
 class SubCategory(models.Model):
     category = models.ForeignKey(Category, related_name='subcategories', on_delete=models.CASCADE)
-    slug = models.SlugField(unique=True, help_text="URL-safe identifier (e.g. 'ssc-cgl')")
+    slug = models.SlugField(unique=True, validators=[RegexValidator(regex=r'^[a-z0-9-]+$', message='Slug must be lowercase alphanumeric and hyphens only')], help_text="URL-safe identifier (e.g. 'ssc-cgl')")
     name = models.CharField(max_length=100, help_text="Display name (e.g. 'SSC CGL')")
     description = models.TextField(blank=True)
     icon = models.CharField(max_length=50, default='school', help_text="Material Symbol name")
@@ -355,7 +356,7 @@ class CorrectionSuggestion(models.Model):
 
 class CurrentAffair(models.Model):
     title = models.CharField(max_length=500)
-    slug = models.SlugField(unique=True, max_length=600)
+    slug = models.SlugField(unique=True, max_length=600, validators=[RegexValidator(regex=r'^[a-z0-9-]+$', message='Slug must be lowercase alphanumeric and hyphens only')])
     content = models.TextField(help_text="Full summarized content from AI")
     summary = models.TextField(blank=True, help_text="Short 2-sentence summary for list view")
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
@@ -400,6 +401,7 @@ class RoadmapPhase(models.Model):
 class RoadmapTopic(models.Model):
     phase = models.ForeignKey(RoadmapPhase, on_delete=models.CASCADE, related_name='topics')
     title = models.CharField(max_length=200, help_text="e.g. 'Percentage Basics'")
+    slug = models.SlugField(unique=True, null=True, blank=True, validators=[RegexValidator(regex=r'^[a-z0-9-]+$', message='Slug must be lowercase alphanumeric and hyphens only')])
     description = models.TextField(blank=True)
     estimated_minutes = models.IntegerField(default=60, help_text="Estimated study time in minutes")
     order = models.IntegerField(default=0)
@@ -439,7 +441,7 @@ class UserTopicProgress(models.Model):
 
 class ResourceTag(models.Model):
     name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, validators=[RegexValidator(regex=r'^[a-z0-9-]+$', message='Slug must be lowercase alphanumeric and hyphens only')])
     color = models.CharField(
         max_length=20,
         default='gray',
@@ -497,7 +499,7 @@ class TopicResource(models.Model):
         help_text="Admin/staff who created this resource"
     )
     title = models.CharField(max_length=500)
-    slug = models.SlugField(max_length=550, blank=True, help_text="Auto-generated from title")
+    slug = models.SlugField(max_length=550, blank=True, unique=True, validators=[RegexValidator(regex=r'^[a-z0-9-]+$', message='Slug must be lowercase alphanumeric and hyphens only')], help_text="Auto-generated from title")
     short_description = models.TextField(
         blank=True,
         help_text="One-line summary shown in resource cards"
@@ -582,8 +584,10 @@ class TopicResource(models.Model):
         return f"[{self.get_resource_type_display()}] {self.title}"
 
     def save(self, *args, **kwargs):
-        if not self.slug and self.title:
-            from django.utils.text import slugify
+        from django.utils.text import slugify
+        if self.slug:
+            self.slug = slugify(self.slug)
+        elif self.title:
             base_slug = slugify(self.title)[:500]
             slug = base_slug
             counter = 1

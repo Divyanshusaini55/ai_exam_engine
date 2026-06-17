@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from quiz.models import Question
 
@@ -47,7 +48,7 @@ class Badge(models.Model):
         ('manual', 'Manual Award'),
     ]
     name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, validators=[RegexValidator(regex=r'^[a-z0-9-]+$', message='Slug must be lowercase alphanumeric and hyphens only')])
     description = models.CharField(max_length=300)
     icon = models.CharField(max_length=50, default='sparkles')
     color_gradient = models.CharField(max_length=100, default='from-amber-400 to-orange-500')
