@@ -33,8 +33,8 @@ services:
       - RUNNING_IN_DOCKER=true
       - DEBUG=False
       - REDIS_URL=redis://redis:6379/0
-      - REDIS_CACHE_URL=rediss://default:gQAAAAAAAfYCAAIgcDFhNjQ3M2Q3NTNiOTg0YTNhYjc1YzU0NTUzNDViMGY3MA@fluent-koi-128514.upstash.io:6379
-      - REDIS_SESSION_URL=rediss://default:gQAAAAAAAfYCAAIgcDFhNjQ3M2Q3NTNiOTg0YTNhYjc1YzU0NTUzNDViMGY3MA@fluent-koi-128514.upstash.io:6379
+      - REDIS_CACHE_URL=redis://redis:6379/1
+      - REDIS_SESSION_URL=redis://redis:6379/2
     depends_on:
       - redis
     restart: always
@@ -44,7 +44,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: celery -A core worker -Q normal,low -n summary_worker@%h --loglevel=info --concurrency=2 --without-gossip --without-mingle --without-heartbeat
+    command: celery -A core worker -Q normal,low -n summary_worker@%h --loglevel=info --concurrency=2
     volumes:
       - /var/www/examintel/media:/app/media
     env_file:
@@ -53,8 +53,8 @@ services:
       - RUNNING_IN_DOCKER=true
       - DEBUG=False
       - REDIS_URL=redis://redis:6379/0
-      - REDIS_CACHE_URL=rediss://default:gQAAAAAAAfYCAAIgcDFhNjQ3M2Q3NTNiOTg0YTNhYjc1YzU0NTUzNDViMGY3MA@fluent-koi-128514.upstash.io:6379
-      - REDIS_SESSION_URL=rediss://default:gQAAAAAAAfYCAAIgcDFhNjQ3M2Q3NTNiOTg0YTNhYjc1YzU0NTUzNDViMGY3MA@fluent-koi-128514.upstash.io:6379
+      - REDIS_CACHE_URL=redis://redis:6379/1
+      - REDIS_SESSION_URL=redis://redis:6379/2
     depends_on:
       - backend
       - redis
@@ -64,7 +64,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: celery -A core worker -Q normal,maintenance -n roadmap_worker@%h --loglevel=info --pool=threads --concurrency=4 --without-gossip --without-mingle --without-heartbeat
+    command: celery -A core worker -Q normal,maintenance -n roadmap_worker@%h --loglevel=info --pool=threads --concurrency=4
     volumes:
       - /var/www/examintel/media:/app/media
     env_file:
@@ -73,8 +73,8 @@ services:
       - RUNNING_IN_DOCKER=true
       - DEBUG=False
       - REDIS_URL=redis://redis:6379/0
-      - REDIS_CACHE_URL=rediss://default:gQAAAAAAAfYCAAIgcDFhNjQ3M2Q3NTNiOTg0YTNhYjc1YzU0NTUzNDViMGY3MA@fluent-koi-128514.upstash.io:6379
-      - REDIS_SESSION_URL=rediss://default:gQAAAAAAAfYCAAIgcDFhNjQ3M2Q3NTNiOTg0YTNhYjc1YzU0NTUzNDViMGY3MA@fluent-koi-128514.upstash.io:6379
+      - REDIS_CACHE_URL=redis://redis:6379/1
+      - REDIS_SESSION_URL=redis://redis:6379/2
     depends_on:
       - backend
       - redis
@@ -84,7 +84,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: celery -A core worker -Q high,normal -n pdf_worker@%h --loglevel=info --pool=threads --concurrency=4 --without-gossip --without-mingle --without-heartbeat
+    command: celery -A core worker -Q high,normal -n pdf_worker@%h --loglevel=info --pool=threads --concurrency=4
     volumes:
       - /var/www/examintel/media:/app/media
     env_file:
@@ -93,8 +93,8 @@ services:
       - RUNNING_IN_DOCKER=true
       - DEBUG=False
       - REDIS_URL=redis://redis:6379/0
-      - REDIS_CACHE_URL=rediss://default:gQAAAAAAAfYCAAIgcDFhNjQ3M2Q3NTNiOTg0YTNhYjc1YzU0NTUzNDViMGY3MA@fluent-koi-128514.upstash.io:6379
-      - REDIS_SESSION_URL=rediss://default:gQAAAAAAAfYCAAIgcDFhNjQ3M2Q3NTNiOTg0YTNhYjc1YzU0NTUzNDViMGY3MA@fluent-koi-128514.upstash.io:6379
+      - REDIS_CACHE_URL=redis://redis:6379/1
+      - REDIS_SESSION_URL=redis://redis:6379/2
     depends_on:
       - backend
       - redis
@@ -104,7 +104,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: celery -A core worker -Q low,maintenance -n analytics_worker@%h --loglevel=info --pool=threads --concurrency=4 --without-gossip --without-mingle --without-heartbeat
+    command: celery -A core worker -Q low,maintenance -n analytics_worker@%h --loglevel=info --pool=threads --concurrency=4
     volumes:
       - /var/www/examintel/media:/app/media
     env_file:
@@ -113,8 +113,8 @@ services:
       - RUNNING_IN_DOCKER=true
       - DEBUG=False
       - REDIS_URL=redis://redis:6379/0
-      - REDIS_CACHE_URL=rediss://default:gQAAAAAAAfYCAAIgcDFhNjQ3M2Q3NTNiOTg0YTNhYjc1YzU0NTUzNDViMGY3MA@fluent-koi-128514.upstash.io:6379
-      - REDIS_SESSION_URL=rediss://default:gQAAAAAAAfYCAAIgcDFhNjQ3M2Q3NTNiOTg0YTNhYjc1YzU0NTUzNDViMGY3MA@fluent-koi-128514.upstash.io:6379
+      - REDIS_CACHE_URL=redis://redis:6379/1
+      - REDIS_SESSION_URL=redis://redis:6379/2
     depends_on:
       - backend
       - redis
@@ -124,7 +124,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: celery -A core worker -Q high -n notification_worker@%h --loglevel=info --pool=threads --concurrency=4 --without-gossip --without-mingle --without-heartbeat
+    command: celery -A core worker -Q high -n notification_worker@%h --loglevel=info --pool=threads --concurrency=4
     volumes:
       - /var/www/examintel/media:/app/media
     env_file:
@@ -133,8 +133,8 @@ services:
       - RUNNING_IN_DOCKER=true
       - DEBUG=False
       - REDIS_URL=redis://redis:6379/0
-      - REDIS_CACHE_URL=rediss://default:gQAAAAAAAfYCAAIgcDFhNjQ3M2Q3NTNiOTg0YTNhYjc1YzU0NTUzNDViMGY3MA@fluent-koi-128514.upstash.io:6379
-      - REDIS_SESSION_URL=rediss://default:gQAAAAAAAfYCAAIgcDFhNjQ3M2Q3NTNiOTg0YTNhYjc1YzU0NTUzNDViMGY3MA@fluent-koi-128514.upstash.io:6379
+      - REDIS_CACHE_URL=redis://redis:6379/1
+      - REDIS_SESSION_URL=redis://redis:6379/2
     depends_on:
       - backend
       - redis
@@ -154,8 +154,8 @@ services:
       - RUNNING_IN_DOCKER=true
       - DEBUG=False
       - REDIS_URL=redis://redis:6379/0
-      - REDIS_CACHE_URL=rediss://default:gQAAAAAAAfYCAAIgcDFhNjQ3M2Q3NTNiOTg0YTNhYjc1YzU0NTUzNDViMGY3MA@fluent-koi-128514.upstash.io:6379
-      - REDIS_SESSION_URL=rediss://default:gQAAAAAAAfYCAAIgcDFhNjQ3M2Q3NTNiOTg0YTNhYjc1YzU0NTUzNDViMGY3MA@fluent-koi-128514.upstash.io:6379
+      - REDIS_CACHE_URL=redis://redis:6379/1
+      - REDIS_SESSION_URL=redis://redis:6379/2
     depends_on:
       - backend
       - redis
