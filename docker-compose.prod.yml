@@ -32,6 +32,11 @@ services:
     environment:
       - RUNNING_IN_DOCKER=true
       - DEBUG=False
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_CACHE_URL=redis://redis:6379/1
+      - REDIS_SESSION_URL=redis://redis:6379/2
+    depends_on:
+      - redis
     restart: always
 
   # ─── Celery Workers ─────────────────────────────────────────────────
@@ -47,8 +52,12 @@ services:
     environment:
       - RUNNING_IN_DOCKER=true
       - DEBUG=False
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_CACHE_URL=redis://redis:6379/1
+      - REDIS_SESSION_URL=redis://redis:6379/2
     depends_on:
       - backend
+      - redis
     restart: always
 
   roadmap_worker:
@@ -63,8 +72,12 @@ services:
     environment:
       - RUNNING_IN_DOCKER=true
       - DEBUG=False
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_CACHE_URL=redis://redis:6379/1
+      - REDIS_SESSION_URL=redis://redis:6379/2
     depends_on:
       - backend
+      - redis
     restart: always
 
   pdf_worker:
@@ -79,8 +92,12 @@ services:
     environment:
       - RUNNING_IN_DOCKER=true
       - DEBUG=False
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_CACHE_URL=redis://redis:6379/1
+      - REDIS_SESSION_URL=redis://redis:6379/2
     depends_on:
       - backend
+      - redis
     restart: always
 
   analytics_worker:
@@ -95,8 +112,12 @@ services:
     environment:
       - RUNNING_IN_DOCKER=true
       - DEBUG=False
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_CACHE_URL=redis://redis:6379/1
+      - REDIS_SESSION_URL=redis://redis:6379/2
     depends_on:
       - backend
+      - redis
     restart: always
 
   notification_worker:
@@ -111,8 +132,12 @@ services:
     environment:
       - RUNNING_IN_DOCKER=true
       - DEBUG=False
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_CACHE_URL=redis://redis:6379/1
+      - REDIS_SESSION_URL=redis://redis:6379/2
     depends_on:
       - backend
+      - redis
     restart: always
 
   # ─── Celery Beat (Scheduler) ───────────────────────────────────────
@@ -128,8 +153,12 @@ services:
     environment:
       - RUNNING_IN_DOCKER=true
       - DEBUG=False
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_CACHE_URL=redis://redis:6379/1
+      - REDIS_SESSION_URL=redis://redis:6379/2
     depends_on:
       - backend
+      - redis
     restart: always
 
   # ─── Flower (Celery Monitoring) ────────────────────────────────────
@@ -144,8 +173,12 @@ services:
       - ./backend/.env
     environment:
       - RUNNING_IN_DOCKER=true
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
     depends_on:
       - backend
+      - redis
     restart: always
 
   # ─── Frontend (Next.js) ────────────────────────────────────────────
@@ -163,5 +196,14 @@ services:
       - backend
     restart: always
 
+  # ─── Redis (Local Cache, Sessions & Queue Broker) ───────────────────
+  redis:
+    image: redis:7-alpine
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    restart: always
+
 volumes:
   django_prod_static:
+  redis_data:
