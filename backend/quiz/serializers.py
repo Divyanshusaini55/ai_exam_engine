@@ -396,12 +396,17 @@ class TopicResourceListSerializer(serializers.ModelSerializer):
         ]
 
     def get_is_bookmarked(self, obj):
+        if hasattr(obj, 'prefetched_bookmarks'):
+            return len(obj.prefetched_bookmarks) > 0
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return ResourceBookmark.objects.filter(user=request.user, resource=obj).exists()
         return False
 
     def get_is_completed(self, obj):
+        if hasattr(obj, 'prefetched_progress'):
+            progress = obj.prefetched_progress[0] if obj.prefetched_progress else None
+            return progress.is_completed if progress else False
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             progress = ResourceProgress.objects.filter(user=request.user, resource=obj).first()
@@ -424,15 +429,23 @@ class RoadmapTopicSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'estimated_minutes', 'order', 'status', 'resources', 'topic_resources', 'prerequisites']
 
     def get_status(self, obj):
-        user = self.context.get('request').user if self.context.get('request') else None
-        if user and user.is_authenticated:
-            progress = UserTopicProgress.objects.filter(user=user, topic=obj).first()
+        if hasattr(obj, 'prefetched_user_progress'):
+            progress = obj.prefetched_user_progress[0] if obj.prefetched_user_progress else None
             if progress:
                 return progress.status
+        else:
+            user = self.context.get('request').user if self.context.get('request') else None
+            if user and user.is_authenticated:
+                progress = UserTopicProgress.objects.filter(user=user, topic=obj).first()
+                if progress:
+                    return progress.status
         return 'pending'
 
     def get_topic_resources(self, obj):
-        qs = obj.topic_resources.filter(is_published=True).order_by('order', 'created_at')
+        if hasattr(obj, 'published_resources'):
+            qs = obj.published_resources
+        else:
+            qs = obj.topic_resources.filter(is_published=True).order_by('order', 'created_at')
         return TopicResourceListSerializer(qs, many=True, context=self.context).data
 
     def get_prerequisites(self, obj):

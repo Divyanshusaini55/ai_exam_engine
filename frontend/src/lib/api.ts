@@ -32,7 +32,7 @@ export const api = axios.create({
     'Content-Type': 'application/json',
   },
   // Add timeout and better error handling
-  timeout: 10000,
+  timeout: 30000,
 });
 
 // Add Request Interceptor to include Auth Token

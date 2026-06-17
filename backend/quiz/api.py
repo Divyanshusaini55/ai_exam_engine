@@ -514,10 +514,61 @@ from .serializers import ExamRoadmapSerializer
 from django.utils import timezone
 
 class ExamRoadmapViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = ExamRoadmap.objects.all()
     serializer_class = ExamRoadmapSerializer
     permission_classes = [AllowAny]
     lookup_field = 'subcategory__slug'
+
+    def get_queryset(self):
+        user = self.request.user
+        from django.db.models import Prefetch
+        from .models import ExamRoadmap, TopicResource, UserTopicProgress, ResourceBookmark, ResourceProgress
+        
+        prefetches = [
+            'phases',
+            'phases__topics',
+            'phases__topics__prerequisites',
+        ]
+        
+        if user and user.is_authenticated:
+            prefetches.append(
+                Prefetch(
+                    'phases__topics__progress',
+                    queryset=UserTopicProgress.objects.filter(user=user),
+                    to_attr='prefetched_user_progress'
+                )
+            )
+            # Prefetch for topic resources with user-specific bookmarks and progress
+            resource_qs = TopicResource.objects.filter(is_published=True).prefetch_related(
+                'tags',
+                Prefetch(
+                    'bookmarks',
+                    queryset=ResourceBookmark.objects.filter(user=user),
+                    to_attr='prefetched_bookmarks'
+                ),
+                Prefetch(
+                    'user_progress',
+                    queryset=ResourceProgress.objects.filter(user=user),
+                    to_attr='prefetched_progress'
+                )
+            ).order_by('order', 'created_at')
+            prefetches.append(
+                Prefetch(
+                    'phases__topics__topic_resources',
+                    queryset=resource_qs,
+                    to_attr='published_resources'
+                )
+            )
+        else:
+            resource_qs = TopicResource.objects.filter(is_published=True).prefetch_related('tags').order_by('order', 'created_at')
+            prefetches.append(
+                Prefetch(
+                    'phases__topics__topic_resources',
+                    queryset=resource_qs,
+                    to_attr='published_resources'
+                )
+            )
+            
+        return ExamRoadmap.objects.select_related('subcategory').prefetch_related(*prefetches)
 
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def bookmark(self, request, subcategory__slug=None):
