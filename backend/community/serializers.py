@@ -20,12 +20,13 @@ class SolutionSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
     exam_id = serializers.IntegerField(source='question.exam.id', read_only=True)
+    exam_slug = serializers.CharField(source='question.exam.slug', read_only=True)
     exam_title = serializers.CharField(source='question.exam.title', read_only=True)
     has_upvoted = serializers.SerializerMethodField()
     
     class Meta:
         model = Comment
-        fields = ['id', 'user', 'username', 'question', 'exam_id', 'exam_title', 'solution', 'parent', 'text', 'upvotes', 'has_upvoted', 'created_at']
+        fields = ['id', 'user', 'username', 'question', 'exam_id', 'exam_slug', 'exam_title', 'solution', 'parent', 'text', 'upvotes', 'has_upvoted', 'created_at']
         read_only_fields = ['user']
 
     def get_has_upvoted(self, obj):

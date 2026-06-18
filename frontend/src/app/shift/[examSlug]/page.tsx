@@ -11,7 +11,7 @@ export default function ShiftPage() {
   const router = useRouter()
   const params = useParams()
   const searchParams = useSearchParams()
-  const shiftId = params.shiftId as string
+  const examSlug = params.examSlug as string
   const [loading, setLoading] = useState(true)
 
   // Check if this is a retake attempt or learning mode review
@@ -29,9 +29,9 @@ export default function ShiftPage() {
 
       try {
         // Check if result already exists for THIS USER
-        await examApi.getResults(shiftId)
+        await examApi.getResults(examSlug)
         // Result exists - redirect to result page
-        router.replace(`/dashboard/${shiftId}`)
+        router.replace(`/dashboard/${examSlug}`)
       } catch (error: any) {
         // Handle different error cases
         if (error.response?.status === 404) {
@@ -48,14 +48,14 @@ export default function ShiftPage() {
       }
     }
     checkExamStatus()
-  }, [shiftId, router, isRetake])
+  }, [examSlug, router, isRetake])
 
   const handleSubmit = (sessionId?: string) => {
     // Replace history to prevent back-navigation to exam
     if (sessionId) {
-      router.replace(`/dashboard/${shiftId}?session_id=${sessionId}`)
+      router.replace(`/dashboard/${examSlug}?session_id=${sessionId}`)
     } else {
-      router.replace(`/dashboard/${shiftId}`)
+      router.replace(`/dashboard/${examSlug}`)
     }
   }
 
@@ -67,5 +67,5 @@ export default function ShiftPage() {
     )
   }
 
-  return <ExamTakingInterface onSubmit={handleSubmit} examId={shiftId} />
+  return <ExamTakingInterface onSubmit={handleSubmit} examId={examSlug} />
 }

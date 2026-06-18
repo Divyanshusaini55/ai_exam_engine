@@ -12,7 +12,6 @@ if (typeof window !== 'undefined') {
   }
 }
 
-// Helper: Get or create a unique session ID for the user
 export const getSessionId = () => {
   if (typeof window !== 'undefined') {
     let session = localStorage.getItem('exam_session_id');
@@ -27,15 +26,13 @@ export const getSessionId = () => {
 
 export const api = axios.create({
   baseURL: API_URL,
-  withCredentials: true, // Send cookies with requests
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
-  // Add timeout and better error handling
   timeout: 30000,
 });
 
-// Add Request Interceptor to include Auth Token
 api.interceptors.request.use((config) => {
   logApi(config.url || '', config.method?.toUpperCase(), 'START');
   if (typeof window !== 'undefined') {
@@ -47,7 +44,6 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// Add response interceptor
 api.interceptors.response.use(
   (response) => {
     logApi(response.config.url || '', response.config.method?.toUpperCase(), `END - Status: ${response.status}`);
@@ -60,14 +56,12 @@ api.interceptors.response.use(
         logApi(error.config?.url || '', error.config?.method?.toUpperCase(), `ERROR - ${error.message}`);
     }
     if (process.env.NODE_ENV === 'development' && !axios.isCancel(error)) {
-        // Suppress expected 404s when polling/checking for results to keep console clean
         const isExpected404 = error.response?.status === 404 && error.config?.url?.includes('/results/');
         if (!isExpected404) {
             console.error('API Error:', error.config?.url, error.response?.status, error.message);
         }
     }
     
-    // Auto-refresh logic
     const originalRequest = error.config;
     if (error.response?.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
@@ -89,9 +83,6 @@ api.interceptors.response.use(
                     window.location.href = '/login';
                 }
             } else {
-                // If there's no refresh token, the auth_token is dead and cannot be refreshed.
-                // Clear it to prevent further 401 errors on public (AllowAny) endpoints,
-                // and retry the original request without authorization.
                 localStorage.removeItem("auth_token");
                 if (originalRequest.headers) {
                     delete originalRequest.headers.Authorization;
@@ -106,20 +97,15 @@ api.interceptors.response.use(
 );
 
 export const examApi = {
-  // Get list of all exams (filters can be applied in frontend)
   list: (params?: any) => api.get('/exams/', { params }),
 
-  // Get categories and subcategories
   getCategories: () => api.get('/categories/'),
   getSubcategories: (params?: any) => api.get('/subcategories/', { params }),
 
-  // Get details (questions) for a specific exam
   get: (id: string, params?: any) => api.get(`/exams/${id}/`, { params }),
 
-  // Get questions for the "Taking Interface"
   getQuestions: (id: string, params?: any) => api.get(`/exams/${id}/questions/`, { params }),
 
-  // Submit a single answer (Background Auto-save)
   submitAnswer: (
     examId: string,
     questionId: number,
@@ -137,7 +123,6 @@ export const examApi = {
     });
   },
 
-  // NEW: Start exam/learning session
   startSession: (examId: string, mode: 'exam' | 'learning', sessionId?: string | null) => {
     return api.post(`/exams/${examId}/start/`, {
       mode,
@@ -145,7 +130,6 @@ export const examApi = {
     });
   },
 
-  // NEW: Submit entire exam/practice to calculate results
   submitExam: (examId: string, sessionId: string, mode: 'exam' | 'learning' = 'exam', duration = 0) => {
     return api.post(`/exams/${examId}/submit/`, {
       session_id: sessionId,
@@ -154,7 +138,6 @@ export const examApi = {
     });
   },
 
-  // NEW: Pause session
   pauseSession: (examId: string, sessionId: string, mode: 'exam' | 'learning', duration: number) => {
     return api.post(`/exams/${examId}/pause/`, {
       session_id: sessionId,
@@ -163,7 +146,6 @@ export const examApi = {
     });
   },
 
-  // NEW: Reset session
   resetSession: (examId: string, sessionId: string, mode: 'exam' | 'learning') => {
     return api.post(`/exams/${examId}/reset/`, {
       session_id: sessionId,
@@ -171,7 +153,6 @@ export const examApi = {
     });
   },
 
-  // NEW: Update session state (current question index, duration, visited status)
   updateSession: (
     examId: string,
     sessionId: string,
@@ -189,28 +170,24 @@ export const examApi = {
     });
   },
 
-  // Get Final Results
   getResults: (examId: string, sessionId?: string | null) => {
     return api.get(`/exams/${examId}/results/`, {
       params: { session_id: sessionId || getSessionId() }
     });
   },
 
-  // NEW: Request AI explanation for a specific question
   explainQuestion: (questionId: number) => {
     return api.post(`/exams/explain_question/`, {
       question_id: questionId
     });
   },
 
-  // NEW: Get Leaderboard
-  getLeaderboard: (examId?: string) => {
+  getLeaderboard: (examSlug?: string) => {
     return api.get('/exams/leaderboard/', {
-      params: { exam_id: examId }
+      params: { exam_slug: examSlug }
     });
   },
 
-  // NEW: Upload Question Paper
   uploadPaper: (data: FormData) => {
     return api.post('/uploads/', data, {
       headers: {
@@ -219,17 +196,14 @@ export const examApi = {
     });
   },
 
-  // NEW: Suggestions API
   getSuggestions: (questionId: number) => api.get('/suggestions/', { params: { question_id: questionId } }),
   submitSuggestion: (data: any) => api.post('/suggestions/', data),
   upvoteSuggestion: (id: number) => api.post(`/suggestions/${id}/upvote/`),
   
-  // NEW: Get current progress for an exam (to restore on refresh)
   getProgress: (examId: string, sessionId?: string | null) => api.get(`/exams/${examId}/progress/`, {
     params: { session_id: sessionId || getSessionId() }
   }),
 
-  // NEW: Get exam summary (dynamically generates if not present)
   getSummary: (id: string, params?: any) => api.get(`/exams/${id}/summary/`, { params }),
 };
 
@@ -262,22 +236,15 @@ export const roadmapApi = {
 
 const COMM = '/community';
 export const contributorApi = {
-  /** Global community overview stats */
   getOverview: () => api.get(`${COMM}/contributors/`),
-  /** Rich stats for the currently logged-in user */
   getMyStats: () => api.get(`${COMM}/contributors/stats/me/`),
-  /** Paginated global top contributors */
   getTop: (page = 1, perPage = 10) =>
     api.get(`${COMM}/contributors/top/`, { params: { page, per_page: perPage } }),
-  /** Recent community activity feed */
   getActivity: (page = 1) =>
     api.get(`${COMM}/contributors/activity/`, { params: { page } }),
-  /** Category-wise leaderboards */
   getLeaderboard: (days = 30) =>
     api.get(`${COMM}/contributors/leaderboard/`, { params: { days } }),
-  /** All badges + earned status for current user */
   getBadges: () => api.get(`${COMM}/contributors/badges/`),
-  /** Public profile for any username */
   getProfile: (username: string) =>
     api.get(`${COMM}/contributors/profile/${username}/`),
 };

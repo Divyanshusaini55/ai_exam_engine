@@ -67,6 +67,7 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
     ).select_related('subcategory__category').order_by('-created_at')
     serializer_class = ExamSerializer
     permission_classes = [AllowAny]
+    lookup_field = 'slug'
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -80,10 +81,32 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
             
         return queryset
 
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        lookup_value = self.kwargs.get(lookup_url_kwarg)
+
+        if not lookup_value:
+            return super().get_object()
+
+        if lookup_value.isdigit():
+            try:
+                obj = queryset.get(id=lookup_value)
+                self.check_object_permissions(self.request, obj)
+                return obj
+            except queryset.model.DoesNotExist:
+                pass
+
+        filter_kwargs = {self.lookup_field: lookup_value}
+        obj = get_object_or_404(queryset, **filter_kwargs)
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+
     def retrieve(self, request, *args, **kwargs):
         lang = request.query_params.get('lang', 'en')
-        exam_id = kwargs.get('pk')
-        cache_key = f"exam:{exam_id}:{lang}"
+        exam_slug = kwargs.get('slug')
+        cache_key = f"exam:{exam_slug}:{lang}"
         
         cached_data = cache.get(cache_key)
         if cached_data:
@@ -95,12 +118,12 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
 
 
     @action(detail=True, methods=['get'])
-    def questions(self, request, pk=None):
+    def questions(self, request, slug=None):
         lang = request.query_params.get('lang', 'en')
         mode = request.query_params.get('mode', 'exam')
         
         hide_correct = (mode == 'exam')
-        cache_key = f"exam_questions:{pk}:{lang}:{hide_correct}"
+        cache_key = f"exam_questions:{slug}:{lang}:{hide_correct}"
         
         cached_data = cache.get(cache_key)
         if cached_data:
@@ -122,7 +145,7 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
         return Response(serializer.data)
 
     @action(detail=True, methods=['post'])
-    def submit_answer(self, request, pk=None):
+    def submit_answer(self, request, slug=None, pk=None, **kwargs):
         exam = self.get_object()
 
         session_id = request.data.get('session_id')
@@ -175,7 +198,7 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
 
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
-    def start(self, request, pk=None):
+    def start(self, request, slug=None, pk=None, **kwargs):
         exam = self.get_object()
         mode = request.data.get('mode', 'exam')  # 'exam' or 'learning'
         session_id = request.data.get('session_id')
@@ -260,7 +283,7 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
 
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
-    def submit(self, request, pk=None):
+    def submit(self, request, slug=None, pk=None, **kwargs):
         exam = self.get_object()
         session_id = request.data.get('session_id')
         mode = request.data.get('mode', 'exam')
@@ -389,8 +412,8 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
 
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
-    def submit_exam(self, request, pk=None):
-        return self.submit(request, pk=pk)
+    def submit_exam(self, request, slug=None, pk=None, **kwargs):
+        return self.submit(request, slug=slug, pk=pk, **kwargs)
 
 
 

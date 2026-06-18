@@ -23,6 +23,7 @@ import {
 interface Activity {
     id: number
     exam_id: number
+    exam_slug: string
     session_id: string
     exam_title: string
     score: number
@@ -213,7 +214,7 @@ export default function DashboardPage() {
                                     {stats.recent_activities.map((activity) => (
                                         <div key={activity.id}
                                             className="p-5 flex items-center justify-between hover:bg-secondary/40 transition-colors group cursor-pointer"
-                                            onClick={() => router.push(`/dashboard/${activity.exam_id}?session_id=${activity.session_id}`)}
+                                            onClick={() => router.push(`/dashboard/${activity.exam_slug}?session_id=${activity.session_id}`)}
                                         >
                                             <div className="flex items-center gap-4">
                                                 <div className="size-10 rounded-xl bg-secondary text-primary flex items-center justify-center font-bold text-sm uppercase">

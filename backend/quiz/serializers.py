@@ -152,6 +152,7 @@ class ExamSerializer(serializers.ModelSerializer):
         model = Exam
         fields = [
             'id',
+            'slug',
             'title',
             'description',
             'ai_summary',
@@ -172,7 +173,7 @@ class ExamSerializer(serializers.ModelSerializer):
             'created_at',
             'is_active'
         ]
-        read_only_fields = ['id', 'created_at']
+        read_only_fields = ['id', 'slug', 'created_at']
 
 
 class UserAnswerSerializer(serializers.ModelSerializer):

@@ -6,6 +6,7 @@ import { CategoryHomeIcon } from "@/components/category-home-icon"
 
 interface ExamCardProps {
   id: number
+  slug: string
   title: string
   description: string
   duration: number
@@ -14,7 +15,7 @@ interface ExamCardProps {
   category: string
 }
 
-export function ExamCard({ id, title, description, duration, questions, category }: ExamCardProps) {
+export function ExamCard({ id, slug, title, description, duration, questions, category }: ExamCardProps) {
   const router = useRouter()
 
   return (
@@ -49,7 +50,7 @@ export function ExamCard({ id, title, description, duration, questions, category
           </div>
           <button
             type="button"
-            onClick={() => router.push(`/exam/${id}`)}
+            onClick={() => router.push(`/exam/${slug}`)}
             className="flex w-full items-center justify-between rounded-xl border border-border bg-background p-3 text-sm font-semibold text-primary transition-all duration-300 group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground"
           >
             <span>View details</span>

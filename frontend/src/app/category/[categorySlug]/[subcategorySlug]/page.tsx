@@ -9,6 +9,7 @@ import { CategoryHomeIcon } from "@/components/category-home-icon"
 
 interface Exam {
   id: number
+  slug: string
   title: string
   description: string
   subcategory: number
@@ -164,11 +165,11 @@ export default function SubCategoryPage() {
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
-                      router.push(`/exam/${exam.id}`)
+                      router.push(`/exam/${exam.slug}`)
                     }
                   }}
                   className="group card-premium relative flex h-full cursor-pointer flex-col gap-5 overflow-hidden p-6 text-left"
-                  onClick={() => router.push(`/exam/${exam.id}`)}
+                  onClick={() => router.push(`/exam/${exam.slug}`)}
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-secondary/50 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 

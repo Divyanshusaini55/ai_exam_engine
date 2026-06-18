@@ -1,6 +1,6 @@
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
 
 from .models import Question
@@ -8,8 +8,8 @@ from .ai import generate_explanation_for_question
 from .api_throttles import AIHeavyThrottle, AILightThrottle # We will extract throttles to api_throttles.py
 
 class SummaryMixin:
-    @action(detail=True, methods=['get', 'post'], permission_classes=[IsAuthenticated], throttle_classes=[AIHeavyThrottle])
-    def summary(self, request, pk=None):
+    @action(detail=True, methods=['get', 'post'], permission_classes=[AllowAny], throttle_classes=[AIHeavyThrottle])
+    def summary(self, request, slug=None, pk=None, **kwargs):
         exam = self.get_object()
         force = request.data.get('force', False) or request.query_params.get('force', 'false').lower() == 'true'
         if exam.ai_summary and not force:

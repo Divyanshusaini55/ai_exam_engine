@@ -7,7 +7,7 @@ from .api_throttles import AIHeavyThrottle
 
 class UploadMixin:
     @action(detail=True, methods=['post'], throttle_classes=[AIHeavyThrottle])
-    def parse_pdf(self, request, pk=None):
+    def parse_pdf(self, request, slug=None, pk=None, **kwargs):
         exam = self.get_object()
         
         if 'pdf_file' in request.FILES:

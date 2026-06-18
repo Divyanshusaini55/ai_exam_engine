@@ -2,6 +2,7 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from django.utils import timezone
+from django.utils.text import slugify
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVector
 
@@ -81,7 +82,15 @@ class Exam(models.Model):
     title = models.CharField(max_length=200, help_text="Exam title")
     description = models.TextField(blank=True)
     ai_summary = models.TextField(blank=True, null=True, help_text="Markdown formatted AI summary")
-    
+
+    # SEO-friendly globally unique slug (e.g. 'ssc-cgl-2024-shift-1')
+    slug = models.SlugField(
+        max_length=250,
+        unique=True,
+        blank=True,
+        help_text="Auto-generated from subcategory + year + shift. Override only if needed.",
+    )
+
     # Exam metadata
     year = models.IntegerField(null=True, blank=True, help_text="Exam year (e.g., 2024)")
     shift = models.CharField(max_length=50, blank=True, help_text="e.g., 'Shift 1', 'Morning', 'Afternoon'")
@@ -126,6 +135,25 @@ class Exam(models.Model):
         shift_str = f" - {self.shift}" if self.shift else ""
         return f"{self.title}{year_str}{shift_str}"
 
+    def _generate_slug(self):
+        """Build a unique slug: {subcategory_slug}-{year}-{slugified_shift}."""
+        parts = []
+        if self.subcategory and self.subcategory.slug:
+            parts.append(self.subcategory.slug)
+        if self.year:
+            parts.append(str(self.year))
+        if self.shift:
+            parts.append(slugify(self.shift))
+        base = '-'.join(parts) if parts else 'exam'
+        # Ensure uniqueness
+        slug = base
+        qs = Exam.objects.exclude(pk=self.pk)
+        n = 1
+        while qs.filter(slug=slug).exists():
+            slug = f"{base}-{n}"
+            n += 1
+        return slug
+
     def save(self, *args, **kwargs):
         is_new = self.pk is None
         old_marks_per_question = None
@@ -133,13 +161,17 @@ class Exam(models.Model):
             old_exam = Exam.objects.filter(pk=self.pk).first()
             if old_exam:
                 old_marks_per_question = old_exam.marks_per_question
-                
+
+        # Auto-generate slug if not set
+        if not self.slug:
+            self.slug = self._generate_slug()
+
         super().save(*args, **kwargs)
-        
+
         if self.marks_per_question is not None:
             if is_new or old_marks_per_question != self.marks_per_question:
                 self.questions.all().update(marks=self.marks_per_question)
-                
+
         # Recalculate total marks
         if self.pk:
             from django.db.models import Sum

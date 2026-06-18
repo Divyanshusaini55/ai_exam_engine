@@ -7,7 +7,7 @@ from .models import UserAnswer, PracticeSession, ExamAttempt
 
 class SessionMixin:
     @action(detail=True, methods=['get'])
-    def progress(self, request, pk=None):
+    def progress(self, request, slug=None, pk=None, **kwargs):
         exam = self.get_object()
         session_id = request.query_params.get('session_id')
         if not session_id:
@@ -28,7 +28,7 @@ class SessionMixin:
         })
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
-    def update_session(self, request, pk=None):
+    def update_session(self, request, slug=None, pk=None, **kwargs):
         exam = self.get_object()
         session_id = request.data.get('session_id')
         mode = request.data.get('mode', 'exam')
@@ -61,7 +61,7 @@ class SessionMixin:
         return Response({'success': True})
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
-    def pause(self, request, pk=None):
+    def pause(self, request, slug=None, pk=None, **kwargs):
         exam = self.get_object()
         session_id = request.data.get('session_id')
         mode = request.data.get('mode', 'learning')
@@ -83,7 +83,7 @@ class SessionMixin:
         return Response({'success': True, 'message': 'Practice session paused successfully'})
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
-    def reset(self, request, pk=None):
+    def reset(self, request, slug=None, pk=None, **kwargs):
         exam = self.get_object()
         session_id = request.data.get('session_id')
         mode = request.data.get('mode', 'learning')

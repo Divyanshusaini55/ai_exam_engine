@@ -9,7 +9,7 @@ from .serializers import ExamResultSerializer, UserAnswerSerializer, QuestionSer
 
 class DashboardMixin:
     @action(detail=True, methods=['get'])
-    def results(self, request, pk=None):
+    def results(self, request, slug=None, pk=None, **kwargs):
         exam = self.get_object()
         session_id = request.query_params.get('session_id')
         if not request.user.is_authenticated and not session_id:
@@ -136,6 +136,7 @@ class DashboardMixin:
             all_results.append({
                 'id': r.id,
                 'exam_id': r.exam.id,
+                'exam_slug': r.exam.slug,
                 'session_id': r.session_id,
                 'exam_title': r.exam.title,
                 'score': r.percentage,
@@ -149,6 +150,7 @@ class DashboardMixin:
             all_results.append({
                 'id': r.id,
                 'exam_id': r.exam.id,
+                'exam_slug': r.exam.slug,
                 'session_id': r.session_id,
                 'exam_title': r.exam.title,
                 'score': r.accuracy,  # PracticeSession uses 'accuracy'
@@ -193,6 +195,7 @@ class DashboardMixin:
             {
                 'id': r['id'],
                 'exam_id': r['exam_id'],
+                'exam_slug': r['exam_slug'],
                 'session_id': r['session_id'],
                 'exam_title': r['exam_title'],
                 'score': r['score'],

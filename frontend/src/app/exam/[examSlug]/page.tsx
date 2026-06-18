@@ -30,7 +30,7 @@ import { getParentCategorySlugFromId } from "@/lib/category-home-icons"
 export default function ExamPage() {
   const router = useRouter()
   const params = useParams()
-  const id = (params.examId as string)?.toLowerCase()
+  const slug = (params.examSlug as string)?.toLowerCase()
 
   const [exam, setExam] = useState<any>(null)
   const [shifts, setShifts] = useState<any[]>([])
@@ -50,25 +50,25 @@ export default function ExamPage() {
       }
 
       try {
-        await examApi.getResults(id)
+        await examApi.getResults(slug)
         const q = searchParams.get('q')
         if (q) {
-          router.replace(`/dashboard/${id}?q=${q}`)
+          router.replace(`/dashboard/${slug}?q=${q}`)
         } else {
-          router.replace(`/dashboard/${id}`)
+          router.replace(`/dashboard/${slug}`)
         }
       } catch (error: any) {
         setCheckingResult(false)
       }
     }
     checkForExistingResult()
-  }, [id, router, searchParams])
+  }, [slug, router, searchParams])
 
   useEffect(() => {
     async function fetchData() {
       if (checkingResult) return
       try {
-        const res = await examApi.get(id)
+        const res = await examApi.get(slug)
         setExam(res.data)
       } catch (error) {
         console.error("Failed to load exam data:", error)
@@ -77,9 +77,9 @@ export default function ExamPage() {
       }
     }
     fetchData()
-  }, [id, checkingResult])
+  }, [slug, checkingResult])
 
-  const handleStart = () => router.replace(`/shift/${id}`)
+  const handleStart = () => router.replace(`/shift/${slug}`)
   const handleBack = () => router.back()
 
 
@@ -97,7 +97,7 @@ export default function ExamPage() {
         <AlertCircle className="size-10" />
       </div>
       <h2 className="text-2xl font-bold text-primary mb-2">Exam Not Found</h2>
-      <p className="text-muted-foreground mb-8 max-w-sm">The requested exam ID or category &ldquo;{id}&rdquo; does not exist in our database.</p>
+      <p className="text-muted-foreground mb-8 max-w-sm">The requested exam &ldquo;{slug}&rdquo; does not exist in our database.</p>
       <div className="flex flex-col sm:flex-row gap-4">
         <button onClick={() => window.location.reload()} className="px-8 py-3 bg-primary text-primary-foreground rounded-xl font-bold shadow-premium transition-all active:scale-95">Try Reloading</button>
         <button onClick={() => router.push('/')} className="px-8 py-3 bg-secondary text-primary rounded-xl font-bold border border-border transition-all active:scale-95">Back to Home</button>
@@ -110,8 +110,8 @@ export default function ExamPage() {
     setIsStarting(true)
     try {
       try {
-        await examApi.getResults(id)
-        router.replace(`/dashboard/${id}`)
+        await examApi.getResults(slug)
+        router.replace(`/dashboard/${slug}`)
         return
       } catch (error) { }
       await new Promise(resolve => setTimeout(resolve, 500))

@@ -57,6 +57,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
             {
                 'id': attempt.id,
                 'exam_id': attempt.exam.id,
+                'exam_slug': attempt.exam.slug,
+                'session_id': attempt.session_id,
                 'exam_title': attempt.exam.title,
                 'score': attempt.score,
                 'total_questions': attempt.total_questions,
@@ -72,6 +74,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
             {
                 'id': session.id,
                 'exam_id': session.exam.id,
+                'exam_slug': session.exam.slug,
+                'session_id': session.session_id,
                 'exam_title': session.exam.title,
                 'score': session.score,
                 'total_questions': session.total_questions,

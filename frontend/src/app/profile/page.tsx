@@ -405,7 +405,7 @@ export default function ProfilePage() {
                                     {profileData.official_attempts.map((attempt: any) => (
                                         <div 
                                             key={attempt.id} 
-                                            onClick={() => router.push(`/dashboard/${attempt.exam_id}?session_id=${attempt.session_id}`)}
+                                            onClick={() => router.push(`/dashboard/${attempt.exam_slug}?session_id=${attempt.session_id}`)}
                                             className="card-premium p-5 bg-card border border-border shadow-sm flex flex-col gap-3 group cursor-pointer hover:border-primary/50 transition-colors"
                                         >
                                             <div className="flex items-center justify-between gap-4">
@@ -435,7 +435,7 @@ export default function ProfilePage() {
                                                 <button 
                                                     onClick={(e) => {
                                                         e.stopPropagation()
-                                                        router.push(`/dashboard/${attempt.exam_id}?session_id=${attempt.session_id}`)
+                                                        router.push(`/dashboard/${attempt.exam_slug}?session_id=${attempt.session_id}`)
                                                     }}
                                                     className="text-[11px] font-bold text-primary flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity"
                                                 >
@@ -450,7 +450,7 @@ export default function ProfilePage() {
                                     {profileData.practice_sessions.map((session: any) => (
                                         <div 
                                             key={session.id} 
-                                            onClick={() => router.push(`/dashboard/${session.exam_id}?session_id=${session.session_id}`)}
+                                            onClick={() => router.push(`/dashboard/${session.exam_slug}?session_id=${session.session_id}`)}
                                             className="card-premium p-5 bg-card border border-border shadow-sm flex flex-col gap-3 group cursor-pointer hover:border-primary/50 transition-colors"
                                         >
                                             <div className="flex items-center justify-between gap-4">
@@ -480,7 +480,7 @@ export default function ProfilePage() {
                                                 <button 
                                                     onClick={(e) => {
                                                         e.stopPropagation()
-                                                        router.push(`/dashboard/${session.exam_id}?session_id=${session.session_id}`)
+                                                        router.push(`/dashboard/${session.exam_slug}?session_id=${session.session_id}`)
                                                     }}
                                                     className="text-[11px] font-bold text-primary flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity"
                                                 >
@@ -495,7 +495,7 @@ export default function ProfilePage() {
                                     {userComments.map((comment, i) => (
                                         <div 
                                             key={comment.id} 
-                                            onClick={() => router.push(`/shift/${comment.exam_id || '1'}?q=${comment.question}&mode=learning&discussion=true`)}
+                                            onClick={() => router.push(`/shift/${comment.exam_slug || comment.exam_id || '1'}?q=${comment.question}&mode=learning&discussion=true`)}
                                             className="card-premium p-5 bg-card border border-border shadow-sm flex flex-col gap-3 group cursor-pointer hover:border-primary/50 transition-colors"
                                         >
                                             <div className="flex items-center justify-between gap-4">
@@ -522,7 +522,7 @@ export default function ProfilePage() {
                                                 <button 
                                                     onClick={(e) => {
                                                         e.stopPropagation()
-                                                        router.push(`/shift/${comment.exam_id || '1'}?q=${comment.question}&mode=learning&discussion=true`)
+                                                        router.push(`/shift/${comment.exam_slug || comment.exam_id || '1'}?q=${comment.question}&mode=learning&discussion=true`)
                                                     }}
                                                     className="text-[11px] font-bold text-primary flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity"
                                                 >

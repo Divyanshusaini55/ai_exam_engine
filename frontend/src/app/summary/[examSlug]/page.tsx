@@ -19,7 +19,7 @@ export default function SummaryPage() {
     const router = useRouter()
     const params = useParams()
     const { user } = useAuth()
-    const examId = params.examId as string
+    const examId = params.examSlug as string
 
     const [exam, setExam] = useState<any>(null)
     const [summaryData, setSummaryData] = useState<any>(null)

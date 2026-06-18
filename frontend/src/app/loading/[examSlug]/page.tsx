@@ -11,7 +11,7 @@ export default function LoadingPage() {
   useNoIndex() // Prevent search engine indexing
   const router = useRouter()
   const params = useParams()
-  const examId = params.examId as string
+  const examId = params.examSlug as string
 
   useEffect(() => {
     // 1. Simulate a short "processing" delay

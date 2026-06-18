@@ -9,11 +9,11 @@ from .models import ExamAttempt
 class LeaderboardMixin:
     @action(detail=False, methods=['get'], permission_classes=[AllowAny])
     def leaderboard(self, request):
-        exam_id = request.query_params.get('exam_id')
+        exam_slug = request.query_params.get('exam_slug') or request.query_params.get('exam_id')
         leaderboard_data = []
 
-        if exam_id:
-            results = ExamAttempt.objects.filter(exam_id=exam_id, is_completed=True).select_related('user', 'exam').order_by('-score')
+        if exam_slug:
+            results = ExamAttempt.objects.filter(exam__slug=exam_slug, is_completed=True).select_related('user', 'exam').order_by('-score')
             
             user_best_map = {}
             for r in results:

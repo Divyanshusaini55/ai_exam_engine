@@ -8,6 +8,7 @@ import { Search, SearchX } from "lucide-react"
 // Interface matching your Django Serializer
 interface Exam {
   id: number
+  slug: string
   title: string
   description: string
   duration_minutes: number
@@ -108,6 +109,7 @@ export function ExamGrid() {
             <ExamCard
               key={exam.id}
               id={exam.id}
+              slug={exam.slug}
               title={exam.title}
               description={exam.description}
               duration={exam.duration_minutes}
