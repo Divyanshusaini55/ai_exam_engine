@@ -145,7 +145,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: celery -A core beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    command: celery -A core beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler --max-interval 1200
     volumes:
       - /var/www/examintel/media:/app/media
     env_file:
