@@ -18,10 +18,6 @@ import {
   Medal,
 } from "lucide-react"
 
-/**
- * Homepage category-grid icon map — single source of truth.
- * Keep in sync with product categories (SSC, UPSC, Railways, Banking, Defence, State).
- */
 export function getCategoryHomeIcon(iconName: string, categoryName = ""): LucideIcon {
   const map: Record<string, LucideIcon> = {
     school: GraduationCap,
@@ -91,7 +87,6 @@ function colorsFromCategoryName(name: string): { bg: string; icon: string } | nu
   return null
 }
 
-/** Legacy Django `icon_color` short names → full Tailwind (with dark mode contrast). */
 const LEGACY_ICON_COLOR: Record<string, string> = {
   blue: "text-blue-600 dark:text-blue-300",
   purple: "text-purple-600 dark:text-purple-400",
@@ -104,7 +99,6 @@ const LEGACY_ICON_COLOR: Record<string, string> = {
   indigo: "text-indigo-600 dark:text-indigo-400",
 }
 
-/** Light `bg_color` values from admin → add dark tile backgrounds (Tailwind JIT sees full literals). */
 const LEGACY_BG_DARK: Record<string, string> = {
   "bg-blue-100": "bg-blue-100 dark:bg-blue-950/50",
   "bg-green-100": "bg-green-100 dark:bg-green-950/45",
@@ -117,7 +111,6 @@ const LEGACY_BG_DARK: Record<string, string> = {
   "bg-indigo-100": "bg-indigo-100 dark:bg-indigo-950/45",
 }
 
-/** Full `text-*` from DB without `dark:` — add dark variant (static strings only). */
 const LIGHT_TEXT_ICON_DARK: Record<string, string> = {
   "text-blue-600": "text-blue-600 dark:text-blue-300",
   "text-blue-700": "text-blue-700 dark:text-blue-300",
@@ -152,7 +145,6 @@ function normalizeApiBgClass(apiBg: string): string {
   return LEGACY_BG_DARK[t] || `${t} dark:bg-zinc-900/55`
 }
 
-/** Homepage category-grid color tokens — same Tailwind classes as category cards */
 export function getCategoryHomeColors(
   name: string,
   apiBg?: string | null,
@@ -173,7 +165,6 @@ export function getCategoryHomeColors(
   return { bg: "bg-secondary", icon: "text-primary" }
 }
 
-/** Infer top-level category slug from composite ids (e.g. ssc-cgl → ssc). */
 export function getParentCategorySlugFromId(id: string): string {
   const low = id.toLowerCase()
   const keys = ["ssc", "upsc", "railways", "defence", "defense", "banking"] as const

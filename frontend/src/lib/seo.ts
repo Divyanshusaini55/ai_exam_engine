@@ -1,17 +1,8 @@
-/**
- * SEO Metadata Helpers
- * Provides reusable metadata configurations for public and private pages
- */
-
 import { Metadata } from 'next'
 
 const SITE_NAME = 'Competitive Exam Platform'
 const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://yoursite.com'
 
-/**
- * Metadata for pages that should NOT be indexed by search engines
- * Use for: dashboard, profile, login, exam attempts, results, etc.
- */
 export const noIndexMetadata: Metadata = {
     robots: {
         index: false,
@@ -23,9 +14,6 @@ export const noIndexMetadata: Metadata = {
     },
 }
 
-/**
- * Generate SEO-optimized metadata for public pages
- */
 export function createMetadata({
     title,
     description,
@@ -71,27 +59,18 @@ export function createMetadata({
     }
 }
 
-/**
- * Home page metadata
- */
 export const homeMetadata = createMetadata({
     title: 'Home',
     description: 'Prepare for SSC, UPSC, Railways, Defence, and Banking exams with our comprehensive test series and practice questions.',
     path: '/',
 })
 
-/**
- * Exams listing metadata
- */
 export const examsMetadata = createMetadata({
     title: 'All Exams',
     description: 'Browse all available competitive exams including SSC, Banking, Railways, UPSC, and Defence exam preparation materials.',
     path: '/exams',
 })
 
-/**
- * Generate category-specific metadata
- */
 export function createCategoryMetadata(categoryName: string, categorySlug: string, description?: string): Metadata {
     return createMetadata({
         title: `${categoryName} Exams`,
@@ -100,9 +79,6 @@ export function createCategoryMetadata(categoryName: string, categorySlug: strin
     })
 }
 
-/**
- * Static page metadata
- */
 export const contactMetadata = createMetadata({
     title: 'Contact Us',
     description: 'Get in touch with our team for support, feedback, or inquiries about our exam preparation platform.',

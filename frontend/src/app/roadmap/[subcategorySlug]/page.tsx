@@ -8,7 +8,6 @@ import { useAuth } from "@/context/auth-context"
 import { ArrowLeft, CheckCircle2, Circle, Loader2, Map as MapIcon, Clock, BookMarked, Bookmark, Download, Share2, Lock } from "lucide-react"
 import { TopicResourceHub, type TopicResourceItem, type TopicStatus } from "@/components/topic-resource-hub"
 
-// Define a mapping for status styles and labels
 const STATUS_MAP = {
     pending: { label: "Pending", color: "text-muted-foreground", bg: "bg-muted", dot: "bg-muted-foreground" },
     in_progress: { label: "In Progress", color: "text-yellow-600 dark:text-yellow-400", bg: "bg-yellow-100 dark:bg-yellow-500/20", dot: "bg-yellow-500" },
@@ -42,7 +41,6 @@ export default function RoadmapPage() {
         return statusMap
     }, [roadmap])
     
-    // Modal / Hub state
     const [selectedTopic, setSelectedTopic] = useState<any>(null)
     const [hubOpen, setHubOpen] = useState(false)
     const [copied, setCopied] = useState(false)
@@ -81,13 +79,11 @@ export default function RoadmapPage() {
             return
         }
 
-        // Optimistic UI update
         const updatedRoadmap = { ...roadmap }
         for (const phase of updatedRoadmap.phases) {
             const topic = phase.topics.find((t: any) => t.id === topicId)
             if (topic) {
                 topic.status = newStatus
-                // Also update the hub's selected topic so the dropdown reflects instantly
                 if (selectedTopic && selectedTopic.id === topicId) {
                     setSelectedTopic({ ...topic, status: newStatus })
                 }
@@ -100,7 +96,7 @@ export default function RoadmapPage() {
             await roadmapApi.updateTopicStatus(topicId, newStatus)
         } catch (err) {
             console.error("Failed to update status", err)
-            fetchRoadmap() // Revert on failure
+            fetchRoadmap() 
         }
     }
 
@@ -110,7 +106,6 @@ export default function RoadmapPage() {
             return
         }
 
-        // Optimistic UI update
         const originalState = roadmap.is_bookmarked
         setRoadmap({ ...roadmap, is_bookmarked: !originalState })
 
@@ -404,7 +399,6 @@ export default function RoadmapPage() {
         )
     }
 
-    // Calculate overall progress
     let totalTopics = 0
     let completedTopics = 0
     roadmap.phases.forEach((phase: any) => {

@@ -1,14 +1,4 @@
 'use client'
-
-/**
- * resource-actions.tsx
- *
- * Inline Client Component that manages bookmark / mark-done state
- * and fires authenticated POST calls to the backend.
- * Rendered inside the Server Component page so that the page shell
- * stays a React Server Component.
- */
-
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { resourceHubApi } from '@/lib/api'
@@ -18,7 +8,6 @@ interface ResourceActionsProps {
   slug: string
   initialIsCompleted: boolean
   initialIsBookmarked: boolean
-  // Static header data passed down from the server
   title: string
   difficulty: string
   estimatedReadMinutes: number
@@ -42,17 +31,12 @@ export default function ResourceActions({
   const [markingDone, setMarkingDone] = useState(false)
   const [bookmarking, setBookmarking] = useState(false)
 
-  // Force scroll to top on mount because modal unmounts can lock scroll state
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
-
-  // ── Mark done toggle ────────────────────────────────────────────────────────
   const handleMarkDone = async () => {
     if (markingDone) return
     setMarkingDone(true)
-
-    // Optimistic update
     setIsCompleted((prev) => !prev)
 
     try {
@@ -61,11 +45,9 @@ export default function ResourceActions({
         const data = await res.json()
         setIsCompleted(data.is_completed)
       } else if (res.status === 401) {
-        // Revert and redirect to login
         setIsCompleted((prev) => !prev)
         router.push(`/login?redirectTo=${encodeURIComponent(window.location.pathname)}`)
       } else {
-        // Revert on unexpected error
         setIsCompleted((prev) => !prev)
       }
     } catch {
@@ -74,13 +56,9 @@ export default function ResourceActions({
       setMarkingDone(false)
     }
   }
-
-  // ── Bookmark toggle ─────────────────────────────────────────────────────────
   const handleBookmark = async () => {
     if (bookmarking) return
     setBookmarking(true)
-
-    // Optimistic update
     setIsBookmarked((prev) => !prev)
 
     try {

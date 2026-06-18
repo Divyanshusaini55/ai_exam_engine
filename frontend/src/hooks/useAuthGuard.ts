@@ -16,9 +16,7 @@ export function useAuthGuard(redirectPath: string = '/dashboard') {
     const router = useRouter()
 
     useEffect(() => {
-        // Only redirect if auth check is complete and user is not authenticated
         if (!loading && !user) {
-            // Use replace to avoid adding to history (allows back button to work)
             router.replace(`/login?redirectTo=${encodeURIComponent(redirectPath)}&from=auth-guard`)
         }
     }, [user, loading, router, redirectPath])

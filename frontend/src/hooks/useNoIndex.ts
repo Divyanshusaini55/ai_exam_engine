@@ -1,6 +1,3 @@
-// Helper function to add noindex meta tag for client components
-// Copy this function into any client component that needs noindex
-
 import { useEffect } from 'react'
 
 export function useNoIndex() {

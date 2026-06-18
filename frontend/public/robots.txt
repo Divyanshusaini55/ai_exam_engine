@@ -33,7 +33,7 @@ Disallow: /loading/
 Disallow: /admin-messages
 
 # Sitemap location
-Sitemap: https://yoursite.com/sitemap.xml
+Sitemap: https://www.examintel.in/sitemap.xml
 
 # Additional directives for good bots
 User-agent: Googlebot
