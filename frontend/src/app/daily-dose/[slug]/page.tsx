@@ -2,10 +2,30 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
+import Link from "next/link"
 import { Navbar } from "@/components/navbar"
 import { dailyDoseApi } from "@/lib/api"
 import { Calendar, ArrowLeft, ExternalLink, Loader2 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
+
+// Category color map (same as list page for consistency)
+const CATEGORY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+    "Economy & Finance":        { bg: "bg-amber-500/10",   text: "text-amber-600 dark:text-amber-400",    border: "border-amber-500/20" },
+    "Polity & Governance":      { bg: "bg-blue-500/10",    text: "text-blue-600 dark:text-blue-400",      border: "border-blue-500/20" },
+    "Science & Technology":     { bg: "bg-violet-500/10",  text: "text-violet-600 dark:text-violet-400",  border: "border-violet-500/20" },
+    "International Relations":  { bg: "bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400",border: "border-emerald-500/20" },
+    "Environment & Ecology":    { bg: "bg-green-500/10",   text: "text-green-600 dark:text-green-400",    border: "border-green-500/20" },
+    "Defence & Security":       { bg: "bg-red-500/10",     text: "text-red-600 dark:text-red-400",        border: "border-red-500/20" },
+    "Society & Social Justice": { bg: "bg-pink-500/10",    text: "text-pink-600 dark:text-pink-400",      border: "border-pink-500/20" },
+    "Geography & Disasters":    { bg: "bg-orange-500/10",  text: "text-orange-600 dark:text-orange-400",  border: "border-orange-500/20" },
+    "History & Culture":        { bg: "bg-cyan-500/10",    text: "text-cyan-600 dark:text-cyan-400",      border: "border-cyan-500/20" },
+}
+
+const DEFAULT_CAT_COLOR = { bg: "bg-primary/10", text: "text-primary", border: "border-primary/20" }
+
+function getCatColor(name: string) {
+    return CATEGORY_COLORS[name] || DEFAULT_CAT_COLOR
+}
 
 export default function DailyDoseDetail() {
     const params = useParams()
@@ -83,9 +103,18 @@ export default function DailyDoseDetail() {
                     
                     <div className="p-3 md:p-6">
                         <div className="flex flex-wrap items-center gap-3 text-xs font-bold text-muted-foreground mb-6">
-                            <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-md">
-                                {article.category_name || "General"}
-                            </span>
+                            {(() => {
+                                const catName = article.category_name || "General"
+                                const colors = getCatColor(catName)
+                                return (
+                                    <Link
+                                        href={`/daily-dose`}
+                                        className={`${colors.bg} ${colors.text} ${colors.border} border px-3 py-1.5 rounded-md hover:opacity-80 transition-opacity`}
+                                    >
+                                        {catName}
+                                    </Link>
+                                )
+                            })()}
                             <span className="flex items-center gap-1.5 bg-secondary px-3 py-1.5 rounded-md">
                                 <Calendar className="size-3.5" />
                                 {new Date(article.published_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}

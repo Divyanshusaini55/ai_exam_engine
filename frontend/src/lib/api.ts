@@ -226,6 +226,7 @@ export const dailyDoseApi = {
     return api.get('/current-affairs/', { params })
   },
   getAffairBySlug: (slug: string) => api.get(`/current-affairs/${slug}/`),
+  getCategories: () => api.get('/current-affairs/categories/'),
 };
 
 export const roadmapApi = {
