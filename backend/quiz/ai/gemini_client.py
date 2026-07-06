@@ -21,9 +21,13 @@ class GeminiClient:
             'models/gemini-2.5-pro'
         ]
 
-    def generate_content(self, prompt, max_retries=3, timeout=120):
+    def generate_content(self, prompt, max_retries=3, timeout=120, model_name=None):
         # Build candidate list of models (primary first, then fallback models if different)
-        models_to_try = [self.primary_model]
+        # If a specific model_name is provided, use it as the primary
+        if model_name:
+            models_to_try = [model_name]
+        else:
+            models_to_try = [self.primary_model]
         for fallback in self.fallback_models:
             if fallback not in models_to_try:
                 models_to_try.append(fallback)

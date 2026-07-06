@@ -354,6 +354,7 @@ if not GEMINI_API_KEY:
     )
 
 GEMINI_SUMMARY_MODEL = os.environ.get('GEMINI_SUMMARY_MODEL', 'models/gemini-2.5-flash')
+GEMINI_CLASSIFY_MODEL = os.environ.get('GEMINI_CLASSIFY_MODEL', 'models/gemini-2.0-flash')
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 20000
 
