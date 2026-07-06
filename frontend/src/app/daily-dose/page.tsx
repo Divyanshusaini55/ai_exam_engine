@@ -14,20 +14,20 @@ interface Category {
 }
 
 // Color map for category chips — gives each domain a distinct visual identity
-const CATEGORY_COLORS: Record<string, { bg: string; text: string; border: string; activeBg: string }> = {
-    "economy-finance":        { bg: "bg-amber-500/10",   text: "text-amber-600 dark:text-amber-400",   border: "border-amber-500/20",   activeBg: "bg-amber-500" },
-    "polity-governance":      { bg: "bg-blue-500/10",    text: "text-blue-600 dark:text-blue-400",     border: "border-blue-500/20",    activeBg: "bg-blue-500" },
-    "science-technology":     { bg: "bg-violet-500/10",  text: "text-violet-600 dark:text-violet-400", border: "border-violet-500/20",  activeBg: "bg-violet-500" },
-    "international-relations":{ bg: "bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400",border: "border-emerald-500/20",activeBg: "bg-emerald-500" },
-    "environment-ecology":    { bg: "bg-green-500/10",   text: "text-green-600 dark:text-green-400",   border: "border-green-500/20",   activeBg: "bg-green-500" },
-    "defence-security":       { bg: "bg-red-500/10",     text: "text-red-600 dark:text-red-400",       border: "border-red-500/20",     activeBg: "bg-red-500" },
-    "society-social-justice":  { bg: "bg-pink-500/10",    text: "text-pink-600 dark:text-pink-400",     border: "border-pink-500/20",    activeBg: "bg-pink-500" },
-    "geography-disasters":    { bg: "bg-orange-500/10",  text: "text-orange-600 dark:text-orange-400", border: "border-orange-500/20",  activeBg: "bg-orange-500" },
-    "history-culture":        { bg: "bg-cyan-500/10",    text: "text-cyan-600 dark:text-cyan-400",     border: "border-cyan-500/20",    activeBg: "bg-cyan-500" },
-    "current-affairs":        { bg: "bg-primary/10",     text: "text-primary",                         border: "border-primary/20",     activeBg: "bg-primary" },
+const CATEGORY_COLORS: Record<string, { bg: string; text: string; border: string; activeBg: string; activeText: string }> = {
+    "economy-finance":        { bg: "bg-amber-500/10",   text: "text-amber-600 dark:text-amber-400",   border: "border-amber-500/20",   activeBg: "bg-amber-500",   activeText: "text-white" },
+    "polity-governance":      { bg: "bg-blue-500/10",    text: "text-blue-600 dark:text-blue-400",     border: "border-blue-500/20",    activeBg: "bg-blue-500",    activeText: "text-white" },
+    "science-technology":     { bg: "bg-violet-500/10",  text: "text-violet-600 dark:text-violet-400", border: "border-violet-500/20",  activeBg: "bg-violet-500",  activeText: "text-white" },
+    "international-relations":{ bg: "bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400",border: "border-emerald-500/20",activeBg: "bg-emerald-500", activeText: "text-white" },
+    "environment-ecology":    { bg: "bg-green-500/10",   text: "text-green-600 dark:text-green-400",   border: "border-green-500/20",   activeBg: "bg-green-500",   activeText: "text-white" },
+    "defence-security":       { bg: "bg-red-500/10",     text: "text-red-600 dark:text-red-400",       border: "border-red-500/20",     activeBg: "bg-red-500",     activeText: "text-white" },
+    "society-social-justice":  { bg: "bg-pink-500/10",    text: "text-pink-600 dark:text-pink-400",     border: "border-pink-500/20",    activeBg: "bg-pink-500",    activeText: "text-white" },
+    "geography-disasters":    { bg: "bg-orange-500/10",  text: "text-orange-600 dark:text-orange-400", border: "border-orange-500/20",  activeBg: "bg-orange-500",  activeText: "text-white" },
+    "history-culture":        { bg: "bg-cyan-500/10",    text: "text-cyan-600 dark:text-cyan-400",     border: "border-cyan-500/20",    activeBg: "bg-cyan-500",    activeText: "text-white" },
+    "current-affairs":        { bg: "bg-primary/10",     text: "text-primary",                         border: "border-primary/20",     activeBg: "bg-primary",     activeText: "text-primary-foreground" },
 }
 
-const DEFAULT_COLOR = { bg: "bg-primary/10", text: "text-primary", border: "border-primary/20", activeBg: "bg-primary" }
+const DEFAULT_COLOR = { bg: "bg-primary/10", text: "text-primary", border: "border-primary/20", activeBg: "bg-primary", activeText: "text-primary-foreground" }
 
 function getCategoryColor(slug: string) {
     return CATEGORY_COLORS[slug] || DEFAULT_COLOR
@@ -130,13 +130,13 @@ export default function DailyDosePage() {
                                         className={`
                                             px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all duration-200
                                             ${isActive
-                                                ? `${colors.activeBg} text-white border-transparent shadow-md scale-105`
+                                                ? `${colors.activeBg} ${colors.activeText} border-transparent shadow-md scale-105`
                                                 : `${colors.bg} ${colors.text} ${colors.border} hover:shadow-sm hover:scale-[1.02]`
                                             }
                                         `}
                                     >
                                         {cat.name}
-                                        <span className={`ml-1.5 ${isActive ? "text-white/80" : "opacity-60"}`}>
+                                        <span className={`ml-1.5 ${isActive ? "opacity-80" : "opacity-60"}`}>
                                             {cat.count}
                                         </span>
                                     </button>
