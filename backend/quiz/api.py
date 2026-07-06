@@ -531,6 +531,25 @@ class CurrentAffairViewSet(viewsets.ReadOnlyModelViewSet):
             return self.queryset.filter(category__slug=category_slug)
         return self.queryset
 
+    @action(detail=False, methods=['get'])
+    def categories(self, request):
+        """Return all categories that have current affairs articles, with counts.
+
+        GET /api/current-affairs/categories/
+        → [{"name": "Economy & Finance", "slug": "economy-finance", "count": 5}, ...]
+        """
+        from django.db.models import Count
+        from .models import Category
+
+        cats = (
+            Category.objects
+            .filter(currentaffair__isnull=False)
+            .annotate(count=Count('currentaffair'))
+            .order_by('-count')
+            .values('id', 'name', 'slug', 'count')
+        )
+        return Response(list(cats))
+
 
 from .models import ExamRoadmap, RoadmapTopic, UserTopicProgress
 from .serializers import ExamRoadmapSerializer
