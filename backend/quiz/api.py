@@ -38,7 +38,20 @@ from .serializers import (
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Category.objects.filter(is_active=True).exclude(slug='current-affairs').prefetch_related('subcategories')
+    queryset = Category.objects.filter(is_active=True).exclude(
+        slug__in=[
+            'current-affairs', 
+            'economy-finance', 
+            'polity-governance', 
+            'science-tech', 
+            'international-relations', 
+            'environment-ecology', 
+            'defence-security', 
+            'social-issues', 
+            'geography', 
+            'history-culture'
+        ]
+    ).prefetch_related('subcategories')
     serializer_class = CategorySerializer
     permission_classes = [AllowAny]
     lookup_field = 'slug'
