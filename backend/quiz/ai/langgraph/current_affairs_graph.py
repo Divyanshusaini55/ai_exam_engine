@@ -283,7 +283,7 @@ def node_classify_article(state: CurrentAffairsState) -> dict:
         '  "title": "A clear, exam-oriented title",\n'
         '  "summary": "A concise 2-sentence summary for quick revision",\n'
         '  "content_markdown": "Detailed explanation in Markdown with bullet points for key facts, '
-        "dates, figures, and a '## Why It Matters for Exams' section at the end.\"\n"
+        "dates, figures, and a '## Why It Matters for Exams' section at the end. DO NOT include the article title as a heading.\"\n"
         "}\n\n"
         "If not relevant, return only: {\"relevant\": false, \"relevance_score\": <score>}\n\n"
 

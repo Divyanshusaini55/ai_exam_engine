@@ -125,7 +125,7 @@ export default function DailyDoseDetail() {
                             {article.title}
                         </h1>
 
-                        <div className="prose prose-lg md:prose-xl font-crimson leading-relaxed dark:prose-invert max-w-none prose-headings:font-heading prose-headings:font-bold prose-headings:text-primary prose-a:text-primary prose-strong:text-primary prose-p:text-primary/90 prose-li:text-primary/90">
+                        <div className="prose prose-lg md:prose-xl font-crimson leading-relaxed dark:prose-invert max-w-none prose-headings:font-heading prose-headings:font-bold prose-headings:text-primary prose-a:text-primary prose-strong:text-primary prose-p:text-primary/90 prose-li:text-primary/90 [&>h1:first-child]:hidden [&>h1]:text-2xl [&>h1]:mt-8">
                             <ReactMarkdown>{article.content}</ReactMarkdown>
                         </div>
 
