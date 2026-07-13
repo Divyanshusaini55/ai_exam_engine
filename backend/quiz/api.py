@@ -43,12 +43,12 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
             'current-affairs', 
             'economy-finance', 
             'polity-governance', 
-            'science-tech', 
+            'science-technology', 
             'international-relations', 
             'environment-ecology', 
             'defence-security', 
-            'social-issues', 
-            'geography', 
+            'society-social-justice', 
+            'geography-disasters', 
             'history-culture'
         ]
     ).prefetch_related('subcategories')
