@@ -16,7 +16,7 @@ interface Category {
 // Color map for category chips — gives each domain a distinct visual identity
 const CATEGORY_COLORS: Record<string, { bg: string; text: string; border: string; activeBg: string; activeText: string }> = {
     "economy-finance":        { bg: "bg-amber-500/10",   text: "text-amber-600 dark:text-amber-400",   border: "border-amber-500/20",   activeBg: "bg-amber-500",   activeText: "text-white" },
-    "polity-governance":      { bg: "bg-blue-500/10",    text: "text-blue-600 dark:text-blue-400",     border: "border-blue-500/20",    activeBg: "bg-blue-500",    activeText: "text-white" },
+    "polity-governance":      { bg: "bg-sky-500/10",     text: "text-sky-600 dark:text-sky-400",       border: "border-sky-500/20",     activeBg: "bg-sky-500",     activeText: "text-white" },
     "science-technology":     { bg: "bg-violet-500/10",  text: "text-violet-600 dark:text-violet-400", border: "border-violet-500/20",  activeBg: "bg-violet-500",  activeText: "text-white" },
     "international-relations":{ bg: "bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400",border: "border-emerald-500/20",activeBg: "bg-emerald-500", activeText: "text-white" },
     "environment-ecology":    { bg: "bg-green-500/10",   text: "text-green-600 dark:text-green-400",   border: "border-green-500/20",   activeBg: "bg-green-500",   activeText: "text-white" },

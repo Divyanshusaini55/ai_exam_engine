@@ -11,7 +11,7 @@ import ReactMarkdown from "react-markdown"
 // Category color map (same as list page for consistency)
 const CATEGORY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
     "Economy & Finance":        { bg: "bg-amber-500/10",   text: "text-amber-600 dark:text-amber-400",    border: "border-amber-500/20" },
-    "Polity & Governance":      { bg: "bg-blue-500/10",    text: "text-blue-600 dark:text-blue-400",      border: "border-blue-500/20" },
+    "Polity & Governance":      { bg: "bg-sky-500/10",     text: "text-sky-600 dark:text-sky-400",        border: "border-sky-500/20" },
     "Science & Technology":     { bg: "bg-violet-500/10",  text: "text-violet-600 dark:text-violet-400",  border: "border-violet-500/20" },
     "International Relations":  { bg: "bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400",border: "border-emerald-500/20" },
     "Environment & Ecology":    { bg: "bg-green-500/10",   text: "text-green-600 dark:text-green-400",    border: "border-green-500/20" },
