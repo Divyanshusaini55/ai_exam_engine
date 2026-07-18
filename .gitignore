@@ -51,3 +51,9 @@ backend/make_logo.py
 backend/pib.html
 pib_test.png
 question_fromat.json
+
+# ─── Markdown files ────────────────────────────────────────────────────────────
+*.md
+!README.md
+!readme.md
+!Readme.md
