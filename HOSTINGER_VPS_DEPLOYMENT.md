@@ -66,7 +66,7 @@ Add your production environment variables (matching your custom database and Ups
 ```env
 # Production flags
 DEBUG=False
-SECRET_KEY='xq$c4krc@vwl9dsfxtz9y0amqp2w2%2u788+-%ms1*=6u80ily' # Replace with another secure long random key
+SECRET_KEY='<YOUR_SECRET_KEY>' # Replace with another secure long random key
 
 # Hostnames & Security
 ALLOWED_HOSTS=api.examintel.in,localhost,127.0.0.1
@@ -74,22 +74,22 @@ CORS_ALLOWED_ORIGINS=https://www.examintel.in,https://examintel.in
 FRONTEND_URL=https://examintel.in
 
 # Database (Neon serverless PostgreSQL connection string)
-DATABASE_URL=postgresql://neondb_owner:npg_2Ca4rkjfJKcu@ep-morning-wind-aomm30bm-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+DATABASE_URL='<YOUR_DATABASE_URL>'
 
 # Redis (Upstash secure redis SSL connection strings - db 0)
-REDIS_URL="rediss://default:gQAAAAAAAeuHAAIgcDJmNDQ2NmE2NWRlOWQ0ZTA0YWIyYzhmN2YzYjI5OGVmNw@subtle-glowworm-125831.upstash.io:6379"
-REDIS_CACHE_URL="rediss://default:gQAAAAAAAeuHAAIgcDJmNDQ2NmE2NWRlOWQ0ZTA0YWIyYzhmN2YzYjI5OGVmNw@subtle-glowworm-125831.upstash.io:6379"
-REDIS_SESSION_URL="rediss://default:gQAAAAAAAeuHAAIgcDJmNDQ2NmE2NWRlOWQ0ZTA0YWIyYzhmN2YzYjI5OGVmNw@subtle-glowworm-125831.upstash.io:6379"
+REDIS_URL='<YOUR_REDIS_URL>'
+REDIS_CACHE_URL='<YOUR_REDIS_URL>'
+REDIS_SESSION_URL='<YOUR_REDIS_URL>'
 
 # Celery Task Execution
 CELERY_TASK_ALWAYS_EAGER=False
 
 # Gemini API Integration
-GEMINI_API_KEY=AIzaSyCLe3gSLyoEdAoXaQtTJyTs46V3CGJxBow
+GEMINI_API_KEY='<YOUR_GEMINI_API_KEY>'
 
 # Administrator configuration
 ADMIN_USERNAME=admin@examintel
-ADMIN_PASSWORD=Admin@examintel123
+ADMIN_PASSWORD='<YOUR_ADMIN_PASSWORD>'
 ADMIN_EMAIL=divyanshusai47@gmail.com
 ```
 
