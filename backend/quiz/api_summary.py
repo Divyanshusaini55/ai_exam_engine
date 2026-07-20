@@ -46,7 +46,7 @@ class SummaryMixin:
             'message': 'AI summary is currently being generated. This takes about a minute. Please check back shortly.'
         }, status=202)
 
-    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated], throttle_classes=[AILightThrottle])
+    @action(detail=False, methods=['post'], permission_classes=[AllowAny], throttle_classes=[AILightThrottle])
     def explain_question(self, request):
         question_id = request.data.get('question_id')
         

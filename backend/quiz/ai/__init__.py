@@ -3,6 +3,8 @@ import time
 import PyPDF2
 from django.conf import settings
 from quiz.models import Exam, Question, Answer
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning, module="google.generativeai")
 import google.generativeai as genai
 
 # Export new package elements
@@ -124,7 +126,7 @@ def generate_questions_from_pdf(exam: Exam):
     questions_per_chunk = max(1, total_questions // len(chunks))
 
     configure_gemini()
-    MODEL_NAME = "models/gemini-flash-lite-latest"
+    MODEL_NAME = "models/gemini-2.5-flash"
     print(" USING MODEL:", MODEL_NAME)
     
     model = genai.GenerativeModel(MODEL_NAME)
