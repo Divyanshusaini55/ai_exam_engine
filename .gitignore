@@ -6,6 +6,9 @@ Thumbs.db
 .idea/
 .vscode/
 *.orig
+.agents/
+.agent
+.prompt.md
 
 # ─── Python / Django (backend) ─────────────────────────────────────────────────
 backend/__pycache__/
@@ -23,7 +26,10 @@ backend/venv/
 backend/env/
 backend/.venv/
 backend/tmp/
-
+backend/migrations/
+backend/quiz/migrations/
+backend/community/migrations/
+backend/jobs/migrations/
 # ─── Node / Next.js (frontend) ─────────────────────────────────────────────────
 frontend/node_modules/
 frontend/.next/

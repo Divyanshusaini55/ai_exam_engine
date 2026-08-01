@@ -1,0 +1,173 @@
+{
+  "id": "q_000001",
+  "question_type": "mcq",
+  "content": [
+    {
+      "type": "text",
+      "value": "If a train travelling at 60 km/h crosses a pole in 9 seconds, what is the length of the train?"
+    },
+    {
+      "type": "image",
+      "url": "https://cdn.examintel.com/images/train_crossing.png",
+      "alt_text": "Diagram showing a train of length L crossing a vertical pole",
+      "caption": "Figure 1: Train crossing"
+    }
+  ],
+  "options": [
+    {
+      "id": "A",
+      "content": [
+        {
+          "type": "text",
+          "value": "120 meters"
+        }
+      ]
+    },
+    {
+      "id": "B",
+      "content": [
+        {
+          "type": "text",
+          "value": "150 meters"
+        }
+      ]
+    },
+    {
+      "id": "C",
+      "content": [
+        {
+          "type": "text",
+          "value": "180 meters"
+        }
+      ]
+    },
+    {
+      "id": "D",
+      "content": [
+        {
+          "type": "text",
+          "value": "200 meters"
+        }
+      ]
+    }
+  ],
+  "answer": {
+    "type": "mcq_single",
+    "correct_options": [
+      "B"
+    ],
+    "numerical_range": {
+      "min": null,
+      "max": null
+    },
+    "partial_marking_enabled": false
+  },
+  "explanation": [
+    {
+      "type": "text",
+      "value": "Convert speed into meters per second."
+    },
+    {
+      "type": "latex",
+      "value": "60 \\times \\frac{5}{18} = \\frac{50}{3}"
+    },
+    {
+      "type": "text",
+      "value": "Length = Speed × Time"
+    },
+    {
+      "type": "latex",
+      "value": "\\frac{50}{3} \\times 9 = 150"
+    }
+  ],
+  "hints": [
+    [
+      {
+        "type": "text",
+        "value": "First, make sure the units for speed and time match."
+      }
+    ]
+  ],
+  "solution_steps": [
+    {
+      "step_number": 1,
+      "intent": "Convert speed to m/s",
+      "content": [
+        {
+          "type": "latex",
+          "value": "60 \\times \\frac{5}{18} = \\frac{50}{3} \\text{ m/s}"
+        }
+      ]
+    },
+    {
+      "step_number": 2,
+      "intent": "Calculate distance using speed and time",
+      "content": [
+        {
+          "type": "latex",
+          "value": "\\text{Distance} = \\frac{50}{3} \\times 9 = 150 \\text{ meters}"
+        }
+      ]
+    }
+  ],
+  "classification": {
+    "subject": "Quantitative Aptitude",
+    "topic": "Speed, Time and Distance",
+    "subtopic": "Trains",
+    "difficulty": {
+      "label": "Medium",
+      "score": 0.62
+    },
+    "pattern": {
+      "type": "calculation",
+      "cognitive_level": "apply"
+    }
+  },
+  "grouping": {
+    "passage_id": null,
+    "sequence_order": null
+  },
+  "translation": {
+    "group_id": "tg_55412",
+    "is_primary": true
+  },
+  "exam_history": [
+    {
+      "exam": "SSC CGL",
+      "stage": "Tier 2",
+      "year": 2020,
+      "shift": "Shift 1"
+    }
+  ],
+  "source": {
+    "book": "Quantitative Aptitude by R.S. Aggarwal",
+    "page": 412,
+    "publisher": "S. Chand"
+  },
+  "metrics": {
+    "ideal_time_seconds": 45,
+    "average_time_seconds": 72
+  },
+  "analytics": {
+    "appearance_count": 1
+  },
+  "editorial": {
+    "status": "published",
+    "version": 1,
+    "last_reviewed_by": "user_id_881",
+    "review_notes": "Updated latex formula for clarity"
+  },
+  "metadata": {
+    "language": "en",
+    "verified": true,
+    "quality_score": 0.98,
+    "duplicate_hash": "sha256_hash_here",
+    "tags": [
+      "quantitative_aptitude",
+      "speed_time_distance",
+      "trains"
+    ],
+    "created_at": "2026-06-20T00:00:00Z",
+    "updated_at": "2026-06-20T00:00:00Z"
+  }
+}

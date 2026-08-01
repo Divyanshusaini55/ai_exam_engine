@@ -1,0 +1,124 @@
+{
+  "title": "Example Mock Test",
+  "category_slug": "example-category",
+  "sub_category_slug": "example-subcategory",
+  "duration_minutes": 60,
+  "negative_marks": 0.50,
+  "positive_marks": 2.0,
+  "questions": [
+    {
+      "id": "q_000001",
+      "question_type": "mcq",
+      "question": {
+        "text": "What is the capital of France?"
+      },
+      "options": [
+        {
+          "id": "A",
+          "text": "Berlin"
+        },
+        {
+          "id": "B",
+          "text": "Madrid"
+        },
+        {
+          "id": "C",
+          "text": "Paris"
+        },
+        {
+          "id": "D",
+          "text": "Rome"
+        }
+      ],
+      "answer": {
+        "correct_option": "C",
+        "correct_text": "Paris"
+      },
+      "explanation": "Paris is the capital and most populous city of France.",
+      "classification": {
+        "subject": "Geography",
+        "topic": "World Geography",
+        "subtopic": "Capitals",
+        "difficulty": "Easy"
+      },
+      "exam_history": [
+        {
+          "exam": "Sample Exam",
+          "year": 2023,
+          "shift": "Shift 1"
+        }
+      ],
+      "source": {
+        "book": "General Knowledge 2024",
+        "page": 15
+      },
+      "metadata": {
+        "verified": true,
+        "language": "en",
+        "has_formula": false,
+        "created_at": "2024-01-01T00:00:00Z",
+        "updated_at": "2024-01-01T00:00:00Z"
+      }
+    }
+  ]
+}
+
+
+
+
+
+
+{
+  "id": "q_000001",
+  "question_type": "mcq", // mcq, numerical, subjective
+  
+  // 1. AI Output relies on Markdown + LaTeX instead of blocks. 
+  // LLMs do this flawlessly. Images are just markdown links.
+  "question": "If a train travelling at 60 km/h crosses a pole in 9 seconds, what is the length of the train?\n\n![Train crossing](https://cdn.examintel.com/images/train_crossing.png)",
+  
+  // 2. Options remain flat but support markdown formulas like $x^2$
+  "options": [
+    {"id": "A", "text": "120 meters"},
+    {"id": "B", "text": "150 meters"},
+    {"id": "C", "text": "180 meters"},
+    {"id": "D", "text": "200 meters"}
+  ],
+
+  // 3. Answer logic is compact but supports JEE Adv
+  "answer": {
+    "correct_options": ["B"], // Array supports multiple correct
+    "numerical_range": null,  // For NATs: {"min": 1.4, "max": 1.6}
+    "partial_marking": false
+  },
+
+  // 4. Explanation is a simple Markdown string
+  "explanation": "Convert speed into m/s:\n$60 \\times \\frac{5}{18} = \\frac{50}{3}$ m/s\n\nDistance = Speed $\\times$ Time\n$\\frac{50}{3} \\times 9 = 150$ meters",
+
+  // 5. AI Tutor Data is flattened into simple string arrays
+  "tutor_data": {
+    "hints": ["First, make sure the units for speed and time match."],
+    "steps": [
+      "Convert speed to m/s: $60 \\times \\frac{5}{18} = \\frac{50}{3}$ m/s",
+      "Calculate distance using speed and time: $\\frac{50}{3} \\times 9 = 150$ meters"
+    ]
+  },
+
+  // 6. Classification is completely flattened (no nested objects)
+  "classification": {
+    "subject": "Quantitative Aptitude",
+    "topic": "Speed, Time and Distance",
+    "subtopic": "Trains",
+    "difficulty_label": "Medium",
+    "difficulty_score": 0.62,
+    "cognitive_level": "apply"
+  },
+
+  // 7. Metadata includes linking for Passages and Translations at the root
+  "metadata": {
+    "language": "en",
+    "translation_group_id": "tg_55412", // Links English/Hindi
+    "passage_id": null,                 // Links Reading Comprehensions
+    "ideal_time_seconds": 45,
+    "tags": ["speed", "trains"]
+  }
+}
