@@ -22,14 +22,23 @@ import {
     X,
     Settings,
     HelpCircle,
-    Newspaper
+    Newspaper,
+    ArrowRight
 } from "lucide-react"
 
-// Main navigation items shown in the top bar (Desktop)
-const mainNavItems = [
+// Marketing nav — shown to unauthenticated users
+const marketingNavItems = [
+    { label: "Home", href: "/", icon: Home },
+    { label: "Exams", href: "/exams", icon: GraduationCap },
+    { label: "Daily Dose", href: "/daily-dose", icon: Newspaper },
+    { label: "Leaderboard", href: "/leaderboard", icon: Trophy },
+]
+
+// Full app nav — shown to authenticated users
+const appNavItems = [
     { label: "Home", href: "/", icon: Home },
     { label: "Daily Dose", href: "/daily-dose", icon: Newspaper },
-    { label: "Exams", href: "/exams", icon: GraduationCap},
+    { label: "Exams", href: "/exams", icon: GraduationCap },
     { label: "Leaderboard", href: "/leaderboard", icon: Trophy },
     { label: "Upload QP", href: "/upload", icon: Upload },
     { label: "Contributors", href: "/contributors", icon: Users },
@@ -49,6 +58,7 @@ export function Navbar() {
     const router = useRouter()
     const pathname = usePathname()
     const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const mainNavItems = user ? appNavItems : marketingNavItems
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
     const [notifications, setNotifications] = useState<any[]>([])
     const menuRef = useRef<HTMLDivElement>(null)
@@ -222,9 +232,10 @@ export function Navbar() {
                                 </Link>
                                 <Link prefetch={false}
                                     href="/signup"
-                                    className="hidden md:block px-4 py-2 text-[13px] font-semibold bg-primary text-primary-foreground rounded-lg shadow-premium hover:-translate-y-[2px] hover:shadow-[0_15px_30_rgba(0,0,0,0.12)] transition-all duration-300"
+                                    className="hidden md:inline-flex items-center gap-1.5 px-5 py-2 text-[13px] font-semibold bg-primary text-primary-foreground rounded-lg shadow-premium hover:-translate-y-[2px] hover:shadow-[0_15px_30px_rgba(0,0,0,0.12)] transition-all duration-300"
                                 >
-                                    Register
+                                    Get Started
+                                    <ArrowRight className="size-3.5" />
                                 </Link>
                                 <Link prefetch={false}
                                     href="/login"

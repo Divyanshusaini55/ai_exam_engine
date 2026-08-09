@@ -103,18 +103,18 @@ export default function CategoryPage() {
   return (
     <div className="min-h-screen bg-background font-sans">
       <Navbar />
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mb-10">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-6">
           <Link
             prefetch={false}
             href="/"
-            className="flex items-center gap-2 text-sm font-bold text-primary hover:underline"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
-            <ArrowLeft className="size-4" /> Back to Categories
+            <ArrowLeft className="size-3.5" /> Back to Categories
           </Link>
         </div>
 
-        <header className="mb-12 flex flex-col gap-6 md:flex-row md:items-center md:gap-8">
+        <header className="mb-8 flex items-center gap-4">
           <CategoryHomeIcon
             iconName={category?.icon}
             categoryLabel={categoryLabel}
@@ -122,11 +122,11 @@ export default function CategoryPage() {
             apiIcon={category?.icon_color}
           />
           <div>
-            <h1 className="font-heading text-4xl font-extrabold tracking-tight text-primary md:text-5xl">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
               {category?.name || categorySlug.toUpperCase()}
             </h1>
             {category?.description && (
-              <p className="mt-3 max-w-3xl text-lg font-medium leading-relaxed text-muted-foreground">
+              <p className="mt-0.5 max-w-2xl text-xs sm:text-sm font-normal text-muted-foreground">
                 {category.description}
               </p>
             )}

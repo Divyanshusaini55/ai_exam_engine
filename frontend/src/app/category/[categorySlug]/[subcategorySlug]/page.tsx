@@ -121,16 +121,16 @@ export default function SubCategoryPage() {
           <span>{subcategory?.name || subcategorySlug}</span>
         </nav>
 
-        <header className="mb-12 flex flex-col gap-6 md:flex-row md:items-center md:gap-8">
+        <header className="mb-8 flex items-center gap-4">
           <CategoryHomeIcon iconName="" categoryLabel={parentCategoryLabel} />
           <div>
-            <h1 className="font-heading text-4xl font-extrabold tracking-tight text-primary md:text-5xl">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
               {subcategory?.name || subcategorySlug.toUpperCase()}
             </h1>
             {subcategory?.description && (
-              <p className="mt-3 text-lg font-medium text-muted-foreground">{subcategory.description}</p>
+              <p className="mt-0.5 text-xs sm:text-sm font-normal text-muted-foreground">{subcategory.description}</p>
             )}
-            <p className="mt-2 text-sm font-medium text-muted-foreground">
+            <p className="mt-1 text-xs font-medium text-muted-foreground/80">
               {exams.length} {exams.length === 1 ? "exam" : "exams"} available
             </p>
           </div>

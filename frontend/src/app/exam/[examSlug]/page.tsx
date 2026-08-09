@@ -9,7 +9,6 @@ import {
   ArrowRight,
   FileQuestion,
   Clock,
-  Calendar,
   Award,
   Trophy,
   FileText,
@@ -17,15 +16,15 @@ import {
   Navigation,
   RefreshCw,
   BarChart3,
-  AlertTriangle,
   ShieldCheck,
   AlertCircle,
+  Info,
 } from "lucide-react"
 import { CategoryHomeIcon } from "@/components/category-home-icon"
 import { getParentCategorySlugFromId } from "@/lib/category-home-icons"
-
-
-// Cleaned up legacy category routing data
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 
 export default function ExamPage() {
   const router = useRouter()
@@ -33,7 +32,6 @@ export default function ExamPage() {
   const slug = (params.examSlug as string)?.toLowerCase()
 
   const [exam, setExam] = useState<any>(null)
-  const [shifts, setShifts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [isConfirmed, setIsConfirmed] = useState(false)
   const [isStarting, setIsStarting] = useState(false)
@@ -82,25 +80,23 @@ export default function ExamPage() {
   const handleStart = () => router.replace(`/shift/${slug}`)
   const handleBack = () => router.back()
 
-
-
   if (loading) return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
-      <div className="size-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      <p className="text-muted-foreground font-medium">Loading Exam Details...</p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-3">
+      <div className="size-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      <p className="text-muted-foreground text-xs font-medium">Loading Assessment Details...</p>
     </div>
   )
 
   if (!exam) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 text-center">
-      <div className="size-20 bg-secondary rounded-full flex items-center justify-center mb-6 text-muted-foreground">
-        <AlertCircle className="size-10" />
+      <div className="size-12 bg-muted rounded-full flex items-center justify-center mb-4 text-muted-foreground">
+        <AlertCircle className="size-6" />
       </div>
-      <h2 className="text-2xl font-bold text-primary mb-2">Exam Not Found</h2>
-      <p className="text-muted-foreground mb-8 max-w-sm">The requested exam &ldquo;{slug}&rdquo; does not exist in our database.</p>
-      <div className="flex flex-col sm:flex-row gap-4">
-        <button onClick={() => window.location.reload()} className="px-8 py-3 bg-primary text-primary-foreground rounded-xl font-bold shadow-premium transition-all active:scale-95">Try Reloading</button>
-        <button onClick={() => router.push('/')} className="px-8 py-3 bg-secondary text-primary rounded-xl font-bold border border-border transition-all active:scale-95">Back to Home</button>
+      <h2 className="text-xl font-bold text-foreground mb-1">Exam Not Found</h2>
+      <p className="text-xs text-muted-foreground mb-6 max-w-xs">The requested exam &ldquo;{slug}&rdquo; does not exist in our database.</p>
+      <div className="flex flex-row gap-3">
+        <Button size="sm" onClick={() => window.location.reload()}>Try Reloading</Button>
+        <Button size="sm" variant="outline" onClick={() => router.push('/')}>Back to Home</Button>
       </div>
     </div>
   )
@@ -128,147 +124,159 @@ export default function ExamPage() {
     getParentCategorySlugFromId(String(exam?.id ?? ""))
 
   return (
-    <div className="min-h-screen bg-background flex flex-col pb-12">
+    <div className="min-h-screen bg-background flex flex-col pb-16">
       <div className="w-full">
         <Navbar />
       </div>
-      <div className="w-full max-w-4xl mx-auto flex flex-col gap-8 animate-fade-in px-4 py-12">
 
-        {/* Navigation */}
+      <div className="w-full max-w-3xl mx-auto flex flex-col gap-6 animate-fade-in px-4 py-8 md:py-10">
+
+        {/* Top Navigation & Status */}
         <div className="flex items-center justify-between gap-4">
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={handleBack}
-            className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors text-sm font-bold"
+            className="text-muted-foreground hover:text-foreground gap-2 font-medium text-xs h-8 px-2.5"
           >
-            <ArrowLeft className="size-4.5" />
+            <ArrowLeft className="size-3.5" />
             Back to Exams
-          </button>
+          </Button>
 
-          <div className="px-4 py-1.5 rounded-full bg-secondary border border-border text-primary text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-            <ShieldCheck className="size-4 text-success" />
+          <Badge variant="outline" className="rounded-full px-3 py-1 font-medium text-[11px] gap-1.5 border-emerald-500/20 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400 dark:border-emerald-500/30">
+            <ShieldCheck className="size-3.5 text-emerald-500" />
             Official Assessment
-          </div>
+          </Badge>
         </div>
 
-        {/* Hero Section */}
-        <div className="card-premium p-8 md:p-12 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32 transition-transform group-hover:scale-110 duration-700" />
-
-          <div className="relative z-10">
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-6">
-                <CategoryHomeIcon iconName="" categoryLabel={examCategoryLabel} />
-                <h1 className="text-4xl md:text-5xl font-extrabold text-primary tracking-tight text-balance leading-[1.1] flex-1">
+        {/* Exam Overview Card */}
+        <Card className="border border-border/70 bg-card shadow-sm rounded-xl p-6 sm:p-8">
+          <div className="flex flex-col gap-6">
+            <div className="flex items-center gap-4">
+              <CategoryHomeIcon iconName="" categoryLabel={examCategoryLabel} />
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
                   {exam.title}
                 </h1>
+                <p className="text-xs text-muted-foreground mt-0.5 font-normal">
+                  Standardized Timed Assessment
+                </p>
+              </div>
+            </div>
+
+            {/* Metrics Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 pt-2">
+              <div className="bg-muted/40 border border-border/60 rounded-lg p-3 flex flex-col items-center justify-center text-center gap-1">
+                <Clock className="size-4 text-sky-500 mb-0.5" />
+                <span className="font-bold text-base text-foreground leading-none">{exam.duration_minutes}</span>
+                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Minutes</span>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
-                <div className="bg-background/50 backdrop-blur-sm p-4 rounded-2xl border border-border flex flex-col items-center text-center gap-1 transition-all hover:bg-background">
-                  <Clock className="text-primary mb-1 size-8" />
-                  <div className="font-bold text-xl text-primary">{exam.duration_minutes}</div>
-                  <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Minutes</div>
-                </div>
+              <div className="bg-muted/40 border border-border/60 rounded-lg p-3 flex flex-col items-center justify-center text-center gap-1">
+                <FileQuestion className="size-4 text-violet-500 mb-0.5" />
+                <span className="font-bold text-base text-foreground leading-none">{exam.total_questions}</span>
+                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Questions</span>
+              </div>
 
-                <div className="bg-background/50 backdrop-blur-sm p-4 rounded-2xl border border-border flex flex-col items-center text-center gap-1 transition-all hover:bg-background">
-                  <FileQuestion className="text-primary mb-1 size-8" />
-                  <div className="font-bold text-xl text-primary">{exam.total_questions}</div>
-                  <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Questions</div>
-                </div>
+              <div className="bg-muted/40 border border-border/60 rounded-lg p-3 flex flex-col items-center justify-center text-center gap-1">
+                <Award className="size-4 text-emerald-500 mb-0.5" />
+                <span className="font-bold text-base text-foreground leading-none">+{exam.marks_per_question ?? 1}</span>
+                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Mark / Q</span>
+              </div>
 
-                <div className="bg-background/50 backdrop-blur-sm p-4 rounded-2xl border border-border flex flex-col items-center text-center gap-1 transition-all hover:bg-background">
-                  <Award className="text-success mb-1 size-8" />
-                  <div className="font-bold text-xl text-primary">{exam.marks_per_question ?? 1}</div>
-                  <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Mark/Q</div>
-                </div>
+              <div className="bg-muted/40 border border-border/60 rounded-lg p-3 flex flex-col items-center justify-center text-center gap-1">
+                <AlertCircle className="size-4 text-rose-500 mb-0.5" />
+                <span className="font-bold text-base text-foreground leading-none">-{exam.negative_marks ?? 0}</span>
+                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Negative</span>
+              </div>
 
-                <div className="bg-background/50 backdrop-blur-sm p-4 rounded-2xl border border-border flex flex-col items-center text-center gap-1 transition-all hover:bg-background">
-                  <AlertCircle className="text-destructive mb-1 size-8" />
-                  <div className="font-bold text-xl text-primary">-{exam.negative_marks ?? 0}</div>
-                  <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Negative Marks</div>
-                </div>
-
-                <div className="bg-background/50 backdrop-blur-sm p-4 rounded-2xl border border-border flex flex-col items-center text-center gap-1 transition-all hover:bg-background">
-                  <Trophy className="text-primary mb-1 size-8" />
-                  <div className="font-bold text-xl text-primary">{exam.total_marks ?? (exam.total_questions * (exam.marks_per_question ?? 1))}</div>
-                  <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Total Marks</div>
-                </div>
+              <div className="bg-muted/40 border border-border/60 rounded-lg p-3 flex flex-col items-center justify-center text-center gap-1 col-span-2 sm:col-span-1">
+                <Trophy className="size-4 text-amber-500 mb-0.5" />
+                <span className="font-bold text-base text-foreground leading-none">{exam.total_marks ?? (exam.total_questions * (exam.marks_per_question ?? 1))}</span>
+                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Total Marks</span>
               </div>
             </div>
           </div>
-        </div>
+        </Card>
 
-        {/* Instructions */}
-        <div className="card-premium p-8 md:p-10">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="size-10 rounded-xl bg-secondary flex items-center justify-center border border-border shadow-sm">
-              <FileText className="size-6 text-primary" />
+        {/* Instructions Card */}
+        <Card className="border border-border/70 bg-card shadow-sm rounded-xl overflow-hidden">
+          <CardHeader className="border-b border-border/50 bg-muted/20 px-6 py-4">
+            <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
+              <FileText className="size-4 text-primary" />
+              Exam Instructions
+            </CardTitle>
+            <CardDescription className="text-xs text-muted-foreground">
+              Please review the general guidelines before launching your test.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="p-6 space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                { Icon: Timer, text: "Exam will auto-submit when timer reaches zero", color: "text-sky-500" },
+                { Icon: Navigation, text: "Use question navigator to jump between sections", color: "text-violet-500" },
+                { Icon: RefreshCw, text: "Do not refresh or close browser during the test", color: "text-amber-500" },
+                { Icon: BarChart3, text: "Detailed AI analysis will be provided upon completion", color: "text-emerald-500" },
+              ].map((item, i) => {
+                const ItemIcon = item.Icon
+                return (
+                  <div key={i} className="flex items-start gap-3 p-3.5 rounded-lg border border-border/50 bg-muted/20 text-xs sm:text-sm text-foreground/90 font-normal leading-snug transition-colors hover:bg-muted/30">
+                    <ItemIcon className={`size-4 shrink-0 mt-0.5 ${item.color}`} />
+                    <span>{item.text}</span>
+                  </div>
+                )
+              })}
             </div>
-            <h2 className="text-2xl font-bold text-primary tracking-tight">Exam Instructions</h2>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
-            {[
-              { Icon: Timer, text: "Exam will auto-submit when the timer reaches zero" },
-              { Icon: Navigation, text: "Use question navigator to jump between sections" },
-              { Icon: RefreshCw, text: "Do not refresh or close browser during the test" },
-              { Icon: BarChart3, text: "Get detailed AI analysis instantly after submission" },
-            ].map((item, i) => {
-              const ItemIcon = item.Icon
-              return (
-                <div key={i} className="flex items-start gap-4 p-4 rounded-2xl bg-secondary/50 border border-border hover:bg-secondary transition-colors">
-                  <ItemIcon className="mt-0.5 size-5 shrink-0 text-green-600 dark:text-green-500" />
-                  <span className="text-sm font-medium text-primary leading-relaxed">{item.text}</span>
-                </div>
-              )
-            })}
-          </div>
-
-          {/* Confirmation & Start */}
-          <div className="space-y-6">
-            <div className="p-5 rounded-2xl border-2 border-dashed border-border bg-background/50 hover:bg-secondary/30 transition-all">
-              <label className="flex items-start gap-4 cursor-pointer group">
+            {/* Confirmation Checkbox */}
+            <div className="rounded-lg border border-border/60 bg-muted/30 p-4 transition-colors hover:bg-muted/40">
+              <label className="flex items-start gap-3 cursor-pointer group">
                 <input
                   type="checkbox"
                   checked={isConfirmed}
                   onChange={(e) => setIsConfirmed(e.target.checked)}
-                  className="mt-1 w-6 h-6 rounded-lg border-border text-primary focus:ring-primary/20 cursor-pointer"
+                  className="mt-0.5 size-4 rounded border-input bg-background text-primary focus:ring-1 focus:ring-ring cursor-pointer accent-primary shrink-0"
                 />
-                <span className="text-sm font-medium text-primary select-none leading-relaxed">
-                  I have read and understood all the instructions mentioned above. I confirm that I will not use any unfair means during this assessment.
+                <span className="text-xs sm:text-sm text-foreground/90 select-none leading-relaxed font-normal">
+                  I have read and understood all the instructions above. I confirm that I will not use any unfair means during this assessment.
                 </span>
               </label>
             </div>
 
-            <div className="flex justify-center w-full">
-              <button
+            {/* Start Button & Helper */}
+            <div className="flex flex-col items-center gap-2 pt-2">
+              <Button
                 onClick={handleStartExam}
                 disabled={!isConfirmed || isStarting}
-                className="py-2 px-3 sm:px-8 rounded-2xl font-bold text-xl text-primary-foreground bg-primary hover:opacity-90 shadow-premium transition-all transform hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-3 group"
+                size="lg"
+                className="w-full sm:w-auto min-w-[260px] h-11 px-8 rounded-lg font-semibold text-sm shadow-sm transition-all flex items-center justify-center gap-2"
               >
                 {isStarting ? (
                   <>
-                    <div className="size-6 border-3 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                    <div className="size-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
                     <span>Preparing Test...</span>
                   </>
                 ) : (
                   <>
                     <span>Start Assessment Now</span>
-                    <ArrowRight className="size-7 transition-transform duration-300 group-hover:translate-x-2" />
+                    <ArrowRight className="size-4 ml-0.5" />
                   </>
                 )}
-              </button>
-            </div>
+              </Button>
 
-            {!isConfirmed && (
-              <p className="text-center text-xs font-bold text-destructive animate-pulse flex items-center justify-center gap-2">
-                <AlertTriangle className="size-4" />
-                Please accept the terms to unlock the start button
-              </p>
-            )}
-          </div>
-        </div>
+              {!isConfirmed && (
+                <p className="text-center text-xs text-muted-foreground flex items-center justify-center gap-1.5 mt-1">
+                  <Info className="size-3.5 text-amber-500/90" />
+                  Please confirm the instructions above to unlock the start button.
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
       </div>
     </div>
   )
 }
+
