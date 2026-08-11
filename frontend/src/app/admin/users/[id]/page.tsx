@@ -69,10 +69,10 @@ export default function AdminUserProgressPage() {
   const { exam_results, topic_progress, resource_progress, answer_stats, recent_answers } = progress
 
   const statsCards = [
-    { label: "Exams Attempted", value: exam_results.length, icon: FileText, color: "text-blue-500" },
-    { label: "Resources Viewed", value: resource_progress.length, icon: BookOpen, color: "text-purple-500" },
-    { label: "Topics Started", value: topic_progress.length, icon: Map, color: "text-amber-500" },
-    { label: "Questions Answered", value: answer_stats.total_answers, icon: Activity, color: "text-emerald-500" },
+    { label: "Exams Attempted", value: exam_results.length, icon: FileText, textCol: "text-blue-600 dark:text-blue-400", bgCol: "bg-blue-500/10 dark:bg-blue-500/20" },
+    { label: "Resources Viewed", value: resource_progress.length, icon: BookOpen, textCol: "text-purple-600 dark:text-purple-400", bgCol: "bg-purple-500/10 dark:bg-purple-500/20" },
+    { label: "Topics Started", value: topic_progress.length, icon: Map, textCol: "text-amber-600 dark:text-amber-400", bgCol: "bg-amber-500/10 dark:bg-amber-500/20" },
+    { label: "Questions Answered", value: answer_stats.total_answers, icon: Activity, textCol: "text-emerald-600 dark:text-emerald-400", bgCol: "bg-emerald-500/10 dark:bg-emerald-500/20" },
   ]
 
   return (
@@ -106,13 +106,13 @@ export default function AdminUserProgressPage() {
       {/* Summary Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {statsCards.map((stat, i) => (
-          <Card key={i} className="border-border/70 shadow-sm">
+          <Card key={i} className="border-border/70 shadow-sm bg-card">
             <CardContent className="p-4 flex items-center gap-3">
-              <div className={`p-2 rounded-lg bg-muted ${stat.color}`}>
+              <div className={`p-2 rounded-lg ${stat.bgCol} ${stat.textCol}`}>
                 <stat.icon className="size-5" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{stat.value}</p>
+                <p className="text-2xl font-bold text-foreground">{stat.value}</p>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">{stat.label}</p>
               </div>
             </CardContent>
