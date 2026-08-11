@@ -279,14 +279,154 @@ export const authApi = {
 };
 
 export const adminApi = {
-  getContactMessages: () => legacyFetch('get', '/admin/contact-messages/'),
-  updateContactMessageStatus: (id: number, status: string) => legacyFetch('patch', `/admin/contact-messages/${id}/status/`, { status }),
-  deleteContactMessage: (id: number) => legacyFetch('delete', `/admin/contact-messages/${id}/`),
+  getStats: () => legacyFetch('get', '/admin/stats/'),
+
+  // Categories & Subcategories
+  getCategories: () => legacyFetch('get', '/admin/categories/'),
+  createCategory: (data: any) => legacyFetch('post', '/admin/categories/', data),
+  updateCategory: (id: number, data: any) => legacyFetch('patch', `/admin/categories/${id}/`, data),
+  deleteCategory: (id: number) => legacyFetch('delete', `/admin/categories/${id}/`),
+
+  getSubcategories: () => legacyFetch('get', '/admin/subcategories/'),
+  createSubcategory: (data: any) => legacyFetch('post', '/admin/subcategories/', data),
+  updateSubcategory: (id: number, data: any) => legacyFetch('patch', `/admin/subcategories/${id}/`, data),
+  deleteSubcategory: (id: number) => legacyFetch('delete', `/admin/subcategories/${id}/`),
+  triggerRoadmap: (id: number) => legacyFetch('post', `/admin/subcategories/${id}/trigger_roadmap/`),
+
+  // Topics
+  getTopics: () => legacyFetch('get', '/admin/topics/'),
+  createTopic: (data: any) => legacyFetch('post', '/admin/topics/', data),
+  updateTopic: (id: number, data: any) => legacyFetch('patch', `/admin/topics/${id}/`, data),
+  deleteTopic: (id: number) => legacyFetch('delete', `/admin/topics/${id}/`),
+
+  // Exams & Questions
+  getExams: (subcategory?: string) => legacyFetch('get', `/admin/exams/${subcategory ? `?subcategory=${subcategory}` : ''}`),
+  createExam: (data: any) => legacyFetch('post', '/admin/exams/', data),
+  updateExam: (id: number, data: any) => legacyFetch('patch', `/admin/exams/${id}/`, data),
+  deleteExam: (id: number) => legacyFetch('delete', `/admin/exams/${id}/`),
+  importExamJson: (id: number, data: any) => legacyFetch('post', `/admin/exams/${id}/import_json/`, data),
+  exportExamJson: (id: number) => legacyFetch('get', `/admin/exams/${id}/export_json/`),
+
+  getQuestions: (examId?: number | string, examSlug?: string) => {
+    const params = new URLSearchParams()
+    if (examId) params.append('exam_id', examId.toString())
+    if (examSlug) params.append('exam_slug', examSlug)
+    const queryString = params.toString() ? `?${params.toString()}` : ''
+    return legacyFetch('get', `/admin/questions/${queryString}`)
+  },
+  createQuestion: (data: any) => legacyFetch('post', '/admin/questions/', data),
+  updateQuestion: (id: number, data: any) => legacyFetch('patch', `/admin/questions/${id}/`, data),
+  deleteQuestion: (id: number) => legacyFetch('delete', `/admin/questions/${id}/`),
+  generateHindiQuestion: (id: number) => legacyFetch('post', `/admin/questions/${id}/generate_hindi/`),
+  bulkGenerateHindiQuestions: (ids: number[]) => legacyFetch('post', '/admin/questions/bulk_generate_hindi/', { ids }),
+
+  // Current Affairs
+  getCurrentAffairs: (page: number = 1, search?: string) => {
+    const params = new URLSearchParams()
+    if (page) params.append('page', page.toString())
+    if (search) params.append('search', search)
+    const queryString = params.toString() ? `?${params.toString()}` : ''
+    return legacyFetch('get', `/admin/current-affairs/${queryString}`)
+  },
+  createCurrentAffair: (data: any) => legacyFetch('post', '/admin/current-affairs/', data),
+  updateCurrentAffair: (id: number, data: any) => legacyFetch('patch', `/admin/current-affairs/${id}/`, data),
+  deleteCurrentAffair: (id: number) => legacyFetch('delete', `/admin/current-affairs/${id}/`),
+  triggerAiCurrentAffairs: () => legacyFetch('post', '/admin/current-affairs/trigger_ai_gen/'),
+
+  // Users
+  getUsers: (search?: string) => legacyFetch('get', `/admin/users/${search ? `?search=${search}` : ''}`),
+  getUser: (id: string | number) => legacyFetch('get', `/admin/users/${id}/`),
+  updateUser: (id: number, data: any) => legacyFetch('patch', `/admin/users/${id}/`, data),
+  getUserProgress: (id: string | number) => legacyFetch('get', `/admin/users/${id}/progress/`),
+  toggleUserStaff: (id: number, password?: string) => legacyFetch('post', `/admin/users/${id}/toggle_staff/`, { password }),
+  toggleUserActive: (id: number) => legacyFetch('post', `/admin/users/${id}/toggle_active/`),
+
+  // PDF Uploads
+  getUploads: () => legacyFetch('get', '/admin/uploads/'),
+  uploadPdf: (formData: FormData) => api.post('/admin/uploads/', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  deleteUpload: (id: number) => legacyFetch('delete', `/admin/uploads/${id}/`),
+
+  // Messages & Suggestions
+  getContactMessages: () => legacyFetch('get', '/admin/messages/'),
+  toggleMessageResolve: (id: number) => legacyFetch('post', `/admin/messages/${id}/toggle_resolve/`),
+  deleteContactMessage: (id: number) => legacyFetch('delete', `/admin/messages/${id}/`),
+
+  getSuggestions: () => legacyFetch('get', '/admin/suggestions/'),
+  updateSuggestionStatus: (id: number, status: string) => legacyFetch('post', `/admin/suggestions/${id}/update_status/`, { status }),
+  bulkUpdateSuggestionStatus: (ids: number[], status: string) => legacyFetch('post', '/admin/suggestions/bulk_update_status/', { ids, status }),
+  deleteSuggestion: (id: number) => legacyFetch('delete', `/admin/suggestions/${id}/`),
+
+  // Study Hub Educational Resources
+  getResources: () => legacyFetch('get', '/admin/resources/'),
+  createResource: (data: any) => legacyFetch('post', '/admin/resources/', data),
+  updateResource: (id: number, data: any) => legacyFetch('patch', `/admin/resources/${id}/`, data),
+  deleteResource: (id: number) => legacyFetch('delete', `/admin/resources/${id}/`),
+  bulkPublishResources: (ids: number[]) => legacyFetch('post', '/admin/resources/bulk_publish/', { ids }),
+  bulkUnpublishResources: (ids: number[]) => legacyFetch('post', '/admin/resources/bulk_unpublish/', { ids }),
+  bulkFeatureResources: (ids: number[]) => legacyFetch('post', '/admin/resources/bulk_feature/', { ids }),
+  bulkAiSummaryResources: (ids: number[]) => legacyFetch('post', '/admin/resources/bulk_ai_summary/', { ids }),
+  
+  getTags: () => legacyFetch('get', '/admin/tags/'),
+  createTag: (data: any) => legacyFetch('post', '/admin/tags/', data),
+  updateTag: (id: number, data: any) => legacyFetch('patch', `/admin/tags/${id}/`, data),
+  deleteTag: (id: number) => legacyFetch('delete', `/admin/tags/${id}/`),
+
+  getRoadmaps: () => legacyFetch('get', '/admin/roadmaps/'),
+  getRoadmap: (id: string | number) => legacyFetch('get', `/admin/roadmaps/${id}/`),
+  createRoadmap: (data: any) => legacyFetch('post', '/admin/roadmaps/', data),
+  updateRoadmap: (id: number, data: any) => legacyFetch('patch', `/admin/roadmaps/${id}/`, data),
+  deleteRoadmap: (id: number) => legacyFetch('delete', `/admin/roadmaps/${id}/`),
+
+  getRoadmapPhases: (roadmapId: number) => legacyFetch('get', `/admin/roadmap-phases/?roadmap_id=${roadmapId}`),
+  createRoadmapPhase: (data: any) => legacyFetch('post', '/admin/roadmap-phases/', data),
+  updateRoadmapPhase: (id: number, data: any) => legacyFetch('patch', `/admin/roadmap-phases/${id}/`, data),
+  deleteRoadmapPhase: (id: number) => legacyFetch('delete', `/admin/roadmap-phases/${id}/`),
+
+  getRoadmapTopics: (phaseId: number) => legacyFetch('get', `/admin/roadmap-topics/?phase_id=${phaseId}`),
+  createRoadmapTopic: (data: any) => legacyFetch('post', '/admin/roadmap-topics/', data),
+  updateRoadmapTopic: (id: number, data: any) => legacyFetch('patch', `/admin/roadmap-topics/${id}/`, data),
+  deleteRoadmapTopic: (id: number) => legacyFetch('delete', `/admin/roadmap-topics/${id}/`),
+
+  getDashboardStats: () => legacyFetch('get', '/admin/stats/'),
+  togglePublishResource: (id: number) => legacyFetch('post', `/admin/resources/${id}/toggle_publish/`),
+  toggleFeatureResource: (id: number) => legacyFetch('post', `/admin/resources/${id}/toggle_feature/`),
+  generateAiResourceSummary: (id: number) => legacyFetch('post', `/admin/resources/${id}/ai_summary/`),
+};
+
+export const communityAdminApi = {
+  getProfiles: () => legacyFetch('get', '/community/admin/profiles/'),
+  updateProfile: (id: number, data: any) => legacyFetch('patch', `/community/admin/profiles/${id}/`, data),
+  
+  getBadges: () => legacyFetch('get', '/community/admin/badges/'),
+  createBadge: (data: any) => legacyFetch('post', '/community/admin/badges/', data),
+  updateBadge: (id: number, data: any) => legacyFetch('patch', `/community/admin/badges/${id}/`, data),
+  deleteBadge: (id: number) => legacyFetch('delete', `/community/admin/badges/${id}/`),
+  
+  getUserBadges: () => legacyFetch('get', '/community/admin/user-badges/'),
+  awardBadge: (data: any) => legacyFetch('post', '/community/admin/user-badges/', data),
+  removeUserBadge: (id: number) => legacyFetch('delete', `/community/admin/user-badges/${id}/`),
+  
+  getSolutions: () => legacyFetch('get', '/community/admin/solutions/'),
+  deleteSolution: (id: number) => legacyFetch('delete', `/community/admin/solutions/${id}/`),
+  
+  getComments: () => legacyFetch('get', '/community/admin/comments/'),
+  deleteComment: (id: number) => legacyFetch('delete', `/community/admin/comments/${id}/`),
+
+  getActivities: () => legacyFetch('get', '/community/admin/activities/'),
+  getNotifications: () => legacyFetch('get', '/community/admin/notifications/'),
+  createNotification: (data: any) => legacyFetch('post', '/community/admin/notifications/', data),
+  deleteNotification: (id: number) => legacyFetch('delete', `/community/admin/notifications/${id}/`),
 };
 
 export const miscApi = {
   submitContactForm: (data: any) => legacyFetch('post', '/contact/submit/', data),
   getDashboardStats: () => legacyFetch('get', '/exams/dashboard_stats/'),
+};
+
+export const jobsAdminApi = {
+  getJobs: () => legacyFetch('get', '/jobs/admin/jobs/'),
+  getJob: (id: string) => legacyFetch('get', `/jobs/admin/jobs/${id}/`),
+  cancelJob: (id: string) => legacyFetch('delete', `/jobs/admin/jobs/${id}/`),
 };
 
 export const resourceHubApi = {
