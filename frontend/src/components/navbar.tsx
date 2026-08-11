@@ -18,12 +18,16 @@ import {
     Bell, 
     LogOut, 
     GraduationCap,
+    BookOpen,
     Menu,
     X,
     Settings,
     HelpCircle,
     Newspaper,
-    ArrowRight
+    ArrowRight,
+    Check,
+    Briefcase,
+    ShieldCheck
 } from "lucide-react"
 
 // Marketing nav — shown to unauthenticated users
@@ -130,9 +134,7 @@ export function Navbar() {
                 <div className="flex items-center justify-between">
                     {/* Logo (Left) */}
                     <div className="flex items-center gap-3 group cursor-pointer" onClick={() => router.push('/')}>
-                        <div className="size-9 flex items-center justify-center bg-primary rounded-[10px] text-primary-foreground shadow-premium transition-all duration-300 group-hover:-translate-y-1 select-none">
-                            <span className="font-extrabold text-lg tracking-tighter leading-none mt-[2px]">ei.</span>
-                        </div>
+                        <img src="/icon.svg" alt="ExamIntel Icon" className="size-9 transition-all duration-300 group-hover:-translate-y-1 select-none" />
                         <h2 className="text-[20px] font-bold font-heading text-primary group-hover:opacity-80 transition-opacity duration-300 tracking-tight">
                             ExamIntel
                         </h2>
@@ -339,6 +341,15 @@ export function Navbar() {
 
                                         {/* User Menu Items (Dashboard, Profile, etc.) */}
                                         <div className="space-y-1">
+                                            {(user.is_staff || user.is_superuser) && (
+                                                <Link prefetch={false}
+                                                    href="/admin"
+                                                    className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-primary font-bold bg-primary/10 hover:bg-primary/20 mb-1"
+                                                >
+                                                    <ShieldCheck className="size-5 text-primary" />
+                                                    Admin Console
+                                                </Link>
+                                            )}
                                             {userMenuItems.map((item) => {
                                                 const Icon = item.icon
                                                 const isActive = pathname === item.href
