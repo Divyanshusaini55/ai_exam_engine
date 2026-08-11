@@ -6,7 +6,7 @@ import { useAuth } from "@/context/auth-context"
 import { useState, useRef, useEffect, useCallback } from "react"
 import { communityApi } from "@/lib/api"
 import { getAvatarUrl } from "@/lib/utils"
-import { ModeToggle } from "./mode-toggle"
+import { useTheme } from "next-themes"
 import { 
     Home, 
     LayoutDashboard, 
@@ -27,7 +27,9 @@ import {
     ArrowRight,
     Check,
     Briefcase,
-    ShieldCheck
+    ShieldCheck,
+    Sun,
+    Moon
 } from "lucide-react"
 
 // Marketing nav — shown to unauthenticated users
@@ -59,6 +61,7 @@ const userMenuItems = [
 
 export function Navbar() {
     const { user, loading, logout } = useAuth()
+    const { theme, setTheme } = useTheme()
     const router = useRouter()
     const pathname = usePathname()
     const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -160,7 +163,15 @@ export function Navbar() {
                     {/* Right Actions */}
                     <div className="flex items-center gap-3">
                         {/* Dark / Light toggle */}
-                        <ModeToggle className="!size-8 md:!size-9" />
+                        <button
+                            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                            className="size-8 md:size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200"
+                            title="Toggle Theme"
+                        >
+                            <Sun className="size-4 hidden dark:block text-amber-400" />
+                            <Moon className="size-4 block dark:hidden text-muted-foreground" />
+                            <span className="sr-only">Toggle theme</span>
+                        </button>
 
                         {/* Notification bell */}
                         {user && (
