@@ -69,10 +69,10 @@ export default function AdminUserProgressPage() {
   const { exam_results, topic_progress, resource_progress, answer_stats, recent_answers } = progress
 
   const statsCards = [
-    { label: "Exams Attempted", value: exam_results.length, icon: FileText, textCol: "text-blue-600 dark:text-white", bgCol: "bg-blue-500/10 dark:bg-muted/40" },
-    { label: "Resources Viewed", value: resource_progress.length, icon: BookOpen, textCol: "text-purple-600 dark:text-white", bgCol: "bg-purple-500/10 dark:bg-muted/40" },
-    { label: "Topics Started", value: topic_progress.length, icon: Map, textCol: "text-amber-600 dark:text-white", bgCol: "bg-amber-500/10 dark:bg-muted/40" },
-    { label: "Questions Answered", value: answer_stats.total_answers, icon: Activity, textCol: "text-emerald-600 dark:text-white", bgCol: "bg-emerald-500/10 dark:bg-muted/40" },
+    { label: "Exams Attempted", value: exam_results.length, icon: FileText },
+    { label: "Resources Viewed", value: resource_progress.length, icon: BookOpen },
+    { label: "Topics Started", value: topic_progress.length, icon: Map },
+    { label: "Questions Answered", value: answer_stats.total_answers, icon: Activity },
   ]
 
   return (
@@ -108,8 +108,8 @@ export default function AdminUserProgressPage() {
         {statsCards.map((stat, i) => (
           <Card key={i} className="border-border/70 shadow-sm bg-card">
             <CardContent className="p-4 flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${stat.bgCol} ${stat.textCol}`}>
-                <stat.icon className="size-5" />
+              <div className="p-2 rounded-lg bg-muted/60 dark:bg-muted/40 text-foreground">
+                <stat.icon className="size-5 text-foreground" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-foreground">{stat.value}</p>
