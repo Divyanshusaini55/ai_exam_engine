@@ -83,22 +83,24 @@ export default function AdminDashboardPage() {
       {/* Metrics Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
         {[
-          { label: "Active Users", value: stats.active_users ?? 0, icon: Activity },
-          { label: "Pending Jobs", value: stats.pending_jobs ?? 0, icon: Clock },
-          { label: "New Solutions", value: stats.new_solutions_today ?? 0, icon: MessageSquare },
-          { label: "Total Users", value: stats.total_users ?? 0, icon: Users },
-          { label: "Total Exams", value: stats.total_exams ?? 0, icon: FileText },
-          { label: "Questions", value: stats.total_questions ?? 0, icon: HelpCircle },
-          { label: "Completed Tests", value: stats.total_attempts ?? 0, icon: CheckCircle2 },
-          { label: "Current Affairs", value: stats.active_current_affairs ?? 0, icon: Newspaper },
-          { label: "Pending Issues", value: stats.pending_suggestions ?? 0, icon: AlertTriangle },
+          { label: "Active Users", value: stats.active_users ?? 0, icon: Activity, textCol: "text-emerald-600 dark:text-emerald-400", bgCol: "bg-emerald-500/10 dark:bg-emerald-500/20" },
+          { label: "Pending Jobs", value: stats.pending_jobs ?? 0, icon: Clock, textCol: "text-amber-600 dark:text-amber-400", bgCol: "bg-amber-500/10 dark:bg-amber-500/20" },
+          { label: "New Solutions", value: stats.new_solutions_today ?? 0, icon: MessageSquare, textCol: "text-sky-600 dark:text-sky-400", bgCol: "bg-sky-500/10 dark:bg-sky-500/20" },
+          { label: "Total Users", value: stats.total_users ?? 0, icon: Users, textCol: "text-indigo-600 dark:text-white", bgCol: "bg-indigo-500/10 dark:bg-zinc-800/80" },
+          { label: "Total Exams", value: stats.total_exams ?? 0, icon: FileText, textCol: "text-blue-600 dark:text-white", bgCol: "bg-blue-500/10 dark:bg-zinc-800/80" },
+          { label: "Questions", value: stats.total_questions ?? 0, icon: HelpCircle, textCol: "text-purple-600 dark:text-purple-400", bgCol: "bg-purple-500/10 dark:bg-purple-500/20" },
+          { label: "Completed Tests", value: stats.total_attempts ?? 0, icon: CheckCircle2, textCol: "text-emerald-600 dark:text-emerald-400", bgCol: "bg-emerald-500/10 dark:bg-emerald-500/20" },
+          { label: "Current Affairs", value: stats.active_current_affairs ?? 0, icon: Newspaper, textCol: "text-amber-600 dark:text-amber-400", bgCol: "bg-amber-500/10 dark:bg-amber-500/20" },
+          { label: "Pending Issues", value: stats.pending_suggestions ?? 0, icon: AlertTriangle, textCol: "text-rose-600 dark:text-rose-400", bgCol: "bg-rose-500/10 dark:bg-rose-500/20" },
         ].map((item, idx) => {
           const Icon = item.icon
           return (
             <Card key={idx} className="border border-border/70 bg-card shadow-sm rounded-xl p-4">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{item.label}</span>
-                <Icon className="size-4 text-foreground dark:text-white shrink-0" />
+                <div className={`p-1.5 rounded-lg ${item.bgCol} ${item.textCol}`}>
+                  <Icon className="size-4" />
+                </div>
               </div>
               <div className="mt-2 text-2xl font-bold text-foreground tracking-tight">{item.value}</div>
             </Card>
