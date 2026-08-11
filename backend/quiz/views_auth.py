@@ -36,13 +36,15 @@ class CustomLoginAPI(TokenObtainPairView):
         response.data['user_id'] = user.pk
         response.data['email'] = user.email
         response.data['username'] = user.username
+        response.data['is_staff'] = user.is_staff
+        response.data['is_superuser'] = user.is_superuser
         
         request_context = {'request': request}
         from .serializers import UserSerializer
         user_data = UserSerializer(user, context=request_context).data
-        response.data['avatar_image'] = user_data.get('avatar_image')
+        response.data.update(user_data)
         # Rename access token to match what frontend expects
-        response.data['token'] = response.data['access']
+        response.data['token'] = response.data.get('access')
         return response
 
 class UserProfileAPI(generics.RetrieveAPIView):
