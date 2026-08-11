@@ -4,6 +4,7 @@ import { useAuth } from "@/context/auth-context"
 import { ShieldCheck, LogOut, Menu } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { ModeToggle } from "@/components/mode-toggle"
 
 interface AdminHeaderProps {
   onMobileMenuClick?: () => void
@@ -31,7 +32,8 @@ export function AdminHeader({ onMobileMenuClick }: AdminHeaderProps) {
         </Badge>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
+        <ModeToggle className="size-8" />
         {user && (
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex flex-col text-right">
