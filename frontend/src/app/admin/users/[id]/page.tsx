@@ -69,10 +69,10 @@ export default function AdminUserProgressPage() {
   const { exam_results, topic_progress, resource_progress, answer_stats, recent_answers } = progress
 
   const statsCards = [
-    { label: "Exams Attempted", value: exam_results.length, icon: FileText, textCol: "text-blue-600 dark:text-blue-400", bgCol: "bg-blue-500/10 dark:bg-blue-500/20" },
-    { label: "Resources Viewed", value: resource_progress.length, icon: BookOpen, textCol: "text-purple-600 dark:text-purple-400", bgCol: "bg-purple-500/10 dark:bg-purple-500/20" },
-    { label: "Topics Started", value: topic_progress.length, icon: Map, textCol: "text-amber-600 dark:text-amber-400", bgCol: "bg-amber-500/10 dark:bg-amber-500/20" },
-    { label: "Questions Answered", value: answer_stats.total_answers, icon: Activity, textCol: "text-emerald-600 dark:text-emerald-400", bgCol: "bg-emerald-500/10 dark:bg-emerald-500/20" },
+    { label: "Exams Attempted", value: exam_results.length, icon: FileText, textCol: "text-blue-600 dark:text-white", bgCol: "bg-blue-500/10 dark:bg-muted/40" },
+    { label: "Resources Viewed", value: resource_progress.length, icon: BookOpen, textCol: "text-purple-600 dark:text-white", bgCol: "bg-purple-500/10 dark:bg-muted/40" },
+    { label: "Topics Started", value: topic_progress.length, icon: Map, textCol: "text-amber-600 dark:text-white", bgCol: "bg-amber-500/10 dark:bg-muted/40" },
+    { label: "Questions Answered", value: answer_stats.total_answers, icon: Activity, textCol: "text-emerald-600 dark:text-white", bgCol: "bg-emerald-500/10 dark:bg-muted/40" },
   ]
 
   return (
