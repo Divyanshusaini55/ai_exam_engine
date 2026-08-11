@@ -4,12 +4,17 @@ import { createContext, useContext, useEffect, useState, useCallback } from "rea
 import { useRouter } from "next/navigation"
 import { authApi } from "@/lib/api"
 
-interface User {
+export interface User {
     id: number
     username: string
     email: string
     date_joined: string
     avatar_image?: string | null
+    is_staff?: boolean
+    is_superuser?: boolean
+    first_name?: string
+    last_name?: string
+    name?: string
 }
 
 interface AuthContextType {
