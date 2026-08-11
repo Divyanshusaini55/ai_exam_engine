@@ -108,9 +108,7 @@ export default function AdminUserProgressPage() {
         {statsCards.map((stat, i) => (
           <Card key={i} className="border-border/70 shadow-sm bg-card">
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-muted/60 dark:bg-muted/40 text-foreground">
-                <stat.icon className="size-5 text-foreground" />
-              </div>
+              <stat.icon className="size-5 text-foreground dark:text-white shrink-0" />
               <div>
                 <p className="text-2xl font-bold text-foreground">{stat.value}</p>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">{stat.label}</p>
