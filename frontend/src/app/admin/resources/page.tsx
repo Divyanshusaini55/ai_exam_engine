@@ -243,7 +243,7 @@ export default function AdminResourcesPage() {
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight flex items-center gap-2">
             <BookOpen className="size-6 text-primary" />
-            Study Hub Educational Resources
+            Study Resources
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">Manage articles, formula sheets, Markdown notes, and AI summaries.</p>
         </div>

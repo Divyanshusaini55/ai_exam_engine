@@ -14,7 +14,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <AdminSidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
         <div className="flex-1 flex flex-col min-w-0">
           <AdminHeader onMobileMenuClick={() => setMobileOpen(true)} />
-          <main className="flex-1 p-4 sm:p-6 md:p-8 overflow-y-auto">
+          <main className="flex-1 p-4 sm:p-6 md:p-8 overflow-y-auto overflow-x-hidden">
             {children}
           </main>
         </div>

@@ -173,7 +173,7 @@ export default function AdminCurrentAffairsPage() {
             className="h-9 gap-1.5 text-xs bg-purple-600 hover:bg-purple-700 text-white"
           >
             <Sparkles className="size-3.5" />
-            {triggering ? "Generating..." : "Generate AI Daily Dose"}
+            {triggering ? "Generating..." : "Gen Daily Dose"}
           </Button>
           <Button size="sm" onClick={handleOpenCreate} className="h-9 gap-1.5 text-xs">
             <Plus className="size-3.5" /> Add Article

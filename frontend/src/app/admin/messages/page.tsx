@@ -230,19 +230,19 @@ export default function AdminMessagesPage() {
       {/* Main Tabs & Search Filter Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 border-b border-border/60 pb-1">
+        <div className="flex items-center gap-2 border-b border-border/60 pb-1 max-w-full overflow-x-auto scrollbar-hide shrink-0">
           <button
             onClick={() => {
               setActiveTab("messages")
               setStatusFilter("all")
             }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
               activeTab === "messages"
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
             }`}
           >
-            <Mail className="size-3.5" /> Contact Messages ({messages.length})
+            <Mail className="size-3.5 shrink-0" /> Contact Messages ({messages.length})
           </button>
 
           <button
@@ -250,23 +250,23 @@ export default function AdminMessagesPage() {
               setActiveTab("suggestions")
               setStatusFilter("all")
             }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
               activeTab === "suggestions"
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
             }`}
           >
-            <AlertTriangle className="size-3.5" /> Question Bug Reports ({suggestions.length})
+            <AlertTriangle className="size-3.5 shrink-0" /> Question Bug Reports ({suggestions.length})
           </button>
         </div>
 
         {/* Filter Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
           {/* Status Filter */}
           <select
             value={statusFilter}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setStatusFilter(e.target.value)}
-            className="h-9 px-3 text-xs border border-border rounded-md bg-card text-foreground focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
+            className="h-9 px-3 text-xs border border-border rounded-md bg-card text-foreground focus:outline-none focus:ring-1 focus:ring-primary shadow-sm shrink-0"
           >
             <option value="all">All Statuses</option>
             {activeTab === "messages" ? (
@@ -324,15 +324,15 @@ export default function AdminMessagesPage() {
           ) : (
             <div className="divide-y divide-border/50 text-xs">
               {filteredMessages.map((m) => (
-                <div key={m.id} className="p-5 hover:bg-muted/15 transition-colors space-y-3">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-3">
+                <div key={m.id} className="p-4 sm:p-5 hover:bg-muted/15 transition-colors space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                    <div className="flex items-start gap-3 min-w-0">
                       <div className="size-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs uppercase shrink-0">
                         {m.name?.[0] || m.email?.[0] || "U"}
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-foreground text-sm">{m.name || "Anonymous Sender"}</span>
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-bold text-foreground text-sm truncate">{m.name || "Anonymous Sender"}</span>
                           <span
                             className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${
                               m.is_resolved
@@ -343,11 +343,11 @@ export default function AdminMessagesPage() {
                             {m.is_resolved ? "Resolved" : "Unresolved"}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-muted-foreground font-mono text-[11px]">{m.email}</span>
+                        <div className="flex items-center gap-2 mt-0.5 min-w-0">
+                          <span className="text-muted-foreground font-mono text-[11px] truncate">{m.email}</span>
                           <button
                             onClick={() => handleCopyEmail(m.email, m.id)}
-                            className="text-muted-foreground hover:text-primary transition-colors"
+                            className="text-muted-foreground hover:text-primary transition-colors shrink-0"
                             title="Copy Email"
                           >
                             {copiedId === m.id ? (
@@ -360,7 +360,7 @@ export default function AdminMessagesPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
                       <Button
                         variant="outline"
                         size="sm"

@@ -172,46 +172,46 @@ export default function AdminCommunityPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" size="sm" onClick={fetchData} className="h-9 gap-1.5 text-xs">
-            <RefreshCw className="size-3.5" /> Refresh
+            <RefreshCw className="size-3.5 shrink-0" /> Refresh
           </Button>
           <Button size="sm" onClick={() => setIsNotifModalOpen(true)} className="h-9 gap-1.5 text-xs bg-primary text-primary-foreground">
-            <Plus className="size-3.5" /> Send Notification
+            <Plus className="size-3.5 shrink-0" /> Send Notification
           </Button>
         </div>
       </div>
 
       {/* Overview Stat Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <Card className="border border-border/70 shadow-sm p-4">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Solutions</span>
-            <FileText className="size-4 text-blue-500" />
+            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider truncate">Solutions</span>
+            <FileText className="size-4 text-blue-500 shrink-0" />
           </div>
           <p className="mt-2 text-2xl font-bold text-foreground">{solutions.length}</p>
         </Card>
 
         <Card className="border border-border/70 shadow-sm p-4">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Comments</span>
-            <MessageSquare className="size-4 text-purple-500" />
+            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider truncate">Comments</span>
+            <MessageSquare className="size-4 text-purple-500 shrink-0" />
           </div>
           <p className="mt-2 text-2xl font-bold text-foreground">{comments.length}</p>
         </Card>
 
         <Card className="border border-border/70 shadow-sm p-4">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Activities</span>
-            <Activity className="size-4 text-emerald-500" />
+            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider truncate">Activities</span>
+            <Activity className="size-4 text-emerald-500 shrink-0" />
           </div>
           <p className="mt-2 text-2xl font-bold text-foreground">{activities.length}</p>
         </Card>
 
         <Card className="border border-border/70 shadow-sm p-4">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Notifications</span>
-            <Bell className="size-4 text-amber-500" />
+            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider truncate">Notifications</span>
+            <Bell className="size-4 text-amber-500 shrink-0" />
           </div>
           <p className="mt-2 text-2xl font-bold text-foreground">{notifications.length}</p>
         </Card>
@@ -220,20 +220,22 @@ export default function AdminCommunityPage() {
       {/* Main Content Tabs & Filter Bar */}
       <Tabs defaultValue="solutions" className="w-full">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-          <TabsList>
-            <TabsTrigger value="solutions" className="gap-2 text-xs">
-              <FileText className="size-4" /> Solutions ({filteredSolutions.length})
-            </TabsTrigger>
-            <TabsTrigger value="comments" className="gap-2 text-xs">
-              <MessageSquare className="size-4" /> Comments ({filteredComments.length})
-            </TabsTrigger>
-            <TabsTrigger value="activities" className="gap-2 text-xs">
-              <Activity className="size-4" /> Activity Log ({filteredActivities.length})
-            </TabsTrigger>
-            <TabsTrigger value="notifications" className="gap-2 text-xs">
-              <Bell className="size-4" /> Notifications ({filteredNotifications.length})
-            </TabsTrigger>
-          </TabsList>
+          <div className="max-w-full overflow-x-auto scrollbar-hide pb-1">
+            <TabsList>
+              <TabsTrigger value="solutions" className="gap-2 text-xs shrink-0 whitespace-nowrap">
+                <FileText className="size-4" /> Solutions ({filteredSolutions.length})
+              </TabsTrigger>
+              <TabsTrigger value="comments" className="gap-2 text-xs shrink-0 whitespace-nowrap">
+                <MessageSquare className="size-4" /> Comments ({filteredComments.length})
+              </TabsTrigger>
+              <TabsTrigger value="activities" className="gap-2 text-xs shrink-0 whitespace-nowrap">
+                <Activity className="size-4" /> Activity Log ({filteredActivities.length})
+              </TabsTrigger>
+              <TabsTrigger value="notifications" className="gap-2 text-xs shrink-0 whitespace-nowrap">
+                <Bell className="size-4" /> Notifications ({filteredNotifications.length})
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Search Filter */}
           <div className="relative w-full sm:w-72">
