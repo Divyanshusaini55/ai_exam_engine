@@ -143,7 +143,7 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
             return Response(cached_data)
             
         exam = self.get_object()
-        questions = exam.questions.all().prefetch_related('answers', 'community_comments')
+        questions = exam.questions.all().prefetch_related('answers', 'translations', 'answers__translations', 'community_comments')
 
         serializer = QuestionSerializer(
             questions,
