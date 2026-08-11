@@ -1,7 +1,7 @@
 
 from rest_framework import serializers
 from .models import (
-    Exam, Question, Answer, UserAnswer, Category, SubCategory,
+    Exam, Question, Answer, UserAnswer, Category, SubCategory, Topic,
     ContactMessage, QuestionPaperUpload, CorrectionSuggestion, CurrentAffair,
     ResourceTag, TopicResource, ResourceProgress, ResourceBookmark,
 )
@@ -37,6 +37,20 @@ class SubCategorySerializer(serializers.ModelSerializer):
         return obj.exams.filter(status='published', is_active=True).count()
 
 
+class TopicSerializer(serializers.ModelSerializer):
+    subcategory_name = serializers.CharField(source='subcategory.name', read_only=True)
+    subcategory_slug = serializers.CharField(source='subcategory.slug', read_only=True)
+    exam_count = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Topic
+        fields = ['id', 'slug', 'name', 'description', 'icon', 'order', 
+                  'is_active', 'subcategory', 'subcategory_name', 'subcategory_slug', 'exam_count', 'created_at']
+    
+    def get_exam_count(self, obj):
+        return obj.exams.filter(status='published', is_active=True).count()
+
+
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
@@ -54,7 +68,7 @@ class AnswerSerializer(serializers.ModelSerializer):
             lang = 'en'
             
         if lang != 'en':
-            translation = instance.translations.filter(language=lang).first()
+            translation = next((t for t in instance.translations.all() if t.language == lang), None)
             if translation:
                 data['answer_text'] = translation.answer_text
         return data
@@ -77,9 +91,12 @@ class AnswerSerializerWithCorrect(serializers.ModelSerializer):
             lang = 'en'
             
         if lang != 'en':
-            translation = instance.translations.filter(language=lang).first()
+            translation = next((t for t in instance.translations.all() if t.language == lang), None)
             if translation:
                 data['answer_text'] = translation.answer_text
+
+        hi_ans = next((t for t in instance.translations.all() if t.language == 'hi'), None)
+        data['answer_text_hi'] = hi_ans.answer_text if hi_ans else ''
         return data
 
 
@@ -107,7 +124,7 @@ class QuestionSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
     def get_comment_count(self, obj):
-        return obj.community_comments.count()
+        return len(obj.community_comments.all())
 
     def get_answers(self, obj):
         hide_correct = self.context.get('hide_correct', False)
@@ -134,11 +151,15 @@ class QuestionSerializer(serializers.ModelSerializer):
             
         data['language'] = lang
         if lang != 'en':
-            translation = instance.translations.filter(language=lang).first()
+            translation = next((t for t in instance.translations.all() if t.language == lang), None)
             if translation:
                 data['question_text'] = translation.question_text
                 if translation.explanation:
                     data['explanation'] = translation.explanation
+
+        hi_trans = next((t for t in instance.translations.all() if t.language == 'hi'), None)
+        data['question_text_hi'] = hi_trans.question_text if hi_trans else ''
+        data['explanation_hi'] = hi_trans.explanation if (hi_trans and hi_trans.explanation) else ''
         return data
 
 
@@ -229,10 +250,21 @@ from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
     avatar_image = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'date_joined', 'avatar_image']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'name', 'date_joined', 'avatar_image', 'is_staff', 'is_superuser']
+
+    def get_name(self, obj):
+        if hasattr(obj, 'profile') and obj.profile and obj.profile.full_name:
+            return obj.profile.full_name
+        full_name = obj.get_full_name()
+        if full_name and full_name.strip():
+            return full_name.strip()
+        if obj.first_name:
+            return f"{obj.first_name} {obj.last_name}".strip()
+        return obj.username
 
     def get_avatar_image(self, obj):
         request = self.context.get('request')
