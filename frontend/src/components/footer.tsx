@@ -19,8 +19,13 @@ const supportLinks = [
     { label: "Terms of Service", href: "/terms" },
 ]
 
+import { usePathname } from "next/navigation"
+
 export function Footer() {
     const currentYear = new Date().getFullYear()
+    const pathname = usePathname()
+
+    if (pathname?.startsWith("/admin")) return null
 
     return (
         <footer className="w-full bg-background border-t border-border">
@@ -30,9 +35,7 @@ export function Footer() {
                     {/* 1. Brand Section */}
                     <div className="flex flex-col gap-5 md:col-span-2 pr-8">
                         <div className="flex items-center gap-3">
-                            <div className="size-10 flex items-center justify-center bg-primary rounded-xl text-primary-foreground shadow-sm select-none">
-                                <span className="font-extrabold text-xl tracking-tighter leading-none mt-[2px]">ei.</span>
-                            </div>
+                            <img src="/icon.svg" alt="ExamIntel Icon" className="size-10 select-none" />
                             <span className="text-[22px] font-bold font-heading text-primary tracking-tight">
                                 ExamIntel
                             </span>
