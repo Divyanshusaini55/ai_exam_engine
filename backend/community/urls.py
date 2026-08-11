@@ -5,6 +5,11 @@ from .views import (
     CommunityOverviewView, MyStatsView, TopContributorsView,
     ActivityFeedView, CategoryLeaderboardView, BadgesListView, ContributorProfileView,
 )
+from .api_admin import (
+    AdminProfileViewSet, AdminBadgeViewSet, AdminUserBadgeViewSet,
+    AdminSolutionViewSet, AdminCommentViewSet,
+    AdminContributorActivityViewSet, AdminNotificationViewSet
+)
 
 router = DefaultRouter()
 router.register(r'profiles',      ProfileViewSet,      basename='profile')
@@ -12,7 +17,17 @@ router.register(r'solutions',     SolutionViewSet,     basename='solution')
 router.register(r'comments',      CommentViewSet,      basename='comment')
 router.register(r'notifications', NotificationViewSet, basename='notification')
 
+admin_router = DefaultRouter()
+admin_router.register(r'profiles', AdminProfileViewSet, basename='admin-profile')
+admin_router.register(r'badges', AdminBadgeViewSet, basename='admin-badge')
+admin_router.register(r'user-badges', AdminUserBadgeViewSet, basename='admin-user-badge')
+admin_router.register(r'solutions', AdminSolutionViewSet, basename='admin-solution')
+admin_router.register(r'comments', AdminCommentViewSet, basename='admin-comment')
+admin_router.register(r'activities', AdminContributorActivityViewSet, basename='admin-activity')
+admin_router.register(r'notifications', AdminNotificationViewSet, basename='admin-notification')
+
 urlpatterns = [
+    path('admin/', include(admin_router.urls)),
     path('', include(router.urls)),
     
     # Settings endpoints
