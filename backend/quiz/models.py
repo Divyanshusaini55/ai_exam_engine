@@ -58,6 +58,27 @@ class SubCategory(models.Model):
         ordering = ['order', 'name']
 
 
+class Topic(models.Model):
+    subcategory = models.ForeignKey(SubCategory, related_name='topics', on_delete=models.CASCADE)
+    slug = models.SlugField(unique=True, validators=[RegexValidator(regex=r'^[a-z0-9-]+$', message='Slug must be lowercase alphanumeric and hyphens only')], help_text="URL-safe identifier (e.g. 'quantitative-aptitude')")
+    name = models.CharField(max_length=100, help_text="Display name (e.g. 'Quantitative Aptitude')")
+    description = models.TextField(blank=True)
+    icon = models.CharField(max_length=50, default='school', help_text="Material Symbol name")
+    
+    order = models.IntegerField(default=0, help_text="Display order within subcategory")
+    is_active = models.BooleanField(default=True, help_text="Show on frontend?")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.subcategory.name} - {self.name}"
+        
+    class Meta:
+        verbose_name_plural = "Topics"
+        ordering = ['order', 'name']
+
+
 def get_default_languages():
     return ["en"]
 
@@ -77,6 +98,15 @@ class Exam(models.Model):
         null=True,  # Temporarily allow null for existing data
         blank=True,
         help_text="Select the subcategory this exam belongs to"
+    )
+
+    topic = models.ForeignKey(
+        Topic,
+        related_name='exams',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text="Optional: Select the specific topic this exam belongs to"
     )
 
     title = models.CharField(max_length=200, help_text="Exam title")
@@ -103,7 +133,7 @@ class Exam(models.Model):
 
     pdf_file = models.FileField(upload_to='pdfs/', null=True, blank=True)
     duration_minutes = models.IntegerField(default=60)
-    total_questions = models.IntegerField(default=10)
+    total_questions = models.IntegerField(default=100)
     
     # Marking scheme
     marks_per_question = models.DecimalField(
