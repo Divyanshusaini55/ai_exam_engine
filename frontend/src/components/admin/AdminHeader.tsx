@@ -1,10 +1,10 @@
 "use client"
 
 import { useAuth } from "@/context/auth-context"
-import { ShieldCheck, LogOut, Menu } from "lucide-react"
+import { ShieldCheck, LogOut, Menu, Sun, Moon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ModeToggle } from "@/components/mode-toggle"
+import { useTheme } from "next-themes"
 
 interface AdminHeaderProps {
   onMobileMenuClick?: () => void
@@ -12,6 +12,7 @@ interface AdminHeaderProps {
 
 export function AdminHeader({ onMobileMenuClick }: AdminHeaderProps) {
   const { user, logout } = useAuth()
+  const { theme, setTheme } = useTheme()
 
   return (
     <header className="h-14 border-b border-border/70 bg-card px-4 sm:px-6 flex items-center justify-between shrink-0">
@@ -32,8 +33,19 @@ export function AdminHeader({ onMobileMenuClick }: AdminHeaderProps) {
         </Badge>
       </div>
 
-      <div className="flex items-center gap-3">
-        <ModeToggle className="size-8" />
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          className="size-8 text-muted-foreground hover:text-foreground"
+          title="Toggle Theme"
+        >
+          <Sun className="size-4 hidden dark:block text-amber-400" />
+          <Moon className="size-4 block dark:hidden text-muted-foreground" />
+          <span className="sr-only">Toggle theme</span>
+        </Button>
+
         {user && (
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex flex-col text-right">
