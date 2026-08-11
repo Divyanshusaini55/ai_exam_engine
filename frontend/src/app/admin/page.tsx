@@ -98,9 +98,7 @@ export default function AdminDashboardPage() {
             <Card key={idx} className="border border-border/70 bg-card shadow-sm rounded-xl p-4">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{item.label}</span>
-                <div className="p-1.5 rounded-lg bg-muted/60 dark:bg-muted/40 text-foreground">
-                  <Icon className="size-4 text-foreground" />
-                </div>
+                <Icon className="size-4 text-foreground dark:text-white shrink-0" />
               </div>
               <div className="mt-2 text-2xl font-bold text-foreground tracking-tight">{item.value}</div>
             </Card>
