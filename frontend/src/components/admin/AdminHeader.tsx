@@ -22,14 +22,14 @@ export function AdminHeader({ onMobileMenuClick }: AdminHeaderProps) {
           variant="ghost"
           size="icon"
           onClick={onMobileMenuClick}
-          className="size-8 rounded-lg md:hidden text-muted-foreground hover:text-foreground shrink-0"
+          className="size-8 rounded-xs md:hidden text-muted-foreground hover:text-foreground shrink-0"
           title="Open Menu"
         >
           <Menu className="size-4" />
         </Button>
         <Badge 
           variant="outline" 
-          className="h-8 px-2.5 rounded-lg text-xs font-medium gap-1.5 border-primary/30 bg-primary/5 text-primary flex items-center shrink-0"
+          className="h-8 px-2.5 rounded-xs text-xs font-medium gap-1.5 border-primary/30 bg-primary/5 text-primary flex items-center shrink-0"
         >
           <ShieldCheck className="size-4 text-primary shrink-0" />
           <span className="hidden xs:inline font-semibold">Admin Console</span>
@@ -63,7 +63,7 @@ export function AdminHeader({ onMobileMenuClick }: AdminHeaderProps) {
               variant="outline"
               size="sm"
               onClick={logout}
-              className="h-8 px-2.5 rounded-lg gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground shrink-0"
+              className="h-8 px-2.5 rounded-xs gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground shrink-0"
             >
               <LogOut className="size-4 shrink-0" />
               <span>Logout</span>

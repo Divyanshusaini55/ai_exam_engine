@@ -168,8 +168,8 @@ export function Navbar() {
                             className="size-8 md:size-9 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200"
                             title="Toggle Theme"
                         >
-                            <Sun className="size-4 hidden dark:block text-amber-400" />
-                            <Moon className="size-4 block dark:hidden text-muted-foreground" />
+                            <Sun className="size-5 hidden dark:block text-amber-400" />
+                            <Moon className="size-5 block dark:hidden text-muted-foreground" />
                             <span className="sr-only">Toggle theme</span>
                         </button>
 
