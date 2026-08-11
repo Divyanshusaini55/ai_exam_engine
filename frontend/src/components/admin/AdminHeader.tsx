@@ -35,14 +35,14 @@ export function AdminHeader({ onMobileMenuClick }: AdminHeaderProps) {
 
       <div className="flex items-center gap-2">
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           className="size-8 text-muted-foreground hover:text-foreground"
           title="Toggle Theme"
         >
-          <Sun className="size-4 hidden dark:block text-amber-400" />
-          <Moon className="size-4 block dark:hidden text-muted-foreground" />
+          <Sun className="size-3.5 hidden dark:block text-amber-400" />
+          <Moon className="size-3.5 block dark:hidden text-muted-foreground" />
           <span className="sr-only">Toggle theme</span>
         </Button>
 
