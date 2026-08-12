@@ -89,6 +89,16 @@ export default function AdminCommunityPage() {
     }
   }
 
+  async function handleDeleteComment(id: number) {
+    if (!confirm("Are you sure you want to delete this comment?")) return
+    try {
+      await communityAdminApi.deleteComment(id)
+      fetchData()
+    } catch (err) {
+      console.error("Failed to delete comment:", err)
+    }
+  }
+
   async function handleDeleteNotification(id: number) {
     if (!confirm("Are you sure you want to delete this notification?")) return
     try {

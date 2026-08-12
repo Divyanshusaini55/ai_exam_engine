@@ -147,8 +147,8 @@ export function ExamHome() {
                     className="relative card-premium p-6 flex flex-col items-start text-left"
                   >
                     <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-4">Step {item.step}</span>
-                    <div className="size-11 rounded-xl bg-secondary flex items-center justify-center text-primary shadow-sm border border-border/50 mb-4">
-                      <item.icon className="size-5" />
+                    <div className="size-11 shrink-0 rounded-[14px] bg-background dark:bg-card flex items-center justify-center text-foreground shadow-xs border border-border/80 mb-4">
+                      <item.icon className="size-5 text-foreground" />
                     </div>
                     <h3 className="font-bold font-heading text-primary text-lg leading-tight mb-2">
                       {item.title}
@@ -185,8 +185,8 @@ export function ExamHome() {
 
                 {/* Feature 1 */}
                 <div className="card-premium p-6 flex flex-col items-start gap-4 text-left">
-                  <div className="size-11 rounded-xl bg-secondary flex items-center justify-center text-primary shadow-sm border border-border/50">
-                    <FileText className="size-5" />
+                  <div className="size-11 shrink-0 rounded-[14px] bg-background dark:bg-card flex items-center justify-center text-foreground shadow-xs border border-border/80">
+                    <FileText className="size-5 text-foreground" />
                   </div>
                   <div className="space-y-2">
                     <h3 className="font-bold font-heading text-primary text-lg leading-tight">
@@ -200,8 +200,8 @@ export function ExamHome() {
 
                 {/* Feature 2 */}
                 <div className="card-premium p-6 flex flex-col items-start gap-4 text-left">
-                  <div className="size-11 rounded-xl bg-secondary flex items-center justify-center text-primary shadow-sm border border-border/50">
-                    <Sparkles className="size-5" />
+                  <div className="size-11 shrink-0 rounded-[14px] bg-background dark:bg-card flex items-center justify-center text-foreground shadow-xs border border-border/80">
+                    <Sparkles className="size-5 text-foreground" />
                   </div>
                   <div className="space-y-2">
                     <h3 className="font-bold font-heading text-primary text-lg leading-tight">
@@ -215,8 +215,8 @@ export function ExamHome() {
 
                 {/* Feature 3 */}
                 <div className="card-premium p-6 flex flex-col items-start gap-4 text-left">
-                  <div className="size-11 rounded-xl bg-secondary flex items-center justify-center text-primary shadow-sm border border-border/50">
-                    <BarChart3 className="size-5" />
+                  <div className="size-11 shrink-0 rounded-[14px] bg-background dark:bg-card flex items-center justify-center text-foreground shadow-xs border border-border/80">
+                    <BarChart3 className="size-5 text-foreground" />
                   </div>
                   <div className="space-y-2">
                     <h3 className="font-bold font-heading text-primary text-lg leading-tight">
@@ -230,8 +230,8 @@ export function ExamHome() {
 
                 {/* Feature 4 */}
                 <div className="card-premium p-6 flex flex-col items-start gap-4 text-left">
-                  <div className="size-11 rounded-xl bg-secondary flex items-center justify-center text-primary shadow-sm border border-border/50">
-                    <Trophy className="size-5" />
+                  <div className="size-11 shrink-0 rounded-[14px] bg-background dark:bg-card flex items-center justify-center text-foreground shadow-xs border border-border/80">
+                    <Trophy className="size-5 text-foreground" />
                   </div>
                   <div className="space-y-2">
                     <h3 className="font-bold font-heading text-primary text-lg leading-tight">

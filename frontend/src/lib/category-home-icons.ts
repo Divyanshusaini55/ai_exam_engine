@@ -51,6 +51,11 @@ export function getCategoryHomeIcon(iconName: string, categoryName = ""): Lucide
     police: Shield,
     medical: Activity,
     engineering: Atom,
+    rrb: Train,
+    ntpc: Train,
+    alp: Train,
+    "group d": Train,
+
   }
 
   const key = (iconName || "").toLowerCase()
@@ -150,19 +155,10 @@ export function getCategoryHomeColors(
   apiBg?: string | null,
   apiIcon?: string | null
 ): { bg: string; icon: string } {
-  const named = colorsFromCategoryName(name)
-  if (named) {
-    return named
+  return {
+    bg: "bg-background dark:bg-card text-foreground border-border/80",
+    icon: "text-foreground",
   }
-
-  if (apiBg && apiIcon) {
-    return {
-      bg: normalizeApiBgClass(apiBg),
-      icon: normalizeApiIconClass(apiIcon),
-    }
-  }
-
-  return { bg: "bg-secondary", icon: "text-primary" }
 }
 
 export function getParentCategorySlugFromId(id: string): string {
