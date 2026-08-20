@@ -1,0 +1,395 @@
+[
+  {
+    "id": "q_000001",
+    "schema_version": "v2",
+    "origin": "pyq_extracted",
+    "question_type": "mcq_single",
+    "passage_id": null,
+    "content": {
+      "text": "If a train travelling at 60 km/h crosses a pole in 9 seconds, what is the length of the train?",
+      "images": {}
+    },
+    "options": [
+      { "id": "A", "text": "120 meters", "image_url": null },
+      { "id": "B", "text": "150 meters", "image_url": null },
+      { "id": "C", "text": "180 meters", "image_url": null },
+      { "id": "D", "text": "200 meters", "image_url": null }
+    ],
+    "answer": { "correct_options": ["B"] },
+    "explanation": {
+      "text": "Convert speed to m/s: $60 \\times \\frac{5}{18} = \\frac{50}{3}$ m/s. Distance = $\\frac{50}{3} \\times 9 = 150$ meters.",
+      "images": {}
+    },
+    "tutor_data": {
+      "hints": ["First, make sure the units for speed and time match."],
+      "solution_steps": [
+        "Convert speed to m/s: $60 \\times \\frac{5}{18} = \\frac{50}{3}$ m/s",
+        "Calculate distance using speed and time: $\\frac{50}{3} \\times 9 = 150$ meters"
+      ]
+    },
+    "marking": { "positive": 2.0, "negative": 0.5, "partial_scheme": null },
+    "classification": {
+      "subject": "Quantitative Aptitude",
+      "topic": "Speed, Time and Distance",
+      "subtopic": "Trains",
+      "cognitive_level": "apply",
+      "difficulty_label": "Medium",
+      "difficulty_score": null,
+      "difficulty_source": null
+    },
+    "exam_history": [
+      { "exam": "SSC CGL", "year": 2022, "shift": "Shift 3" }
+    ],
+    "source": { "book": "SSC CGL 2022 Compendium", "page": 41 },
+    "generation_meta": null,
+    "verification": {
+      "verified": false,
+      "extracted_at": "2026-08-12T10:00:00Z",
+      "reviewed_by": null
+    },
+    "metadata": {
+      "language": "en",
+      "translation_group_id": "tg_55412",
+      "tags": ["speed", "trains"],
+      "ideal_time_seconds": 45
+    }
+  },
+  {
+    "id": "q_000002",
+    "schema_version": "v2",
+    "origin": "pyq_extracted",
+    "question_type": "mcq_multi",
+    "passage_id": null,
+    "content": {
+      "text": "Which of the following statements about ideal gases are correct?",
+      "images": {}
+    },
+    "options": [
+      { "id": "A", "text": "PV = nRT holds at all temperatures and pressures", "image_url": null },
+      { "id": "B", "text": "Internal energy depends only on temperature", "image_url": null },
+      { "id": "C", "text": "Molecules have negligible volume", "image_url": null },
+      { "id": "D", "text": "Intermolecular forces are significant", "image_url": null }
+    ],
+    "answer": { "correct_options": ["B", "C"] },
+    "explanation": {
+      "text": "Ideal gas assumes negligible molecular volume and no intermolecular forces (C correct, D false). Internal energy depends only on T (B correct). PV=nRT is an idealization (A false).",
+      "images": {}
+    },
+    "tutor_data": {
+      "hints": ["Think about the core assumptions made in kinetic theory regarding molecular volume and interactions."],
+      "solution_steps": [
+        "Identify that ideal gases assume zero volume and zero interaction (B, C).",
+        "Recognize that PV=nRT is an approximation (A false)."
+      ]
+    },
+    "marking": {
+      "positive": null,
+      "negative": null,
+      "partial_scheme": {
+        "type": "jee_advanced_multi",
+        "rules": [
+          { "correct_selected": 2, "wrong_selected": 0, "marks": 4 },
+          { "correct_selected": 1, "wrong_selected": 0, "marks": 1 },
+          { "any_wrong_selected": true, "marks": -2 }
+        ]
+      }
+    },
+    "classification": {
+      "subject": "Physics",
+      "topic": "Kinetic Theory of Gases",
+      "subtopic": "Ideal Gas Assumptions",
+      "cognitive_level": "analyze",
+      "difficulty_label": "Hard",
+      "difficulty_score": null,
+      "difficulty_source": null
+    },
+    "exam_history": [
+      { "exam": "JEE Advanced", "year": 2021, "shift": "Paper 1" }
+    ],
+    "source": { "book": "JEE Advanced 2021 PYQ", "page": 8 },
+    "generation_meta": null,
+    "verification": {
+      "verified": false,
+      "extracted_at": "2026-08-12T10:00:00Z",
+      "reviewed_by": null
+    },
+    "metadata": {
+      "language": "en",
+      "translation_group_id": "tg_77102",
+      "tags": ["ideal-gas", "thermodynamics"],
+      "ideal_time_seconds": 90
+    }
+  },
+  {
+    "id": "q_000003",
+    "schema_version": "v2",
+    "origin": "pyq_extracted",
+    "question_type": "nat",
+    "passage_id": null,
+    "content": {
+      "text": "A particle moves with uniform acceleration and covers 40 m in the 4th second and 60 m in the 6th second. Find its acceleration in m/s².",
+      "images": {}
+    },
+    "options": null,
+    "answer": { "min": 9.9, "max": 10.1, "unit": "m/s²" },
+    "explanation": {
+      "text": "Distance in nth second = $u + \\frac{a}{2}(2n-1)$. Subtracting for n=4 and n=6 gives $2a=20$, so $a=10$ m/s².",
+      "images": {}
+    },
+    "tutor_data": {
+      "hints": ["Use the formula for distance covered in the n-th second."],
+      "solution_steps": [
+        "Write the equation for S_4 = 40",
+        "Write the equation for S_6 = 60",
+        "Subtract the two equations to eliminate u and solve for a."
+      ]
+    },
+    "marking": { "positive": 4.0, "negative": 0.0, "partial_scheme": null },
+    "classification": {
+      "subject": "Physics",
+      "topic": "Kinematics",
+      "subtopic": "Uniformly Accelerated Motion",
+      "cognitive_level": "apply",
+      "difficulty_label": "Medium",
+      "difficulty_score": null,
+      "difficulty_source": null
+    },
+    "exam_history": [
+      { "exam": "JEE Main", "year": 2023, "shift": "Session 1, Jan 25" }
+    ],
+    "source": { "book": "JEE Main 2023 PYQ", "page": 22 },
+    "generation_meta": null,
+    "verification": {
+      "verified": false,
+      "extracted_at": "2026-08-12T10:00:00Z",
+      "reviewed_by": null
+    },
+    "metadata": {
+      "language": "en",
+      "translation_group_id": "tg_99211",
+      "tags": ["kinematics", "acceleration"],
+      "ideal_time_seconds": 120
+    }
+  },
+  {
+    "id": "q_000004",
+    "schema_version": "v2",
+    "origin": "pyq_extracted",
+    "question_type": "subjective",
+    "passage_id": null,
+    "content": {
+      "text": "Explain the significance of the Non-Cooperation Movement (1920–22) in the Indian freedom struggle. (150 words)",
+      "images": {}
+    },
+    "options": null,
+    "answer": {
+      "model_answer": "The Non-Cooperation Movement marked the first mass-scale civil disobedience under Gandhi's leadership... transformed the freedom struggle into a genuine mass movement.",
+      "key_points": [
+        "First mass-scale movement under Gandhi",
+        "Rejection of British institutions and swadeshi promotion",
+        "Called off after Chauri Chaura",
+        "Shift from elite to mass movement"
+      ]
+    },
+    "explanation": { "text": null, "images": {} },
+    "tutor_data": { "hints": [], "solution_steps": [] },
+    "marking": { "positive": 10.0, "negative": 0.0, "partial_scheme": null },
+    "classification": {
+      "subject": "History",
+      "topic": "Indian National Movement",
+      "subtopic": "Gandhian Era",
+      "cognitive_level": "evaluate",
+      "difficulty_label": "Medium",
+      "difficulty_score": null,
+      "difficulty_source": null
+    },
+    "exam_history": [
+      { "exam": "UPSC Mains GS-I", "year": 2021, "shift": null }
+    ],
+    "source": { "book": "UPSC Mains 2021 Question Paper", "page": 3 },
+    "generation_meta": null,
+    "verification": {
+      "verified": false,
+      "extracted_at": "2026-08-12T10:00:00Z",
+      "reviewed_by": null
+    },
+    "metadata": {
+      "language": "en",
+      "translation_group_id": "tg_33201",
+      "tags": ["freedom-struggle", "gandhi"],
+      "ideal_time_seconds": 480
+    }
+  },
+  {
+    "id": "q_000005",
+    "schema_version": "v2",
+    "origin": "pyq_extracted",
+    "question_type": "mcq_single",
+    "passage_id": "psg_00042",
+    "content": {
+      "text": "According to the passage, what is the projected timeframe for a 1.5°C rise above pre-industrial levels?",
+      "images": {}
+    },
+    "options": [
+      { "id": "A", "text": "Within the next decade", "image_url": null },
+      { "id": "B", "text": "Within the next two decades", "image_url": null },
+      { "id": "C", "text": "Within the next fifty years", "image_url": null },
+      { "id": "D", "text": "It has already occurred", "image_url": null }
+    ],
+    "answer": { "correct_options": ["B"] },
+    "explanation": {
+      "text": "The passage explicitly states 'within the next two decades'.",
+      "images": {}
+    },
+    "tutor_data": {
+      "hints": ["Look for the specific phrase '1.5°C' in the second paragraph."],
+      "solution_steps": []
+    },
+    "marking": { "positive": 1.0, "negative": 0.33, "partial_scheme": null },
+    "classification": {
+      "subject": "English",
+      "topic": "Reading Comprehension",
+      "subtopic": "Fact-based Questions",
+      "cognitive_level": "understand",
+      "difficulty_label": "Easy",
+      "difficulty_score": null,
+      "difficulty_source": null
+    },
+    "exam_history": [
+      { "exam": "IBPS PO", "year": 2023, "shift": "Prelims" }
+    ],
+    "source": { "book": "IBPS PO 2023 PYQ", "page": 12 },
+    "generation_meta": null,
+    "verification": {
+      "verified": false,
+      "extracted_at": "2026-08-12T10:00:00Z",
+      "reviewed_by": null
+    },
+    "metadata": {
+      "language": "en",
+      "translation_group_id": "tg_11903",
+      "tags": ["reading-comprehension", "climate"],
+      "ideal_time_seconds": 60
+    }
+  },
+  {
+    "id": "q_000006",
+    "schema_version": "v2",
+    "origin": "pyq_extracted",
+    "question_type": "mcq_single",
+    "passage_id": null,
+    "content": {
+      "text": "Which of the following diagrams correctly represents the water cycle? [IMAGE_1]",
+      "images": {
+        "IMAGE_1": {
+          "url": "https://cdn.examintel.in/img/q_000006_stem.png",
+          "alt": "reference diagram of a partial water cycle"
+        }
+      }
+    },
+    "options": [
+      { "id": "A", "text": null, "image_url": "https://cdn.examintel.in/img/q_000006_opt_a.png" },
+      { "id": "B", "text": null, "image_url": "https://cdn.examintel.in/img/q_000006_opt_b.png" },
+      { "id": "C", "text": null, "image_url": "https://cdn.examintel.in/img/q_000006_opt_c.png" },
+      { "id": "D", "text": null, "image_url": "https://cdn.examintel.in/img/q_000006_opt_d.png" }
+    ],
+    "answer": { "correct_options": ["C"] },
+    "explanation": {
+      "text": "Option C correctly shows evaporation, condensation, precipitation, and collection in sequence.",
+      "images": {}
+    },
+    "tutor_data": {
+      "hints": ["Recall the four main stages: evaporation, condensation, precipitation, collection."],
+      "solution_steps": []
+    },
+    "marking": { "positive": 1.0, "negative": 0.25, "partial_scheme": null },
+    "classification": {
+      "subject": "General Science",
+      "topic": "Environmental Science",
+      "subtopic": "Water Cycle",
+      "cognitive_level": "understand",
+      "difficulty_label": "Easy",
+      "difficulty_score": null,
+      "difficulty_source": null
+    },
+    "exam_history": [
+      { "exam": "SSC CHSL", "year": 2022, "shift": "Shift 2" }
+    ],
+    "source": { "book": "SSC CHSL 2022 PYQ", "page": 7 },
+    "generation_meta": null,
+    "verification": {
+      "verified": false,
+      "extracted_at": "2026-08-12T10:00:00Z",
+      "reviewed_by": null
+    },
+    "metadata": {
+      "language": "en",
+      "translation_group_id": "tg_29841",
+      "tags": ["water-cycle", "diagram-based"],
+      "ideal_time_seconds": 40
+    }
+  },
+  {
+    "id": "q_000007",
+    "schema_version": "v2",
+    "origin": "ai_generated",
+    "question_type": "mcq_single",
+    "passage_id": null,
+    "content": {
+      "text": "A cyclist covers 45 km in 3 hours. What is their average speed in m/s?",
+      "images": {}
+    },
+    "options": [
+      { "id": "A", "text": "3.75 m/s", "image_url": null },
+      { "id": "B", "text": "4.17 m/s", "image_url": null },
+      { "id": "C", "text": "5.00 m/s", "image_url": null },
+      { "id": "D", "text": "15 m/s", "image_url": null }
+    ],
+    "answer": { "correct_options": ["B"] },
+    "explanation": {
+      "text": "Speed = 45 km / 3 h = 15 km/h = $15 \\times \\frac{5}{18} = 4.17$ m/s.",
+      "images": {}
+    },
+    "tutor_data": {
+      "hints": ["First calculate speed in km/h, then convert to m/s."],
+      "solution_steps": [
+        "Speed = Distance / Time = 45 / 3 = 15 km/h",
+        "Convert to m/s: 15 * (5/18) = 4.17 m/s"
+      ]
+    },
+    "marking": { "positive": 2.0, "negative": 0.5, "partial_scheme": null },
+    "classification": {
+      "subject": "Quantitative Aptitude",
+      "topic": "Speed, Time and Distance",
+      "subtopic": "Average Speed",
+      "cognitive_level": "apply",
+      "difficulty_label": "Easy",
+      "difficulty_score": null,
+      "difficulty_source": null
+    },
+    "exam_history": [],
+    "source": null,
+    "generation_meta": {
+      "model": "ft:examintel-gen-v1",
+      "prompt_params": {
+        "subject": "Quantitative Aptitude",
+        "topic": "Speed Time Distance",
+        "difficulty": "Easy",
+        "style": "SSC CGL"
+      },
+      "generated_at": "2026-08-12T10:00:00Z",
+      "solver_verified": true
+    },
+    "verification": {
+      "verified": false,
+      "extracted_at": null,
+      "reviewed_by": null
+    },
+    "metadata": {
+      "language": "en",
+      "translation_group_id": "tg_77723",
+      "tags": ["speed", "average-speed"],
+      "ideal_time_seconds": 45
+    }
+  }
+]

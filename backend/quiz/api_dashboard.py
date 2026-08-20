@@ -25,14 +25,14 @@ class DashboardMixin:
                 session_id=session_id, 
                 exam=exam,
                 is_completed=True
-            ).order_by('-completed_at').first()
+            ).order_by('-started_at').first()
             
         if not user_result and request.user.is_authenticated:
             user_result = ExamAttempt.objects.filter(
                 user=request.user, 
                 exam=exam,
                 is_completed=True
-            ).order_by('-completed_at').first()
+            ).order_by('-started_at').first()
             
         if not user_result:
             if session_id:
@@ -40,13 +40,13 @@ class DashboardMixin:
                     session_id=session_id,
                     exam=exam,
                     is_completed=True
-                ).order_by('-submitted_at').first()
+                ).order_by('-started_at').first()
             if not user_result and request.user.is_authenticated:
                 user_result = PracticeSession.objects.filter(
                     user=request.user,
                     exam=exam,
                     is_completed=True
-                ).order_by('-submitted_at').first()
+                ).order_by('-started_at').first()
             if user_result:
                 is_practice = True
 
@@ -55,28 +55,42 @@ class DashboardMixin:
                 {'error': 'No results found for this exam. Please complete the exam first.'},
                 status=status.HTTP_404_NOT_FOUND
             )
+
+        # IDOR check: If result is bound to a registered user, ensure requester is that user or staff
+        if user_result.user and request.user.is_authenticated:
+            if user_result.user != request.user and not request.user.is_staff:
+                return Response(
+                    {'error': 'You do not have permission to view this scorecard.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
         user_answers = UserAnswer.objects.filter(
             exam=exam,
             session_id=user_result.session_id
-        ).select_related('question', 'selected_answer')
+        ).select_related('question')
 
         total_questions = exam.questions.count()
         correct_answers = user_answers.filter(is_correct=True).count()
-        wrong_answers = user_answers.filter(is_correct=False).exclude(selected_answer__isnull=True).count()
+        wrong_answers = user_answers.filter(is_correct=False).exclude(selected_options=[]).count()
         penalty = float(wrong_answers) * float(exam.negative_marks or 0.0)
 
-        total_marks = user_answers.filter(is_correct=True).aggregate(
-            total=models.Sum('question__marks')
-        )['total'] or 0
+        total_marks = sum(
+            float((ua.question.schema_payload or {}).get('marks', exam.marks_per_question or 1.0))
+            for ua in user_answers.filter(is_correct=True).select_related('question')
+        )
 
-        max_marks = exam.questions.aggregate(
-            total=models.Sum('marks')
-        )['total'] or 0
+        if exam.total_marks:
+            max_marks = float(exam.total_marks)
+        else:
+            all_questions_list = list(exam.questions.all())
+            max_marks = sum(
+                float((q.schema_payload or {}).get('marks', exam.marks_per_question or 1.0))
+                for q in all_questions_list
+            ) or (total_questions * float(exam.marks_per_question or 1.0))
         
         percentage = user_result.accuracy if is_practice else user_result.percentage
         completed_at = user_result.submitted_at if is_practice else user_result.completed_at
         summary_data = {
-            'exam_id': exam.id,
+            'exam_id': str(exam.id),
             'exam_title': exam.title,
             'session_id': user_result.session_id,
             'total_questions': user_result.total_questions,
@@ -93,20 +107,21 @@ class DashboardMixin:
         summary_serializer = ExamResultSerializer(summary_data)
         answers_data = UserAnswerSerializer(
             user_answers,
-            many=True
+            many=True,
+            context={'request': request}
         ).data
 
-        all_questions = exam.questions.all().prefetch_related('answers')
+        all_questions = exam.questions.all().prefetch_related('community_comments', 'images')
         questions_data = QuestionSerializer(
             all_questions,
             many=True,
-            context={'hide_correct': False}
+            context={'hide_correct': False, 'request': request}
         ).data
 
         return Response({
             **summary_serializer.data,
             "answers": answers_data,
-            "questions": questions_data # New Field
+            "questions": questions_data
         })
 
     @action(detail=False, methods=['get'])

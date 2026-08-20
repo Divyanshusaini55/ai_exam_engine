@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 import { adminApi } from "@/lib/api"
 import {
   Plus,
@@ -19,10 +20,15 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
 export default function AdminExamsPage() {
+  const [mounted, setMounted] = useState(false)
   const [exams, setExams] = useState<any[]>([])
   const [subcategories, setSubcategories] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -274,9 +280,13 @@ export default function AdminExamsPage() {
       </Card>
 
       {/* Create / Edit Exam Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-xl shadow-lg w-full max-w-lg p-6 space-y-4">
+      {mounted && isModalOpen && createPortal(
+        <div className="fixed inset-0 z-[99999] w-screen h-screen bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+          <div 
+            className="fixed inset-0 -z-10" 
+            onClick={() => setIsModalOpen(false)}
+          />
+          <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-lg p-6 space-y-4 relative">
             <div className="flex items-center justify-between border-b border-border/50 pb-3">
               <h3 className="font-bold text-base text-foreground">{editingExam ? "Edit Exam" : "Create New Exam"}</h3>
               <button onClick={() => setIsModalOpen(false)}><X className="size-4 text-muted-foreground" /></button>
@@ -376,13 +386,18 @@ export default function AdminExamsPage() {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Bulk JSON Import Modal */}
-      {importExamId && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-xl shadow-lg w-full max-w-xl p-6 space-y-4">
+      {mounted && importExamId && createPortal(
+        <div className="fixed inset-0 z-[99999] w-screen h-screen bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+          <div 
+            className="fixed inset-0 -z-10" 
+            onClick={() => setImportExamId(null)}
+          />
+          <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-xl p-6 space-y-4 relative">
             <div className="flex items-center justify-between border-b border-border/50 pb-3">
               <h3 className="font-bold text-base text-foreground">Bulk Import Questions (JSON)</h3>
               <button onClick={() => setImportExamId(null)}><X className="size-4 text-muted-foreground" /></button>
@@ -404,7 +419,8 @@ export default function AdminExamsPage() {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )

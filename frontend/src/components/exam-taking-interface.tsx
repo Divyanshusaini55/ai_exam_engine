@@ -59,7 +59,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
     const [questions, setQuestions] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-    const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({})
+    const [selectedAnswers, setSelectedAnswers] = useState<Record<string | number, any>>({})
     const [timerKey, setTimerKey] = useState(0) // Used to force reset TimerDisplay
     const [isPaused, setIsPaused] = useState(false)
     const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false)
@@ -79,8 +79,8 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
 
     // NEW: Session state variables
     const [sessionId, setSessionId] = useState<string | null>(null)
-    const [reviewQuestions, setReviewQuestions] = useState<Record<number, boolean>>({})
-    const [bookmarkedQuestions, setBookmarkedQuestions] = useState<Record<number, boolean>>({})
+    const [reviewQuestions, setReviewQuestions] = useState<Record<string | number, boolean>>({})
+    const [bookmarkedQuestions, setBookmarkedQuestions] = useState<Record<string | number, boolean>>({})
     
     // NEW: Modals state variables
     const [showConfirmModal, setShowConfirmModal] = useState(false)
@@ -298,26 +298,51 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
     }
 
     // 3. Handle Selection
-    const handleAnswer = async (qId: number, aId: number) => {
+    const handleAnswer = async (qId: string | number, aId: number) => {
         if (!sessionId) return
         
-        // In Learning mode, prevent changing answer once answered if desired, or allow toggle.
-        // Let's support standard behavior where clicking selected clears it.
-        const isCurrentlySelected = selectedAnswers[qId] === aId
-        const targetAId = isCurrentlySelected ? null : aId
+        const numAId = Number(aId)
+        const isCurrentlySelected = selectedAnswers[qId] === numAId
+        const targetAId = isCurrentlySelected ? null : numAId
 
         setSelectedAnswers(prev => {
             const next = { ...prev }
             if (isCurrentlySelected) {
                 delete next[qId]
             } else {
-                next[qId] = aId
+                next[qId] = numAId
             }
             return next
         })
 
-        // Background submission with session ID
-        await examApi.submitAnswer(examId, qId, targetAId as any, sessionId)
+        await examApi.submitAnswer(examId, qId, targetAId, sessionId)
+    }
+
+    const handleMultiAnswer = async (qId: string | number, aIdx: number) => {
+        if (!sessionId) return
+
+        const numIdx = Number(aIdx)
+        const currentList: number[] = Array.isArray(selectedAnswers[qId]) ? [...selectedAnswers[qId]] : []
+        const exists = currentList.includes(numIdx)
+        const updated = exists ? currentList.filter(i => i !== numIdx) : [...currentList, numIdx]
+
+        setSelectedAnswers(prev => ({
+            ...prev,
+            [qId]: updated
+        }))
+
+        await examApi.submitAnswer(examId, qId, undefined, sessionId, undefined, undefined, updated)
+    }
+
+    const handleTextAnswer = async (qId: string | number, textVal: string) => {
+        if (!sessionId) return
+
+        setSelectedAnswers(prev => ({
+            ...prev,
+            [qId]: textVal
+        }))
+
+        await examApi.submitAnswer(examId, qId, undefined, sessionId, undefined, undefined, undefined, textVal)
     }
 
     const handleToggleReview = async () => {
@@ -496,12 +521,22 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
     if (loading) return <div className="h-screen flex items-center justify-center font-bold text-xl text-muted-foreground">Loading Exam Environment...</div>
     if (questions.length === 0) return <div className="h-screen flex items-center justify-center font-bold text-xl text-muted-foreground">No questions found for this exam.</div>
 
+    // Helper to determine if a question has been answered
+    const isQuestionAnswered = (qId: string | number) => {
+        const val = selectedAnswers[qId]
+        if (val === undefined || val === null) return false
+        if (Array.isArray(val)) return val.length > 0
+        if (typeof val === 'string') return val.trim() !== ''
+        return true
+    }
+
     // Calculate Progress
-    const progressPercentage = ((Object.keys(selectedAnswers).length) / questions.length) * 100
+    const answeredCount = questions.filter(q => isQuestionAnswered(q.id)).length
+    const progressPercentage = questions.length > 0 ? (answeredCount / questions.length) * 100 : 0
 
     // 🔥 CALCULATE ANSWERED QUESTIONS (For Green Navigator)
     const answeredQuestionNumbers = questions
-        .map((q, index) => (selectedAnswers[q.id] ? index + 1 : null))
+        .map((q, index) => (isQuestionAnswered(q.id) ? index + 1 : null))
         .filter((num): num is number => num !== null)
 
     // Helper to render nested comments
@@ -901,69 +936,218 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                             </div>
                         </div>
 
-                        <h2 className="text-lg md:text-xl font-medium text-primary mb-6 leading-relaxed">
-                            {currentQ.question_text}
-                        </h2>
+                        {/* Question Statement (Markdown & LaTeX math enabled) */}
+                        <div className="text-lg md:text-xl font-medium text-primary mb-6 leading-relaxed prose dark:prose-invert max-w-none">
+                            <ReactMarkdown
+                                remarkPlugins={[remarkMath]}
+                                rehypePlugins={[rehypeKatex]}
+                            >
+                                {language === 'hi' && currentQ.question_text_hi 
+                                    ? currentQ.question_text_hi 
+                                    : (currentQ.question_text || "")}
+                            </ReactMarkdown>
+                        </div>
 
-                        {/* Image Support */}
+                        {/* Image Support (Question Image or V2 content_images) */}
                         {currentQ.image && (
-                            <img src={currentQ.image} alt="Question" className="max-w-full h-auto rounded-lg mb-8 border border-border" />
+                            <img src={currentQ.image} alt="Question Diagram" className="max-w-full h-auto rounded-lg mb-8 border border-border" />
+                        )}
+                        {currentQ.content_images && typeof currentQ.content_images === 'object' && Object.values(currentQ.content_images).map((imgObj: any, idx: number) => (
+                            imgObj?.url && (
+                                <img key={idx} src={imgObj.url} alt={imgObj.alt || "Question Diagram"} className="max-w-full h-auto rounded-lg mb-8 border border-border" />
+                            )
+                        ))}
+
+                        {/* Question Types: NAT Numerical Input */}
+                        {currentQ.question_type === 'nat' && (
+                            <div className="p-4 md:p-5 rounded-2xl border-2 border-border bg-card/60 space-y-3">
+                                <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                                    Numerical Answer Type (NAT)
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <input
+                                        type="number"
+                                        step="any"
+                                        value={selectedAnswers[currentQ.id] ?? ""}
+                                        onChange={(e) => handleTextAnswer(currentQ.id, e.target.value)}
+                                        placeholder="Enter numerical value (e.g. 42.5)"
+                                        className="w-full max-w-sm px-4 py-2.5 rounded-xl border border-border bg-background font-mono text-base font-semibold text-foreground outline-none focus:ring-2 focus:ring-primary shadow-sm"
+                                    />
+                                    {currentQ.marking?.unit && (
+                                        <span className="text-sm font-bold text-muted-foreground px-2.5 py-1 bg-secondary rounded-lg border border-border">
+                                            {currentQ.marking.unit}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
                         )}
 
-                        <div className="flex flex-col gap-2 md:gap-3">
-                            {currentQ.answers.map((ans: any) => {
-                                const isSelected = selectedAnswers[currentQ.id] === ans.id
-                                const isAnswered = selectedAnswers[currentQ.id] !== undefined
-                                
-                                let optionStyle = "border-border hover:border-primary/30 hover:bg-background"
-                                let badgeStyle = "bg-secondary text-muted-foreground group-hover:bg-secondary"
-                                
-                                if (mode === 'learning' && isAnswered) {
-                                    if (isSelected) {
-                                        if (ans.is_correct) {
+                        {/* Question Types: Subjective Text Area */}
+                        {currentQ.question_type === 'subjective' && (
+                            <div className="p-4 md:p-5 rounded-2xl border-2 border-border bg-card/60 space-y-3">
+                                <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                                    Descriptive / Subjective Answer
+                                </div>
+                                <textarea
+                                    rows={5}
+                                    value={selectedAnswers[currentQ.id] ?? ""}
+                                    onChange={(e) => handleTextAnswer(currentQ.id, e.target.value)}
+                                    placeholder="Write your detailed answer response here..."
+                                    className="w-full p-4 rounded-xl border border-border bg-background text-sm leading-relaxed text-foreground outline-none focus:ring-2 focus:ring-primary shadow-sm resize-y"
+                                />
+                            </div>
+                        )}
+
+                        {/* Question Types: MCQ Multi-Select (Checkboxes) */}
+                        {currentQ.question_type === 'mcq_multi' && (
+                            <div className="flex flex-col gap-2 md:gap-3">
+                                <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                                    Multiple Correct Options (Select All That Apply)
+                                </div>
+                                {currentQ.answers.map((ans: any) => {
+                                    const selectedArr: number[] = Array.isArray(selectedAnswers[currentQ.id]) ? selectedAnswers[currentQ.id] : []
+                                    const numIdx = Number(ans.id)
+                                    const isSelected = selectedArr.includes(numIdx)
+                                    const isAnswered = selectedArr.length > 0
+                                    
+                                    let optionStyle = "border-border hover:border-primary/30 hover:bg-background"
+                                    let badgeStyle = "bg-secondary text-muted-foreground group-hover:bg-secondary"
+                                    
+                                    if (mode === 'learning' && isAnswered) {
+                                        if (isSelected) {
+                                            if (ans.is_correct) {
+                                                optionStyle = "border-success text-success bg-background"
+                                                badgeStyle = "bg-success text-white"
+                                            } else {
+                                                optionStyle = "border-destructive text-destructive bg-background"
+                                                badgeStyle = "bg-destructive text-white"
+                                            }
+                                        } else if (ans.is_correct) {
                                             optionStyle = "border-success text-success bg-background"
                                             badgeStyle = "bg-success text-white"
-                                        } else {
-                                            optionStyle = "border-destructive text-destructive bg-background"
-                                            badgeStyle = "bg-destructive text-white"
                                         }
-                                    } else if (ans.is_correct) {
-                                        optionStyle = "border-success text-success bg-background"
-                                        badgeStyle = "bg-success text-white"
+                                    } else {
+                                        if (isSelected) {
+                                            optionStyle = "border-primary bg-secondary"
+                                            badgeStyle = "bg-primary text-primary-foreground"
+                                        }
                                     }
-                                } else {
-                                    if (isSelected) {
-                                        optionStyle = "border-primary bg-secondary"
-                                        badgeStyle = "bg-primary text-primary-foreground"
-                                    }
-                                }
 
-                                return (
-                                    <label 
-                                        key={ans.id} 
-                                        onClick={(e) => {
-                                            e.preventDefault()
-                                            handleAnswer(currentQ.id, ans.id)
-                                        }}
-                                        className={`group relative flex items-center p-2.5 md:p-3 rounded-xl border-2 cursor-pointer transition-all duration-200 active:scale-[0.98] ${optionStyle}`}
-                                    >
-                                        <input 
-                                            type="radio" 
-                                            name={`q-${currentQ.id}`} 
-                                            checked={isSelected}
-                                            readOnly
-                                            className="sr-only" 
-                                        />
-                                        <div className={`size-7 md:size-8 text-sm md:text-base rounded-lg flex shrink-0 items-center justify-center font-bold mr-3 md:mr-3 transition-colors ${badgeStyle}`}>
-                                            {String.fromCharCode(65 + ans.order)}
-                                        </div>
-                                        <span className="text-sm md:text-base transition-colors font-medium">
-                                            {ans.answer_text.replace(/^[A-Z][).:-]\s*/i, '')}
-                                        </span>
-                                    </label>
-                                )
-                            })}
-                        </div>
+                                    const optText = (language === 'hi' && ans.answer_text_hi ? ans.answer_text_hi : ans.answer_text) || ""
+                                    const cleanOptText = optText.replace(/^[A-Z][).:-]\s*/i, '')
+
+                                    return (
+                                        <label 
+                                            key={ans.id} 
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                handleMultiAnswer(currentQ.id, numIdx)
+                                            }}
+                                            className={`group relative flex items-center p-2.5 md:p-3 rounded-xl border-2 cursor-pointer transition-all duration-200 active:scale-[0.98] ${optionStyle}`}
+                                        >
+                                            <input 
+                                                type="checkbox" 
+                                                name={`q-${currentQ.id}-${ans.id}`} 
+                                                checked={isSelected}
+                                                readOnly
+                                                className="sr-only" 
+                                            />
+                                            <div className={`size-7 md:size-8 text-sm md:text-base rounded-lg flex shrink-0 items-center justify-center font-bold mr-3 md:mr-3 transition-colors ${badgeStyle}`}>
+                                                {ans.option_label || String.fromCharCode(65 + (ans.order ?? 0))}
+                                            </div>
+                                            <div className="flex-1 flex flex-col gap-1">
+                                                {ans.image_url && (
+                                                    <img src={ans.image_url} alt="Option Diagram" className="max-h-24 object-contain rounded border border-border my-1" />
+                                                )}
+                                                {cleanOptText && (
+                                                    <div className="text-sm md:text-base transition-colors font-medium prose dark:prose-invert max-w-none">
+                                                        <ReactMarkdown
+                                                            remarkPlugins={[remarkMath]}
+                                                            rehypePlugins={[rehypeKatex]}
+                                                        >
+                                                            {cleanOptText}
+                                                        </ReactMarkdown>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </label>
+                                    )
+                                })}
+                            </div>
+                        )}
+
+                        {/* Question Types: MCQ Single-Select (Radio Options) */}
+                        {(!currentQ.question_type || currentQ.question_type === 'mcq_single' || currentQ.question_type === 'multiple_choice') && (
+                            <div className="flex flex-col gap-2 md:gap-3">
+                                {currentQ.answers.map((ans: any) => {
+                                    const isSelected = selectedAnswers[currentQ.id] === Number(ans.id)
+                                    const isAnswered = selectedAnswers[currentQ.id] !== undefined && selectedAnswers[currentQ.id] !== null
+                                    
+                                    let optionStyle = "border-border hover:border-primary/30 hover:bg-background"
+                                    let badgeStyle = "bg-secondary text-muted-foreground group-hover:bg-secondary"
+                                    
+                                    if (mode === 'learning' && isAnswered) {
+                                        if (isSelected) {
+                                            if (ans.is_correct) {
+                                                optionStyle = "border-success text-success bg-background"
+                                                badgeStyle = "bg-success text-white"
+                                            } else {
+                                                optionStyle = "border-destructive text-destructive bg-background"
+                                                badgeStyle = "bg-destructive text-white"
+                                            }
+                                        } else if (ans.is_correct) {
+                                            optionStyle = "border-success text-success bg-background"
+                                            badgeStyle = "bg-success text-white"
+                                        }
+                                    } else {
+                                        if (isSelected) {
+                                            optionStyle = "border-primary bg-secondary"
+                                            badgeStyle = "bg-primary text-primary-foreground"
+                                        }
+                                    }
+
+                                    const optText = (language === 'hi' && ans.answer_text_hi ? ans.answer_text_hi : ans.answer_text) || ""
+                                    const cleanOptText = optText.replace(/^[A-Z][).:-]\s*/i, '')
+
+                                    return (
+                                        <label 
+                                            key={ans.id} 
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                handleAnswer(currentQ.id, Number(ans.id))
+                                            }}
+                                            className={`group relative flex items-center p-2.5 md:p-3 rounded-xl border-2 cursor-pointer transition-all duration-200 active:scale-[0.98] ${optionStyle}`}
+                                        >
+                                            <input 
+                                                type="radio" 
+                                                name={`q-${currentQ.id}`} 
+                                                checked={isSelected}
+                                                readOnly
+                                                className="sr-only" 
+                                            />
+                                            <div className={`size-7 md:size-8 text-sm md:text-base rounded-lg flex shrink-0 items-center justify-center font-bold mr-3 md:mr-3 transition-colors ${badgeStyle}`}>
+                                                {ans.option_label || String.fromCharCode(65 + (ans.order ?? 0))}
+                                            </div>
+                                            <div className="flex-1 flex flex-col gap-1">
+                                                {ans.image_url && (
+                                                    <img src={ans.image_url} alt="Option Diagram" className="max-h-24 object-contain rounded border border-border my-1" />
+                                                )}
+                                                {cleanOptText && (
+                                                    <div className="text-sm md:text-base transition-colors font-medium prose dark:prose-invert max-w-none">
+                                                        <ReactMarkdown
+                                                            remarkPlugins={[remarkMath]}
+                                                            rehypePlugins={[rehypeKatex]}
+                                                        >
+                                                            {cleanOptText}
+                                                        </ReactMarkdown>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </label>
+                                    )
+                                })}
+                            </div>
+                        )}
 
                         {/* Static Explanation (Learning Mode & Answered) */}
                         {mode === 'learning' && selectedAnswers[currentQ.id] !== undefined && currentQ.explanation && (

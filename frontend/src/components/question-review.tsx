@@ -9,10 +9,10 @@ import { Sparkles } from "lucide-react"
 
 interface QuestionReviewProps {
   number: number
-  questionId: number
+  questionId: number | string
   question: string
   subject?: string
-  status: "correct" | "incorrect" | "skipped"
+  status: "correct" | "incorrect" | "skipped" | "pending"
   userAnswer: { option: string; value: string }
   correctAnswer?: { option: string; value: string }
   explanation?: string | null
@@ -30,6 +30,7 @@ export function QuestionReview({
 }: QuestionReviewProps) {
   const isCorrect = status === "correct"
   const isSkipped = status === "skipped"
+  const isPending = status === "pending"
 
   const [explanation, setExplanation] = useState<string | null>(initialExplanation || null)
   const [isVisible, setIsVisible] = useState(false)
@@ -42,7 +43,7 @@ export function QuestionReview({
     }
     setLoading(true)
     try {
-      const res = await examApi.explainQuestion(questionId)
+      const res = await examApi.explainQuestion(Number(questionId))
       setExplanation(res.data.explanation)
       setIsVisible(true)
     } catch (error) {
@@ -55,11 +56,13 @@ export function QuestionReview({
   // Status badge — uses semantic tokens, works in both themes
   const badgeStyle = isCorrect
     ? "bg-success/10 text-success border-success/30"
-    : isSkipped
-      ? "bg-secondary text-muted-foreground border-border"
-      : "bg-destructive/10 text-destructive border-destructive/30"
+    : isPending
+      ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30"
+      : isSkipped
+        ? "bg-secondary text-muted-foreground border-border"
+        : "bg-destructive/10 text-destructive border-destructive/30"
 
-  const statusText = isCorrect ? "CORRECT" : isSkipped ? "SKIPPED" : "INCORRECT"
+  const statusText = isCorrect ? "CORRECT" : isPending ? "PENDING REVIEW" : isSkipped ? "SKIPPED" : "INCORRECT"
 
   return (
     <div id={`question-${questionId}`} className="card-premium rounded-xl overflow-hidden scroll-mt-24">

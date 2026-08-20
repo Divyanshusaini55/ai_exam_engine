@@ -7,7 +7,7 @@ from django.db.models import Count, Sum
 from django.contrib.auth.models import User
 
 from .models import (
-    Exam, Question, Answer, UserAnswer, ExamAttempt, Category, SubCategory,
+    Exam, Question, UserAnswer, ExamAttempt, Category, SubCategory,
     ContactMessage, QuestionPaperUpload, CorrectionSuggestion, CurrentAffair,
     TopicResource, ExamRoadmap, RoadmapPhase, RoadmapTopic, ResourceTag, Topic
 )
@@ -150,26 +150,43 @@ class AdminExamViewSet(viewsets.ModelViewSet):
             q_text = q_data.get('question_text') or q_data.get('question')
             if not q_text:
                 continue
-            question = Question.objects.create(
-                exam=exam,
-                question_text=q_text,
-                explanation=q_data.get('explanation', ''),
-                subject=q_data.get('subject', ''),
-                topic=q_data.get('topic', ''),
-                difficulty=q_data.get('difficulty', 'medium'),
-                marks=q_data.get('marks', exam.marks_per_question or 1)
-            )
             options = q_data.get('options', [])
             correct_idx = q_data.get('correct_option_index', 0)
+            
+            # Format options properly
+            formatted_options = []
             for idx, opt in enumerate(options):
                 opt_text = opt if isinstance(opt, str) else opt.get('answer_text', '')
                 is_correct = (idx == correct_idx) if isinstance(opt, str) else opt.get('is_correct', False)
-                Answer.objects.create(
-                    question=question,
-                    answer_text=opt_text,
-                    is_correct=is_correct,
-                    order=idx
-                )
+                formatted_options.append({
+                    "answer_text": opt_text,
+                    "is_correct": is_correct
+                })
+                
+            import uuid
+            q_id = str(uuid.uuid4())[:8]
+
+            schema_payload = {
+                "question_text": q_text,
+                "explanation": q_data.get('explanation', ''),
+                "subject": q_data.get('subject', ''),
+                "topic": q_data.get('topic', ''),
+                "difficulty": q_data.get('difficulty', 'medium'),
+                "marks": q_data.get('marks', exam.marks_per_question or 1),
+                "options": formatted_options
+            }
+
+            question = Question.objects.create(
+                id=q_id,
+                origin='admin_upload',
+                question_type='multiple_choice',
+                schema_payload=schema_payload,
+                verified=True
+            )
+            
+            from .models import ExamQuestion
+            ExamQuestion.objects.create(exam=exam, question=question, order=exam.questions.count())
+
             created_count += 1
 
         exam.total_questions = exam.questions.count()
@@ -179,26 +196,20 @@ class AdminExamViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'])
     def export_json(self, request, id=None):
         exam = self.get_object()
-        questions = exam.questions.prefetch_related('answers').all()
+        questions = exam.questions.all()
         data = {
             'exam_title': exam.title,
             'slug': exam.slug,
             'duration_minutes': exam.duration_minutes,
             'questions': [
                 {
-                    'question_text': q.question_text,
-                    'explanation': q.explanation,
-                    'subject': q.subject,
-                    'topic': q.topic,
-                    'difficulty': q.difficulty,
-                    'marks': q.marks,
-                    'options': [
-                        {
-                            'answer_text': a.answer_text,
-                            'is_correct': a.is_correct
-                        }
-                        for a in q.answers.all()
-                    ]
+                    'question_text': q.schema_payload.get('question_text', ''),
+                    'explanation': q.schema_payload.get('explanation', ''),
+                    'subject': q.schema_payload.get('subject', ''),
+                    'topic': q.schema_payload.get('topic', ''),
+                    'difficulty': q.schema_payload.get('difficulty', ''),
+                    'marks': q.schema_payload.get('marks', 1),
+                    'options': q.schema_payload.get('options', [])
                 }
                 for q in questions
             ]
@@ -207,8 +218,8 @@ class AdminExamViewSet(viewsets.ModelViewSet):
 
 
 class AdminQuestionViewSet(viewsets.ModelViewSet):
-    queryset = Question.objects.select_related('exam').prefetch_related(
-        'answers', 'translations', 'answers__translations', 'community_comments'
+    queryset = Question.objects.prefetch_related(
+        'community_comments', 'images'
     ).all().order_by('id')
     serializer_class = QuestionSerializer
     permission_classes = [IsAuthenticated, IsAdminUser]
@@ -220,92 +231,184 @@ class AdminQuestionViewSet(viewsets.ModelViewSet):
         exam_id = self.request.query_params.get('exam_id')
         exam_slug = self.request.query_params.get('exam_slug') or self.request.query_params.get('slug')
         if exam_id:
-            qs = qs.filter(exam_id=exam_id)
+            qs = qs.filter(exams__id=exam_id)
         elif exam_slug:
-            qs = qs.filter(exam__slug=exam_slug)
+            qs = qs.filter(exams__slug=exam_slug)
         return qs
 
     def create(self, request, *args, **kwargs):
-        from .models_translations import QuestionTranslation, AnswerTranslation
         data = request.data
         exam_id = data.get('exam')
         exam = get_object_or_404(Exam, id=exam_id)
+        
+        import uuid
+        q_id = data.get('id') or f"q_{str(uuid.uuid4())[:8]}"
+        q_type = data.get('question_type', 'mcq_single')
+        if q_type == 'multiple_choice':
+            q_type = 'mcq_single'
+
+        content_images = data.get('content_images', {})
+        if data.get('image') and not content_images:
+            content_images = {"IMAGE_1": {"url": data.get('image'), "alt": "Question Diagram"}}
+
+        schema_payload = {
+            "id": q_id,
+            "schema_version": "v2",
+            "origin": data.get('origin', 'admin_panel'),
+            "question_type": q_type,
+            "content": {
+                "text": data.get('question_text', ''),
+                "images": content_images
+            },
+            "question_text": data.get('question_text', ''),
+            "question_text_hi": data.get('question_text_hi', ''),
+            "options": data.get('options', []),
+            "answer": data.get('answer', {}),
+            "explanation": {
+                "text": data.get('explanation', ''),
+                "images": {}
+            },
+            "explanation_hi": data.get('explanation_hi', ''),
+            "tutor_data": data.get('tutor_data', {
+                "hints": data.get('hints', []),
+                "solution_steps": data.get('solution_steps', [])
+            }),
+            "marking": data.get('marking', {
+                "positive": float(data.get('marks', exam.marks_per_question or 1.0)),
+                "negative": float(data.get('negative_marks', exam.negative_marks or 0.0))
+            }),
+            "classification": data.get('classification', {
+                "subject": data.get('subject', 'General'),
+                "topic": data.get('topic', ''),
+                "subtopic": data.get('subtopic', ''),
+                "difficulty_label": data.get('difficulty', 'medium'),
+                "cognitive_level": data.get('cognitive_level', 'apply')
+            }),
+            "exam_history": data.get('exam_history', []),
+            "metadata": data.get('metadata', {
+                "language": data.get('language', 'en'),
+                "tags": data.get('tags', []),
+                "ideal_time_seconds": data.get('ideal_time_seconds', 60)
+            }),
+            "verification": {
+                "verified": data.get('verified', True)
+            }
+        }
+
         question = Question.objects.create(
-            exam=exam,
-            question_text=data.get('question_text', ''),
-            explanation=data.get('explanation', ''),
-            subject=data.get('subject', ''),
+            id=q_id,
+            origin=data.get('origin', 'admin_panel'),
+            question_type=q_type,
+            schema_payload=schema_payload,
+            difficulty_score=1.0,
             topic=data.get('topic', ''),
-            difficulty=data.get('difficulty', 'medium'),
-            marks=data.get('marks', 1)
+            verified=data.get('verified', True)
         )
-
-        q_text_hi = data.get('question_text_hi', '')
-        exp_hi = data.get('explanation_hi', '')
-        if q_text_hi or exp_hi:
-            QuestionTranslation.objects.update_or_create(
-                question=question,
-                language='hi',
-                defaults={'question_text': q_text_hi, 'explanation': exp_hi}
-            )
-
-        options = data.get('options', [])
-        for idx, opt in enumerate(options):
-            ans = Answer.objects.create(
-                question=question,
-                answer_text=opt.get('answer_text', ''),
-                is_correct=opt.get('is_correct', False),
-                order=idx
-            )
-            if opt.get('answer_text_hi'):
-                AnswerTranslation.objects.update_or_create(
-                    answer=ans,
-                    language='hi',
-                    defaults={'answer_text': opt['answer_text_hi']}
-                )
+        
+        # Link to exam via ExamQuestion
+        from .models import ExamQuestion
+        ExamQuestion.objects.create(exam=exam, question=question, order=exam.questions.count())
 
         serializer = self.get_serializer(question)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
-        from .models_translations import QuestionTranslation, AnswerTranslation
         question = self.get_object()
         data = request.data
-        question.question_text = data.get('question_text', question.question_text)
-        question.explanation = data.get('explanation', question.explanation)
-        question.subject = data.get('subject', question.subject)
-        question.topic = data.get('topic', question.topic)
-        question.difficulty = data.get('difficulty', question.difficulty)
-        question.marks = data.get('marks', question.marks)
-        question.save()
-
-        if 'question_text_hi' in data or 'explanation_hi' in data:
-            q_text_hi = data.get('question_text_hi', '')
-            exp_hi = data.get('explanation_hi', '')
-            if q_text_hi or exp_hi:
-                QuestionTranslation.objects.update_or_create(
-                    question=question,
-                    language='hi',
-                    defaults={'question_text': q_text_hi, 'explanation': exp_hi}
-                )
+        
+        payload = question.schema_payload or {}
+        
+        if 'question_text' in data:
+            payload['question_text'] = data['question_text']
+            if 'content' not in payload or not isinstance(payload['content'], dict):
+                payload['content'] = {}
+            payload['content']['text'] = data['question_text']
+            
+        if 'question_text_hi' in data:
+            payload['question_text_hi'] = data['question_text_hi']
+            
+        if 'explanation' in data:
+            if isinstance(payload.get('explanation'), dict):
+                payload['explanation']['text'] = data['explanation']
             else:
-                QuestionTranslation.objects.filter(question=question, language='hi').delete()
-
+                payload['explanation'] = data['explanation']
+                
+        if 'explanation_hi' in data:
+            payload['explanation_hi'] = data['explanation_hi']
+            
         if 'options' in data:
-            question.answers.all().delete()
-            for idx, opt in enumerate(data['options']):
-                ans = Answer.objects.create(
-                    question=question,
-                    answer_text=opt.get('answer_text', ''),
-                    is_correct=opt.get('is_correct', False),
-                    order=idx
-                )
-                if opt.get('answer_text_hi'):
-                    AnswerTranslation.objects.update_or_create(
-                        answer=ans,
-                        language='hi',
-                        defaults={'answer_text': opt['answer_text_hi']}
-                    )
+            payload['options'] = data['options']
+            
+        if 'answer' in data:
+            payload['answer'] = data['answer']
+            
+        if 'tutor_data' in data:
+            payload['tutor_data'] = data['tutor_data']
+        elif 'hints' in data or 'solution_steps' in data:
+            if 'tutor_data' not in payload or not isinstance(payload['tutor_data'], dict):
+                payload['tutor_data'] = {}
+            if 'hints' in data:
+                payload['tutor_data']['hints'] = data['hints']
+            if 'solution_steps' in data:
+                payload['tutor_data']['solution_steps'] = data['solution_steps']
+                
+        if 'marking' in data:
+            payload['marking'] = data['marking']
+        elif 'marks' in data or 'negative_marks' in data:
+            if 'marking' not in payload or not isinstance(payload['marking'], dict):
+                payload['marking'] = {}
+            if 'marks' in data: payload['marking']['positive'] = float(data['marks'])
+            if 'negative_marks' in data: payload['marking']['negative'] = float(data['negative_marks'])
+            
+        if 'classification' in data:
+            payload['classification'] = data['classification']
+        elif any(k in data for k in ['subject', 'topic', 'subtopic', 'difficulty', 'cognitive_level']):
+            if 'classification' not in payload or not isinstance(payload['classification'], dict):
+                payload['classification'] = {}
+            if 'subject' in data: payload['classification']['subject'] = data['subject']
+            if 'topic' in data: payload['classification']['topic'] = data['topic']
+            if 'subtopic' in data: payload['classification']['subtopic'] = data['subtopic']
+            if 'difficulty' in data: payload['classification']['difficulty_label'] = data['difficulty']
+            if 'cognitive_level' in data: payload['classification']['cognitive_level'] = data['cognitive_level']
+            
+        if 'content_images' in data:
+            if 'content' not in payload or not isinstance(payload['content'], dict):
+                payload['content'] = {}
+            payload['content']['images'] = data['content_images']
+        elif 'image' in data and data['image']:
+            if 'content' not in payload or not isinstance(payload['content'], dict):
+                payload['content'] = {}
+            payload['content']['images'] = {"IMAGE_1": {"url": data['image'], "alt": "Question Diagram"}}
+            
+        if 'exam_history' in data:
+            payload['exam_history'] = data['exam_history']
+            
+        if 'metadata' in data:
+            payload['metadata'] = data['metadata']
+        elif 'tags' in data or 'ideal_time_seconds' in data:
+            if 'metadata' not in payload or not isinstance(payload['metadata'], dict):
+                payload['metadata'] = {}
+            if 'tags' in data: payload['metadata']['tags'] = data['tags']
+            if 'ideal_time_seconds' in data: payload['metadata']['ideal_time_seconds'] = data['ideal_time_seconds']
+
+        if 'question_type' in data:
+            q_type = data['question_type']
+            if q_type == 'multiple_choice':
+                q_type = 'mcq_single'
+            question.question_type = q_type
+            payload['question_type'] = q_type
+            
+        if 'topic' in data:
+            question.topic = data['topic']
+            
+        if 'verified' in data:
+            question.verified = data['verified']
+            if 'verification' not in payload or not isinstance(payload['verification'], dict):
+                payload['verification'] = {}
+            payload['verification']['verified'] = data['verified']
+            
+        question.schema_payload = payload
+        question.save()
 
         serializer = self.get_serializer(question)
         return Response(serializer.data)
@@ -513,7 +616,7 @@ class AdminUserViewSet(viewsets.ModelViewSet):
         recent_answers = [
             {
                 'id': a.id,
-                'question_text': a.question.question_text[:100],
+                'question_text': a.question.schema_payload.get('question_text', '')[:100],
                 'is_correct': a.is_correct,
                 'answered_at': a.answered_at,
                 'is_flagged': a.is_flagged_for_review

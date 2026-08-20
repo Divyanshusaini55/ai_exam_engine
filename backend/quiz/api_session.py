@@ -13,12 +13,23 @@ class SessionMixin:
         if not session_id:
             return Response({'error': 'session_id is required'}, status=400)
         
-        user_answers = UserAnswer.objects.filter(exam=exam, session_id=session_id)
+        user_answers = UserAnswer.objects.filter(exam=exam, session_id=session_id).select_related('question')
         
-        answers_dict = {ua.question_id: ua.selected_answer_id for ua in user_answers if ua.selected_answer_id is not None}
-        review_list = [ua.question_id for ua in user_answers if ua.is_flagged_for_review]
-        bookmarked_list = [ua.question_id for ua in user_answers if ua.is_bookmarked]
-        visited_list = list(user_answers.values_list('question_id', flat=True))
+        answers_dict = {}
+        for ua in user_answers:
+            q_payload = ua.question.schema_payload or {}
+            q_type = q_payload.get('question_type') or ua.question.question_type or 'mcq_single'
+            if q_type == 'mcq_multi':
+                answers_dict[str(ua.question_id)] = ua.selected_options or []
+            elif q_type in ['nat', 'subjective']:
+                answers_dict[str(ua.question_id)] = (ua.answer_payload or {}).get('text_answer', '')
+            else:
+                if ua.selected_options and len(ua.selected_options) > 0:
+                    answers_dict[str(ua.question_id)] = ua.selected_options[0]
+        
+        review_list = [str(ua.question_id) for ua in user_answers if ua.is_flagged_for_review]
+        bookmarked_list = [str(ua.question_id) for ua in user_answers if ua.is_bookmarked]
+        visited_list = [str(q_id) for q_id in user_answers.values_list('question_id', flat=True)]
         
         return Response({
             'answers': answers_dict,
@@ -34,7 +45,6 @@ class SessionMixin:
         mode = request.data.get('mode', 'exam')
         duration = request.data.get('duration')
         current_question_index = request.data.get('current_question_index')
-        question_id = request.data.get('question_id')
         
         if not session_id:
             return Response({'error': 'session_id is required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -50,13 +60,6 @@ class SessionMixin:
                 ExamAttempt.objects.filter(session_id=session_id, exam=exam).update(**updates)
             else:
                 PracticeSession.objects.filter(session_id=session_id, exam=exam).update(**updates)
-                
-        if question_id:
-            UserAnswer.objects.get_or_create(
-                session_id=session_id,
-                exam=exam,
-                question_id=question_id
-            )
             
         return Response({'success': True})
 

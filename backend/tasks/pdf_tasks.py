@@ -45,10 +45,19 @@ def parse_question_paper(self, job_id, upload_id, dedup_key=None):
         update_progress(job_id, stage='saving', progress=85,
                         message='Saving questions to database')
                         
-        count = parse_exam_paper_with_ai(upload.exam)
+        from quiz.models import Exam
+        exam = Exam.objects.create(
+            title=f"{upload.subject} ({upload.exam_date})",
+            pdf_file=upload.file,
+            status='draft'
+        )
+        count = parse_exam_paper_with_ai(exam)
+        upload.status = 'processed'
+        upload.save(update_fields=['status'])
 
         complete_job(job_id, result={
             'upload_id': upload_id,
+            'exam_id': exam.id,
             'questions_created': count,
             'status': 'questions_extracted',
         })

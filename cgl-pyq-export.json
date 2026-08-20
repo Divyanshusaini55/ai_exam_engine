@@ -1,0 +1,2503 @@
+{
+  "exam_title": "CGL PYQ",
+  "slug": "ssc-cgl-2025-shift-1",
+  "duration_minutes": 60,
+  "questions": [
+    {
+      "question_text": "If a man says, 'My father’s wife’s only son is the brother of your mother,' how is the man related to you?",
+      "explanation": "",
+      "subject": "Reasoning",
+      "topic": "Blood Relations",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Uncle",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) Father",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Grandfather",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Brother",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Based on the pattern COLD : FRPE :: WARM : ?, identify the missing term.",
+      "explanation": "",
+      "subject": "Reasoning",
+      "topic": "Analogy",
+      "difficulty": "Hard",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) ZDUN",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) ZDVP",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) ZDVN",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) YDUP",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Complete the letter series: XZYX, XYXX, XXWX, XWVX, ?",
+      "explanation": "",
+      "subject": "Reasoning",
+      "topic": "Series",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) XVUX",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) XTVX",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) XUVX",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) XUTX",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "A woman says, 'She is my brother’s wife’s sister.' How is the woman related to the speaker?",
+      "explanation": "",
+      "subject": "Reasoning",
+      "topic": "Blood Relations",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Sister",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Sister-in-law",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) Cousin",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Niece",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Which pair of addresses is identical? 1) Rohit Sharma, Flat 203, Green Park, Delhi, 110016; 2) Rohit Sharma, Flat-203, Green Park, Delhi, 110016; 3) Rohit S., Flat 203, Green Park, Delhi, 110016; 4) Rohit Sharma, Flat 203, Green Park, Delhi, 110015",
+      "explanation": "",
+      "subject": "Reasoning",
+      "topic": "Data Comparison",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) 1 & 2",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) 1 & 3",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) 2 & 4",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) 3 & 4",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "P is facing South. Q is seated third to the left of P. Who is seated immediately to the right of Q?",
+      "explanation": "",
+      "subject": "Reasoning",
+      "topic": "Seating Arrangement",
+      "difficulty": "Hard",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) P",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Person opposite P",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Person second to right of P",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Cannot be determined",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "question_text": "If ETAGIROV becomes VORIGATE, what does GNITSET become?",
+      "explanation": "",
+      "subject": "Reasoning",
+      "topic": "Coding-Decoding",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) TESTING",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) SETTING",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) TIGNEST",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) NETSIGT",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Which option is identical to: 'Neha Verma 56, Rose Villa, Sector-9, Jaipur, 302017'?",
+      "explanation": "",
+      "subject": "Reasoning",
+      "topic": "Data Comparison",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Neha Verma 56, Rose Villa, Sector-9, Jaipur, 302017",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) Neha Verma 56, Rose Villas, Sector-9, Jaipur, 302017",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Neha Verma, 56 Rose Villa, Sector-9, Jaipur, 302018",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Neha Verma 65, Rose Villa, Sector-9, Jaipur, 302017",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Which of the following is the odd one out?",
+      "explanation": "",
+      "subject": "Reasoning",
+      "topic": "Classification",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) 6, 10, 14",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) 3, 7, 11",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) 8, 16, 24",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) 9, 13, 17",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Joule : Energy :: Newton : ?",
+      "explanation": "",
+      "subject": "Reasoning",
+      "topic": "Analogy",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Force",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) Pressure",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Work",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Power",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "If @ = ×, # = -, $ = ÷ and % = +, evaluate: 8 @ 3 # 4 % 6 $ 2",
+      "explanation": "",
+      "subject": "Reasoning",
+      "topic": "Mathematical Operations",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) 26",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) 23",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) 24",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) 20",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "A man said, 'The person is my wife’s father’s only son.' How is the person related to the man?",
+      "explanation": "",
+      "subject": "Reasoning",
+      "topic": "Blood Relations",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Brother-in-law",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) Son",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Father",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Uncle",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Which Harappan site is specifically recognized for its sophisticated storm-water drainage and water harnessing infrastructure?",
+      "explanation": "",
+      "subject": "History",
+      "topic": "Ancient History",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Lothal",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Dholavira",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) Kalibangan",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Banawali",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Under the Indus Waters Treaty of 1960, India possesses unrestricted water rights over which three rivers?",
+      "explanation": "",
+      "subject": "Geography",
+      "topic": "Indian Rivers",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Indus, Jhelum, Chenab",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Ravi, Beas, Satluj",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) Jhelum, Chenab, Ravi",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Indus, Beas, Satluj",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Which constitutional amendment introduced a 1/3rd reservation for women across Articles 239AA, 330A, and 332A?",
+      "explanation": "",
+      "subject": "Polity",
+      "topic": "Constitution",
+      "difficulty": "Hard",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) 104th Amendment",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) 105th Amendment",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) 106th Amendment",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) 107th Amendment",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "In the context of the Bharatiya Nyaya Sanhita (BNS), which section replaces the former legal provisions regarding 'Sedition'?",
+      "explanation": "",
+      "subject": "Law",
+      "topic": "Criminal Justice",
+      "difficulty": "Hard",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Section 150",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) Section 302",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Section 377",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Section 420",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What is the primary objective of the PM-PRANAM scheme?",
+      "explanation": "",
+      "subject": "Economy",
+      "topic": "Government Schemes",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Expanding religious tourism infrastructure",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Reducing chemical fertilizer dependency through alternative solutions",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) Providing pension coverage for small-scale merchants",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Digitalizing land and revenue records",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "The Tianshan Shengli Tunnel, recently opened by China as the world's longest expressway tunnel, is located in which region?",
+      "explanation": "",
+      "subject": "Geography",
+      "topic": "Current Affairs",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Tibet Autonomous Region",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Inner Mongolia",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Xinjiang Uygur Autonomous Region",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) Guangxi Zhuang Autonomous Region",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Which scientific term describes the basic unit of quantum information capable of existing in multiple states simultaneously?",
+      "explanation": "",
+      "subject": "Science",
+      "topic": "Technology",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Bit",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Qubit",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) Logic Gate",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Transistor",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Armenia’s logo for COP17 features which specific endemic species, emphasizing butterfly conservation?",
+      "explanation": "",
+      "subject": "Environment",
+      "topic": "Conservation",
+      "difficulty": "Hard",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Monarch Butterfly",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Apollo Butterfly",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Erivan Anomalous Blue",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) Swallowtail Butterfly",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Alphabetically arranging the letters in 'TEACHING', how many letters reside between the 3rd letter from the left and the 2nd letter from the right?",
+      "explanation": "",
+      "subject": "Reasoning",
+      "topic": "Alphabetical Series",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) 5",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) 4",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) 3",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) 6",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What does the Pitt's India Act of 1784 achieve in terms of administrative structure?",
+      "explanation": "",
+      "subject": "History",
+      "topic": "Colonial India",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) It established the Supreme Court in Calcutta",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) It distinguished between commercial and political functions of the Company",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) It ended the Company's monopoly over the tea trade",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) It introduced the portfolio system for the first time",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "The Battle of Wandiwash in 1760 was a decisive conflict primarily involving which two colonial powers?",
+      "explanation": "",
+      "subject": "History",
+      "topic": "Colonial India",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) British and French",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) British and Marathas",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) French and Dutch",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) British and Tipu Sultan",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "In the provided sequence (3, 5, 7, 11, 13, 17, 19, 21), which number is the 'odd one' based on prime number properties?",
+      "explanation": "",
+      "subject": "Reasoning",
+      "topic": "Number Series",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) 21",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) 13",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) 11",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) 19",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "At which location on Earth is the acceleration due to gravity (g) at its minimum value?",
+      "explanation": "",
+      "subject": "Science",
+      "topic": "Physics",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) The Equator",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) The North Pole",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) The South Pole",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) The center of the Earth",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "question_text": "Which river is colloquially referred to as the 'Sorrow of Bihar'?",
+      "explanation": "",
+      "subject": "Geography",
+      "topic": "Rivers",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Gandak",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Kosi",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) Son",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Ghaghara",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Which atmospheric layer houses the ozone layer?",
+      "explanation": "",
+      "subject": "Science",
+      "topic": "Environment",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Troposphere",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Stratosphere",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) Mesosphere",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Thermosphere",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "How many languages were originally included in the Eighth Schedule of the Indian Constitution?",
+      "explanation": "",
+      "subject": "Polity",
+      "topic": "Constitution",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) 14",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) 18",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) 22",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) 15",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Arrange the following fractions in ascending order: 7/11, 5/9, 4/7, 3/5.",
+      "explanation": "",
+      "subject": "Mathematics",
+      "topic": "Number System",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) 3/5, 4/7, 5/9, 7/11",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) 5/9, 4/7, 3/5, 7/11",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) 3/5, 5/9, 4/7, 7/11",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) 4/7, 5/9, 7/11, 3/5",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "If a sum of money triples in 6 years under compound interest, how many years will it take to reach 27 times the original value?",
+      "explanation": "",
+      "subject": "Mathematics",
+      "topic": "Arithmetic",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) 18",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) 19",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) 20",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) 21",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "A 50-litre mixture contains juice and water in a 3:2 ratio. How much water must be added to change the ratio to 3:4?",
+      "explanation": "",
+      "subject": "Mathematics",
+      "topic": "Arithmetic",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) 12 litres",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) 15 litres",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) 18 litres",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) 20 litres",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "question_text": "A circular garden has a radius of 28 cm. If 80% of it is cultivated, what is the area of the garden that remains uncultivated?",
+      "explanation": "",
+      "subject": "Mathematics",
+      "topic": "Geometry",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) 193.6 cm²",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) 246.4 cm²",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) 492.8 cm²",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) 615.4 cm²",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Priya buys 30L of honey at ₹50/L and 20L at ₹55/L. If she sells the entire mixture at ₹54/L, what is her financial outcome?",
+      "explanation": "",
+      "subject": "Mathematics",
+      "topic": "Arithmetic",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Loss of ₹60",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Profit of ₹100",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) Profit of ₹120",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Loss of ₹120",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "A sum of money amounts to ₹7,200 in 2 years and ₹8,640 in 3 years under compound interest. What is the original principal?",
+      "explanation": "",
+      "subject": "Mathematics",
+      "topic": "Arithmetic",
+      "difficulty": "Hard",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) ₹4,800",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) ₹5,000",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) ₹5,200",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) ₹5,500",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "An express train travels a fixed distance in 40 minutes at 200 km/h. If construction increases the distance by 25%, what new speed is required to arrive in the same 40 minutes?",
+      "explanation": "",
+      "subject": "Mathematics",
+      "topic": "Arithmetic",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) 250 km/h",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) 260 km/h",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) 270 km/h",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) 280 km/h",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "In a sample of 250 data scientists, 80 know only Python, 70 know only R, and 50 know both. What is the ratio of Python-proficient to R-proficient scientists?",
+      "explanation": "",
+      "subject": "Mathematics",
+      "topic": "Data Analysis",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) 13:12",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) 12:13",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) 8:7",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) 7:8",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "If two motorcycles start 480 km apart, meet in 5 hours when moving towards each other, and meet in 15 hours when moving in the same direction, what is the speed of the slower motorcycle?",
+      "explanation": "",
+      "subject": "Mathematics",
+      "topic": "Speed and Distance",
+      "difficulty": "Hard",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) 64 km/h",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) 32 km/h",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) 48 km/h",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) 96 km/h",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "A mixture of two spices (₹80/kg and ₹160/kg) sold at ₹140/kg yields a 25% profit margin. What was the cost price per kg of the mixture?",
+      "explanation": "",
+      "subject": "Mathematics",
+      "topic": "Profit and Loss",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) ₹105",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) ₹112",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) ₹115",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) ₹120",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "If X takes 12 days and Y takes 18 days to finish a task, how many days will they take to complete the work working together?",
+      "explanation": "",
+      "subject": "Mathematics",
+      "topic": "Work and Time",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) 6.5 days",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) 7.2 days",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) 8 days",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) 9 days",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Three pumps A, B, and C fill a reservoir in 5, 7, and 10 hours respectively. What is the combined hourly filling rate?",
+      "explanation": "",
+      "subject": "Mathematics",
+      "topic": "Work and Time",
+      "difficulty": "Hard",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) 0.49 per hour",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) 0.52 per hour",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) 0.44 per hour",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) 0.60 per hour",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "A laptop marked 70% above cost receives discounts of 20% and 15% sequentially. If the final price is ₹39,312, what is the effective multiplier applied to the cost price?",
+      "explanation": "",
+      "subject": "Mathematics",
+      "topic": "Percentage",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) 1.156",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) 1.248",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) 1.320",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) 1.162",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "An annular region has an outer radius of 12 cm and an inner radius of 8 cm. What is the area of the inner circle?",
+      "explanation": "",
+      "subject": "Mathematics",
+      "topic": "Geometry",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) 64π cm²",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) 80π cm²",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) 144π cm²",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) 36π cm²",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "If a line y = mx + 7 passes through (2, 13), what is the value of m?",
+      "explanation": "",
+      "subject": "Mathematics",
+      "topic": "Algebra",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) 2",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) 3",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) 4",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) 5",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Which word correctly completes the sentence: 'The team was so tired that they could _______ finish the marathon.'?",
+      "explanation": "",
+      "subject": "English",
+      "topic": "Vocabulary",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) barely",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) merely",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) almost",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) highly",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Convert to passive: 'They have been researching the topic for years.'",
+      "explanation": "",
+      "subject": "English",
+      "topic": "Grammar",
+      "difficulty": "Hard",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) The topic is being researched for years by them.",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) The topic was researched for years by them.",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) The topic has been being researched for years by them.",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) The topic has been researched for years by them.",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Rearrange the logical steps for a research process: (1) Data Collection, (2) Problem Identification, (3) Hypothesis Formulation, (4) Conclusion.",
+      "explanation": "",
+      "subject": "General Awareness",
+      "topic": "Research Methodology",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) 2-3-1-4",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) 1-2-3-4",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) 3-2-1-4",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) 2-1-3-4",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Identify the error: 'The committee have decided to postpone the meeting due to the unavailability of key members.'",
+      "explanation": "",
+      "subject": "English",
+      "topic": "Grammar",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) The committee",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) have decided",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) to postpone",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) unavailability",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Convert to active: 'It is expected by the public that the economy will improve.'",
+      "explanation": "",
+      "subject": "English",
+      "topic": "Grammar",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) The public expects the economy to improve.",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) The public is expecting that the economy will improve.",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) The public expected the economy to improve.",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) It is expected by the public that the economy improves.",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Identify the grammatical error in the following sentence: 'That the report overlooked several underlying causes behind the public unrest were surprising given the volume of evidence collected.'",
+      "explanation": "",
+      "subject": "English Language",
+      "topic": "Grammar",
+      "difficulty": "Hard",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) That the report",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) behind the public unrest",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) were surprising",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) given the volume of evidence",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Which word is the correct one-word substitute for 'a person who speaks two languages fluently'?",
+      "explanation": "",
+      "subject": "English Language",
+      "topic": "Vocabulary",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Accusation",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Denunciation",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Bilingual",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) Indictment",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Choose the correct preposition to complete the sentence: 'Even though the phenomenon is uncommon, it may still occur _________ prolonged drought conditions.'",
+      "explanation": "",
+      "subject": "English Language",
+      "topic": "Grammar",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) towards",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) amidst",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) between",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) under",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "question_text": "What is the correct spelling for the CSF-shunt procedure mentioned in the text?",
+      "explanation": "",
+      "subject": "English Language",
+      "topic": "Spelling",
+      "difficulty": "Hard",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Ventriculoatrial",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) Ventriculoartial",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Ventriculoatriall",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Ventriculoateriel",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What is the meaning of the idiom 'At sixes and sevens'?",
+      "explanation": "",
+      "subject": "English Language",
+      "topic": "Vocabulary",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) A dilemma between two evils",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) A free and fair decision",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) In complete confusion",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) A selection made under duress",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Identify the misspelt word from the list provided.",
+      "explanation": "",
+      "subject": "English Language",
+      "topic": "Spelling",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Vicereine",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) floccinaucinihilipilification",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Defenestrate",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Sacrilegous",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "question_text": "What is the synonym of 'DUPLICITOUS'?",
+      "explanation": "",
+      "subject": "English Language",
+      "topic": "Vocabulary",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Honest",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Faithful",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Deceitful",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) loyal",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Based on the provided passage, how is wisdom primarily developed?",
+      "explanation": "",
+      "subject": "Reading Comprehension",
+      "topic": "Analytical Skills",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Through reading textbooks",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Through emotional detachment",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Through experience and reflection",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) Through algorithmic thinking",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "According to the passage, why is modern society less capable of making balanced decisions?",
+      "explanation": "",
+      "subject": "Reading Comprehension",
+      "topic": "Analytical Skills",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Because it focuses too much on emotional maturity",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Because education systems prioritize rote learning over critical and ethical reasoning",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) Because there is a lack of information available",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Because people refuse to use technology",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Which of the following is highlighted in the text as a key difference between education and wisdom?",
+      "explanation": "",
+      "subject": "Reading Comprehension",
+      "topic": "Analytical Skills",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Education is a lifelong pursuit, while wisdom concludes with academic milestones",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Wisdom is certified by degrees, whereas education is not",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Education is temporally limited, while wisdom is a lifelong pursuit",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) Education relies on lived experience, while wisdom relies on curricula",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Select the correct direct speech form: 'He said that he would attend the meeting after the meal.'",
+      "explanation": "",
+      "subject": "English Language",
+      "topic": "Grammar",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) “I will attend the meeting after the meal,” he said.",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) “I would attend the meeting after the meal,” he said.",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) “I shall attend the meeting after the meal,” he said.",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) “I can attend the meeting after the meal,” he said.",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Choose the most grammatically correct replacement for the highlighted part: 'The doctor advised him to stop consuming junk food and doing workouts regularly.'",
+      "explanation": "",
+      "subject": "English Language",
+      "topic": "Grammar",
+      "difficulty": "Hard",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) stopping junk food and doing regular workouts",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) to stop junk food and to workouts regularly",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) to stop consuming junk food and to work out regularly",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) to not consume junk food and do workouts",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What is the primary mechanism through which formal education is typically validated?",
+      "explanation": "",
+      "subject": "Philosophy",
+      "topic": "Education vs Wisdom",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Through lifelong personal reflection and trial and error",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Through ethical conduct and social humility",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Through degrees, academic achievements, and formal disciplines",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) Through intuitive decision-making in real-world scenarios",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "According to the passage, what specific outcome is often sacrificed by modern educational systems?",
+      "explanation": "",
+      "subject": "Philosophy",
+      "topic": "Education vs Wisdom",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Technical problem-solving capabilities",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Examination performance and rote learning",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Standardized academic outcomes",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Critical thinking and emotional maturity",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "question_text": "How does wisdom differ from education in terms of time duration?",
+      "explanation": "",
+      "subject": "Philosophy",
+      "topic": "Education vs Wisdom",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Education is a lifelong pursuit, whereas wisdom concludes at academic milestones",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Wisdom is a lifelong pursuit, whereas education is often temporally limited",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) Both are lifelong pursuits with no clear end point",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Both are temporally limited to the period of formal schooling",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What does the author suggest is the 'highest form of intelligence'?",
+      "explanation": "",
+      "subject": "Philosophy",
+      "topic": "Education vs Wisdom",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) The capacity to solve complex technical problems through algorithms",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) The consistent choice to act upon what is right, even when difficult",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) The acquisition of advanced academic certifications",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) The ability to prioritize logical reasoning over emotional empathy",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Why can wisdom not be 'downloaded' or 'accelerated'?",
+      "explanation": "",
+      "subject": "Philosophy",
+      "topic": "Education vs Wisdom",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Because it lacks the theoretical models found in formal education",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Because it requires institutional evaluation systems to be valid",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Because it develops gradually through experience, failure, and reflection",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) Because it is dependent on algorithm-driven thinking and information overload",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What describes the relationship between education and wisdom according to the passage?",
+      "explanation": "",
+      "subject": "Philosophy",
+      "topic": "Education vs Wisdom",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Education sharpens the intellect, while wisdom deepens understanding",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) Wisdom sharpens the intellect, while education deepens understanding",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Education is the foundation of wisdom and they are entirely synonymous",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Wisdom is a product of academic achievement and institutional training",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What trait is identified as a hallmark of wisdom in the context of navigating the unknown?",
+      "explanation": "",
+      "subject": "Philosophy",
+      "topic": "Education vs Wisdom",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) The ability to solve problems through standardized tests",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) The capacity to navigate uncertainty with clarity and grace",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) The possession of extensive academic degrees and qualifications",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) The reliance on algorithm-driven thinking to predict outcomes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What consequence of the 'modern age' does the author highlight regarding decision-making?",
+      "explanation": "",
+      "subject": "Philosophy",
+      "topic": "Education vs Wisdom",
+      "difficulty": "Hard",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Individuals are better at making balanced, empathetic decisions",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Individuals are more adept at long-term foresight",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Individuals are better at technical tasks but worse at balanced, empathetic decisions",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) Individuals are less capable of solving technical problems due to information overload",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "According to the passage, why might a highly educated person still lack wisdom?",
+      "explanation": "",
+      "subject": "Philosophy",
+      "topic": "Education vs Wisdom",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) They lack the necessary degrees to prove their wisdom",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) They are unable to translate learning into sound judgement or responsible action",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) They have not been exposed to enough rote learning",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) They are too focused on practical insight and lived experience",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What components shape wisdom?",
+      "explanation": "",
+      "subject": "Philosophy",
+      "topic": "Education vs Wisdom",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Rote learning, examination performance, and curricula",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Experience, self-reflection, emotional intelligence, and moral awareness",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) Certificates, academic degrees, and formal validation",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Algorithm-driven thinking and technical competence",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What is the role of 'humility' in relation to wisdom?",
+      "explanation": "",
+      "subject": "Philosophy",
+      "topic": "Education vs Wisdom",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) It is a certificate of completion for wisdom",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) It is a way to prove one has higher academic standing",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) It serves as a sign that wisdom is present and active",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) It is an obstacle to developing wisdom in real-world situations",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "How does the author categorize the types of individuals who might possess wisdom despite limited formal education?",
+      "explanation": "",
+      "subject": "Philosophy",
+      "topic": "Education vs Wisdom",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Scientists, researchers, and academics",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Farmers, craftsmen, and elders",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) Policy makers and institutional leaders",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Algorithmic engineers and software developers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What is the primary method used by educational institutions to validate knowledge as described in the text?",
+      "explanation": "",
+      "subject": "Philosophy of Education",
+      "topic": "Knowledge Acquisition",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Practical trial and error experiences",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Degrees and academic achievements",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) Self-reflection and moral awareness",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Consistent ethical conduct",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "According to the passage, how is the development of wisdom fundamentally different from education?",
+      "explanation": "",
+      "subject": "Human Development",
+      "topic": "Wisdom",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Wisdom is acquired through standardized testing",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Wisdom requires a degree for certification",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Wisdom is developed gradually through reflection and failure",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) Wisdom is accelerated by modern algorithm-driven systems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Why does the author suggest that modern society produces individuals who struggle to make balanced decisions?",
+      "explanation": "",
+      "subject": "Sociology",
+      "topic": "Modern Education",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Due to a lack of technical problem-solving skills",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Because they focus too much on emotional maturity",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Due to systems prioritizing rote learning and standardized outcomes",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) Because they have too much experience with trial and error",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Which of the following does the author cite as a defining trait of wisdom?",
+      "explanation": "",
+      "subject": "Philosophy",
+      "topic": "Ethics",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Intellectual competence in theoretical models",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) The capacity to navigate uncertainty with grace",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) The mastery of formal disciplines",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) The ability to achieve academic milestones",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What is described as the highest form of intelligence in the passage?",
+      "explanation": "",
+      "subject": "Ethics",
+      "topic": "Intelligence",
+      "difficulty": "Hard",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Possessing a vast amount of structured knowledge",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) The ability to perform well in academic institutions",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Consistently choosing to act on what is right despite difficulty",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) The ability to quickly solve complex technical problems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "According to the passage, how is the timeframe of education different from that of wisdom?",
+      "explanation": "",
+      "subject": "Education Theory",
+      "topic": "Temporal Scope",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Education is a lifelong pursuit, whereas wisdom concludes with formal degrees",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Education is temporally limited, whereas wisdom is a lifelong pursuit",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) Both are lifelong pursuits with no specific milestones",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Both are limited to early developmental years",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Which characteristic is specifically mentioned as a component of wisdom?",
+      "explanation": "",
+      "subject": "Psychology",
+      "topic": "Wisdom",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Academic performance",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Emotional intelligence",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) Technical problem-solving speed",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Mastery of formal curricula",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What does the passage imply about 'algorithm-driven thinking' in the modern age?",
+      "explanation": "",
+      "subject": "Technology and Society",
+      "topic": "Modern Influences",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) It has helped narrow the gap between education and wisdom",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) It is essential for developing moral awareness",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) It contributes to the pronounced gap between education and wisdom",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) It enhances the capacity for human empathy",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Which group does the passage specifically mention as potentially lacking formal education yet demonstrating wisdom?",
+      "explanation": "",
+      "subject": "Sociology",
+      "topic": "Wisdom in Practice",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Policy analysts",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Corporate executives",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Farmers and craftsmen",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) Academicians",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What is the result of education systems focusing on rote learning and standardized outcomes?",
+      "explanation": "",
+      "subject": "Education Policy",
+      "topic": "Learning Outcomes",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) An increased capacity for critical thinking",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) A greater emphasis on emotional maturity",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) A reduction in technical problem-solving ability",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Production of individuals less capable of balanced decision-making",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "question_text": "What does the text imply by saying wisdom cannot be 'downloaded' or 'certified'?",
+      "explanation": "",
+      "subject": "Philosophy of Mind",
+      "topic": "Wisdom",
+      "difficulty": "Hard",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) It is not a form of data that can be institutionalized",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) It requires high-speed internet access",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) It is only available to those with advanced degrees",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) It is a skill that can be easily mass-produced",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "How does the author describe the relationship between the intellect and wisdom?",
+      "explanation": "",
+      "subject": "Cognitive Science",
+      "topic": "Wisdom and Intellect",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Education sharpens the intellect, while wisdom deepens understanding",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) Wisdom sharpens the intellect, while education deepens understanding",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) They are identical in their impact on human behavior",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Both focus primarily on rote memorization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "According to the provided text, why is wisdom fundamentally different from education?",
+      "explanation": "",
+      "subject": "Critical Reasoning",
+      "topic": "Conceptual Analysis",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Wisdom is obtained through academic milestones.",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Education is a lifelong process while wisdom is temporary.",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Wisdom cannot be accelerated or certified like education.",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) Education relies on trial and error whereas wisdom relies on algorithms.",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "How does the text define the 'highest form of intelligence'?",
+      "explanation": "",
+      "subject": "Philosophy",
+      "topic": "Ethics",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) The capacity to achieve formal academic qualifications.",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Consistently acting on what is right, even when difficult.",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) Possessing a nuanced comprehension of human behavior.",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) The ability to navigate uncertainty with grace.",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Which of the following is cited by the text as a way through which wisdom reveals itself?",
+      "explanation": "",
+      "subject": "Critical Reasoning",
+      "topic": "Conceptual Analysis",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Academic excellence",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Consistent ethical conduct",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) Speed of learning",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Formal certification",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Identify the word that best completes the sentence: 'The scholar was known for his ________ approach to problems, refusing to rely on automated solutions.'",
+      "explanation": "",
+      "subject": "English Language",
+      "topic": "Vocabulary",
+      "difficulty": "Hard",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) algorithmic",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) nuanced",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) temporal",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) certified",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What is the implied difference between education and wisdom regarding their timeframes?",
+      "explanation": "",
+      "subject": "Critical Reasoning",
+      "topic": "Conceptual Analysis",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Both are lifelong pursuits.",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Education is restricted to youth while wisdom starts later.",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) Education concludes with milestones, whereas wisdom continues for a lifetime.",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) Wisdom is temporally limited, while education lasts forever.",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Choose the correct preposition to complete the phrase: 'He was recognized for his capacity ________ navigating complex situations.'",
+      "explanation": "",
+      "subject": "English Language",
+      "topic": "Grammar",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) on",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) for",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) to",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) in",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Which word is an antonym for 'candid' as implied by the definition of its opposite, 'duplicitous'?",
+      "explanation": "",
+      "subject": "English Language",
+      "topic": "Vocabulary",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Frank",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Insincere",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) Sincere",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Direct",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Select the correct indirect speech form of: He said, 'I submit my homework'.",
+      "explanation": "",
+      "subject": "English Language",
+      "topic": "Grammar",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) He said that he submitted his homework.",
+          "is_correct": true
+        },
+        {
+          "answer_text": "B) He said that he submits his homework.",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) He asked that he submitted his homework.",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) He said that he had submitted his homework.",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "In the sentence 'The plan proved to be more complicated than expected,' what part of speech is 'more'?",
+      "explanation": "",
+      "subject": "English Language",
+      "topic": "Grammar",
+      "difficulty": "Hard",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Adjective",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Adverb",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) Noun",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Conjunction",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Identify the sentence that uses the homonym 'canon' (a law or rule) correctly.",
+      "explanation": "",
+      "subject": "English Language",
+      "topic": "Vocabulary",
+      "difficulty": "Hard",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) He fired the canon at the invaders.",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) The choir sang the canon beautifully.",
+          "is_correct": false
+        },
+        {
+          "answer_text": "C) The author added a new text to the literary canon.",
+          "is_correct": true
+        },
+        {
+          "answer_text": "D) She adjusted the settings on her canon.",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Which of the following phrases is grammatically correct based on common usage?",
+      "explanation": "",
+      "subject": "English Language",
+      "topic": "Grammar",
+      "difficulty": "Medium",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) He has the reputation to be kind.",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) He has the reputation of being kind.",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) He has the reputation being kind.",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) He has the reputation for to be kind.",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What is the primary cause of wisdom according to the passage?",
+      "explanation": "",
+      "subject": "Critical Reasoning",
+      "topic": "Conceptual Analysis",
+      "difficulty": "Easy",
+      "marks": 1,
+      "options": [
+        {
+          "answer_text": "A) Downloading data and formal certification.",
+          "is_correct": false
+        },
+        {
+          "answer_text": "B) Trial and error, failure, and reflection.",
+          "is_correct": true
+        },
+        {
+          "answer_text": "C) Following academic milestones consistently.",
+          "is_correct": false
+        },
+        {
+          "answer_text": "D) Relying on algorithmic approaches for decision making.",
+          "is_correct": false
+        }
+      ]
+    }
+  ]
+}

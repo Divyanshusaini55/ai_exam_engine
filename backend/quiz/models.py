@@ -1,3 +1,4 @@
+import django.utils.timezone
 
 from django.db import models
 from django.core.validators import RegexValidator
@@ -18,7 +19,7 @@ class Category(models.Model):
     icon_color = models.CharField(max_length=20, default='blue', help_text="Tailwind color name (e.g. 'blue', 'purple')")
     bg_color = models.CharField(max_length=50, default='bg-blue-100', help_text="Tailwind background class")
     
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=django.utils.timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -47,7 +48,7 @@ class SubCategory(models.Model):
         help_text="Syllabus PDF file for automated roadmap generation"
     )
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=django.utils.timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -68,7 +69,7 @@ class Topic(models.Model):
     order = models.IntegerField(default=0, help_text="Display order within subcategory")
     is_active = models.BooleanField(default=True, help_text="Show on frontend?")
     
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=django.utils.timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -84,6 +85,7 @@ def get_default_languages():
 
 
 class Exam(models.Model):
+    questions = models.ManyToManyField('Question', through='ExamQuestion', related_name='exams')
     STATUS_CHOICES = [
         ('draft', 'Draft'),
         ('published', 'Published'),
@@ -155,7 +157,7 @@ class Exam(models.Model):
         help_text="Total marks for this exam"
     )
     
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=django.utils.timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True, help_text="Inactive exams are hidden from students")
     supported_languages = models.JSONField(default=get_default_languages, help_text="Supported languages for this exam")
@@ -185,97 +187,75 @@ class Exam(models.Model):
         return slug
 
     def save(self, *args, **kwargs):
-        is_new = self.pk is None
-        old_marks_per_question = None
-        if not is_new:
-            old_exam = Exam.objects.filter(pk=self.pk).first()
-            if old_exam:
-                old_marks_per_question = old_exam.marks_per_question
-
         # Auto-generate slug if not set
         if not self.slug:
             self.slug = self._generate_slug()
 
+        # Recalculate total marks if not explicitly set
+        if self.marks_per_question is not None and self.total_questions:
+            calculated_total = int(self.marks_per_question * self.total_questions)
+            if self.total_marks is None or self.total_marks == 0:
+                self.total_marks = calculated_total
+
         super().save(*args, **kwargs)
-
-        if self.marks_per_question is not None:
-            if is_new or old_marks_per_question != self.marks_per_question:
-                self.questions.all().update(marks=self.marks_per_question)
-
-        # Recalculate total marks
-        if self.pk:
-            from django.db.models import Sum
-            total = self.questions.aggregate(total=Sum('marks'))['total'] or 0
-            if self.total_marks != total:
-                self.total_marks = total
-                super().save(update_fields=['total_marks'])
 
     class Meta:
         ordering = ['-created_at']
 
 
 
+
+
+
+
+
+
+import uuid
+
+class Tag(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(default=django.utils.timezone.now)
+
 class Question(models.Model):
-    exam = models.ForeignKey(Exam, related_name='questions', on_delete=models.CASCADE)
-    question_text = models.TextField()
-
-    # Image Support
-    image = models.ImageField(
-        upload_to='question_images/',
-        null=True,
-        blank=True
-    )
-    is_image_based = models.BooleanField(default=False)
-
-    question_type = models.CharField(
-        max_length=20,
-        choices=[
-            ('multiple_choice', 'Multiple Choice'),
-            ('true_false', 'True/False'),
-            ('short_answer', 'Short Answer'),
-        ],
-        default='multiple_choice'
-    )
-    order = models.IntegerField(default=0)
-    marks = models.IntegerField(default=1)
+    id = models.CharField(max_length=50, primary_key=True, editable=False)
+    question_type = models.CharField(max_length=50, default='multiple_choice')
+    origin = models.CharField(max_length=50, blank=True, help_text="e.g. ssc_cgl_2023, manual")
+    schema_version = models.CharField(max_length=10, default='v2')
+    schema_payload = models.JSONField(default=dict)
     
-    metadata = models.JSONField(default=dict, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    question_text = models.TextField()
+    difficulty_score = models.FloatField(default=1.0)
+    topic = models.CharField(max_length=100, blank=True, null=True)
+    tags = models.ManyToManyField(Tag, blank=True)
+    verified = models.BooleanField(default=False)
     
-    explanation = models.TextField(blank=True, null=True) 
+    created_at = models.DateTimeField(default=django.utils.timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
 
-    subject = models.CharField(max_length=100, blank=True, null=True) 
-    topic = models.CharField(max_length=100, blank=True, null=True)   
-    difficulty = models.CharField(max_length=20, blank=True, null=True) 
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.id = str(uuid.uuid4())[:8]
+        super().save(*args, **kwargs)
 
-    def __str__(self):
-        return f"{self.exam.title} - Q{self.order + 1}"
-
+class ExamQuestion(models.Model):
+    exam = models.ForeignKey(Exam, related_name='exam_questions', on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    order = models.PositiveIntegerField(default=0)
+    
     class Meta:
         ordering = ['order']
 
-
-class Answer(models.Model):
-    question = models.ForeignKey(Question, related_name='answers', on_delete=models.CASCADE)
-    answer_text = models.TextField()
-    is_correct = models.BooleanField(default=False)
-    order = models.IntegerField(default=0)
-
-    def __str__(self):
-        return f"{self.question} - {self.answer_text[:50]}"
-
-    class Meta:
-        ordering = ['order']
+class QuestionImage(models.Model):
+    question = models.ForeignKey(Question, related_name='images', on_delete=models.CASCADE)
+    image_file = models.ImageField(upload_to='question_images/', null=True, blank=True)
+    ocr_text = models.TextField(blank=True)
 
 
 class UserAnswer(models.Model):
     exam = models.ForeignKey(Exam, related_name='user_answers', on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    selected_answer = models.ForeignKey(Answer, null=True, blank=True, on_delete=models.SET_NULL)
-    text_answer = models.TextField(blank=True)
-    is_correct = models.BooleanField(default=False)
+    selected_options = models.JSONField(default=list, blank=True)
+    answer_payload = models.JSONField(default=dict, blank=True)
+    is_correct = models.BooleanField(null=True, blank=True, default=False)
     answered_at = models.DateTimeField(auto_now_add=True)
     session_id = models.CharField(max_length=100, db_index=True)
     is_flagged_for_review = models.BooleanField(default=False)
@@ -301,7 +281,9 @@ class ExamAttempt(models.Model):
     correct_answers = models.IntegerField()
     percentage = models.FloatField()
     session_id = models.CharField(max_length=100, db_index=True)
-    completed_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField(default=django.utils.timezone.now)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(default=django.utils.timezone.now)
     duration = models.IntegerField(default=0, null=True, blank=True)
     is_completed = models.BooleanField(default=False)
     current_question_index = models.IntegerField(default=0)
@@ -311,9 +293,9 @@ class ExamAttempt(models.Model):
         return f"{username} - {self.exam.title} ({self.percentage}%)"
 
     class Meta:
-        ordering = ['-completed_at']
+        ordering = ['-started_at']
         indexes = [
-            models.Index(fields=['user', 'completed_at'], name='attempt_user_date_idx'),
+            models.Index(fields=['user', 'started_at'], name='attempt_user_date_idx'),
         ]
 
 
@@ -325,7 +307,8 @@ class PracticeSession(models.Model):
     correct_answers = models.IntegerField()
     accuracy = models.FloatField()
     session_id = models.CharField(max_length=100, db_index=True)
-    submitted_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField(default=django.utils.timezone.now)
+    submitted_at = models.DateTimeField(null=True, blank=True)
     duration = models.IntegerField(default=0, null=True, blank=True)
     is_completed = models.BooleanField(default=False)
     current_question_index = models.IntegerField(default=0)
@@ -336,7 +319,7 @@ class PracticeSession(models.Model):
         return f"{username} - {self.exam.title} ({self.accuracy}%) - Practice"
 
     class Meta:
-        ordering = ['-submitted_at']
+        ordering = ['-started_at']
 
 
 # Alias for backward compatibility
@@ -355,7 +338,7 @@ class ContactMessage(models.Model):
     email = models.EmailField()
     message = models.TextField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='unread')
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=django.utils.timezone.now)
     
     def __str__(self):
         return f"{self.name} - {self.email} ({self.created_at.strftime('%Y-%m-%d %H:%M')})"
@@ -379,7 +362,7 @@ class QuestionPaperUpload(models.Model):
     file = models.FileField(upload_to='question_papers/')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=django.utils.timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -408,7 +391,7 @@ class CorrectionSuggestion(models.Model):
     
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     upvotes = models.IntegerField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=django.utils.timezone.now)
 
     def __str__(self):
         return f"Suggestion by {self.user.username} for Q{self.question.id}"
@@ -427,7 +410,7 @@ class CurrentAffair(models.Model):
     source_url = models.URLField(max_length=1000, blank=True)
     published_date = models.DateField(default=timezone.now)
     
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=django.utils.timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -442,7 +425,7 @@ class ExamRoadmap(models.Model):
     title = models.CharField(max_length=200, help_text="e.g. 'Complete Syllabus for SSC CGL'")
     description = models.TextField(blank=True)
     bookmarks = models.ManyToManyField(User, related_name='bookmarked_roadmaps', blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=django.utils.timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -639,7 +622,7 @@ class TopicResource(models.Model):
         editable=False,
         help_text="Auto-incremented on each API read"
     )
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=django.utils.timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -716,37 +699,43 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.core.cache import cache
 
-def clear_exam_cache(exam_id):
-    if exam_id:
-        for lang in ['en', 'hi']:
-            cache.delete(f"exam:{exam_id}:{lang}")
-            cache.delete(f"exam_questions:{exam_id}:{lang}")
+def clear_exam_cache(exam_identifier):
+    if exam_identifier:
+        try:
+            for lang in ['en', 'hi', '']:
+                cache.delete(f"exam:{exam_identifier}:{lang}")
+                cache.delete(f"exam_questions:{exam_identifier}:{lang}")
+                cache.delete(f"exam_questions:{exam_identifier}:{lang}:True")
+                cache.delete(f"exam_questions:{exam_identifier}:{lang}:False")
+        except Exception:
+            pass
 
 @receiver([post_save, post_delete], sender=Exam)
 def exam_cache_clear(sender, instance, **kwargs):
     clear_exam_cache(instance.id)
+    if instance.slug:
+        clear_exam_cache(instance.slug)
 
 @receiver([post_save, post_delete], sender=Question)
 def question_cache_clear(sender, instance, **kwargs):
-    clear_exam_cache(instance.exam_id)
+    try:
+        for exam in instance.exams.all():
+            clear_exam_cache(exam.id)
+            if exam.slug:
+                clear_exam_cache(exam.slug)
+    except Exception:
+        pass
 
-@receiver([post_save, post_delete], sender=Answer)
-def answer_cache_clear(sender, instance, **kwargs):
-    if hasattr(instance, 'question') and instance.question:
-        clear_exam_cache(instance.question.exam_id)
+@receiver([post_save, post_delete], sender=ExamQuestion)
+def exam_question_cache_clear(sender, instance, **kwargs):
+    if instance.exam_id:
+        clear_exam_cache(instance.exam_id)
+        try:
+            if instance.exam and instance.exam.slug:
+                clear_exam_cache(instance.exam.slug)
+        except Exception:
+            pass
 
-@receiver([post_save, post_delete], sender='quiz.QuestionTranslation')
-def question_translation_cache_clear(sender, instance, **kwargs):
-    if hasattr(instance, 'question') and instance.question:
-        clear_exam_cache(instance.question.exam_id)
-
-@receiver([post_save, post_delete], sender='quiz.AnswerTranslation')
-def answer_translation_cache_clear(sender, instance, **kwargs):
-    if hasattr(instance, 'answer') and instance.answer and hasattr(instance.answer, 'question') and instance.answer.question:
-        clear_exam_cache(instance.answer.question.exam_id)
-
-from django.db.models.signals import post_save, post_delete
-from django.dispatch import receiver
 from cache import (
     invalidate_exam_summary,
     invalidate_exam_roadmap,
@@ -760,5 +749,5 @@ def invalidate_exam_caches(sender, instance, **kwargs):
 
 @receiver([post_save, post_delete], sender=ExamAttempt)
 def invalidate_dashboard_on_attempt(sender, instance, **kwargs):
-    if hasattr(instance, 'user_id'):
+    if hasattr(instance, 'user_id') and instance.user_id:
         invalidate_user_dashboard(instance.user_id)

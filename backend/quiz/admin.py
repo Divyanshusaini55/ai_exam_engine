@@ -6,15 +6,14 @@ from django.utils.html import format_html
 from django.db.models import TextField
 from django.forms import Textarea
 from .models import (
-    Exam, Question, Answer, UserAnswer,
+    Exam, Question, UserAnswer,
     Category, SubCategory,
     ContactMessage, QuestionPaperUpload, CorrectionSuggestion,
     CurrentAffair,
     ExamRoadmap, RoadmapPhase, RoadmapTopic, UserTopicProgress,
     ResourceTag, TopicResource, ResourceProgress, ResourceBookmark,
 )
-from .models_translations import QuestionTranslation, AnswerTranslation
-from .ai import generate_questions_from_pdf
+from .ai import parse_exam_paper_with_ai, generate_questions_from_pdf
 
 def _status_badge(status):
     """Return a styled HTML pill badge for a given status string."""
@@ -128,53 +127,6 @@ def generate_ai_summary(modeladmin, request, queryset):
 
     modeladmin.message_user(request, "AI summaries generated for selected resources.")
 
-from django import forms
-
-class AnswerInlineForm(forms.ModelForm):
-    answer_text_hi = forms.CharField(
-        label="Hindi Translation",
-        required=False,
-        widget=forms.Textarea(attrs={'rows': 2, 'cols': 50, 'style': 'font-size: 13px; font-family: sans-serif;'})
-    )
-    
-    class Meta:
-        model = Answer
-        fields = ('answer_text', 'is_correct', 'order')
-        
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance and self.instance.pk:
-            hi_trans = self.instance.translations.filter(language='hi').first()
-            if hi_trans:
-                self.initial['answer_text_hi'] = hi_trans.answer_text
-
-
-class AnswerInline(admin.TabularInline):
-    model = Answer
-    form = AnswerInlineForm
-    extra = 1
-    fields = ('answer_text', 'answer_text_hi', 'is_correct', 'order')
-
-
-class QuestionTranslationInline(admin.StackedInline):
-    model = QuestionTranslation
-    extra = 1
-    max_num = 2
-
-
-class QuestionInline(admin.StackedInline):
-    model = Question
-    extra = 0
-    fields = (
-        'question_text',
-        'image',
-        'is_image_based',
-        'question_type',
-        'order',
-        'marks',
-        'explanation',
-    )
-    show_change_link = True
 
 
 class SubCategoryInline(admin.TabularInline):
@@ -374,7 +326,7 @@ class ExamAdmin(admin.ModelAdmin):
         ('AI Summary', {'fields': ('ai_summary',), 'classes': ('collapse',)}),
         ('Status', {'fields': ('is_active',)}),
     )
-    inlines = [QuestionInline]
+    inlines = []
     actions = [generate_questions]
 
     def get_urls(self):
@@ -442,144 +394,50 @@ class ExamAdmin(admin.ModelAdmin):
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'question_type', 'marks', 'order')
-    list_filter = ('question_type', 'exam')
-    search_fields = ('question_text', 'exam__title')
-    ordering = ('exam', 'order')
-
-    fieldsets = (
-        ('Reference', {'fields': ('exam', 'question_type', 'marks', 'order')}),
-        ('Content', {'fields': ('question_text', 'explanation', 'image', 'is_image_based')}),
-        ('AI Translation', {'fields': ('generate_hindi_button',)}),
-        ('Side-by-Side Preview', {'fields': ('translation_preview',)}),
-    )
-
-    readonly_fields = ('generate_hindi_button', 'translation_preview')
-    inlines = [AnswerInline, QuestionTranslationInline]
-    actions = ['generate_hindi_translation']
-
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path('<path:object_id>/generate-hindi/', self.admin_site.admin_view(self.generate_hindi_single), name='generate-hindi-single'),
-        ]
-        return custom_urls + urls
-
-    def generate_hindi_single(self, request, object_id):
-        from .ai import translate_question_to_hindi
-        question = self.get_object(request, object_id)
-        if question:
-            if translate_question_to_hindi(question):
-                self.message_user(request, "Successfully generated Hindi translation.")
-            else:
-                self.message_user(request, "Failed to generate Hindi translation via AI.", level='ERROR')
-        return redirect(f'/admin/quiz/question/{object_id}/change/')
-
-    @admin.action(description='Generate Hindi Translation (AI)')
-    def generate_hindi_translation(self, request, queryset):
-        from .ai import translate_question_to_hindi
-        success_count = 0
-        for question in queryset:
-            if translate_question_to_hindi(question):
-                success_count += 1
-        
-        self.message_user(
-            request, 
-            f"Successfully translated {success_count} of {queryset.count()} questions to Hindi."
-        )
-
-    def generate_hindi_button(self, obj):
-        if not obj.pk:
-            return "Save the question first."
-        url = f"/admin/quiz/question/{obj.pk}/generate-hindi/"
-        return format_html(
-            '<a class="button" href="{}" style="background:#7CB342;color:white;padding:6px 12px;border-radius:4px;font-weight:bold;text-decoration:none;display:inline-block;">Generate Hindi Translation</a>',
-            url
-        )
-    generate_hindi_button.short_description = 'AI Translation Actions'
-
-    def translation_preview(self, obj):
-        if not obj.pk:
-            return "Save the question first."
-        
-        hi_trans = obj.translations.filter(language='hi').first()
-        
-        hi_text = hi_trans.question_text if hi_trans else "(No Hindi Translation yet)"
-        hi_explain = hi_trans.explanation if hi_trans else "(No Hindi Explanation yet)"
-        
-        html = []
-        html.append('<div style="display:flex; gap:20px; border:1px solid #ddd; padding:15px; border-radius:8px; background:#f9f9f9; color: #1a1a1a;">')
-        
-        # English Preview
-        html.append('<div style="flex:1;">')
-        html.append('<h3 style="margin-top:0; border-bottom:2px solid #333; padding-bottom:5px; font-weight:bold; color: #333;">English</h3>')
-        html.append(f'<p><strong>Question:</strong> {obj.question_text}</p>')
-        html.append('<ul style="padding-left: 20px;">')
-        for ans in obj.answers.all().order_by('order'):
-            mark = "✓ " if ans.is_correct else ""
-            html.append(f'<li style="color: {"green" if ans.is_correct else "black"}; font-weight: {"bold" if ans.is_correct else "normal"};">{mark}Option {chr(65+ans.order)}: {ans.answer_text}</li>')
-        html.append('</ul>')
-        if obj.explanation:
-            html.append(f'<p><strong>Explanation:</strong> {obj.explanation}</p>')
-        html.append('</div>')
-        
-        # Hindi Preview
-        html.append('<div style="flex:1; border-left:1px solid #ccc; padding-left:20px;">')
-        html.append('<h3 style="margin-top:0; border-bottom:2px solid #7CB342; padding-bottom:5px; font-weight:bold; color:#7CB342;">Hindi / हिन्दी</h3>')
-        html.append(f'<p><strong>प्रश्न:</strong> {hi_text}</p>')
-        html.append('<ul style="padding-left: 20px;">')
-        for ans in obj.answers.all().order_by('order'):
-            ans_hi = ans.translations.filter(language='hi').first()
-            ans_text = ans_hi.answer_text if ans_hi else "(No Hindi Translation yet)"
-            mark = "✓ " if ans.is_correct else ""
-            html.append(f'<li style="color: {"green" if ans.is_correct else "black"}; font-weight: {"bold" if ans.is_correct else "normal"};">{mark}विकल्प {chr(65+ans.order)}: {ans_text}</li>')
-        html.append('</ul>')
-        if hi_explain:
-            html.append(f'<p><strong>व्याख्या:</strong> {hi_explain}</p>')
-        html.append('</div>')
-        
-        html.append('</div>')
-        return format_html("".join(html))
+    list_display = ('id', 'question_stem_preview', 'language_badge', 'question_type', 'subject_name', 'verified', 'created_at')
+    list_filter = ('question_type', 'origin', 'schema_version', 'verified', 'created_at')
+    search_fields = ('id', 'topic')
+    list_per_page = 50
     
-    translation_preview.short_description = 'Side-by-Side Preview'
+    fieldsets = (
+        ('Metadata', {'fields': ('id', 'question_type', 'origin', 'schema_version', 'verified', 'difficulty_score')}),
+        ('Classification', {'fields': ('topic', 'tags')}),
+        ('V2 Payload (JSONB)', {'fields': ('schema_payload',)}),
+        ('Timestamps', {'fields': ('created_at', 'updated_at'), 'classes': ('collapse',)}),
+    )
+    readonly_fields = ('id', 'created_at', 'updated_at')
 
-    def save_formset(self, request, form, formset, change):
-        instances = formset.save(commit=False)
-        for obj in formset.deleted_objects:
-            obj.delete()
-        for instance in instances:
-            instance.save()
-            
-        # If this is the AnswerInline formset, save the translations
-        if formset.model == Answer:
-            for inline_form in formset.forms:
-                if inline_form.cleaned_data and not inline_form.cleaned_data.get('DELETE', False):
-                    ans_instance = inline_form.instance
-                    answer_text_hi = inline_form.cleaned_data.get('answer_text_hi')
-                    if ans_instance.pk:
-                        if answer_text_hi:
-                            AnswerTranslation.objects.update_or_create(
-                                answer=ans_instance,
-                                language='hi',
-                                defaults={'answer_text': answer_text_hi.strip()}
-                            )
-                        else:
-                            AnswerTranslation.objects.filter(answer=ans_instance, language='hi').delete()
-        formset.save_m2m()
+    def question_stem_preview(self, obj):
+        payload = obj.schema_payload or {}
+        text = payload.get('question_text') or (payload.get('content') or {}).get('text') or payload.get('question_text_hi') or ""
+        if len(text) > 80:
+            text = text[:80] + "..."
+        return text or "—"
+    question_stem_preview.short_description = "Question Stem"
 
+    def language_badge(self, obj):
+        payload = obj.schema_payload or {}
+        has_hi = bool(payload.get('question_text_hi'))
+        lang = (payload.get('metadata') or {}).get('language', 'en')
+        if has_hi:
+            return format_html('<span style="display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;background:#E0E7FF;color:#3730A3;">EN + HI</span>')
+        elif lang == 'hi':
+            return format_html('<span style="display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;background:#FEF3C7;color:#92400E;">HI</span>')
+        return format_html('<span style="display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;background:#F1F5F9;color:#475569;">EN</span>')
+    language_badge.short_description = "Language"
 
-@admin.register(Answer)
-class AnswerAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'question', 'is_correct', 'order')
-    list_filter = ('is_correct', 'question__exam')
-    search_fields = ('answer_text', 'question__question_text')
+    def subject_name(self, obj):
+        payload = obj.schema_payload or {}
+        return (payload.get('classification') or {}).get('subject') or payload.get('subject') or "General"
+    subject_name.short_description = "Subject"
+
 
 
 @admin.register(UserAnswer)
 class UserAnswerAdmin(admin.ModelAdmin):
     list_display = ('session_id', 'question', 'is_correct', 'answered_at')
     list_filter = ('is_correct', 'answered_at', 'exam')
-    search_fields = ('session_id', 'question__question_text')
+    search_fields = ('session_id', 'question__id')
     readonly_fields = ('answered_at',)
 
 
@@ -621,7 +479,7 @@ class QuestionPaperUploadAdmin(admin.ModelAdmin):
 class CorrectionSuggestionAdmin(admin.ModelAdmin):
     list_display = ('question', 'type', 'user', 'status_badge', 'upvotes', 'created_at')
     list_filter = ('status', 'type', 'created_at')
-    search_fields = ('question__question_text', 'user__username', 'note')
+    search_fields = ('question__id', 'user__username', 'note')
     readonly_fields = ('created_at',)
 
     fieldsets = (

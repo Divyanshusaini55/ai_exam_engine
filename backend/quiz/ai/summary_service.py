@@ -26,27 +26,34 @@ class ExamSummaryService:
         start_time = time.time()
         logger.info(f"Starting generic summary pipeline for exam={exam.id}, title='{exam.title}'")
 
-        # Fetch questions optimally (load only required fields + answers relation)
-        questions_qs = Question.objects.filter(exam=exam).prefetch_related('answers')
+        # Fetch questions for this exam
+        questions_qs = exam.questions.all()
         total_questions = questions_qs.count()
         if total_questions == 0:
             raise ValueError(f"Exam {exam.id} has no questions. Cannot generate summary.")
 
-        # Convert queryset to dictionary list with options
+        # Convert queryset to dictionary list with options from schema_payload
         raw_questions = []
         for q in questions_qs:
-            options = [{'text': ans.answer_text, 'is_correct': ans.is_correct} for ans in q.answers.all()]
+            payload = q.schema_payload or {}
+            options = []
+            for opt in payload.get('options', []):
+                if isinstance(opt, dict):
+                    options.append({'text': opt.get('answer_text', ''), 'is_correct': opt.get('is_correct', False)})
+                else:
+                    options.append({'text': str(opt), 'is_correct': False})
+
             raw_questions.append({
                 'id': q.id,
-                'question_text': q.question_text,
-                'subject': q.subject,
-                'topic': q.topic,
-                'difficulty': q.difficulty,
-                'marks': q.marks,
+                'question_text': payload.get('question_text', ''),
+                'subject': payload.get('subject', q.topic or 'General'),
+                'topic': payload.get('topic', q.topic or 'General'),
+                'difficulty': payload.get('difficulty', 'Medium'),
+                'marks': payload.get('marks', exam.marks_per_question or 1),
                 'question_type': q.question_type,
                 'options': options,
-                'metadata': q.metadata,
-                'explanation': q.explanation
+                'metadata': payload.get('metadata', {}),
+                'explanation': payload.get('explanation', '')
             })
 
         # Step 1: Question Ingestion & Validation

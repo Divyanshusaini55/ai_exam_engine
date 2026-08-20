@@ -1,0 +1,407 @@
+[
+  {
+    "id": "q_000001",
+    "schema_version": "v2",
+    "origin": "pyq_extracted",
+    "question_type": "mcq_single",
+    "passage_id": null,
+    "content": {
+      "text": "If a train travelling at 60 km/h crosses a pole in 9 seconds, what is the length of the train?",
+      "images": {}
+    },
+    "question_text_hi": "यदि 60 किमी/घंटा की गति से चल रही एक ट्रेन 9 सेकंड में एक खंभे को पार करती है, तो ट्रेन की लंबाई क्या है?",
+    "options": [
+      { "id": "A", "text": "120 meters", "answer_text_hi": "120 मीटर", "image_url": null },
+      { "id": "B", "text": "150 meters", "answer_text_hi": "150 मीटर", "image_url": null },
+      { "id": "C", "text": "180 meters", "answer_text_hi": "180 मीटर", "image_url": null },
+      { "id": "D", "text": "200 meters", "answer_text_hi": "200 मीटर", "image_url": null }
+    ],
+    "answer": { "correct_options": ["B"] },
+    "explanation": {
+      "text": "Convert speed to m/s: $60 \\times \\frac{5}{18} = \\frac{50}{3}$ m/s. Distance = $\\frac{50}{3} \\times 9 = 150$ meters.",
+      "images": {}
+    },
+    "explanation_hi": "गति को m/s में बदलें: $60 \\times \\frac{5}{18} = \\frac{50}{3}$ m/s। दूरी = $\\frac{50}{3} \\times 9 = 150$ मीटर।",
+    "tutor_data": {
+      "hints": ["First, convert the train speed from km/h to m/s by multiplying by 5/18."],
+      "solution_steps": [
+        "Convert speed to m/s: $60 \\times \\frac{5}{18} = \\frac{50}{3}$ m/s",
+        "Calculate distance using speed and time: $\\frac{50}{3} \\times 9 = 150$ meters"
+      ]
+    },
+    "marking": { "positive": 2.0, "negative": 0.5, "partial_scheme": null },
+    "classification": {
+      "subject": "Quantitative Aptitude",
+      "topic": "Speed, Time and Distance",
+      "subtopic": "Trains",
+      "cognitive_level": "apply",
+      "difficulty_label": "Medium",
+      "difficulty_score": null,
+      "difficulty_source": null
+    },
+    "exam_history": [
+      { "exam": "SSC CGL", "year": 2022, "shift": "Shift 3" }
+    ],
+    "source": { "book": "SSC CGL 2022 Compendium", "page": 41 },
+    "generation_meta": null,
+    "verification": {
+      "verified": true,
+      "extracted_at": "2026-08-16T10:00:00Z",
+      "reviewed_by": null
+    },
+    "metadata": {
+      "language": "en",
+      "translation_group_id": "tg_55412",
+      "tags": ["speed", "trains", "quantitative-aptitude"],
+      "ideal_time_seconds": 45
+    }
+  },
+  {
+    "id": "q_000002",
+    "schema_version": "v2",
+    "origin": "pyq_extracted",
+    "question_type": "mcq_single",
+    "passage_id": null,
+    "content": {
+      "text": "Who among the following abolished sati in India?",
+      "images": {}
+    },
+    "question_text_hi": "निम्नलिखित में से किसने भारत में सती प्रथा को समाप्त किया?",
+    "options": [
+      { "id": "A", "text": "William Bentinck", "answer_text_hi": "विलियम बेंटिंक", "image_url": null },
+      { "id": "B", "text": "Wellesley", "answer_text_hi": "वैलेस्ली", "image_url": null },
+      { "id": "C", "text": "Dalhousie", "answer_text_hi": "डलहौज़ी", "image_url": null },
+      { "id": "D", "text": "Curzon", "answer_text_hi": "कर्जन", "image_url": null }
+    ],
+    "answer": { "correct_options": ["A"] },
+    "explanation": {
+      "text": "Lord William Bentinck abolished the practice of Sati in India in 1829 with the support of Raja Ram Mohan Roy.",
+      "images": {}
+    },
+    "explanation_hi": "लॉर्ड विलियम बेंटिंक ने राजा राम मोहन राय के सहयोग से 1829 में भारत में सती प्रथा को समाप्त किया था।",
+    "tutor_data": {
+      "hints": ["Look for the Governor-General of India in 1829 who partnered with Raja Ram Mohan Roy."],
+      "solution_steps": [
+        "Recall the Bengal Sati Regulation, 1829 passed by Lord William Bentinck."
+      ]
+    },
+    "marking": { "positive": 2.5, "negative": 0.0, "partial_scheme": null },
+    "classification": {
+      "subject": "General Awareness",
+      "topic": "Modern Indian History",
+      "subtopic": "Social Reform Movements",
+      "cognitive_level": "remember",
+      "difficulty_label": "Easy",
+      "difficulty_score": null,
+      "difficulty_source": null
+    },
+    "exam_history": [
+      { "exam": "UP Police SI", "year": 2021, "shift": "Shift 1" }
+    ],
+    "source": { "book": "UP SI 2021 Official Paper", "page": 14 },
+    "generation_meta": null,
+    "verification": {
+      "verified": true,
+      "extracted_at": "2026-08-16T10:00:00Z",
+      "reviewed_by": null
+    },
+    "metadata": {
+      "language": "en",
+      "translation_group_id": "tg_99411",
+      "tags": ["history", "modern-history", "social-reform"],
+      "ideal_time_seconds": 30
+    }
+  },
+  {
+    "id": "q_000003",
+    "schema_version": "v2",
+    "origin": "pyq_extracted",
+    "question_type": "mcq_single",
+    "passage_id": null,
+    "content": {
+      "text": "इनमें से कर्म कारक का चिह्न कौन-सा है?",
+      "images": {}
+    },
+    "question_text_hi": null,
+    "options": [
+      { "id": "A", "text": "को", "answer_text_hi": null, "image_url": null },
+      { "id": "B", "text": "ने", "answer_text_hi": null, "image_url": null },
+      { "id": "C", "text": "से", "answer_text_hi": null, "image_url": null },
+      { "id": "D", "text": "में", "answer_text_hi": null, "image_url": null }
+    ],
+    "answer": { "correct_options": ["A"] },
+    "explanation": {
+      "text": "हिंदी व्याकरण में कर्म कारक का विभक्ति चिह्न 'को' होता है (जैसे: राम ने रावण को मारा)। 'ने' कर्ता कारक, 'से' करण/अपादान, और 'में' अधिकरण कारक का चिह्न है।",
+      "images": {}
+    },
+    "explanation_hi": null,
+    "tutor_data": {
+      "hints": ["कर्ता ने, कर्म को, करण से... कारक विभक्ति तालिका का स्मरण करें।"],
+      "solution_steps": [
+        "कर्म कारक की विभक्ति 'को' होती है।"
+      ]
+    },
+    "marking": { "positive": 2.5, "negative": 0.0, "partial_scheme": null },
+    "classification": {
+      "subject": "General Hindi",
+      "topic": "हिंदी व्याकरण",
+      "subtopic": "कारक",
+      "cognitive_level": "remember",
+      "difficulty_label": "Easy",
+      "difficulty_score": null,
+      "difficulty_source": null
+    },
+    "exam_history": [
+      { "exam": "UP Police SI", "year": 2021, "shift": "Shift 1" }
+    ],
+    "source": { "book": "UP Police SI Official Paper", "page": 1 },
+    "generation_meta": null,
+    "verification": {
+      "verified": true,
+      "extracted_at": "2026-08-16T10:00:00Z",
+      "reviewed_by": null
+    },
+    "metadata": {
+      "language": "hi",
+      "translation_group_id": "tg_33812",
+      "tags": ["hindi-grammar", "karak"],
+      "ideal_time_seconds": 25
+    }
+  },
+  {
+    "id": "q_000004",
+    "schema_version": "v2",
+    "origin": "pyq_extracted",
+    "question_type": "mcq_single",
+    "passage_id": null,
+    "content": {
+      "text": "Select the most appropriate synonym of the given word: 'METICULOUS'",
+      "images": {}
+    },
+    "question_text_hi": null,
+    "options": [
+      { "id": "A", "text": "Careless", "answer_text_hi": null, "image_url": null },
+      { "id": "B", "text": "Diligent", "answer_text_hi": null, "image_url": null },
+      { "id": "C", "text": "Vague", "answer_text_hi": null, "image_url": null },
+      { "id": "D", "text": "Clumsy", "answer_text_hi": null, "image_url": null }
+    ],
+    "answer": { "correct_options": ["B"] },
+    "explanation": {
+      "text": "'Meticulous' means showing great attention to detail; very careful and precise. The closest synonym is 'Diligent' (or conscientious/thorough).",
+      "images": {}
+    },
+    "explanation_hi": null,
+    "tutor_data": {
+      "hints": ["'Meticulous' refers to someone who is extremely thorough, precise, and careful."],
+      "solution_steps": [
+        "Evaluate choices: 'Careless' and 'Clumsy' are antonyms; 'Diligent' means showing care and effort, matching 'Meticulous'."
+      ]
+    },
+    "marking": { "positive": 2.0, "negative": 0.5, "partial_scheme": null },
+    "classification": {
+      "subject": "English Language",
+      "topic": "Vocabulary",
+      "subtopic": "Synonyms",
+      "cognitive_level": "understand",
+      "difficulty_label": "Medium",
+      "difficulty_score": null,
+      "difficulty_source": null
+    },
+    "exam_history": [
+      { "exam": "SSC CGL", "year": 2024, "shift": "Shift 1" }
+    ],
+    "source": { "book": "SSC CGL 2024 Tier 1", "page": 5 },
+    "generation_meta": null,
+    "verification": {
+      "verified": true,
+      "extracted_at": "2026-08-16T10:00:00Z",
+      "reviewed_by": null
+    },
+    "metadata": {
+      "language": "en",
+      "translation_group_id": "tg_71209",
+      "tags": ["vocabulary", "synonyms", "english"],
+      "ideal_time_seconds": 20
+    }
+  },
+  {
+    "id": "q_000005",
+    "schema_version": "v2",
+    "origin": "pyq_extracted",
+    "question_type": "mcq_multi",
+    "passage_id": null,
+    "content": {
+      "text": "Which of the following statements about ideal gases are correct?",
+      "images": {}
+    },
+    "question_text_hi": "आदर्श गैसों के संबंध में निम्नलिखित में से कौन से कथन सही हैं?",
+    "options": [
+      { "id": "A", "text": "PV = nRT holds at all temperatures and pressures", "answer_text_hi": "PV = nRT सभी तापमानों और दबावों पर लागू होता है", "image_url": null },
+      { "id": "B", "text": "Internal energy depends only on temperature", "answer_text_hi": "आंतरिक ऊर्जा केवल तापमान पर निर्भर करती है", "image_url": null },
+      { "id": "C", "text": "Molecules have negligible volume", "answer_text_hi": "अणुओं का आयतन नगण्य होता है", "image_url": null },
+      { "id": "D", "text": "Intermolecular forces are significant", "answer_text_hi": "अंतर-आणविक बल महत्वपूर्ण होते हैं", "image_url": null }
+    ],
+    "answer": { "correct_options": ["B", "C"] },
+    "explanation": {
+      "text": "Ideal gas assumes negligible molecular volume and no intermolecular forces (C correct, D false). Internal energy depends only on temperature for an ideal gas (B correct). PV=nRT is an idealization (A false).",
+      "images": {}
+    },
+    "explanation_hi": "आदर्श गैस नगण्य आणविक आयतन और शून्य अंतर-आणविक बल मानती है (C सही, D गलत)। आंतरिक ऊर्जा केवल तापमान पर निर्भर करती है (B सही)।",
+    "tutor_data": {
+      "hints": ["Think about the core assumptions made in kinetic theory regarding molecular volume and interactions."],
+      "solution_steps": [
+        "Identify that ideal gases assume zero volume and zero interaction (B, C).",
+        "Recognize that PV=nRT is an approximation for real gases (A false)."
+      ]
+    },
+    "marking": {
+      "positive": null,
+      "negative": null,
+      "partial_scheme": {
+        "type": "jee_advanced_multi",
+        "rules": [
+          { "correct_selected": 2, "wrong_selected": 0, "marks": 4 },
+          { "correct_selected": 1, "wrong_selected": 0, "marks": 1 },
+          { "any_wrong_selected": true, "marks": -2 }
+        ]
+      }
+    },
+    "classification": {
+      "subject": "Physics",
+      "topic": "Kinetic Theory of Gases",
+      "subtopic": "Ideal Gas Assumptions",
+      "cognitive_level": "analyze",
+      "difficulty_label": "Hard",
+      "difficulty_score": null,
+      "difficulty_source": null
+    },
+    "exam_history": [
+      { "exam": "JEE Advanced", "year": 2021, "shift": "Paper 1" }
+    ],
+    "source": { "book": "JEE Advanced 2021 PYQ", "page": 8 },
+    "generation_meta": null,
+    "verification": {
+      "verified": true,
+      "extracted_at": "2026-08-16T10:00:00Z",
+      "reviewed_by": null
+    },
+    "metadata": {
+      "language": "en",
+      "translation_group_id": "tg_77102",
+      "tags": ["ideal-gas", "thermodynamics", "physics"],
+      "ideal_time_seconds": 90
+    }
+  },
+  {
+    "id": "q_000006",
+    "schema_version": "v2",
+    "origin": "pyq_extracted",
+    "question_type": "nat",
+    "passage_id": null,
+    "content": {
+      "text": "A particle moves with uniform acceleration and covers 40 m in the 4th second and 60 m in the 6th second. Find its acceleration in m/s².",
+      "images": {}
+    },
+    "question_text_hi": "एक कण समान त्वरण के साथ गति करता है और चौथे सेकंड में 40 मीटर और छठे सेकंड में 60 मीटर की दूरी तय करता है। इसका त्वरण m/s² में ज्ञात कीजिए।",
+    "options": null,
+    "answer": { "min": 9.9, "max": 10.1, "unit": "m/s²" },
+    "explanation": {
+      "text": "Distance in nth second = $u + \\frac{a}{2}(2n-1)$. Subtracting for n=4 and n=6 gives $2a=20$, so $a=10$ m/s².",
+      "images": {}
+    },
+    "explanation_hi": "n-वें सेकंड में दूरी = $u + \\frac{a}{2}(2n-1)$। n=4 और n=6 के समीकरणों को घटाने पर $2a=20$, अतः $a=10$ m/s² प्राप्त होता है।",
+    "tutor_data": {
+      "hints": ["Use the formula for distance covered in the n-th second: $S_n = u + \\frac{a}{2}(2n-1)$."],
+      "solution_steps": [
+        "Write $S_4 = u + \\frac{a}{2}(7) = 40$",
+        "Write $S_6 = u + \\frac{a}{2}(11) = 60$",
+        "Subtracting gives $2a = 20 \\implies a = 10$ m/s²"
+      ]
+    },
+    "marking": { "positive": 4.0, "negative": 0.0, "partial_scheme": null },
+    "classification": {
+      "subject": "Physics",
+      "topic": "Kinematics",
+      "subtopic": "Uniformly Accelerated Motion",
+      "cognitive_level": "apply",
+      "difficulty_label": "Medium",
+      "difficulty_score": null,
+      "difficulty_source": null
+    },
+    "exam_history": [
+      { "exam": "JEE Main", "year": 2023, "shift": "Session 1, Jan 25" }
+    ],
+    "source": { "book": "JEE Main 2023 PYQ", "page": 22 },
+    "generation_meta": null,
+    "verification": {
+      "verified": true,
+      "extracted_at": "2026-08-16T10:00:00Z",
+      "reviewed_by": null
+    },
+    "metadata": {
+      "language": "en",
+      "translation_group_id": "tg_99211",
+      "tags": ["kinematics", "acceleration"],
+      "ideal_time_seconds": 120
+    }
+  },
+  {
+    "id": "q_000007",
+    "schema_version": "v2",
+    "origin": "pyq_extracted",
+    "question_type": "mcq_single",
+    "passage_id": null,
+    "content": {
+      "text": "Which of the following diagrams correctly represents the water cycle? [IMAGE_1]",
+      "images": {
+        "IMAGE_1": {
+          "url": "https://cdn.examintel.in/img/q_000007_stem.png",
+          "alt": "reference diagram of a partial water cycle"
+        }
+      }
+    },
+    "question_text_hi": "निम्नलिखित में से कौन सा आरेख जल चक्र का सही निरूपण करता है? [IMAGE_1]",
+    "options": [
+      { "id": "A", "text": null, "answer_text_hi": null, "image_url": "https://cdn.examintel.in/img/q_000007_opt_a.png" },
+      { "id": "B", "text": null, "answer_text_hi": null, "image_url": "https://cdn.examintel.in/img/q_000007_opt_b.png" },
+      { "id": "C", "text": null, "answer_text_hi": null, "image_url": "https://cdn.examintel.in/img/q_000007_opt_c.png" },
+      { "id": "D", "text": null, "answer_text_hi": null, "image_url": "https://cdn.examintel.in/img/q_000007_opt_d.png" }
+    ],
+    "answer": { "correct_options": ["C"] },
+    "explanation": {
+      "text": "Option C correctly shows evaporation, condensation, precipitation, and collection in continuous sequence.",
+      "images": {}
+    },
+    "explanation_hi": "विकल्प C निरंतर क्रम में वाष्पीकरण, संघनन, वर्षण और संग्रहण को सही ढंग से दर्शाता है।",
+    "tutor_data": {
+      "hints": ["Recall the four main stages of the water cycle: evaporation, condensation, precipitation, collection."],
+      "solution_steps": []
+    },
+    "marking": { "positive": 1.0, "negative": 0.25, "partial_scheme": null },
+    "classification": {
+      "subject": "General Science",
+      "topic": "Environmental Science",
+      "subtopic": "Water Cycle",
+      "cognitive_level": "understand",
+      "difficulty_label": "Easy",
+      "difficulty_score": null,
+      "difficulty_source": null
+    },
+    "exam_history": [
+      { "exam": "SSC CHSL", "year": 2022, "shift": "Shift 2" }
+    ],
+    "source": { "book": "SSC CHSL 2022 PYQ", "page": 7 },
+    "generation_meta": null,
+    "verification": {
+      "verified": true,
+      "extracted_at": "2026-08-16T10:00:00Z",
+      "reviewed_by": null
+    },
+    "metadata": {
+      "language": "en",
+      "translation_group_id": "tg_29841",
+      "tags": ["water-cycle", "diagram-based"],
+      "ideal_time_seconds": 40
+    }
+  }
+]

@@ -5,6 +5,8 @@ from django.conf import settings
 import google.generativeai as genai
 from google.api_core.exceptions import GoogleAPIError, ResourceExhausted
 
+from quiz.ai.langfuse_client import observe, update_observation_metadata
+
 logger = logging.getLogger('quiz.ai.gemini_client')
 
 class GeminiClient:
@@ -14,13 +16,31 @@ class GeminiClient:
             raise ValueError("GEMINI_API_KEY is not set in settings.")
         genai.configure(api_key=self.api_key)
         
-        self.primary_model = getattr(settings, 'GEMINI_SUMMARY_MODEL', 'models/gemini-2.5-flash')
+        self.primary_model = getattr(settings, 'GEMINI_SUMMARY_MODEL', 'models/gemini-flash-lite-latest')
         # Fallbacks
         self.fallback_models = [
-            'models/gemini-2.5-flash',
-            'models/gemini-2.5-pro'
+            'models/gemini-flash-lite-latest',
+            'models/gemini-2.5-flash'
         ]
 
+    def upload_pdf(self, file_path):
+        logger.info(f"Uploading PDF to Gemini File API: {file_path}")
+        try:
+            gemini_file = genai.upload_file(file_path)
+            return gemini_file
+        except Exception as e:
+            logger.error(f"Failed to upload PDF: {e}")
+            raise e
+
+    def delete_pdf(self, file_name):
+        logger.info(f"Deleting Gemini file: {file_name}")
+        try:
+            genai.delete_file(file_name)
+        except Exception as e:
+            logger.error(f"Failed to delete Gemini file: {e}")
+            raise e
+
+    @observe(as_type="generation")
     def generate_content(self, prompt, max_retries=3, timeout=120, model_name=None):
         # Build candidate list of models (primary first, then fallback models if different)
         # If a specific model_name is provided, use it as the primary
@@ -44,7 +64,7 @@ class GeminiClient:
                     model = genai.GenerativeModel(model_name)
                     
                     start_time = time.time()
-                    response = model.generate_content(prompt)
+                    response = model.generate_content(prompt, request_options={"timeout": timeout})
                     generation_time = time.time() - start_time
                     
                     if not response or not response.text:
@@ -59,6 +79,14 @@ class GeminiClient:
                         candidate_tokens = getattr(response.usage_metadata, 'candidates_token_count', 0)
                         total_tokens = getattr(response.usage_metadata, 'total_token_count', 0)
                         
+                    update_observation_metadata(
+                        model=model_name,
+                        usage={
+                            "input": prompt_tokens,
+                            "output": candidate_tokens,
+                            "total": total_tokens
+                        }
+                    )
                     logger.info(
                         f"Success: model={model_name}, time={generation_time:.2f}s, "
                         f"tokens={total_tokens} (prompt={prompt_tokens}, gen={candidate_tokens})"

@@ -1,0 +1,76 @@
+[
+  {
+    "id": "q_44fd5d2a",
+    "schema_version": "v2",
+    "origin": "pyq_extracted",
+    "question_type": "mcq_single",
+    "passage_id": null,
+    "content": {
+      "text": "Who among the following is the world renowned exponent of the bamboo flute?",
+      "images": {}
+    },
+    "options": [
+      {
+        "id": "A",
+        "text": "MS Subbulakshmi",
+        "image_url": null
+      },
+      {
+        "id": "B",
+        "text": "Ravi Shankar",
+        "image_url": null
+      },
+      {
+        "id": "C",
+        "text": "Hariprasad Chaurasia",
+        "image_url": null
+      },
+      {
+        "id": "D",
+        "text": "Bismillah Khan",
+        "image_url": null
+      }
+    ],
+    "answer": {
+      "correct_options": [
+        "C"
+      ]
+    },
+    "explanation": {
+      "text": "",
+      "images": {}
+    },
+    "tutor_data": {
+      "hints": [],
+      "solution_steps": []
+    },
+    "marking": {
+      "positive": 2.0,
+      "negative": 0.5,
+      "partial_scheme": null
+    },
+    "classification": {
+      "subject": "General Awareness",
+      "topic": "General",
+      "subtopic": "General",
+      "cognitive_level": "apply",
+      "difficulty_label": "Medium",
+      "difficulty_score": null,
+      "difficulty_source": null
+    },
+    "exam_history": [],
+    "source": null,
+    "generation_meta": null,
+    "verification": {
+      "verified": true,
+      "extracted_at": null,
+      "reviewed_by": null
+    },
+    "metadata": {
+      "language": "en",
+      "translation_group_id": null,
+      "tags": [],
+      "ideal_time_seconds": 60
+    }
+  }
+]

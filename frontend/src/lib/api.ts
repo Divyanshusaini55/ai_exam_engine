@@ -108,16 +108,22 @@ export const examApi = {
 
   submitAnswer: (
     examId: string,
-    questionId: number,
-    answerId?: number | null,
+    questionId: number | string,
+    answerId?: number | string | null,
     sessionId?: string | null,
     isFlaggedForReview?: boolean,
-    isBookmarked?: boolean
+    isBookmarked?: boolean,
+    selectedOptions?: number[],
+    textAnswer?: string,
+    answerPayload?: any
   ) => {
     return api.post(`/exams/${examId}/submit_answer/`, {
       session_id: sessionId || getSessionId(),
       question_id: questionId,
       answer_id: answerId,
+      selected_options: selectedOptions,
+      text_answer: textAnswer,
+      answer_payload: answerPayload,
       is_flagged_for_review: isFlaggedForReview,
       is_bookmarked: isBookmarked,
     });
@@ -315,10 +321,10 @@ export const adminApi = {
     return legacyFetch('get', `/admin/questions/${queryString}`)
   },
   createQuestion: (data: any) => legacyFetch('post', '/admin/questions/', data),
-  updateQuestion: (id: number, data: any) => legacyFetch('patch', `/admin/questions/${id}/`, data),
-  deleteQuestion: (id: number) => legacyFetch('delete', `/admin/questions/${id}/`),
-  generateHindiQuestion: (id: number) => legacyFetch('post', `/admin/questions/${id}/generate_hindi/`),
-  bulkGenerateHindiQuestions: (ids: number[]) => legacyFetch('post', '/admin/questions/bulk_generate_hindi/', { ids }),
+  updateQuestion: (id: number | string, data: any) => legacyFetch('patch', `/admin/questions/${id}/`, data),
+  deleteQuestion: (id: number | string) => legacyFetch('delete', `/admin/questions/${id}/`),
+  generateHindiQuestion: (id: number | string) => legacyFetch('post', `/admin/questions/${id}/generate_hindi/`),
+  bulkGenerateHindiQuestions: (ids: (number | string)[]) => legacyFetch('post', '/admin/questions/bulk_generate_hindi/', { ids }),
 
   // Current Affairs
   getCurrentAffairs: (page: number = 1, search?: string) => {
@@ -349,6 +355,7 @@ export const adminApi = {
   // Messages & Suggestions
   getContactMessages: () => legacyFetch('get', '/admin/messages/'),
   toggleMessageResolve: (id: number) => legacyFetch('post', `/admin/messages/${id}/toggle_resolve/`),
+  updateContactMessageStatus: (id: number, status: string) => legacyFetch('post', `/admin/messages/${id}/update_status/`, { status }),
   deleteContactMessage: (id: number) => legacyFetch('delete', `/admin/messages/${id}/`),
 
   getSuggestions: () => legacyFetch('get', '/admin/suggestions/'),

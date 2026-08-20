@@ -20,5 +20,7 @@ lxml_html_clean
 celery[redis]>=5.3.0,<6.0.0
 django-redis>=5.4.0
 django-celery-beat>=2.5.0
-flower>=2.0.0
 drf-spectacular>=0.26.5
+langfuse>=2.0.0
+django-celery-results>=2.5.1
+flower>=2.0.0

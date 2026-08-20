@@ -54,14 +54,17 @@ class SummaryMixin:
             return Response({'error': 'Question ID required'}, status=400)
             
         question = get_object_or_404(Question, id=question_id)
+        payload = question.schema_payload or {}
+        existing_explanation = payload.get('explanation', '')
     
-        if question.explanation and question.explanation != "Explanation could not be generated at this time.":
-            return Response({'explanation': question.explanation})
+        if existing_explanation and existing_explanation != "Explanation could not be generated at this time.":
+            return Response({'explanation': existing_explanation})
             
         explanation = generate_explanation_for_question(question)
         
-        if explanation != "Explanation could not be generated at this time.":
-            question.explanation = explanation
-            question.save()
+        if explanation and explanation != "Explanation could not be generated at this time.":
+            payload['explanation'] = explanation
+            question.schema_payload = payload
+            question.save(update_fields=['schema_payload'])
             
         return Response({'explanation': explanation})

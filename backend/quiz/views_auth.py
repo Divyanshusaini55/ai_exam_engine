@@ -25,27 +25,80 @@ class RegisterAPI(generics.CreateAPIView):
             "refresh": str(refresh)
         }, status=status.HTTP_201_CREATED)
 
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.contrib.auth import authenticate
+from django.db.models import Q
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        username_or_email = attrs.get('username', '').strip()
+        password = attrs.get('password', '')
+        
+        user = User.objects.filter(
+            Q(username__iexact=username_or_email) | Q(email__iexact=username_or_email)
+        ).first()
+        
+        if user:
+            attrs['username'] = user.username
+            
+        return super().validate(attrs)
+
 @method_decorator(csrf_exempt, name='dispatch')
 class CustomLoginAPI(TokenObtainPairView):
     permission_classes = (permissions.AllowAny,)
+    serializer_class = CustomTokenObtainPairSerializer
     
     def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        # Add user info to response
-        user = User.objects.get(username=request.data['username'])
-        response.data['user_id'] = user.pk
-        response.data['email'] = user.email
-        response.data['username'] = user.username
-        response.data['is_staff'] = user.is_staff
-        response.data['is_superuser'] = user.is_superuser
+        identifier = str(request.data.get('username') or '').strip()
+        password = str(request.data.get('password') or '')
+        
+        if not identifier or not password:
+            return Response(
+                {"detail": "Username/email and password are required."}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        user = User.objects.filter(
+            Q(username__iexact=identifier) | Q(email__iexact=identifier)
+        ).first()
+        
+        if not user:
+            return Response(
+                {"detail": "No account found with this username or email."}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+            
+        authenticated_user = authenticate(username=user.username, password=password)
+        if not authenticated_user:
+            return Response(
+                {"detail": "Invalid credentials. Please check your password."}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+            
+        if not authenticated_user.is_active:
+            return Response(
+                {"detail": "This user account is inactive."}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+            
+        refresh = RefreshToken.for_user(authenticated_user)
+        access_token = str(refresh.access_token)
         
         request_context = {'request': request}
         from .serializers import UserSerializer
-        user_data = UserSerializer(user, context=request_context).data
-        response.data.update(user_data)
-        # Rename access token to match what frontend expects
-        response.data['token'] = response.data.get('access')
-        return response
+        user_data = UserSerializer(authenticated_user, context=request_context).data
+        
+        return Response({
+            "token": access_token,
+            "access": access_token,
+            "refresh": str(refresh),
+            "user_id": authenticated_user.pk,
+            "email": authenticated_user.email,
+            "username": authenticated_user.username,
+            "is_staff": authenticated_user.is_staff,
+            "is_superuser": authenticated_user.is_superuser,
+            **user_data
+        }, status=status.HTTP_200_OK)
 
 class UserProfileAPI(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]

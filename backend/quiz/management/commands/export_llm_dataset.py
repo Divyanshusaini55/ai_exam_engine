@@ -15,10 +15,7 @@ class Command(BaseCommand):
         limit = kwargs['limit']
         
         # Get questions that have explanations (crucial for fine-tuning)
-        questions = Question.objects.exclude(explanation__isnull=True).exclude(explanation__exact='')
-        
-        # Only take multiple choice for now
-        questions = questions.filter(question_type='multiple_choice').prefetch_related('answers', 'exam')
+        questions = Question.objects.filter(question_type='multiple_choice')
         
         if limit > 0:
             questions = questions[:limit]
@@ -27,27 +24,33 @@ class Command(BaseCommand):
         
         with open(output_file, 'w', encoding='utf-8') as f:
             for q in questions:
-                # Need to build the Prompt
-                system_prompt = f"You are an expert tutor in {q.subject or 'general studies'}."
-                
-                user_content = f"Question: {q.question_text}\nOptions:\n"
-                
+                payload = q.schema_payload or {}
+                q_text = payload.get('question_text', '')
+                explanation = payload.get('explanation', '')
+                subject = payload.get('subject', q.topic or 'general studies')
+                options = payload.get('options', [])
+
+                if not q_text or not explanation:
+                    continue
+
+                system_prompt = f"You are an expert tutor in {subject}."
+                user_content = f"Question: {q_text}\nOptions:\n"
                 correct_answer_str = ""
                 
-                # Format answers
-                for ans in q.answers.all():
-                    # We assume ans.answer_text includes the option like "A) text" or just "text"
-                    user_content += f"- {ans.answer_text}\n"
-                    if ans.is_correct:
-                        correct_answer_str = ans.answer_text
+                for ans in options:
+                    if isinstance(ans, dict):
+                        ans_text = ans.get('answer_text', '')
+                        user_content += f"- {ans_text}\n"
+                        if ans.get('is_correct'):
+                            correct_answer_str = ans_text
+                    else:
+                        user_content += f"- {str(ans)}\n"
                         
-                # Only export if we have a correct answer
                 if not correct_answer_str:
                     continue
                     
-                assistant_content = f"The correct answer is: {correct_answer_str}\n\nExplanation: {q.explanation}"
+                assistant_content = f"The correct answer is: {correct_answer_str}\n\nExplanation: {explanation}"
                 
-                # Format as OpenAI Chat JSONL
                 jsonl_line = {
                     "messages": [
                         {"role": "system", "content": system_prompt},

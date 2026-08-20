@@ -1,7 +1,7 @@
 
 from rest_framework import serializers
 from .models import (
-    Exam, Question, Answer, UserAnswer, Category, SubCategory, Topic,
+    Exam, Question, UserAnswer, Category, SubCategory, Topic,
     ContactMessage, QuestionPaperUpload, CorrectionSuggestion, CurrentAffair,
     ResourceTag, TopicResource, ResourceProgress, ResourceBookmark,
 )
@@ -51,59 +51,16 @@ class TopicSerializer(serializers.ModelSerializer):
         return obj.exams.filter(status='published', is_active=True).count()
 
 
-class AnswerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Answer
-        fields = ['id', 'answer_text', 'order']
-        read_only_fields = ['id']
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        lang = self.context.get('lang')
-        if not lang:
-            request = self.context.get('request')
-            if request:
-                lang = request.query_params.get('lang', 'en')
-        if not lang:
-            lang = 'en'
-            
-        if lang != 'en':
-            translation = next((t for t in instance.translations.all() if t.language == lang), None)
-            if translation:
-                data['answer_text'] = translation.answer_text
-        return data
-
-
-class AnswerSerializerWithCorrect(serializers.ModelSerializer):
-    class Meta:
-        model = Answer
-        fields = ['id', 'answer_text', 'is_correct', 'order']
-        read_only_fields = ['id']
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        lang = self.context.get('lang')
-        if not lang:
-            request = self.context.get('request')
-            if request:
-                lang = request.query_params.get('lang', 'en')
-        if not lang:
-            lang = 'en'
-            
-        if lang != 'en':
-            translation = next((t for t in instance.translations.all() if t.language == lang), None)
-            if translation:
-                data['answer_text'] = translation.answer_text
-
-        hi_ans = next((t for t in instance.translations.all() if t.language == 'hi'), None)
-        data['answer_text_hi'] = hi_ans.answer_text if hi_ans else ''
-        return data
-
-
 class QuestionSerializer(serializers.ModelSerializer):
     answers = serializers.SerializerMethodField()
     image = serializers.SerializerMethodField()
     comment_count = serializers.SerializerMethodField()
+    
+    question_text = serializers.SerializerMethodField()
+    explanation = serializers.SerializerMethodField()
+    subject = serializers.SerializerMethodField()
+    difficulty = serializers.SerializerMethodField()
+    marks = serializers.SerializerMethodField()
 
     class Meta:
         model = Question
@@ -111,7 +68,6 @@ class QuestionSerializer(serializers.ModelSerializer):
             'id',
             'question_text',
             'question_type',
-            'order',
             'marks',
             'subject',    
             'topic',      
@@ -125,22 +81,114 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     def get_comment_count(self, obj):
         return len(obj.community_comments.all())
+        
+    def get_question_text(self, obj):
+        payload = obj.schema_payload or {}
+        if 'question_text' in payload:
+            return payload.get('question_text', '')
+        if isinstance(payload.get('content'), dict):
+            return payload['content'].get('text', '')
+        return ""
+        
+    def get_explanation(self, obj):
+        payload = obj.schema_payload or {}
+        exp = payload.get('explanation')
+        if isinstance(exp, str):
+            return exp
+        if isinstance(exp, dict):
+            return exp.get('text', '')
+        return ""
+        
+    def get_subject(self, obj):
+        payload = obj.schema_payload or {}
+        if 'subject' in payload:
+            return payload.get('subject', '')
+        if isinstance(payload.get('classification'), dict):
+            return payload['classification'].get('subject', '')
+        return ""
+        
+    def get_difficulty(self, obj):
+        payload = obj.schema_payload or {}
+        if 'difficulty' in payload:
+            return payload.get('difficulty', 'medium')
+        if isinstance(payload.get('classification'), dict):
+            return payload['classification'].get('difficulty_label', 'medium')
+        return "medium"
+        
+    def get_marks(self, obj):
+        payload = obj.schema_payload or {}
+        if 'marks' in payload:
+            return payload.get('marks', 1)
+        if isinstance(payload.get('marking'), dict):
+            return payload['marking'].get('positive', 1)
+        return 1
 
     def get_answers(self, obj):
         hide_correct = self.context.get('hide_correct', False)
-        answers = obj.answers.all()
-        if hide_correct:
-            return AnswerSerializer(answers, many=True, context=self.context).data
-        return AnswerSerializerWithCorrect(answers, many=True, context=self.context).data
+        lang = self.context.get('lang', 'en')
+        if not lang and self.context.get('request'):
+            lang = self.context.get('request').query_params.get('lang', 'en')
+            
+        payload = obj.schema_payload or {}
+        options = payload.get('options', [])
+        if options is None:
+            return []
+            
+        correct_options = (payload.get('answer') or {}).get('correct_options', [])
+        
+        results = []
+        for idx, opt in enumerate(options):
+            if isinstance(opt, dict):
+                answer_text = opt.get('answer_text') or opt.get('text', '')
+                if answer_text is None:
+                    answer_text = ""
+                if lang == 'hi' and opt.get('answer_text_hi'):
+                    answer_text = opt.get('answer_text_hi')
+                    
+                is_correct = opt.get('is_correct', False) or (opt.get('id') in correct_options) or (chr(65 + idx) in correct_options)
+                
+                ans_dict = {
+                    'id': str(idx),
+                    'option_label': opt.get('id', chr(65 + idx)),
+                    'answer_text': answer_text,
+                    'answer_text_hi': opt.get('answer_text_hi') or '',
+                    'image_url': opt.get('image_url'),
+                    'order': idx,
+                }
+                if not hide_correct:
+                    ans_dict['is_correct'] = is_correct
+                results.append(ans_dict)
+            else:
+                results.append({
+                    'id': str(idx),
+                    'option_label': chr(65 + idx),
+                    'answer_text': str(opt),
+                    'answer_text_hi': '',
+                    'image_url': None,
+                    'order': idx,
+                    **({} if hide_correct else {'is_correct': (idx == 0)})
+                })
+            
+        return results
 
     def get_image(self, obj):
         request = self.context.get('request')
-        if hasattr(obj, 'image') and obj.image and request:
-            return request.build_absolute_uri(obj.image.url)
+        # Check QuestionImage model
+        img = obj.images.first()
+        if img and img.image_file and request:
+            return request.build_absolute_uri(img.image_file.url)
+        # Check schema_payload content.images
+        payload = obj.schema_payload or {}
+        images_dict = (payload.get('content') or {}).get('images', {})
+        if images_dict and isinstance(images_dict, dict):
+            first_img = next(iter(images_dict.values()), None)
+            if isinstance(first_img, dict) and first_img.get('url'):
+                return first_img.get('url')
         return None
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
+        hide_correct = self.context.get('hide_correct', False)
         lang = self.context.get('lang')
         if not lang:
             request = self.context.get('request')
@@ -149,17 +197,32 @@ class QuestionSerializer(serializers.ModelSerializer):
         if not lang:
             lang = 'en'
             
-        data['language'] = lang
-        if lang != 'en':
-            translation = next((t for t in instance.translations.all() if t.language == lang), None)
-            if translation:
-                data['question_text'] = translation.question_text
-                if translation.explanation:
-                    data['explanation'] = translation.explanation
-
-        hi_trans = next((t for t in instance.translations.all() if t.language == 'hi'), None)
-        data['question_text_hi'] = hi_trans.question_text if hi_trans else ''
-        data['explanation_hi'] = hi_trans.explanation if (hi_trans and hi_trans.explanation) else ''
+        payload = instance.schema_payload or {}
+        if lang == 'hi':
+            if payload.get('question_text_hi'):
+                data['question_text'] = payload.get('question_text_hi')
+            if payload.get('explanation_hi'):
+                data['explanation'] = payload.get('explanation_hi')
+        
+        # Expose rich V2 properties
+        data['schema_version'] = instance.schema_version
+        data['passage_id'] = payload.get('passage_id')
+        data['marking'] = payload.get('marking', {})
+        data['classification'] = payload.get('classification', {})
+        data['content_images'] = (payload.get('content') or {}).get('images', {})
+        data['exam_history'] = payload.get('exam_history', [])
+        data['question_text_hi'] = payload.get('question_text_hi', '')
+        data['options'] = data.get('answers', [])
+        
+        # Anti-cheat: strip explanations and tutor hints/steps during exam mode
+        if hide_correct:
+            data['explanation'] = ""
+            data['explanation_hi'] = ""
+            data['tutor_data'] = {'hints': [], 'solution_steps': []}
+        else:
+            data['explanation_hi'] = payload.get('explanation_hi', '')
+            data['tutor_data'] = payload.get('tutor_data', {})
+        
         return data
 
 
@@ -198,18 +261,14 @@ class ExamSerializer(serializers.ModelSerializer):
 
 
 class UserAnswerSerializer(serializers.ModelSerializer):
-    question_text = serializers.CharField(
-        source='question.question_text',
-        read_only=True
-    )
-    selected_answer_text = serializers.CharField(
-        source='selected_answer.answer_text',
-        read_only=True
-    )
-    
-    # Field definitions
+    question_text = serializers.SerializerMethodField()
+    question_text_hi = serializers.SerializerMethodField()
+    selected_answer = serializers.SerializerMethodField()
+    selected_answer_text = serializers.SerializerMethodField()
     correct_answer_text = serializers.SerializerMethodField()
-    explanation = serializers.CharField(source='question.explanation', read_only=True)
+    explanation = serializers.SerializerMethodField()
+    explanation_hi = serializers.SerializerMethodField()
+    tutor_data = serializers.SerializerMethodField()
 
     class Meta:
         model = UserAnswer
@@ -217,22 +276,150 @@ class UserAnswerSerializer(serializers.ModelSerializer):
             'id',
             'question',
             'question_text',
+            'question_text_hi',
             'selected_answer',
+            'selected_options',
+            'answer_payload',
             'selected_answer_text',
-            'correct_answer_text', 
-            'explanation',         
-            'text_answer',
+            'correct_answer_text',
+            'explanation',
+            'explanation_hi',
+            'tutor_data',
             'is_correct',
+            'is_flagged_for_review',
+            'is_bookmarked',
             'answered_at'
         ]
         read_only_fields = ['id', 'answered_at']
 
+    def get_question_text(self, obj):
+        if not obj.question:
+            return ""
+        payload = obj.question.schema_payload or {}
+        lang = self.context.get('lang', 'en')
+        if not lang and self.context.get('request'):
+            lang = self.context.get('request').query_params.get('lang', 'en')
+            
+        if lang == 'hi' and payload.get('question_text_hi'):
+            return payload.get('question_text_hi')
+        if 'question_text' in payload:
+            return payload.get('question_text', '')
+        if isinstance(payload.get('content'), dict):
+            return payload['content'].get('text', '')
+        return ""
+
+    def get_question_text_hi(self, obj):
+        if not obj.question:
+            return ""
+        payload = obj.question.schema_payload or {}
+        return payload.get('question_text_hi', '')
+
+    def get_selected_answer(self, obj):
+        if obj.selected_options and len(obj.selected_options) > 0:
+            return obj.selected_options[0]
+        return None
+
+    def get_selected_answer_text(self, obj):
+        if not obj.question:
+            return ""
+        payload = obj.question.schema_payload or {}
+        # Check text_answer from answer_payload (for NAT/Subjective)
+        if obj.answer_payload and obj.answer_payload.get('text_answer'):
+            return str(obj.answer_payload.get('text_answer'))
+            
+        if not obj.selected_options:
+            return ""
+            
+        options = payload.get('options', [])
+        lang = self.context.get('lang', 'en')
+        if not lang and self.context.get('request'):
+            lang = self.context.get('request').query_params.get('lang', 'en')
+
+        selected_texts = []
+        for idx in obj.selected_options:
+            try:
+                int_idx = int(idx)
+                if 0 <= int_idx < len(options):
+                    opt = options[int_idx]
+                    if isinstance(opt, dict):
+                        txt = opt.get('answer_text_hi') if lang == 'hi' and opt.get('answer_text_hi') else (opt.get('answer_text') or opt.get('text', ''))
+                        selected_texts.append(txt)
+                    else:
+                        selected_texts.append(str(opt))
+            except (ValueError, TypeError, IndexError):
+                pass
+        return ", ".join(selected_texts) if selected_texts else ""
+
     def get_correct_answer_text(self, obj):
-        correct_ans = obj.question.answers.filter(is_correct=True).first()
-        return correct_ans.answer_text if correct_ans else "Unknown"
+        if not obj.question:
+            return ""
+        payload = obj.question.schema_payload or {}
+        q_type = payload.get('question_type') or obj.question.question_type or 'mcq_single'
+        
+        lang = self.context.get('lang', 'en')
+        if not lang and self.context.get('request'):
+            lang = self.context.get('request').query_params.get('lang', 'en')
+
+        # NAT Numerical
+        if q_type == 'nat':
+            ans_info = payload.get('answer') or {}
+            unit = ans_info.get('unit', '')
+            if ans_info.get('min') is not None and ans_info.get('max') is not None:
+                return f"{ans_info['min']} - {ans_info['max']} {unit}".strip()
+            if ans_info.get('value') is not None:
+                return f"{ans_info['value']} {unit}".strip()
+            return ""
+
+        # Subjective
+        if q_type == 'subjective':
+            ans_info = payload.get('answer') or {}
+            return ans_info.get('model_answer', '')
+
+        # MCQ Single / Multi
+        options = payload.get('options', [])
+        correct_options = (payload.get('answer') or {}).get('correct_options', [])
+        correct_texts = []
+        for idx, opt in enumerate(options):
+            if isinstance(opt, dict):
+                is_correct = opt.get('is_correct', False) or (opt.get('id') in correct_options) or (chr(65 + idx) in correct_options)
+                if is_correct:
+                    txt = opt.get('answer_text_hi') if lang == 'hi' and opt.get('answer_text_hi') else (opt.get('answer_text') or opt.get('text', ''))
+                    correct_texts.append(txt)
+            elif idx == 0:
+                correct_texts.append(str(opt))
+        return ", ".join(correct_texts) if correct_texts else ""
+
+    def get_explanation(self, obj):
+        if not obj.question:
+            return ""
+        payload = obj.question.schema_payload or {}
+        lang = self.context.get('lang', 'en')
+        if not lang and self.context.get('request'):
+            lang = self.context.get('request').query_params.get('lang', 'en')
+            
+        if lang == 'hi' and payload.get('explanation_hi'):
+            return payload.get('explanation_hi')
+        exp = payload.get('explanation')
+        if isinstance(exp, str):
+            return exp
+        if isinstance(exp, dict):
+            return exp.get('text', '')
+        return ""
+
+    def get_explanation_hi(self, obj):
+        if not obj.question:
+            return ""
+        payload = obj.question.schema_payload or {}
+        return payload.get('explanation_hi', '')
+
+    def get_tutor_data(self, obj):
+        if not obj.question:
+            return {}
+        payload = obj.question.schema_payload or {}
+        return payload.get('tutor_data', {})
 
 class ExamResultSerializer(serializers.Serializer):
-    exam_id = serializers.IntegerField()
+    exam_id = serializers.CharField()
     exam_title = serializers.CharField()
     session_id = serializers.CharField()
     total_questions = serializers.IntegerField()

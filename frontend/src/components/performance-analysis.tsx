@@ -313,17 +313,23 @@ export function PerformanceAnalysisDashboard({ examId, onRetake }: PerformanceAn
                 const userAnswerEntry = result.answers?.find((a: any) => a.question === q.id)
 
                 // Determine status and correct answer
-                let status: 'correct' | 'incorrect' | 'skipped' = 'skipped'
+                let status: 'correct' | 'incorrect' | 'skipped' | 'pending' = 'skipped'
 
                 // If user answered
                 if (userAnswerEntry) {
-                  status = userAnswerEntry.is_correct ? 'correct' : 'incorrect'
+                  if (userAnswerEntry.is_correct === true) {
+                    status = 'correct'
+                  } else if (userAnswerEntry.is_correct === null || userAnswerEntry.is_correct === undefined) {
+                    status = (q.question_type === 'subjective') ? 'pending' : 'incorrect'
+                  } else {
+                    status = 'incorrect'
+                  }
                 }
 
-                // 🔥 FIND CORRECT ANSWER (Robust way)
-                // q.answers contains ALL answers with is_correct flag (thanks to updated API)
-                const correctOption = q.answers?.find((a: any) => a.is_correct)
-                const correctText = correctOption ? correctOption.answer_text : "Unknown"
+                // Correct answer resolution
+                const correctOption = q.answers?.filter((a: any) => a.is_correct)
+                const correctText = userAnswerEntry?.correct_answer_text || 
+                  (correctOption && correctOption.length > 0 ? correctOption.map((a: any) => a.answer_text).join(", ") : "Standard Reference")
 
                 return { ...q, userAnswerEntry, status, correctText, number: idx + 1 }
               })
@@ -334,7 +340,7 @@ export function PerformanceAnalysisDashboard({ examId, onRetake }: PerformanceAn
                   number={item.number}
                   questionId={item.id}
                   question={item.question_text}
-                  subject={item.subject} // 🔥 Pass Subject
+                  subject={item.subject}
                   status={item.status}
                   userAnswer={{
                     option: item.status === 'skipped' ? "Not Attempted" : "Your Answer",
@@ -342,9 +348,9 @@ export function PerformanceAnalysisDashboard({ examId, onRetake }: PerformanceAn
                   }}
                   correctAnswer={{
                     option: "Correct Answer",
-                    value: item.correctText // 🔥 Show Correct Answer ALWAYS
+                    value: item.correctText
                   }}
-                  explanation={item.explanation} // Pass explanation if available
+                  explanation={item.userAnswerEntry?.explanation || item.explanation}
                 />
               ))}
 

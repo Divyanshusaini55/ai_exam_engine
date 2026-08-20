@@ -12,14 +12,15 @@ from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
 from django.core.cache import cache
 from django.db.models import Count, Sum
-from django.db import models 
+from django.db import models, transaction
+from django.utils import timezone
 from django.contrib.auth.models import User
 import uuid
 
 from .ai import generate_explanation_for_question, parse_exam_paper_with_ai
 
 from .models import (
-    Exam, Question, Answer, UserAnswer, ExamAttempt, PracticeSession,
+    Exam, Question, UserAnswer, ExamAttempt, PracticeSession,
     Category, SubCategory, CorrectionSuggestion,
     TopicResource, ResourceBookmark, ResourceProgress,
     RoadmapTopic,
@@ -97,23 +98,26 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
     def get_object(self):
         queryset = self.filter_queryset(self.get_queryset())
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
-        lookup_value = self.kwargs.get(lookup_url_kwarg)
+        lookup_value = self.kwargs.get(lookup_url_kwarg) or self.kwargs.get('pk') or self.kwargs.get('id')
 
         if not lookup_value:
-            return super().get_object()
+            lookup_value = self.kwargs.get('slug')
 
-        if lookup_value.isdigit():
-            try:
-                obj = queryset.get(id=lookup_value)
-                self.check_object_permissions(self.request, obj)
-                return obj
-            except queryset.model.DoesNotExist:
-                pass
+        if lookup_value:
+            lookup_str = str(lookup_value)
+            if lookup_str.isdigit():
+                try:
+                    obj = queryset.get(id=int(lookup_str))
+                    self.check_object_permissions(self.request, obj)
+                    return obj
+                except queryset.model.DoesNotExist:
+                    pass
 
-        filter_kwargs = {self.lookup_field: lookup_value}
-        obj = get_object_or_404(queryset, **filter_kwargs)
-        self.check_object_permissions(self.request, obj)
-        return obj
+            obj = get_object_or_404(queryset, slug=lookup_str)
+            self.check_object_permissions(self.request, obj)
+            return obj
+
+        return super().get_object()
 
 
     def retrieve(self, request, *args, **kwargs):
@@ -134,16 +138,25 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
     def questions(self, request, slug=None):
         lang = request.query_params.get('lang', 'en')
         mode = request.query_params.get('mode', 'exam')
-        
-        hide_correct = (mode == 'exam')
-        cache_key = f"exam_questions:{slug}:{lang}:{hide_correct}"
+        session_id = request.query_params.get('session_id')
+        user = request.user if request.user.is_authenticated else None
+        exam = self.get_object()
+
+        # Anti-cheat check: if user or session has an active uncompleted ExamAttempt for this exam, force hide_correct = True
+        has_active_exam_attempt = False
+        if user:
+            has_active_exam_attempt = ExamAttempt.objects.filter(user=user, exam=exam, is_completed=False).exists()
+        elif session_id:
+            has_active_exam_attempt = ExamAttempt.objects.filter(session_id=session_id, exam=exam, is_completed=False).exists()
+
+        hide_correct = (mode == 'exam') or has_active_exam_attempt
+        cache_key = f"exam_questions:{exam.slug}:{lang}:{hide_correct}"
         
         cached_data = cache.get(cache_key)
         if cached_data:
             return Response(cached_data)
             
-        exam = self.get_object()
-        questions = exam.questions.all().prefetch_related('answers', 'translations', 'answers__translations', 'community_comments')
+        questions = exam.questions.all().prefetch_related('community_comments', 'images')
 
         serializer = QuestionSerializer(
             questions,
@@ -164,7 +177,9 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
         session_id = request.data.get('session_id')
         question_id = request.data.get('question_id')
         answer_id = request.data.get('answer_id')
-        text_answer = request.data.get('text_answer', '')
+        selected_options = request.data.get('selected_options')
+        text_answer = request.data.get('text_answer')
+        answer_payload = request.data.get('answer_payload', {})
         is_flagged_for_review = request.data.get('is_flagged_for_review')
         is_bookmarked = request.data.get('is_bookmarked')
 
@@ -174,25 +189,111 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        question = get_object_or_404(Question, id=question_id, exam=exam)
+        # Anti-cheat: verify exam is not already submitted
+        if ExamAttempt.objects.filter(session_id=session_id, exam=exam, is_completed=True).exists():
+            return Response(
+                {'error': 'Exam has already been submitted. Further modifications are disabled.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Server-side timer check
+        active_attempt = ExamAttempt.objects.filter(session_id=session_id, exam=exam, is_completed=False).first()
+        if active_attempt and exam.duration_minutes and exam.duration_minutes > 0:
+            elapsed = (timezone.now() - active_attempt.started_at).total_seconds()
+            max_allowed = (exam.duration_minutes * 60) + 30  # 30-second network grace window
+            if elapsed > max_allowed:
+                return Response(
+                    {'error': 'Exam duration limit has expired.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+        question = get_object_or_404(Question, id=question_id, exams=exam)
 
         defaults = {
             'exam': exam,
-            'text_answer': text_answer,
         }
 
-        if answer_id is not None:
-            if answer_id:
-                selected_answer = get_object_or_404(
-                    Answer,
-                    id=answer_id,
-                    question=question
-                )
-                defaults['selected_answer'] = selected_answer
-                defaults['is_correct'] = selected_answer.is_correct
-            else:
-                defaults['selected_answer'] = None
-                defaults['is_correct'] = False
+        payload = question.schema_payload or {}
+        q_type = payload.get('question_type') or question.question_type or 'mcq_single'
+        options = payload.get('options', [])
+        correct_options = (payload.get('answer') or {}).get('correct_options', [])
+        
+        # 1. Normalize selected_options from input
+        chosen_indices = []
+        if selected_options is not None:
+            if isinstance(selected_options, list):
+                for item in selected_options:
+                    try:
+                        chosen_indices.append(int(item))
+                    except (ValueError, TypeError):
+                        # Match option label like 'A', 'B', 'C', 'D'
+                        for idx, opt in enumerate(options):
+                            if isinstance(opt, dict) and opt.get('id') == str(item):
+                                chosen_indices.append(idx)
+                                break
+        elif answer_id is not None and str(answer_id).strip() != "":
+            try:
+                chosen_indices = [int(answer_id)]
+            except (ValueError, TypeError):
+                for idx, opt in enumerate(options):
+                    if isinstance(opt, dict) and opt.get('id') == str(answer_id):
+                        chosen_indices = [idx]
+                        break
+
+        defaults['selected_options'] = chosen_indices
+
+        # 2. Store text_answer or answer_payload for NAT / Subjective
+        if text_answer is not None or answer_payload:
+            user_payload = dict(answer_payload)
+            if text_answer is not None:
+                user_payload['text_answer'] = str(text_answer).strip()
+            defaults['answer_payload'] = user_payload
+
+        # 3. Evaluate correctness based on V2 question_type
+        is_correct = False
+        if q_type in ['mcq_single', 'multiple_choice']:
+            if chosen_indices:
+                ans_idx = chosen_indices[0]
+                if 0 <= ans_idx < len(options):
+                    opt = options[ans_idx]
+                    if isinstance(opt, dict):
+                        is_correct = bool(opt.get('is_correct', False)) or (opt.get('id') in correct_options) or (chr(65 + ans_idx) in correct_options)
+                    else:
+                        is_correct = (ans_idx == 0)
+        elif q_type == 'mcq_multi':
+            # Multiple-choice multi-select: all correct options must be selected and zero wrong options
+            if chosen_indices and options:
+                selected_labels = set()
+                for idx in chosen_indices:
+                    if 0 <= idx < len(options):
+                        opt = options[idx]
+                        lbl = opt.get('id', chr(65 + idx)) if isinstance(opt, dict) else chr(65 + idx)
+                        selected_labels.add(lbl)
+                target_correct = set(correct_options) if correct_options else {
+                    opt.get('id', chr(65 + i)) for i, opt in enumerate(options) if isinstance(opt, dict) and opt.get('is_correct')
+                }
+                is_correct = (selected_labels == target_correct and len(target_correct) > 0)
+        elif q_type == 'nat':
+            # Numerical Answer Type: check if user value is within [min, max] with epsilon tolerance
+            ans_info = payload.get('answer') or {}
+            val_str = (defaults.get('answer_payload') or {}).get('text_answer', '')
+            try:
+                user_val = float(val_str)
+                min_val = ans_info.get('min')
+                max_val = ans_info.get('max')
+                exact_val = ans_info.get('value')
+                
+                if min_val is not None and max_val is not None:
+                    is_correct = ((float(min_val) - 1e-6) <= user_val <= (float(max_val) + 1e-6))
+                elif exact_val is not None:
+                    is_correct = abs(user_val - float(exact_val)) < 1e-4
+            except (ValueError, TypeError):
+                is_correct = False
+        elif q_type == 'subjective':
+            # Subjective: pending manual/AI review, no auto-wrong mark
+            is_correct = None
+
+        defaults['is_correct'] = is_correct
 
         if is_flagged_for_review is not None:
             defaults['is_flagged_for_review'] = is_flagged_for_review
@@ -205,10 +306,8 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
             defaults=defaults
         )
 
-        serializer = UserAnswerSerializer(user_answer)
+        serializer = UserAnswerSerializer(user_answer, context={'request': request})
         return Response(serializer.data)
-
-
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def start(self, request, slug=None, pk=None, **kwargs):
@@ -220,27 +319,29 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
             return Response({'error': 'Invalid mode'}, status=status.HTTP_400_BAD_REQUEST)
             
         user = request.user if request.user.is_authenticated else None
+        now = timezone.now()
         
         # Check if there is an active (incomplete) session/attempt of the same mode to resume
         if mode == 'exam':
             active_attempt = None
             if user:
-                active_attempt = ExamAttempt.objects.filter(user=user, exam=exam, is_completed=False).order_by('-completed_at').first()
+                active_attempt = ExamAttempt.objects.filter(user=user, exam=exam, is_completed=False).order_by('-started_at').first()
             elif session_id:
                 active_attempt = ExamAttempt.objects.filter(session_id=session_id, exam=exam, is_completed=False).first()
                 
             if active_attempt:
+                elapsed_seconds = int((now - active_attempt.started_at).total_seconds()) if active_attempt.started_at else active_attempt.duration
                 return Response({
                     'success': True,
                     'session_id': active_attempt.session_id,
                     'mode': mode,
                     'current_question_index': active_attempt.current_question_index,
-                    'duration': active_attempt.duration
+                    'duration': elapsed_seconds,
+                    'started_at': active_attempt.started_at.isoformat() if active_attempt.started_at else now.isoformat()
                 })
                 
-            # Otherwise create a new one
             new_session_id = session_id or str(uuid.uuid4())
-            ExamAttempt.objects.create(
+            attempt = ExamAttempt.objects.create(
                 user=user,
                 exam=exam,
                 session_id=new_session_id,
@@ -249,6 +350,7 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
                 correct_answers=0,
                 percentage=0.0,
                 duration=0,
+                started_at=now,
                 is_completed=False
             )
             return Response({
@@ -256,26 +358,29 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
                 'session_id': new_session_id,
                 'mode': mode,
                 'current_question_index': 0,
-                'duration': 0
+                'duration': 0,
+                'started_at': attempt.started_at.isoformat()
             })
         else:
             active_session = None
             if user:
-                active_session = PracticeSession.objects.filter(user=user, exam=exam, is_completed=False).order_by('-submitted_at').first()
+                active_session = PracticeSession.objects.filter(user=user, exam=exam, is_completed=False).order_by('-started_at').first()
             elif session_id:
                 active_session = PracticeSession.objects.filter(session_id=session_id, exam=exam, is_completed=False).first()
                 
             if active_session:
+                elapsed_seconds = int((now - active_session.started_at).total_seconds()) if active_session.started_at else active_session.duration
                 return Response({
                     'success': True,
                     'session_id': active_session.session_id,
                     'mode': mode,
                     'current_question_index': active_session.current_question_index,
-                    'duration': active_session.duration
+                    'duration': elapsed_seconds,
+                    'started_at': active_session.started_at.isoformat() if active_session.started_at else now.isoformat()
                 })
                 
             new_session_id = session_id or str(uuid.uuid4())
-            PracticeSession.objects.create(
+            session = PracticeSession.objects.create(
                 user=user,
                 exam=exam,
                 session_id=new_session_id,
@@ -284,6 +389,7 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
                 correct_answers=0,
                 accuracy=0.0,
                 duration=0,
+                started_at=now,
                 is_completed=False
             )
             return Response({
@@ -291,16 +397,17 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
                 'session_id': new_session_id,
                 'mode': mode,
                 'current_question_index': 0,
-                'duration': 0
+                'duration': 0,
+                'started_at': session.started_at.isoformat()
             })
 
-
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
+    @transaction.atomic
     def submit(self, request, slug=None, pk=None, **kwargs):
         exam = self.get_object()
         session_id = request.data.get('session_id')
         mode = request.data.get('mode', 'exam')
-        duration = request.data.get('duration', 0)
+        client_duration = request.data.get('duration', 0)
         
         if not session_id:
             return Response({'error': 'session_id is required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -309,33 +416,74 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
         guest_name = request.data.get("name", "Guest")
         guest_email = request.data.get("email", "")
         
-        user_answers = UserAnswer.objects.filter(exam=exam, session_id=session_id)
+        user_answers = UserAnswer.objects.filter(exam=exam, session_id=session_id).select_related('question')
         total_questions = exam.questions.count()
-        correct_answers = user_answers.filter(is_correct=True).count()
-        wrong_answers = user_answers.filter(is_correct=False).exclude(selected_answer__isnull=True).count()
         
-        positive_score = user_answers.filter(is_correct=True).aggregate(
-            total=models.Sum('question__marks')
-        )['total'] or 0
+        positive_score = 0.0
+        correct_answers_count = 0
+        wrong_answers_count = 0
         
-        penalty = float(wrong_answers) * float(exam.negative_marks or 0.0)
-        score = float(positive_score) - penalty
+        for ua in user_answers:
+            q_payload = (ua.question.schema_payload or {})
+            q_type = q_payload.get('question_type') or ua.question.question_type or 'mcq_single'
+            pos_mark = float(q_payload.get('marks') or q_payload.get('marking', {}).get('positive') or exam.marks_per_question or 1.0)
+            
+            if q_type == 'subjective':
+                # Subjective: pending manual/AI review, do NOT count as wrong or deduct negative marks
+                continue
+                
+            if ua.is_correct is True:
+                positive_score += pos_mark
+                correct_answers_count += 1
+            elif ua.is_correct is False:
+                # Has user attempted this question?
+                has_attempt = bool(ua.selected_options) or bool((ua.answer_payload or {}).get('text_answer'))
+                if has_attempt:
+                    # Check for mcq_multi partial credit
+                    if q_type == 'mcq_multi':
+                        options = q_payload.get('options', [])
+                        correct_options = (q_payload.get('answer') or {}).get('correct_options', [])
+                        target_correct = set(correct_options) if correct_options else {
+                            opt.get('id', chr(65 + i)) for i, opt in enumerate(options) if isinstance(opt, dict) and opt.get('is_correct')
+                        }
+                        selected_labels = set()
+                        for idx in ua.selected_options:
+                            if 0 <= idx < len(options):
+                                opt = options[idx]
+                                lbl = opt.get('id', chr(65 + idx)) if isinstance(opt, dict) else chr(65 + idx)
+                                selected_labels.add(lbl)
+                        
+                        wrong_selected = selected_labels - target_correct
+                        correct_selected = selected_labels.intersection(target_correct)
+                        if not wrong_selected and len(correct_selected) > 0 and len(target_correct) > 0:
+                            # Award partial proportional credit
+                            awarded = pos_mark * (len(correct_selected) / len(target_correct))
+                            positive_score += awarded
+                            continue
+                            
+                    wrong_answers_count += 1
         
-        accuracy = round((correct_answers / total_questions * 100) if total_questions > 0 else 0, 2)
+        penalty = float(wrong_answers_count) * float(exam.negative_marks or 0.0)
+        score = max(0.0, float(positive_score) - penalty)
+        accuracy = round((correct_answers_count / total_questions * 100) if total_questions > 0 else 0, 2)
+        now = timezone.now()
         
         if mode == 'exam':
-            attempts = ExamAttempt.objects.filter(session_id=session_id, exam=exam)
+            attempts = ExamAttempt.objects.select_for_update().filter(session_id=session_id, exam=exam)
             if attempts.exists():
                 attempt = attempts.first()
-                attempt.user = user
+                actual_duration = int((now - attempt.started_at).total_seconds()) if attempt.started_at else client_duration
+                attempt.user = user or attempt.user
                 attempt.score = score
                 attempt.total_questions = total_questions
-                attempt.correct_answers = correct_answers
+                attempt.correct_answers = correct_answers_count
                 attempt.percentage = accuracy
-                attempt.duration = duration
+                attempt.duration = actual_duration
+                attempt.completed_at = now
                 attempt.is_completed = True
-                attempt.guest_name = guest_name if not user else None
-                attempt.guest_email = guest_email if not user else None
+                if not user:
+                    attempt.guest_name = guest_name
+                    attempt.guest_email = guest_email
                 attempt.save()
                 
                 if attempts.count() > 1:
@@ -347,9 +495,11 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
                     user=user,
                     score=score,
                     total_questions=total_questions,
-                    correct_answers=correct_answers,
+                    correct_answers=correct_answers_count,
                     percentage=accuracy,
-                    duration=duration,
+                    duration=client_duration,
+                    started_at=now,
+                    completed_at=now,
                     is_completed=True,
                     guest_name=guest_name if not user else None,
                     guest_email=guest_email if not user else None,
@@ -361,22 +511,24 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
                 'score': score,
                 'positive_score': positive_score,
                 'penalty': penalty,
-                'correct': correct_answers,
-                'wrong': wrong_answers,
+                'correct': correct_answers_count,
+                'wrong': wrong_answers_count,
                 'total': total_questions,
                 'percentage': attempt.percentage,
                 'attempt_id': attempt.id 
             })
         else:
-            sessions = PracticeSession.objects.filter(session_id=session_id, exam=exam)
+            sessions = PracticeSession.objects.select_for_update().filter(session_id=session_id, exam=exam)
             if sessions.exists():
                 session = sessions.first()
-                session.user = user
+                actual_duration = int((now - session.started_at).total_seconds()) if session.started_at else client_duration
+                session.user = user or session.user
                 session.score = score
                 session.total_questions = total_questions
-                session.correct_answers = correct_answers
+                session.correct_answers = correct_answers_count
                 session.accuracy = accuracy
-                session.duration = duration
+                session.duration = actual_duration
+                session.submitted_at = now
                 session.is_completed = True
                 session.save()
                 
@@ -389,9 +541,11 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
                     user=user,
                     score=score,
                     total_questions=total_questions,
-                    correct_answers=correct_answers,
+                    correct_answers=correct_answers_count,
                     accuracy=accuracy,
-                    duration=duration,
+                    duration=client_duration,
+                    started_at=now,
+                    submitted_at=now,
                     is_completed=True
                 )
             
@@ -417,12 +571,10 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
                 'positive_score': positive_score,
                 'penalty': penalty,
                 'accuracy': accuracy,
-                'correct': correct_answers,
-                'wrong': wrong_answers,
+                'correct': correct_answers_count,
+                'wrong': wrong_answers_count,
                 'weak_topics': weak_topics
             })
-
-
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def submit_exam(self, request, slug=None, pk=None, **kwargs):

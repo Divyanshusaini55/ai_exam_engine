@@ -45,7 +45,7 @@ export function AuthForm({ defaultMode = "login" }: { defaultMode?: "login" | "r
             });
             router.replace(redirectTo);
         } else {
-            setError(data.non_field_errors?.[0] || "Invalid credentials");
+            setError(data.detail || data.non_field_errors?.[0] || "Invalid credentials");
         }
       } else {
         const res = await authApi.register({ username, email, password });
@@ -97,9 +97,11 @@ export function AuthForm({ defaultMode = "login" }: { defaultMode?: "login" | "r
         {/* CARD */}
         <div className="rounded-premium border border-border bg-card p-8 shadow-premium backdrop-blur-2xl">
           <form onSubmit={submit} className="space-y-6">
-            {/* USERNAME */}
+            {/* USERNAME / EMAIL */}
             <div>
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2">Username</label>
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2">
+                {mode === "login" ? "Username or Email" : "Username"}
+              </label>
               <input
                 autoComplete="username"
                 id="login-username-input"
@@ -108,7 +110,7 @@ export function AuthForm({ defaultMode = "login" }: { defaultMode?: "login" | "r
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full rounded-xl border border-border bg-secondary px-4 py-3.5 text-primary outline-none transition-all placeholder:text-muted-foreground/60 focus:border-primary/30 focus:ring-2 focus:ring-primary/5 font-medium"
-                placeholder="you"
+                placeholder={mode === "login" ? "you or you@example.com" : "you"}
               />
               {mode === "register" && (
                 <p className="mt-1.5 text-[11px] text-muted-foreground font-medium">

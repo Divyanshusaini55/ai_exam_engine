@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'health',
     'jobs',
     'django_celery_beat',
+    'django_celery_results',
     'drf_spectacular',
 ]
 
@@ -85,6 +86,9 @@ else:
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
+            'OPTIONS': {
+                'timeout': 20,
+            },
         }
     }
 
@@ -204,13 +208,14 @@ CACHES = {
         'LOCATION': REDIS_CACHE_URL,
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'SOCKET_CONNECT_TIMEOUT': 5,
-            'SOCKET_TIMEOUT': 5,
-            'RETRY_ON_TIMEOUT': True,
+            'IGNORE_EXCEPTIONS': True,
+            'SOCKET_CONNECT_TIMEOUT': 1,
+            'SOCKET_TIMEOUT': 1,
+            'RETRY_ON_TIMEOUT': False,
             'MAX_CONNECTIONS': 50,
             'CONNECTION_POOL_KWARGS': {
                 'max_connections': 50,
-                'retry_on_timeout': True,
+                'retry_on_timeout': False,
             },
         },
         'KEY_PREFIX': 'exam_engine',
@@ -228,7 +233,9 @@ SIMPLE_JWT = {
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', REDIS_URL)
-CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', REDIS_URL)
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'django-db')
+CELERY_CACHE_BACKEND = 'default'
+CELERY_RESULT_EXTENDED = True
 
 if CELERY_BROKER_URL and CELERY_BROKER_URL.startswith('rediss://'):
     import ssl
@@ -353,8 +360,13 @@ if not GEMINI_API_KEY:
         "Please create a .env file in the backend/ folder and add your key."
     )
 
-GEMINI_SUMMARY_MODEL = os.environ.get('GEMINI_SUMMARY_MODEL', 'models/gemini-2.5-flash')
-GEMINI_CLASSIFY_MODEL = os.environ.get('GEMINI_CLASSIFY_MODEL', 'models/gemini-2.0-flash')
+GEMINI_SUMMARY_MODEL = os.environ.get('GEMINI_SUMMARY_MODEL', 'models/gemini-flash-lite-latest')
+GEMINI_CLASSIFY_MODEL = os.environ.get('GEMINI_CLASSIFY_MODEL', 'models/gemini-flash-lite-latest')
+
+# Langfuse Observability Configuration
+LANGFUSE_PUBLIC_KEY = os.environ.get('LANGFUSE_PUBLIC_KEY')
+LANGFUSE_SECRET_KEY = os.environ.get('LANGFUSE_SECRET_KEY')
+LANGFUSE_HOST = os.environ.get('LANGFUSE_HOST', 'https://cloud.langfuse.com')
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 20000
 
@@ -375,11 +387,13 @@ JAZZMIN_SETTINGS = {
     'topmenu_links': [
         {'name': 'Platform', 'url': 'http://localhost:4005', 'new_window': True, 'icon': 'fas fa-external-link-alt'},
         {'name': 'API Docs', 'url': '/api/', 'new_window': True, 'icon': 'fas fa-code'},
+        {'name': 'Celery Flower', 'url': 'http://localhost:5555', 'new_window': True, 'icon': 'fas fa-chart-line'},
         {'model': 'auth.User'},
       ],
 
     'usermenu_links': [
         {'name': 'Platform', 'url': 'http://localhost:4005', 'new_window': True, 'icon': 'fas fa-external-link-alt'},
+        {'name': 'Celery Flower', 'url': 'http://localhost:5555', 'new_window': True, 'icon': 'fas fa-chart-line'},
       ],
     'show_sidebar': True,
     'navigation_expanded': True,
@@ -394,6 +408,8 @@ JAZZMIN_SETTINGS = {
         'quiz.ExamRoadmap', 'quiz.RoadmapPhase', 'quiz.RoadmapTopic',
         'quiz.UserTopicProgress',
         'quiz.UserAnswer', 'quiz.ContactMessage',
+        'django_celery_results', 'django_celery_results.TaskResult', 'django_celery_results.GroupResult',
+        'django_celery_beat',
         'auth', 'community',
     ],
 
@@ -416,6 +432,9 @@ JAZZMIN_SETTINGS = {
         'quiz.UserAnswer': 'fas fa-poll',
         'quiz.ContactMessage': 'fas fa-envelope',
         'community': 'fas fa-comments',
+        'django_celery_results.TaskResult': 'fas fa-tasks',
+        'django_celery_results.GroupResult': 'fas fa-layer-group',
+        'django_celery_beat.PeriodicTask': 'fas fa-clock',
     },
 
     'default_icon_parents': 'fas fa-chevron-circle-right',
