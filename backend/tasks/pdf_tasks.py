@@ -55,6 +55,13 @@ def parse_question_paper(self, job_id, upload_id, dedup_key=None):
         upload.status = 'processed'
         upload.save(update_fields=['status'])
 
+        # Trigger async background translation to Hindi if missing
+        try:
+            from quiz.ai import auto_translate_exam_to_hindi
+            auto_translate_exam_to_hindi(exam)
+        except Exception as e:
+            logger.warning(f"Background translation to Hindi failed: {e}")
+
         complete_job(job_id, result={
             'upload_id': upload_id,
             'exam_id': exam.id,
