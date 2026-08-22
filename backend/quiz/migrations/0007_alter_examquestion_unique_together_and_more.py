@@ -132,11 +132,6 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(blank=True, to='quiz.tag'),
         ),
         migrations.AlterField(
-            model_name='question',
-            name='topic',
-            field=models.CharField(blank=True, max_length=100, null=True),
-        ),
-        migrations.AlterField(
             model_name='questionpaperupload',
             name='created_at',
             field=models.DateTimeField(default=django.utils.timezone.now),

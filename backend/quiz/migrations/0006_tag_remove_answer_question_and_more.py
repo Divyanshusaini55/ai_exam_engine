@@ -129,11 +129,6 @@ class Migration(migrations.Migration):
             name='question_type',
             field=models.CharField(max_length=50),
         ),
-        migrations.AlterField(
-            model_name='question',
-            name='topic',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='quiz.topic'),
-        ),
         migrations.CreateModel(
             name='ExamQuestion',
             fields=[
