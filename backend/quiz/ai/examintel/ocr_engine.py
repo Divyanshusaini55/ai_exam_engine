@@ -86,6 +86,7 @@ def extract_questions_from_pdf(
     pdf_path: str,
     output_dir: Path,
 ) -> Tuple[List[QuestionBlock], str]:
+    output_dir = Path(output_dir)
     doc = fitz.open(pdf_path)
     assets_dir = output_dir / "assets"
     assets_dir.mkdir(parents=True, exist_ok=True)

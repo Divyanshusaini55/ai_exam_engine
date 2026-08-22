@@ -51,55 +51,75 @@ def parse_exam_paper_with_ai(exam: Exam):
         logger.error("Exam has no pdf_file")
         return 0
         
-    pdf_path = exam.pdf_file.path
-    logger.info(f"Starting ExamIngestionGraph for {pdf_path}")
-    print(f"[*] Starting new ExamIngestionGraph pipeline for {pdf_path}")
-    
-    from .langgraph.exam_ingestion_graph import ExamIngestionGraph
-    
-    graph = ExamIngestionGraph()
-    result = graph.run(pdf_path)
-    
-    payloads = result.get("final_payloads", [])
-    print(f"[*] Graph execution finished. Extracted {len(payloads)} questions.")
-    
-    # Save to database
-    count = 0
-    import uuid
-    for idx, payload in enumerate(payloads):
+    import os, tempfile
+    temp_pdf = None
+    try:
         try:
-            q_id = payload.get("id") or str(uuid.uuid4())[:8]
-            q = Question.objects.create(
-                id=q_id,
-                question_type=payload.get("question_type", "multiple_choice"),
-                origin=payload.get("origin", "pdf_extracted"),
-                schema_version=payload.get("schema_version", "v2"),
-                topic=(payload.get("classification") or {}).get("topic", "General"),
-                schema_payload=payload,
-                verified=bool((payload.get("verification") or {}).get("verified", True))
-            )
-            ExamQuestion.objects.create(
-                exam=exam,
-                question=q,
-                order=idx
-            )
-            count += 1
-            print(f"  [+] Saved question {idx+1}/{len(payloads)}: {q.id}")
-        except Exception as e:
-            print(f"  [-] Failed to save question {idx+1}: {e}")
-    # Detect supported languages and update Exam
-    has_hindi = any(
-        bool(p.get("question_text_hi")) or (p.get("metadata") or {}).get("language") == "hi"
-        for p in payloads
-    )
-    current_langs = set(exam.supported_languages or ["en"])
-    if has_hindi:
-        current_langs.add("hi")
-    exam.supported_languages = sorted(list(current_langs))
-    exam.save(update_fields=["supported_languages"])
+            pdf_path = exam.pdf_file.path
+        except (NotImplementedError, AttributeError):
+            # Remote S3 / Cloudflare R2 storage: stream into temporary file
+            temp_pdf = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
+            with exam.pdf_file.open('rb') as f:
+                temp_pdf.write(f.read())
+            temp_pdf.flush()
+            temp_pdf.close()
+            pdf_path = temp_pdf.name
 
-    print(f"[*] Done. Total saved: {count}. Supported languages: {exam.supported_languages}")
-    return count
+        logger.info(f"Starting ExamIngestionGraph for {pdf_path}")
+        print(f"[*] Starting new ExamIngestionGraph pipeline for {pdf_path}")
+        
+        from .langgraph.exam_ingestion_graph import ExamIngestionGraph
+        
+        graph = ExamIngestionGraph()
+        result = graph.run(pdf_path)
+        
+        payloads = result.get("final_payloads", [])
+        print(f"[*] Graph execution finished. Extracted {len(payloads)} questions.")
+    
+        # Save to database
+        count = 0
+        import uuid
+        for idx, payload in enumerate(payloads):
+            try:
+                q_id = payload.get("id") or str(uuid.uuid4())[:8]
+                q = Question.objects.create(
+                    id=q_id,
+                    question_type=payload.get("question_type", "multiple_choice"),
+                    origin=payload.get("origin", "pdf_extracted"),
+                    schema_version=payload.get("schema_version", "v2"),
+                    topic=(payload.get("classification") or {}).get("topic", "General"),
+                    schema_payload=payload,
+                    verified=bool((payload.get("verification") or {}).get("verified", True))
+                )
+                ExamQuestion.objects.create(
+                    exam=exam,
+                    question=q,
+                    order=idx
+                )
+                count += 1
+                print(f"  [+] Saved question {idx+1}/{len(payloads)}: {q.id}")
+            except Exception as e:
+                print(f"  [-] Failed to save question {idx+1}: {e}")
+
+        # Detect supported languages and update Exam
+        has_hindi = any(
+            bool(p.get("question_text_hi")) or (p.get("metadata") or {}).get("language") == "hi"
+            for p in payloads
+        )
+        current_langs = set(exam.supported_languages or ["en"])
+        if has_hindi:
+            current_langs.add("hi")
+        exam.supported_languages = sorted(list(current_langs))
+        exam.save(update_fields=["supported_languages"])
+
+        print(f"[*] Done. Total saved: {count}. Supported languages: {exam.supported_languages}")
+        return count
+    finally:
+        if temp_pdf and os.path.exists(temp_pdf.name):
+            try:
+                os.remove(temp_pdf.name)
+            except Exception:
+                pass
 
 generate_questions_from_pdf = parse_exam_paper_with_ai
 
