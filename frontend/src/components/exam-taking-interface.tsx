@@ -42,11 +42,110 @@ import {
     Download,
     Flag,
     Bookmark,
+    BookOpen,
     X
 } from "lucide-react"
 
 import { SuggestCorrectionModal } from "./suggest-correction-modal"
 import { SummaryModal } from "./summary-modal"
+
+function normalizeParagraphText(text: string): string {
+    if (!text) return ""
+
+    // 1. Rejoin hyphenated words split across lines: "trans-\nlate" -> "translate"
+    let cleaned = text.replace(/(\b\w+)-\s*\n\s*(\w+\b)/g, '$1$2')
+
+    // 2. Split into blocks separated by empty lines (true paragraphs)
+    const blocks = cleaned.split(/\n\s*\n+/)
+
+    const normalizedBlocks = blocks.map(block => {
+        const lines = block.split('\n').map(l => l.trim()).filter(Boolean)
+        const outputLines: string[] = []
+        let currentSentenceBuffer: string[] = []
+
+        for (const line of lines) {
+            // Check if the line is an explicit list item or numbered step
+            const isExplicitListItem = /^(?:[1-9]\.|\([a-zA-Z0-9]\)|[-*•]|\b(?:Note|Case|Statement|Assumption|Conclusion)\b[\:\.])/i.test(line)
+
+            if (isExplicitListItem) {
+                if (currentSentenceBuffer.length > 0) {
+                    outputLines.push(currentSentenceBuffer.join(' '))
+                    currentSentenceBuffer = []
+                }
+                outputLines.push(line)
+            } else {
+                currentSentenceBuffer.push(line)
+            }
+        }
+
+        if (currentSentenceBuffer.length > 0) {
+            outputLines.push(currentSentenceBuffer.join(' '))
+        }
+
+        return outputLines.join('\n')
+    })
+
+    return normalizedBlocks.join('\n\n')
+}
+
+function parseQuestionAndPassage(rawText: string, sharedContext?: string): {
+    questionStem: string
+    passageText: string | null
+} {
+    if (!rawText) return { questionStem: "", passageText: null }
+
+    // Strip leading numbers, bullets, stray dots (e.g. ". As per...", "90. As per...")
+    let cleaned = rawText.replace(/^[\s\.\:\-\)\d]+\s+/, '').trim()
+    if (!cleaned) cleaned = rawText.replace(/^[\s\.\:\-\)]+/, '').trim()
+
+    if (sharedContext && sharedContext.trim()) {
+        let stem = cleaned.replace(sharedContext.trim(), '').trim()
+        stem = stem.replace(/^(?:Read the (?:following )?passage|Directions[\s\S]*?passage[\:\.]?)\s*/i, '').trim()
+        return {
+            questionStem: normalizeParagraphText(stem || cleaned),
+            passageText: normalizeParagraphText(sharedContext.trim())
+        }
+    }
+
+    // Patterns matching reading comprehension directives
+    const passageSplitPatterns = [
+        /\n*(?:(?:Directions|Direction)?\s*(?:\([^\)]*?\))?[\:\.\s]*)?Read the (?:following )?passage(?: and answer the questions?(?: based on the passage)?)?[\:\.]?\s*\n+/i,
+        /\n*(?:(?:Directions|Direction)?\s*(?:\([^\)]*?\))?[\:\.\s]*)?Passage[\:\.]?\s*\n+/i,
+        /\n*Directions\s*[\:\.]?\s*\([Qq]s?\.?\s*\d+\s*(?:to|-)\s*\d+\)[\:\.]?\s*\n+/i
+    ]
+
+    for (const pat of passageSplitPatterns) {
+        const match = cleaned.match(pat)
+        if (match && match.index !== undefined) {
+            const before = cleaned.substring(0, match.index).trim()
+            const after = cleaned.substring(match.index + match[0].length).trim()
+
+            if (before && after) {
+                return {
+                    questionStem: normalizeParagraphText(before.replace(/^[\s\.\:\-\)\d]+\s+/, '').trim()),
+                    passageText: normalizeParagraphText(after)
+                }
+            } else if (!before && after) {
+                const qSplitMatch = after.match(/\n+(?:Q(?:uestion)?[\.\:\s]+)?([A-Z][^\n\?]+\?[\s\S]*)$/)
+                if (qSplitMatch && qSplitMatch.index !== undefined) {
+                    return {
+                        questionStem: normalizeParagraphText(qSplitMatch[1].trim()),
+                        passageText: normalizeParagraphText(after.substring(0, qSplitMatch.index).trim())
+                    }
+                }
+                return {
+                    questionStem: "",
+                    passageText: normalizeParagraphText(after)
+                }
+            }
+        }
+    }
+
+    return {
+        questionStem: normalizeParagraphText(cleaned),
+        passageText: null
+    }
+}
 
 interface ExamTakingInterfaceProps {
     examId: string
@@ -936,17 +1035,62 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                             </div>
                         </div>
 
-                        {/* Question Statement (Markdown & LaTeX math enabled) */}
-                        <div className="text-lg md:text-xl font-medium text-primary mb-6 leading-relaxed prose dark:prose-invert max-w-none">
-                            <ReactMarkdown
-                                remarkPlugins={[remarkMath]}
-                                rehypePlugins={[rehypeKatex]}
-                            >
-                                {(language === 'hi' && (currentQ.question_text_hi || currentQ.content?.text_hi))
-                                    ? (currentQ.question_text_hi || currentQ.content?.text_hi)
-                                    : (currentQ.question_text || currentQ.content?.text || currentQ.question || currentQ.question_stem || "")}
-                            </ReactMarkdown>
-                        </div>
+                        {/* Question Statement & Optional Reading Comprehension Passage */}
+                        {(() => {
+                            const rawQText = (language === 'hi' && (currentQ.question_text_hi || currentQ.content?.text_hi))
+                                ? (currentQ.question_text_hi || currentQ.content?.text_hi)
+                                : (currentQ.question_text || currentQ.content?.text || currentQ.question || currentQ.question_stem || "")
+                            const parsed = parseQuestionAndPassage(rawQText, currentQ.shared_context || currentQ.passage || currentQ.content?.passage)
+
+                            return (
+                                <>
+                                    {/* Dedicated Reading Comprehension / Passage Card */}
+                                    {parsed.passageText && (
+                                        <div className="mb-6 rounded-2xl border border-border/80 bg-card/60 dark:bg-card/30 overflow-hidden shadow-xs">
+                                            <div className="flex items-center justify-between px-4 py-2.5 bg-muted/40 dark:bg-muted/20 border-b border-border/60">
+                                                <div className="flex items-center gap-2 text-xs font-bold text-foreground">
+                                                    <BookOpen className="size-4 text-primary shrink-0" />
+                                                    <span>Reading Comprehension / Passage</span>
+                                                </div>
+                                                <span className="text-[11px] font-medium text-muted-foreground">Scroll to view</span>
+                                            </div>
+                                            <div className="p-4 sm:p-5 max-h-[280px] sm:max-h-[340px] overflow-y-auto font-sans text-[15px] leading-[1.8] text-foreground/90 font-normal select-text space-y-3.5">
+                                                <ReactMarkdown
+                                                    remarkPlugins={[remarkMath]}
+                                                    rehypePlugins={[rehypeKatex]}
+                                                    components={{
+                                                        p: ({ children }) => (
+                                                            <p className="mb-3.5 last:mb-0 leading-[1.8] text-foreground/90 font-normal">
+                                                                {children}
+                                                            </p>
+                                                        )
+                                                    }}
+                                                >
+                                                    {parsed.passageText}
+                                                </ReactMarkdown>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Question Prompt */}
+                                    <div className="text-[16px] sm:text-[17.5px] font-medium font-sans text-foreground mb-6 leading-[1.65] prose dark:prose-invert max-w-none">
+                                        <ReactMarkdown
+                                            remarkPlugins={[remarkMath]}
+                                            rehypePlugins={[rehypeKatex]}
+                                            components={{
+                                                p: ({ children }) => (
+                                                    <p className="mb-2 last:mb-0 leading-[1.65] font-medium text-foreground">
+                                                        {children}
+                                                    </p>
+                                                )
+                                            }}
+                                        >
+                                            {parsed.questionStem || rawQText}
+                                        </ReactMarkdown>
+                                    </div>
+                                </>
+                            )
+                        })()}
 
                         {/* Image Support (Question Image or V2 content_images) */}
                         {currentQ.image && (
