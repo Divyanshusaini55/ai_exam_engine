@@ -56,7 +56,7 @@ export function ExamHome() {
 
             {/* ── Hero Section ── */}
             <div className="flex flex-col gap-6 items-center max-w-4xl mx-auto pt-10 pb-8 animate-fade-in">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary text-primary font-bold text-[11px] uppercase tracking-widest shadow-sm mb-2">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-sm bg-secondary text-primary font-bold text-[11px] uppercase tracking-widest shadow-sm mb-2">
                 <Sparkles className="size-3.5 text-primary" />
                 <span>AI-Powered · Free to Use</span>
               </div>
@@ -75,14 +75,14 @@ export function ExamHome() {
               <div className="flex flex-col sm:flex-row items-center gap-3 mt-6">
                 <Link
                   href="/exams"
-                  className="group inline-flex items-center gap-2 px-7 py-2 text-[15px] font-semibold bg-primary text-primary-foreground rounded-xl shadow-premium hover:-translate-y-[2px] hover:shadow-[0_15px_40px_rgba(0,0,0,0.12)] transition-all duration-300"
+                  className="group inline-flex items-center gap-2 px-7 py-2 text-[15px] font-semibold bg-primary text-primary-foreground rounded-sm shadow-premium hover:-translate-y-[2px] hover:shadow-[0_15px_40px_rgba(0,0,0,0.12)] transition-all duration-300"
                 >
                   Browse Exams
                   <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
                 <Link
                   href="/signup"
-                  className="inline-flex items-center gap-2 px-7 py-2 text-[15px] font-semibold text-primary bg-secondary hover:bg-secondary/80 rounded-xl border border-border transition-all duration-300"
+                  className="inline-flex items-center gap-2 px-7 py-2 text-[15px] font-semibold text-primary bg-secondary hover:bg-secondary/80 rounded-sm border border-border transition-all duration-300"
                 >
                   Create Account
                 </Link>
