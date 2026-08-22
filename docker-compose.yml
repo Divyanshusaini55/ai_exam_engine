@@ -59,7 +59,7 @@ services:
       - ./backend/.env
     environment:
       - RUNNING_IN_DOCKER=true
-      - FRONTEND_URL=http://localhost:3000
+      - FRONTEND_URL=http://localhost:4005
       - DATABASE_URL=postgres://postgres:postgres@db:5432/exam_engine
       - SQL_ENGINE=django.db.backends.postgresql
       - SQL_DATABASE=exam_engine
