@@ -330,17 +330,27 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
                 active_attempt = ExamAttempt.objects.filter(session_id=session_id, exam=exam, is_completed=False).first()
                 
             if active_attempt:
-                elapsed_seconds = int((now - active_attempt.started_at).total_seconds()) if active_attempt.started_at else active_attempt.duration
-                return Response({
-                    'success': True,
-                    'session_id': active_attempt.session_id,
-                    'mode': mode,
-                    'current_question_index': active_attempt.current_question_index,
-                    'duration': elapsed_seconds,
-                    'started_at': active_attempt.started_at.isoformat() if active_attempt.started_at else now.isoformat()
-                })
+                elapsed_seconds = int((now - active_attempt.started_at).total_seconds()) if active_attempt.started_at else (active_attempt.duration or 0)
+                max_allowed = (exam.duration_minutes * 60) if (exam.duration_minutes and exam.duration_minutes > 0) else None
                 
-            new_session_id = session_id or str(uuid.uuid4())
+                # If attempt duration has expired, close it out cleanly and allow a fresh start
+                if max_allowed and elapsed_seconds >= max_allowed:
+                    active_attempt.is_completed = True
+                    active_attempt.completed_at = now
+                    active_attempt.duration = max_allowed
+                    active_attempt.save()
+                    active_attempt = None
+                else:
+                    return Response({
+                        'success': True,
+                        'session_id': active_attempt.session_id,
+                        'mode': mode,
+                        'current_question_index': active_attempt.current_question_index,
+                        'duration': elapsed_seconds,
+                        'started_at': active_attempt.started_at.isoformat() if active_attempt.started_at else now.isoformat()
+                    })
+                
+            new_session_id = str(uuid.uuid4())
             attempt = ExamAttempt.objects.create(
                 user=user,
                 exam=exam,
@@ -369,17 +379,16 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
                 active_session = PracticeSession.objects.filter(session_id=session_id, exam=exam, is_completed=False).first()
                 
             if active_session:
-                elapsed_seconds = int((now - active_session.started_at).total_seconds()) if active_session.started_at else active_session.duration
                 return Response({
                     'success': True,
                     'session_id': active_session.session_id,
                     'mode': mode,
                     'current_question_index': active_session.current_question_index,
-                    'duration': elapsed_seconds,
+                    'duration': active_session.duration or 0,
                     'started_at': active_session.started_at.isoformat() if active_session.started_at else now.isoformat()
                 })
                 
-            new_session_id = session_id or str(uuid.uuid4())
+            new_session_id = str(uuid.uuid4())
             session = PracticeSession.objects.create(
                 user=user,
                 exam=exam,

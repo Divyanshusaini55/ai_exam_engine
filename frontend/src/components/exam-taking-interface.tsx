@@ -293,17 +293,32 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                 setReviewQuestions(progressRes.data.review?.reduce((acc: any, id: number) => ({ ...acc, [id]: true }), {}) || {})
                 setBookmarkedQuestions(progressRes.data.bookmarked?.reduce((acc: any, id: number) => ({ ...acc, [id]: true }), {}) || {})
                 
-                // Set visited questions
-                const visitedIds = progressRes.data.visited || []
-                const visitedSet = new Set<number>()
-                visitedIds.forEach((qId: number) => {
-                    const idx = qRes.data.findIndex((q: any) => q.id === qId)
+                // Set visited questions from localStorage & backend progress
+                const localVisitedKey = `visited_questions_${examId}_${mode}`
+                let cachedVisited: number[] = []
+                try {
+                    const raw = localStorage.getItem(localVisitedKey)
+                    if (raw) {
+                        const parsed = JSON.parse(raw)
+                        if (Array.isArray(parsed)) cachedVisited = parsed
+                    }
+                } catch (err) {
+                    console.warn("Failed to parse cached visited questions", err)
+                }
+
+                const visitedIds = progressRes.data?.visited || []
+                const visitedSet = new Set<number>(cachedVisited)
+                visitedIds.forEach((qId: string | number) => {
+                    const idx = qRes.data.findIndex((q: any) => q.id?.toString() === qId?.toString())
                     if (idx !== -1) {
                         visitedSet.add(idx + 1)
                     }
                 })
                 visitedSet.add(targetIndex + 1) // Ensure current question is marked visited
                 setVisitedQuestions(visitedSet)
+                try {
+                    localStorage.setItem(localVisitedKey, JSON.stringify(Array.from(visitedSet)))
+                } catch (e) {}
                 
                 secondsSpentRef.current = resumedDuration
                 setTimerKey(k => k + 1)
@@ -317,6 +332,20 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
         loadExamAndSession()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [examId, mode])
+
+    // Automatically mark question visited on index change & persist to localStorage
+    useEffect(() => {
+        if (questions.length > 0) {
+            const currentQNum = currentQuestionIndex + 1
+            setVisitedQuestions(prev => {
+                const next = new Set([...Array.from(prev), currentQNum])
+                try {
+                    localStorage.setItem(`visited_questions_${examId}_${mode}`, JSON.stringify(Array.from(next)))
+                } catch (e) {}
+                return next
+            })
+        }
+    }, [currentQuestionIndex, questions.length, examId, mode])
 
     // Save state on question change
     useEffect(() => {
@@ -373,6 +402,10 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                 setSelectedAnswers({})
                 setReviewQuestions({})
                 setBookmarkedQuestions({})
+                try {
+                    localStorage.removeItem(`visited_questions_${examId}_${mode}`)
+                } catch (e) {}
+                setVisitedQuestions(new Set([1]))
                 setTimerKey(k => k + 1)
                 setIsPaused(false)
                 secondsSpentRef.current = 0
@@ -397,19 +430,22 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
     }
 
     // 3. Handle Selection
-    const handleAnswer = async (qId: string | number, aId: number) => {
+    const handleAnswer = async (qId: string | number, aId: number | string) => {
         if (!sessionId) return
         
-        const numAId = Number(aId)
-        const isCurrentlySelected = selectedAnswers[qId] === numAId
-        const targetAId = isCurrentlySelected ? null : numAId
+        const isCurrentlySelected = (
+            selectedAnswers[qId] === aId ||
+            (typeof aId === 'number' && Number(selectedAnswers[qId]) === aId) ||
+            (typeof aId === 'string' && String(selectedAnswers[qId]) === aId)
+        )
+        const targetAId = isCurrentlySelected ? null : aId
 
         setSelectedAnswers(prev => {
             const next = { ...prev }
             if (isCurrentlySelected) {
                 delete next[qId]
             } else {
-                next[qId] = numAId
+                next[qId] = aId
             }
             return next
         })
@@ -417,13 +453,14 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
         await examApi.submitAnswer(examId, qId, targetAId, sessionId)
     }
 
-    const handleMultiAnswer = async (qId: string | number, aIdx: number) => {
+    const handleMultiAnswer = async (qId: string | number, aIdx: number | string) => {
         if (!sessionId) return
 
-        const numIdx = Number(aIdx)
-        const currentList: number[] = Array.isArray(selectedAnswers[qId]) ? [...selectedAnswers[qId]] : []
-        const exists = currentList.includes(numIdx)
-        const updated = exists ? currentList.filter(i => i !== numIdx) : [...currentList, numIdx]
+        const currentList: any[] = Array.isArray(selectedAnswers[qId]) ? [...selectedAnswers[qId]] : []
+        const exists = currentList.some(item => item === aIdx || String(item) === String(aIdx))
+        const updated = exists 
+            ? currentList.filter(i => i !== aIdx && String(i) !== String(aIdx)) 
+            : [...currentList, aIdx]
 
         setSelectedAnswers(prev => ({
             ...prev,
@@ -785,7 +822,16 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                 <div className="flex items-center gap-2 md:gap-4 px-2 md:px-4 py-1 md:py-1.5 bg-card border border-border rounded-full shadow-sm shrink-0">
                     <TimerDisplay 
                         key={timerKey} 
-                        initialSeconds={exam ? Math.max(0, exam.duration_minutes * 60 - secondsSpentRef.current) : 0} 
+                        initialSeconds={
+                            exam 
+                                ? (exam.duration_minutes && exam.duration_minutes > 0
+                                    ? Math.max(0, exam.duration_minutes * 60 - secondsSpentRef.current)
+                                    : secondsSpentRef.current)
+                                : 0
+                        }
+                        mode={mode}
+                        hasDuration={Boolean(exam?.duration_minutes && exam.duration_minutes > 0)}
+                        isLoading={loading}
                         isPaused={isPaused} 
                         onTimeUp={() => handleSubmit(true)} 
                     />
@@ -1148,10 +1194,16 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                 <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
                                     Multiple Correct Options (Select All That Apply)
                                 </div>
-                                {(currentQ.answers || currentQ.options || []).map((ans: any) => {
-                                    const selectedArr: number[] = Array.isArray(selectedAnswers[currentQ.id]) ? selectedAnswers[currentQ.id] : []
-                                    const numIdx = Number(ans.id)
-                                    const isSelected = selectedArr.includes(numIdx)
+                                {(currentQ.answers || currentQ.options || []).map((ans: any, optIdx: number) => {
+                                    const optNumId = typeof ans.id === 'number' ? ans.id : (ans.id && !isNaN(Number(ans.id)) ? Number(ans.id) : optIdx)
+                                    const selectedArr: any[] = Array.isArray(selectedAnswers[currentQ.id]) ? selectedAnswers[currentQ.id] : []
+                                    const isSelected = (
+                                        selectedArr.includes(optNumId) ||
+                                        selectedArr.includes(optIdx) ||
+                                        selectedArr.includes(ans.id) ||
+                                        selectedArr.includes(ans.option_label) ||
+                                        selectedArr.some((val: any) => String(val) === String(optNumId) || String(val) === String(ans.id))
+                                    )
                                     const isAnswered = selectedArr.length > 0
                                     
                                     let optionStyle = "border-border hover:border-primary/30 hover:bg-background"
@@ -1182,22 +1234,22 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
 
                                     return (
                                         <label 
-                                            key={ans.id} 
+                                            key={ans.id || optIdx} 
                                             onClick={(e) => {
                                                 e.preventDefault()
-                                                handleMultiAnswer(currentQ.id, numIdx)
+                                                handleMultiAnswer(currentQ.id, optNumId)
                                             }}
                                             className={`group relative flex items-center p-2.5 md:p-3 rounded-xl border-2 cursor-pointer transition-all duration-200 active:scale-[0.98] ${optionStyle}`}
                                         >
                                             <input 
                                                 type="checkbox" 
-                                                name={`q-${currentQ.id}-${ans.id}`} 
+                                                name={`q-${currentQ.id}-${ans.id || optIdx}`} 
                                                 checked={isSelected}
                                                 readOnly
                                                 className="sr-only" 
                                             />
                                             <div className={`size-7 md:size-8 text-sm md:text-base rounded-lg flex shrink-0 items-center justify-center font-bold mr-3 md:mr-3 transition-colors ${badgeStyle}`}>
-                                                {ans.option_label || String.fromCharCode(65 + (ans.order ?? 0))}
+                                                {ans.option_label || String.fromCharCode(65 + (ans.order ?? optIdx))}
                                             </div>
                                             <div className="flex-1 flex flex-col gap-1">
                                                 {ans.image_url && (
@@ -1223,9 +1275,18 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                         {/* Question Types: MCQ Single-Select (Radio Options) */}
                         {(!currentQ.question_type || currentQ.question_type === 'mcq_single' || currentQ.question_type === 'multiple_choice' || currentQ.question_type === 'single_choice') && (
                             <div className="flex flex-col gap-2 md:gap-3">
-                                {(currentQ.answers || currentQ.options || []).map((ans: any) => {
-                                    const isSelected = selectedAnswers[currentQ.id] === Number(ans.id)
-                                    const isAnswered = selectedAnswers[currentQ.id] !== undefined && selectedAnswers[currentQ.id] !== null
+                                {(currentQ.answers || currentQ.options || []).map((ans: any, optIdx: number) => {
+                                    const optNumId = typeof ans.id === 'number' ? ans.id : (ans.id && !isNaN(Number(ans.id)) ? Number(ans.id) : optIdx)
+                                    const userAns = selectedAnswers[currentQ.id]
+                                    const isSelected = (
+                                        userAns === optNumId ||
+                                        userAns === optIdx ||
+                                        userAns === ans.id ||
+                                        userAns === ans.option_label ||
+                                        (userAns !== undefined && userAns !== null && String(userAns) === String(optNumId)) ||
+                                        (userAns !== undefined && userAns !== null && String(userAns) === String(ans.id))
+                                    )
+                                    const isAnswered = userAns !== undefined && userAns !== null
                                     
                                     let optionStyle = "border-border hover:border-primary/30 hover:bg-background"
                                     let badgeStyle = "bg-secondary text-muted-foreground group-hover:bg-secondary"
@@ -1255,10 +1316,10 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
 
                                     return (
                                         <label 
-                                            key={ans.id} 
+                                            key={ans.id || optIdx} 
                                             onClick={(e) => {
                                                 e.preventDefault()
-                                                handleAnswer(currentQ.id, Number(ans.id))
+                                                handleAnswer(currentQ.id, optNumId)
                                             }}
                                             className={`group relative flex items-center p-2.5 md:p-3 rounded-xl border-2 cursor-pointer transition-all duration-200 active:scale-[0.98] ${optionStyle}`}
                                         >
@@ -1270,7 +1331,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                                 className="sr-only" 
                                             />
                                             <div className={`size-7 md:size-8 text-sm md:text-base rounded-lg flex shrink-0 items-center justify-center font-bold mr-3 md:mr-3 transition-colors ${badgeStyle}`}>
-                                                {ans.option_label || String.fromCharCode(65 + (ans.order ?? 0))}
+                                                {ans.option_label || String.fromCharCode(65 + (ans.order ?? optIdx))}
                                             </div>
                                             <div className="flex-1 flex flex-col gap-1">
                                                 {ans.image_url && (
@@ -1654,7 +1715,21 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
 
 // ----- Subcomponents -----
 
-function TimerDisplay({ initialSeconds, isPaused, onTimeUp }: { initialSeconds: number, isPaused: boolean, onTimeUp: () => void }) {
+function TimerDisplay({ 
+    initialSeconds, 
+    isPaused, 
+    mode, 
+    hasDuration, 
+    isLoading,
+    onTimeUp 
+}: { 
+    initialSeconds: number
+    isPaused: boolean
+    mode: 'exam' | 'learning'
+    hasDuration: boolean
+    isLoading: boolean
+    onTimeUp: () => void 
+}) {
     const [timeLeft, setTimeLeft] = useState(initialSeconds)
 
     useEffect(() => {
@@ -1667,21 +1742,28 @@ function TimerDisplay({ initialSeconds, isPaused, onTimeUp }: { initialSeconds: 
     }, [onTimeUp])
 
     useEffect(() => {
-        if (isPaused || initialSeconds <= 0) return
+        if (isPaused || isLoading) return
 
-        const timer = setInterval(() => {
-            setTimeLeft((prev) => {
-                if (prev <= 1) {
-                    clearInterval(timer)
-                    setTimeout(() => onTimeUpRef.current(), 0)
-                    return 0
-                }
-                return prev - 1
-            })
-        }, 1000)
-
-        return () => clearInterval(timer)
-    }, [isPaused, initialSeconds])
+        if (mode === 'exam' || (mode === 'learning' && hasDuration)) {
+            if (initialSeconds <= 0) return
+            const timer = setInterval(() => {
+                setTimeLeft((prev) => {
+                    if (prev <= 1) {
+                        clearInterval(timer)
+                        setTimeout(() => onTimeUpRef.current(), 0)
+                        return 0
+                    }
+                    return prev - 1
+                })
+            }, 1000)
+            return () => clearInterval(timer)
+        } else {
+            const timer = setInterval(() => {
+                setTimeLeft(prev => prev + 1)
+            }, 1000)
+            return () => clearInterval(timer)
+        }
+    }, [isPaused, isLoading, initialSeconds, mode, hasDuration])
 
     const formatTime = (seconds: number) => {
         const h = Math.floor(seconds / 3600)
@@ -1689,6 +1771,14 @@ function TimerDisplay({ initialSeconds, isPaused, onTimeUp }: { initialSeconds: 
         const s = seconds % 60
         if (h > 0) return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
         return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+    }
+
+    if (isLoading && initialSeconds === 0) {
+        return (
+            <span className="font-mono font-bold text-[15px] md:text-xl tabular-nums tracking-widest text-muted-foreground ml-1 animate-pulse">
+                --:--
+            </span>
+        )
     }
 
     return (

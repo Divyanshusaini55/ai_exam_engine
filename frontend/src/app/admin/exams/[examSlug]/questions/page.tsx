@@ -938,7 +938,7 @@ export default function AdminQuestionsPage() {
                         />
                       </div>
                       <div>
-                        <label className="block font-semibold mb-1">Cognitive Level (Bloom's Taxonomy)</label>
+                        <label className="block font-semibold mb-1">Cognitive Level (Bloom&apos;s Taxonomy)</label>
                         <select
                           value={formData.cognitive_level}
                           onChange={(e) => setFormData({ ...formData, cognitive_level: e.target.value })}

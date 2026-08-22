@@ -45,6 +45,7 @@ class SessionMixin:
         mode = request.data.get('mode', 'exam')
         duration = request.data.get('duration')
         current_question_index = request.data.get('current_question_index')
+        question_id = request.data.get('question_id')
         
         if not session_id:
             return Response({'error': 'session_id is required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -60,6 +61,24 @@ class SessionMixin:
                 ExamAttempt.objects.filter(session_id=session_id, exam=exam).update(**updates)
             else:
                 PracticeSession.objects.filter(session_id=session_id, exam=exam).update(**updates)
+        
+        # Persist visited question tracking
+        if question_id:
+            try:
+                from .models import Question
+                question = Question.objects.filter(id=question_id, exams=exam).first()
+                if question:
+                    UserAnswer.objects.get_or_create(
+                        session_id=session_id,
+                        question=question,
+                        defaults={
+                            'exam': exam,
+                            'selected_options': [],
+                            'answer_payload': {}
+                        }
+                    )
+            except Exception:
+                pass
             
         return Response({'success': True})
 
