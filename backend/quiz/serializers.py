@@ -83,7 +83,13 @@ class QuestionSerializer(serializers.ModelSerializer):
         return len(obj.community_comments.all())
         
     def get_question_text(self, obj):
+        lang = self.context.get('lang', 'en')
         payload = obj.schema_payload or {}
+        if lang == 'hi':
+            if payload.get('question_text_hi'):
+                return payload.get('question_text_hi')
+            if isinstance(payload.get('content'), dict) and payload['content'].get('text_hi'):
+                return payload['content'].get('text_hi')
         if 'question_text' in payload:
             return payload.get('question_text', '')
         if isinstance(payload.get('content'), dict):
@@ -142,8 +148,8 @@ class QuestionSerializer(serializers.ModelSerializer):
                 answer_text = opt.get('answer_text') or opt.get('text', '')
                 if answer_text is None:
                     answer_text = ""
-                if lang == 'hi' and opt.get('answer_text_hi'):
-                    answer_text = opt.get('answer_text_hi')
+                if lang == 'hi' and (opt.get('answer_text_hi') or opt.get('text_hi')):
+                    answer_text = opt.get('answer_text_hi') or opt.get('text_hi')
                     
                 is_correct = opt.get('is_correct', False) or (opt.get('id') in correct_options) or (chr(65 + idx) in correct_options)
                 
@@ -151,7 +157,7 @@ class QuestionSerializer(serializers.ModelSerializer):
                     'id': str(idx),
                     'option_label': opt.get('id', chr(65 + idx)),
                     'answer_text': answer_text,
-                    'answer_text_hi': opt.get('answer_text_hi') or '',
+                    'answer_text_hi': opt.get('answer_text_hi') or opt.get('text_hi') or '',
                     'image_url': opt.get('image_url'),
                     'order': idx,
                 }
