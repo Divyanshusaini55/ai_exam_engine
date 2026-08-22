@@ -77,6 +77,19 @@ def generate_questions(modeladmin, request, queryset):
                 modeladmin.message_user(request, f"Error generating questions for {exam.title}: {str(e)}", level='ERROR')
 
 
+@admin.action(description='🌐 Auto-Translate Missing Sections to Hindi (Bilingual)')
+def auto_translate_to_hindi(modeladmin, request, queryset):
+    from .ai import auto_translate_exam_to_hindi
+    total_translated = 0
+    for exam in queryset:
+        try:
+            count = auto_translate_exam_to_hindi(exam.id)
+            total_translated += count
+            modeladmin.message_user(request, f"Translated {count} questions to Hindi for '{exam.title}'.")
+        except Exception as e:
+            modeladmin.message_user(request, f"Error translating '{exam.title}': {e}", level='ERROR')
+
+
 @admin.action(description='Publish selected resources')
 def publish_resources(modeladmin, request, queryset):
     count = queryset.update(is_published=True)
@@ -327,7 +340,7 @@ class ExamAdmin(admin.ModelAdmin):
         ('Status', {'fields': ('is_active',)}),
     )
     inlines = []
-    actions = [generate_questions]
+    actions = [generate_questions, auto_translate_to_hindi]
 
     def get_urls(self):
         from django.urls import path
