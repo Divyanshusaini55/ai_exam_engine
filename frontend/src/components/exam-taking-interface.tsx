@@ -942,9 +942,9 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                 remarkPlugins={[remarkMath]}
                                 rehypePlugins={[rehypeKatex]}
                             >
-                                {language === 'hi' && currentQ.question_text_hi 
-                                    ? currentQ.question_text_hi 
-                                    : (currentQ.question_text || "")}
+                                {(language === 'hi' && (currentQ.question_text_hi || currentQ.content?.text_hi))
+                                    ? (currentQ.question_text_hi || currentQ.content?.text_hi)
+                                    : (currentQ.question_text || currentQ.content?.text || currentQ.question || currentQ.question_stem || "")}
                             </ReactMarkdown>
                         </div>
 
@@ -1004,7 +1004,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                 <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
                                     Multiple Correct Options (Select All That Apply)
                                 </div>
-                                {currentQ.answers.map((ans: any) => {
+                                {(currentQ.answers || currentQ.options || []).map((ans: any) => {
                                     const selectedArr: number[] = Array.isArray(selectedAnswers[currentQ.id]) ? selectedAnswers[currentQ.id] : []
                                     const numIdx = Number(ans.id)
                                     const isSelected = selectedArr.includes(numIdx)
@@ -1033,7 +1033,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                         }
                                     }
 
-                                    const optText = (language === 'hi' && ans.answer_text_hi ? ans.answer_text_hi : ans.answer_text) || ""
+                                    const optText = (language === 'hi' && (ans.answer_text_hi || ans.text_hi) ? (ans.answer_text_hi || ans.text_hi) : (ans.answer_text || ans.text || ans.option_text)) || ""
                                     const cleanOptText = optText.replace(/^[A-Z][).:-]\s*/i, '')
 
                                     return (
@@ -1077,9 +1077,9 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                         )}
 
                         {/* Question Types: MCQ Single-Select (Radio Options) */}
-                        {(!currentQ.question_type || currentQ.question_type === 'mcq_single' || currentQ.question_type === 'multiple_choice') && (
+                        {(!currentQ.question_type || currentQ.question_type === 'mcq_single' || currentQ.question_type === 'multiple_choice' || currentQ.question_type === 'single_choice') && (
                             <div className="flex flex-col gap-2 md:gap-3">
-                                {currentQ.answers.map((ans: any) => {
+                                {(currentQ.answers || currentQ.options || []).map((ans: any) => {
                                     const isSelected = selectedAnswers[currentQ.id] === Number(ans.id)
                                     const isAnswered = selectedAnswers[currentQ.id] !== undefined && selectedAnswers[currentQ.id] !== null
                                     
@@ -1106,7 +1106,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                         }
                                     }
 
-                                    const optText = (language === 'hi' && ans.answer_text_hi ? ans.answer_text_hi : ans.answer_text) || ""
+                                    const optText = (language === 'hi' && (ans.answer_text_hi || ans.text_hi) ? (ans.answer_text_hi || ans.text_hi) : (ans.answer_text || ans.text || ans.option_text)) || ""
                                     const cleanOptText = optText.replace(/^[A-Z][).:-]\s*/i, '')
 
                                     return (
