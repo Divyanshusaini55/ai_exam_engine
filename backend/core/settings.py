@@ -399,16 +399,14 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
 }
 
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+# GCP Vertex AI Configuration
+GCP_PROJECT_ID = os.environ.get('GCP_PROJECT_ID')
+GCP_LOCATION = os.environ.get('GCP_LOCATION', 'us-central1')
+GCS_BUCKET_NAME = os.environ.get('GCS_BUCKET_NAME')
 
-if not GEMINI_API_KEY:
-    raise ValueError(
-        "GEMINI_API_KEY is missing from environment variables! "
-        "Please create a .env file in the backend/ folder and add your key."
-    )
-
-GEMINI_SUMMARY_MODEL = os.environ.get('GEMINI_SUMMARY_MODEL', 'models/gemini-flash-lite-latest')
-GEMINI_CLASSIFY_MODEL = os.environ.get('GEMINI_CLASSIFY_MODEL', 'models/gemini-flash-lite-latest')
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+GEMINI_SUMMARY_MODEL = os.environ.get('GEMINI_SUMMARY_MODEL', 'gemini-2.5-flash')
+GEMINI_CLASSIFY_MODEL = os.environ.get('GEMINI_CLASSIFY_MODEL', 'gemini-2.5-flash')
 
 # Langfuse Observability Configuration
 LANGFUSE_PUBLIC_KEY = os.environ.get('LANGFUSE_PUBLIC_KEY')
