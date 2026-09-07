@@ -1,21 +1,27 @@
 import os
+import django
 from dotenv import load_dotenv
-import google.generativeai as genai
 
 load_dotenv()
-api_key = os.getenv("GEMINI_API_KEY")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
+django.setup()
 
-if not api_key:
-    print("Error: GEMINI_API_KEY is not set in .env")
-    exit(1)
+from quiz.ai.gemini_client import GeminiClient
 
-genai.configure(api_key=api_key)
+project_id = os.getenv("GCP_PROJECT_ID")
+location = os.getenv("GCP_LOCATION", "us-central1")
+
+print(f"Checking Vertex AI configuration...")
+print(f"  GCP_PROJECT_ID: {project_id or 'NOT SET'}")
+print(f"  GCP_LOCATION:   {location}")
 
 try:
-    print(f"Checking API with key starting with {api_key[:5]}...")
-    model = genai.GenerativeModel("gemini-2.5-flash")
-    response = model.generate_content("Hello! Are you working?")
-    print("SUCCESS: API is active and working!")
-    print(f"Response: {response.text}")
+    client = GeminiClient()
+    print("Sending test generation prompt to Vertex AI...")
+    response = client.generate_content("Hello! Are you working? Answer in 5 words.")
+    print("SUCCESS: Vertex AI is active and working!")
+    print(f"Response: {response.get('text', '')}")
+    print(f"Model used: {response.get('model_used')}")
+    print(f"Tokens: {response.get('tokens')}")
 except Exception as e:
     print(f"FAILED: {e}")
