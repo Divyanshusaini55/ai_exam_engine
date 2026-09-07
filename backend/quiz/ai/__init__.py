@@ -52,18 +52,28 @@ def parse_exam_paper_with_ai(exam: Exam):
         return 0
         
     import os, tempfile
+    from django.conf import settings
     temp_pdf = None
     try:
-        try:
-            pdf_path = exam.pdf_file.path
-        except (NotImplementedError, AttributeError):
-            # Remote S3 / Cloudflare R2 storage: stream into temporary file
-            temp_pdf = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
-            with exam.pdf_file.open('rb') as f:
-                temp_pdf.write(f.read())
-            temp_pdf.flush()
-            temp_pdf.close()
-            pdf_path = temp_pdf.name
+        pdf_path = None
+        if hasattr(exam.pdf_file, 'name'):
+            media_candidate = os.path.join(settings.MEDIA_ROOT, str(exam.pdf_file.name))
+            if os.path.exists(media_candidate):
+                pdf_path = media_candidate
+            elif os.path.exists(str(exam.pdf_file.name)):
+                pdf_path = str(exam.pdf_file.name)
+
+        if not pdf_path:
+            try:
+                pdf_path = exam.pdf_file.path
+            except (NotImplementedError, AttributeError):
+                # Remote S3 / Cloudflare R2 storage: stream into temporary file
+                temp_pdf = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
+                with exam.pdf_file.open('rb') as f:
+                    temp_pdf.write(f.read())
+                temp_pdf.flush()
+                temp_pdf.close()
+                pdf_path = temp_pdf.name
 
         logger.info(f"Starting ExamIngestionGraph for {pdf_path}")
         print(f"[*] Starting new ExamIngestionGraph pipeline for {pdf_path}")
@@ -74,7 +84,10 @@ def parse_exam_paper_with_ai(exam: Exam):
         result = graph.run(pdf_path)
         
         payloads = result.get("final_payloads", [])
+        stages_dir = result.get("stages_dir")
         print(f"[*] Graph execution finished. Extracted {len(payloads)} questions.")
+        if stages_dir:
+            print(f"[*] Pipeline Stage Artifacts & Audit Report saved in: {stages_dir}")
     
         # Save to database
         count = 0
