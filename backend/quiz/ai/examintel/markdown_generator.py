@@ -1,9 +1,40 @@
 from __future__ import annotations
+import re
 from pathlib import Path
 from typing import List, Optional, Set
 
 from quiz.ai.examintel.models import QuestionBlock, AnswerKeyEntry
 from quiz.ai.examintel.llm_refiner import RefinedQuestion
+from quiz.ai.examintel.indic_font_repair import repair_indic_text
+
+
+def _clean_option_text_prefix(text: str, opt_num: str) -> str:
+    """
+    Safely strips redundant option prefixes like 'A.', '(A)', 'Option 1:'
+    WITHOUT erasing valid option answers when the option answer itself
+    is the letter or number (e.g. Venn diagrams where choices are 'A', 'D', 'E', 'F').
+    """
+    if not text:
+        return ""
+    stripped = text.strip()
+    clean_num = str(opt_num).strip()
+    # If the text itself is literally the option letter/number (e.g. 'A', '(A)', '1', 'A.'), preserve it!
+    if re.match(rf"^\(?{re.escape(clean_num)}\)?\.?$", stripped, flags=re.IGNORECASE):
+        return clean_num
+
+    cleaned = re.sub(
+        rf"^(?:\(?Option\s*|\(?Image\s*|\(?विकल्प\s*)?\(?{re.escape(clean_num)}\)?[\.\:\-]\s+(?=\S)",
+        "",
+        stripped,
+        flags=re.IGNORECASE
+    ).strip()
+    cleaned = re.sub(
+        r"^(?:Option|विकल्प)\s*\d+[\.\:\-]\s+(?=\S)",
+        "",
+        cleaned,
+        flags=re.IGNORECASE
+    ).strip()
+    return cleaned if cleaned else stripped
 
 
 def render_refined_question_markdown(q: RefinedQuestion) -> str:
@@ -19,7 +50,9 @@ def render_refined_question_markdown(q: RefinedQuestion) -> str:
         lines.append(topic_str)
         lines.append("")
 
-    lines.append(q.question_stem)
+    lines.append(repair_indic_text(q.question_stem))
+    if q.question_stem_hi and q.question_stem_hi.strip() and q.question_stem_hi.strip() != q.question_stem.strip():
+        lines.append(repair_indic_text(q.question_stem_hi.strip()))
     lines.append("")
 
     # Diagrams/Figures
@@ -41,10 +74,34 @@ def render_refined_question_markdown(q: RefinedQuestion) -> str:
             is_corr = bool(single_corr and str(opt.option_number).strip() == single_corr)
             is_checked = "x" if is_corr else " "
             gt_tag = " <!-- GROUND_TRUTH: CORRECT -->" if is_corr else ""
-            opt_body = opt.option_text
+            opt_body = repair_indic_text((opt.option_text or "").strip())
+            opt_body = _clean_option_text_prefix(opt_body, opt.option_number)
+
+            # Include Hindi option text if bilingual and distinct
+            if opt.option_text_hi and opt.option_text_hi.strip() and opt.option_text_hi.strip() != opt_body:
+                opt_hi = repair_indic_text(opt.option_text_hi.strip())
+                opt_hi = _clean_option_text_prefix(opt_hi, opt.option_number)
+                if opt_body and opt_hi:
+                    opt_body = f"{opt_body}\n{opt_hi}"
+                elif opt_hi:
+                    opt_body = opt_hi
+
             if opt.image_url:
-                opt_body += f" ![{opt.option_number}]({opt.image_url})"
-            lines.append(f"- [{is_checked}] {opt.option_number}. {opt_body}{gt_tag}")
+                if opt_body:
+                    opt_body += f" ![{opt.option_number}]({opt.image_url})"
+                else:
+                    opt_body = f"![{opt.option_number}]({opt.image_url})"
+
+            # Format multi-line option with 4-space indentation for CommonMark compliance
+            opt_lines = opt_body.splitlines()
+            if len(opt_lines) > 1:
+                first_l = opt_lines[0].strip()
+                rest_l = "\n".join(f"    {l.strip()}" for l in opt_lines[1:] if l.strip())
+                formatted_opt = f"{first_l}\n{rest_l}"
+            else:
+                formatted_opt = opt_body
+
+            lines.append(f"- [{is_checked}] {opt.option_number}. {formatted_opt}{gt_tag}")
         lines.append("")
 
     # Provenance
@@ -108,7 +165,7 @@ def render_question_markdown(q: QuestionBlock, include_context: bool = True) -> 
     # Optional Shared Comprehension Passage
     if include_context and q.shared_context:
         lines.append("> ### 📖 Shared Context / Comprehension Passage")
-        for ctx_line in q.shared_context.split("\n"):
+        for ctx_line in repair_indic_text(q.shared_context).split("\n"):
             lines.append(f"> {ctx_line.strip()}")
         lines.append("")
 
@@ -121,7 +178,7 @@ def render_question_markdown(q: QuestionBlock, include_context: bool = True) -> 
     lines.append("")
 
     # Question Stem
-    lines.append(q.question_text)
+    lines.append(repair_indic_text(q.question_text))
     lines.append("")
 
     # Diagrams/Figures (only if genuine figures are present)
@@ -147,14 +204,32 @@ def render_question_markdown(q: QuestionBlock, include_context: bool = True) -> 
                 color_tag += ", GROUND_TRUTH: CORRECT"
             color_tag += " -->"
 
-            opt_body = opt.option_text
-            if opt.option_image_path:
-                opt_body += f" ![{opt.option_number}]({opt.option_image_path})"
+            opt_body = repair_indic_text((opt.option_text or "").strip())
+            opt_body = _clean_option_text_prefix(opt_body, opt.option_number)
 
-            lines.append(f"- [{is_checked}] {opt.option_number}. {opt_body}{color_tag}")
+            if opt.option_image_path:
+                if opt_body:
+                    opt_body += f" ![{opt.option_number}]({opt.option_image_path})"
+                else:
+                    opt_body = f"![{opt.option_number}]({opt.option_image_path})"
+
+            # Indent multi-line option lines for CommonMark compliance
+            opt_lines = opt_body.splitlines()
+            if len(opt_lines) > 1:
+                first_l = opt_lines[0].strip()
+                rest_l = "\n".join(f"    {l.strip()}" for l in opt_lines[1:] if l.strip())
+                formatted_opt = f"{first_l}{color_tag}\n{rest_l}"
+            else:
+                formatted_opt = f"{opt_body}{color_tag}"
+
+            lines.append(f"- [{is_checked}] {opt.option_number}. {formatted_opt}")
         lines.append("")
 
-    # Deterministic metadata comments
+    # Provenance and Crop Image metadata
+    lines.append(f"<!-- PROVENANCE: {q.source} -->")
+    if q.crop_image_path:
+        lines.append(f"<!-- CROP_IMAGE: {q.crop_image_path} -->")
+
     if q.detected_answer:
         lines.append(
             f"<!-- DETERMINISTIC_SIGNAL: Option {q.detected_answer} (source: {q.source}, confidence: {q.confidence}) -->"
