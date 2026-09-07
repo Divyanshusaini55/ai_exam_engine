@@ -710,24 +710,18 @@ class AdminTopicResourceViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def ai_summary(self, request, id=None):
-        import os
-        import google.generativeai as genai
+        from quiz.ai.gemini_client import GeminiClient
 
         resource = self.get_object()
-        api_key = os.environ.get('GEMINI_API_KEY')
-        if not api_key:
-            return Response({'error': 'GEMINI_API_KEY not set.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
         content = resource.markdown_content or resource.html_content or resource.latex_content or resource.short_description
         if not content:
             return Response({'error': 'Resource has no text content.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            client = GeminiClient()
             prompt = f"Summarize this study resource in 2 concise sentences for exam prep:\nTitle: {resource.title}\nContent:\n{content[:3000]}"
-            resp = model.generate_content(prompt)
-            resource.ai_summary = resp.text.strip()
+            resp = client.generate_content(prompt)
+            resource.ai_summary = resp.get('text', '').strip()
             resource.is_ai_generated = True
             resource.save(update_fields=['ai_summary', 'is_ai_generated'])
             return Response({'id': resource.id, 'ai_summary': resource.ai_summary})
@@ -754,17 +748,15 @@ class AdminTopicResourceViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def bulk_ai_summary(self, request):
-        import os
-        import google.generativeai as genai
+        from quiz.ai.gemini_client import GeminiClient
 
         ids = request.data.get('ids', [])
-        api_key = os.environ.get('GEMINI_API_KEY')
-        if not api_key:
-            return Response({'error': 'GEMINI_API_KEY not set.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
         resources = TopicResource.objects.filter(id__in=ids)
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-flash')
+
+        try:
+            client = GeminiClient()
+        except Exception as e:
+            return Response({'error': f"Failed to initialize Vertex AI: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         success_count = 0
         for resource in resources:
@@ -773,8 +765,8 @@ class AdminTopicResourceViewSet(viewsets.ModelViewSet):
                 continue
             try:
                 prompt = f"Summarize this study resource in 2 concise sentences for exam prep:\nTitle: {resource.title}\nContent:\n{content[:3000]}"
-                resp = model.generate_content(prompt)
-                resource.ai_summary = resp.text.strip()
+                resp = client.generate_content(prompt)
+                resource.ai_summary = resp.get('text', '').strip()
                 resource.is_ai_generated = True
                 resource.save(update_fields=['ai_summary', 'is_ai_generated'])
                 success_count += 1
@@ -842,24 +834,18 @@ class AdminRoadmapTopicViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def ai_summary(self, request, id=None):
-        import os
-        import google.generativeai as genai
+        from quiz.ai.gemini_client import GeminiClient
 
         resource = self.get_object()
-        api_key = os.environ.get('GEMINI_API_KEY')
-        if not api_key:
-            return Response({'error': 'GEMINI_API_KEY not set.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
         content = resource.markdown_content or resource.html_content or resource.latex_content or resource.short_description
         if not content:
             return Response({'error': 'Resource has no text content.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            client = GeminiClient()
             prompt = f"Summarize this study resource in 2 concise sentences for exam prep:\nTitle: {resource.title}\nContent:\n{content[:3000]}"
-            resp = model.generate_content(prompt)
-            resource.ai_summary = resp.text.strip()
+            resp = client.generate_content(prompt)
+            resource.ai_summary = resp.get('text', '').strip()
             resource.is_ai_generated = True
             resource.save(update_fields=['ai_summary', 'is_ai_generated'])
             return Response({'id': resource.id, 'ai_summary': resource.ai_summary})
