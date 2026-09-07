@@ -1,4 +1,6 @@
 
+from pathlib import Path
+from django.conf import settings
 from rest_framework import serializers
 from .models import (
     Exam, Question, UserAnswer, Category, SubCategory, Topic,
@@ -80,7 +82,10 @@ class QuestionSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
     def get_comment_count(self, obj):
-        return len(obj.community_comments.all())
+        all_comments = getattr(obj, '_prefetched_objects_cache', {}).get('community_comments')
+        if all_comments is not None:
+            return len(all_comments)
+        return obj.community_comments.count()
         
     def get_question_text(self, obj):
         lang = self.context.get('lang', 'en')
@@ -158,7 +163,7 @@ class QuestionSerializer(serializers.ModelSerializer):
                     'option_label': opt.get('id', chr(65 + idx)),
                     'answer_text': answer_text,
                     'answer_text_hi': opt.get('answer_text_hi') or opt.get('text_hi') or '',
-                    'image_url': opt.get('image_url'),
+                    'image_url': self._resolve_image_url(opt.get('image_url'), obj),
                     'order': idx,
                 }
                 if not hide_correct:
@@ -177,19 +182,73 @@ class QuestionSerializer(serializers.ModelSerializer):
             
         return results
 
-    def get_image(self, obj):
+    def _resolve_image_url(self, url: str | None, obj=None) -> str | None:
+        if not url or not isinstance(url, str):
+            return None
+        url = url.strip()
+        if not url:
+            return None
+        if url.startswith("http://") or url.startswith("https://"):
+            return url
+
+        clean_subpath = url.lstrip("./").lstrip("/")
+
+        # Determine exam slug
+        exam_slug = self.context.get('exam_slug')
+        if not exam_slug and obj:
+            cached_exam = getattr(obj, '_cached_exam', None)
+            if cached_exam:
+                exam_slug = getattr(cached_exam, 'slug', None)
+            else:
+                exams_rel = getattr(obj, 'exams', None)
+                if exams_rel:
+                    first_exam = exams_rel.first()
+                    if first_exam:
+                        exam_slug = first_exam.slug
+
         request = self.context.get('request')
-        # Check QuestionImage model
-        img = obj.images.first()
-        if img and img.image_file and request:
-            return request.build_absolute_uri(img.image_file.url)
-        # Check schema_payload content.images
+        backend_base = (request.build_absolute_uri('/')[:-1] if request else getattr(settings, 'BACKEND_PUBLIC_URL', 'http://127.0.0.1:8000')).rstrip('/')
+
+        # 1. If local file exists on disk in media/exam_assets/<exam_slug>/<clean_subpath>
+        if exam_slug:
+            local_disk_path = Path(settings.MEDIA_ROOT) / "exam_assets" / exam_slug / clean_subpath
+            if local_disk_path.exists():
+                return f"{backend_base}/media/exam_assets/{exam_slug}/{clean_subpath}"
+
+        # 2. Check Cloudflare R2 custom domain
+        r2_domain = getattr(settings, 'R2_CUSTOM_DOMAIN', None)
+        if r2_domain and ("r2.dev" in r2_domain or "cloudfront" in r2_domain or "cdn" in r2_domain):
+            domain = r2_domain.rstrip('/')
+            if exam_slug and not clean_subpath.startswith(f"exams/{exam_slug}"):
+                return f"{domain}/exams/{exam_slug}/{clean_subpath}"
+            return f"{domain}/{clean_subpath}"
+
+        # 3. Fallback to local media URL
+        if exam_slug and not clean_subpath.startswith(f"exam_assets/{exam_slug}"):
+            return f"{backend_base}/media/exam_assets/{exam_slug}/{clean_subpath}"
+        return f"{backend_base}/media/{clean_subpath}"
+
+    def get_image(self, obj):
+        # 1. Check schema_payload content.images first (instant in-memory)
         payload = obj.schema_payload or {}
         images_dict = (payload.get('content') or {}).get('images', {})
         if images_dict and isinstance(images_dict, dict):
             first_img = next(iter(images_dict.values()), None)
             if isinstance(first_img, dict) and first_img.get('url'):
-                return first_img.get('url')
+                return self._resolve_image_url(first_img.get('url'), obj)
+            elif isinstance(first_img, str):
+                return self._resolve_image_url(first_img, obj)
+
+        # 2. Check prefetched QuestionImage model
+        request = self.context.get('request')
+        all_imgs = getattr(obj, '_prefetched_objects_cache', {}).get('images')
+        if all_imgs is not None:
+            img = all_imgs[0] if len(all_imgs) > 0 else None
+        else:
+            img = obj.images.first()
+        if img and img.image_file:
+            raw_url = request.build_absolute_uri(img.image_file.url) if request else img.image_file.url
+            return self._resolve_image_url(raw_url, obj)
         return None
 
     def to_representation(self, instance):
@@ -215,7 +274,18 @@ class QuestionSerializer(serializers.ModelSerializer):
         data['passage_id'] = payload.get('passage_id')
         data['marking'] = payload.get('marking', {})
         data['classification'] = payload.get('classification', {})
-        data['content_images'] = (payload.get('content') or {}).get('images', {})
+        raw_content_images = (payload.get('content') or {}).get('images', {})
+        resolved_content_images = {}
+        if isinstance(raw_content_images, dict):
+            for k, img_val in raw_content_images.items():
+                if isinstance(img_val, dict):
+                    resolved_content_images[k] = {
+                        **img_val,
+                        'url': self._resolve_image_url(img_val.get('url'), instance)
+                    }
+                elif isinstance(img_val, str):
+                    resolved_content_images[k] = self._resolve_image_url(img_val, instance)
+        data['content_images'] = resolved_content_images
         data['exam_history'] = payload.get('exam_history', [])
         data['question_text_hi'] = payload.get('question_text_hi', '')
         data['options'] = data.get('answers', [])
