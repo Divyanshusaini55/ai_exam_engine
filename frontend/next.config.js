@@ -3,6 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['katex'],
   eslint: {
+    dirs: ['src'],
     ignoreDuringBuilds: true,
   },
   typescript: {
