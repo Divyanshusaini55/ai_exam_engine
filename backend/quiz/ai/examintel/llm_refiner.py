@@ -13,13 +13,21 @@ from django.conf import settings
 from pydantic import BaseModel, Field
 
 from quiz.ai.examintel.models import QuestionBlock, QuestionOption
+from quiz.ai.examintel.indic_font_repair import repair_indic_text, has_corrupted_indic_glyphs
 from quiz.ai.langfuse_client import observe
 
 
 MATH_COMPLEXITY_REGEX = re.compile(
-    r"(?:\\frac|\\sqrt|\^|_|\b(?:sin|cos|tan|cot|sec|cosec|log|ln|lim|int|dx|dy|matrix|det)\b|"
-    r"[√∫∑∏±≠≤≥≈∞πθαβγλμσ\^°]|"
-    r"\d+\s*[/÷]\s*\d+|\b[a-zA-Z]\s*=\s*[-+]?\d+|\b(?:Quantitative|Math|Aptitude|Physics|Chemistry|Table|Chart|Figure|Diagram)\b)",
+    r"(?:\\frac|\\sqrt|\^|\b(?:sin|cos|tan|cot|sec|cosec|log|ln|lim|matrix|det)\b|"
+    r"[√∫∑∏±≠≤≥≈∞πθαβγλμ°]|"
+    r"\b\d+\s*[/÷]\s*\d+\b|"
+    r"\b[a-z]\s*[\^²³]\s*\d*|\b[a-z]\s*[23]\s*[\+\-\=])",
+    re.IGNORECASE
+)
+
+TABLE_DATA_REGEX = re.compile(
+    r"(?:तालिका|सारणी|\btables?\b|\bmatrices\b|\bmatrix\b|data\s+interpretation|study\s+the\s+following\s+table|"
+    r"\bchart\s+given\s+below\b|\bdistribution\s+of\b)",
     re.IGNORECASE
 )
 
@@ -64,17 +72,22 @@ class RefinedChunkResult(BaseModel):
 def needs_math_or_bilingual_refinement(question: QuestionBlock) -> bool:
     """
     Returns True if question contains mathematical notation, scientific formulas,
-    Devanagari Hindi text, or belongs to a STEM / Bilingual / Visual exam section.
+    unformatted data interpretation tables, corrupted legacy Indic font glyphs,
+    or visual diagram/image elements that benefit from Vision KaTeX refinement.
+    Pristine text-only questions bypass the LLM for 0.00s instant deterministic processing.
     """
-    all_text = (question.question_text or "") + " " + (question.section_name or "") + " "
+    q_content = (question.question_text or "") + " "
     for opt in question.options:
-        all_text += (opt.option_text or "") + " "
+        q_content += (opt.option_text or "") + " "
 
-    has_math = bool(MATH_COMPLEXITY_REGEX.search(all_text))
-    has_hindi = bool(HINDI_UNICODE_REGEX.search(all_text))
+    has_math = bool(MATH_COMPLEXITY_REGEX.search(q_content))
+    has_corrupted_indic = has_corrupted_indic_glyphs(q_content)
+    has_table = bool(TABLE_DATA_REGEX.search(q_content))
     diagram_paths = getattr(question, 'diagram_image_paths', getattr(question, 'diagram_paths', []))
     has_diagram = bool(diagram_paths)
-    return has_math or has_hindi or has_diagram
+    has_img_opts = any(bool(getattr(opt, 'option_image_path', None) or getattr(opt, 'image_url', None)) for opt in question.options)
+    has_empty_stem = not (question.question_text or "").strip() and bool(question.crop_image_path)
+    return has_math or has_corrupted_indic or has_table or has_diagram or has_img_opts or has_empty_stem
 
 
 needs_math_refinement = needs_math_or_bilingual_refinement
@@ -140,13 +153,18 @@ def refine_question_with_vision(
     question: QuestionBlock,
     api_key: Optional[str] = None,
     model_name: Optional[str] = None,
+    output_dir: Optional[Path] = None,
 ) -> RefinedQuestion:
     """
     Refines a single question crop into standardized KaTeX markdown, bilingual fields, and diagram requirement flag using Gemini Vision.
     Enforces deterministic ground-truth answer key locking (zero LLM hallucination).
     """
-    key = api_key or getattr(settings, 'GEMINI_API_KEY', None) or os.environ.get("GEMINI_API_KEY")
-    model = model_name or getattr(settings, 'GEMINI_SUMMARY_MODEL', 'models/gemini-flash-lite-latest')
+    from quiz.ai.gemini_client import GeminiClient
+    from vertexai.generative_models import Part
+    from quiz.ai import extract_json_from_text
+
+    client = GeminiClient()
+    model = model_name or getattr(settings, 'GEMINI_SUMMARY_MODEL', 'gemini-3.8-flash')
     if model.startswith("models/"):
         model = model[len("models/"):]
 
@@ -156,14 +174,22 @@ def refine_question_with_vision(
     crop_file: Optional[Path] = None
     if question.crop_image_path:
         p = Path(question.crop_image_path)
-        if p.is_file():
-            crop_file = p
-        elif (Path(settings.BASE_DIR) / question.crop_image_path).is_file():
-            crop_file = Path(settings.BASE_DIR) / question.crop_image_path
-
-    # Fallback directly if no API key
-    if not key:
-        return _build_fallback_refined_question(question)
+        candidates = [
+            p,
+            Path(settings.BASE_DIR) / question.crop_image_path,
+            Path(settings.BASE_DIR) / "output" / question.crop_image_path,
+        ]
+        if output_dir:
+            candidates.insert(0, Path(output_dir) / question.crop_image_path)
+            candidates.insert(1, Path(output_dir) / p.name)
+        for cand in candidates:
+            if cand.is_file():
+                crop_file = cand
+                break
+        if not crop_file:
+            matches = list(Path(settings.BASE_DIR).glob(f"output/**/{p.name}"))
+            if matches:
+                crop_file = matches[0]
 
     prompt = f"""{VISION_BILINGUAL_MATH_INSTRUCTION}
 
@@ -173,13 +199,14 @@ METADATA & GROUND TRUTH:
 - Deterministic Correct Option: {det_ans or 'Unknown'}
 
 DRAFT TEXT:
-{question.question_text}
+{question.question_text or '(Question text and mathematical expressions are in the attached crop image - transcribe accurately into KaTeX math)'}
 Options:
 """
     for opt in question.options:
         is_c = getattr(opt, 'is_correct_signal', getattr(opt, 'is_correct', False))
         mark = " [CORRECT]" if (is_c or opt.option_number == det_ans) else ""
-        prompt += f"  {opt.option_number}. {opt.option_text}{mark}\n"
+        opt_desc = opt.option_text or f"(Option {opt.option_number} image/formula in crop)"
+        prompt += f"  {opt.option_number}. {opt_desc}{mark}\n"
 
     prompt += """
 Respond ONLY with a JSON object:
@@ -200,123 +227,160 @@ Respond ONLY with a JSON object:
   "correct_option": "1"
 }
 """
-    parts: List[Dict[str, Any]] = [{"text": prompt}]
+    parts = [prompt]
     if crop_file:
-        b64 = _encode_image_to_base64(crop_file)
-        if b64:
-            parts.append({
-                "inline_data": {
-                    "mime_type": "image/png",
-                    "data": b64,
-                }
-            })
-
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}"
-    payload = {
-        "contents": [{"parts": parts}],
-        "generationConfig": {
-            "responseMimeType": "application/json",
-            "temperature": 0.1,
-        },
-    }
-    headers = {
-        "Content-Type": "application/json",
-        "X-goog-api-key": key,
-    }
+        try:
+            with open(crop_file, "rb") as f:
+                image_bytes = f.read()
+            image_part = Part.from_data(data=image_bytes, mime_type="image/png")
+            parts.append(image_part)
+        except Exception as e:
+            pass
 
     diagram_paths = getattr(question, 'diagram_image_paths', getattr(question, 'diagram_paths', []))
 
-    # Exponential Backoff Retry Loop (3 attempts)
-    max_retries = 3
-    for attempt in range(max_retries):
-        try:
-            req = urllib.request.Request(
-                url,
-                data=json.dumps(payload).encode("utf-8"),
-                headers=headers,
-                method="POST",
+    try:
+        res = client.generate_content(
+            parts, 
+            model_name=model, 
+            temperature=0.1, 
+            response_mime_type="application/json"
+        )
+        data = extract_json_from_text(res.get('text', '{}'))
+        if not isinstance(data, dict):
+            data = {}
+
+        # Authoritative Correct Option Enforcement
+        llm_corr = str(data.get("correct_option", "")).strip()
+        target_correct = str(det_ans).strip() if det_ans else llm_corr
+
+        # Check if original options used letter format ('A', 'B', 'C', 'D')
+        orig_numbers = [str(opt.option_number).strip().upper() for opt in question.options]
+        orig_is_letter = any(n in {"A", "B", "C", "D"} for n in orig_numbers)
+
+        # Normalize target_correct format to match original question options
+        if orig_is_letter and target_correct in {"1": "A", "2": "B", "3": "C", "4": "D"}:
+            target_correct = {"1": "A", "2": "B", "3": "C", "4": "D"}[target_correct]
+        elif not orig_is_letter and target_correct in {"A": "1", "B": "2", "C": "3", "D": "4"}:
+            target_correct = {"A": "1", "B": "2", "C": "3", "D": "4"}[target_correct]
+
+        # Smart Diagram Deduplication
+        diagram_needed = bool(data.get("diagram_needed", False))
+
+        # If original options have extracted images (e.g. mirror images, visual patterns), diagram is ALWAYS needed
+        orig_opt_img_map = {
+            str(opt.option_number).strip().upper(): (getattr(opt, 'option_image_path', None) or getattr(opt, 'image_url', None))
+            for opt in question.options
+            if getattr(opt, 'option_image_path', None) or getattr(opt, 'image_url', None)
+        }
+        if orig_opt_img_map:
+            diagram_needed = True
+
+        parsed_options: List[RefinedOption] = []
+        for opt_idx, o in enumerate(data.get("options", [])):
+            raw_num = str(o.get("option_number", "")).strip().upper()
+            if orig_is_letter:
+                num_to_let = {"1": "A", "2": "B", "3": "C", "4": "D"}
+                opt_num = num_to_let.get(raw_num, raw_num)
+                if opt_num not in {"A", "B", "C", "D"} and opt_idx < len(orig_numbers):
+                    opt_num = orig_numbers[opt_idx]
+            else:
+                let_to_num = {"A": "1", "B": "2", "C": "3", "D": "4"}
+                opt_num = let_to_num.get(raw_num, raw_num)
+                if opt_num not in {"1", "2", "3", "4"} and opt_idx < len(orig_numbers):
+                    opt_num = orig_numbers[opt_idx]
+
+            is_c = bool(target_correct and opt_num == target_correct)
+            orig_img = orig_opt_img_map.get(opt_num)
+            img_url = (o.get("image_url") or orig_img) if diagram_needed else None
+
+            opt_txt = o.get("option_text", "") or ""
+            # If option has an image and text is only a placeholder like "image" or "Option A", clear text
+            if img_url and re.match(r"^\s*(?:image|figure|img|diagram|चित्र|आकृति|Option\s*[A-D1-4]|विकल्प\s*[A-D1-4]|\([A-D1-4]\))\s*$", opt_txt, re.IGNORECASE):
+                opt_txt = ""
+
+            parsed_options.append(
+                RefinedOption(
+                    option_number=opt_num,
+                    option_text=sanitize_option_text(opt_txt),
+                    option_text_hi=o.get("option_text_hi"),
+                    is_correct=is_c,
+                    image_url=img_url,
+                )
             )
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                resp_json = json.loads(resp.read().decode("utf-8"))
-                candidate = resp_json.get("candidates", [{}])[0]
-                content_part = candidate.get("content", {}).get("parts", [{}])[0].get("text", "{}")
-                data = json.loads(content_part)
 
-                # Authoritative Correct Option Enforcement
-                llm_corr = str(data.get("correct_option", "")).strip()
-                target_correct = str(det_ans).strip() if det_ans else llm_corr
-
-                # Smart Diagram Deduplication
-                diagram_needed = bool(data.get("diagram_needed", False))
-
-                parsed_options: List[RefinedOption] = []
-                for o in data.get("options", []):
-                    opt_num = str(o.get("option_number", "")).strip()
-                    is_c = bool(target_correct and opt_num == target_correct)
-                    parsed_options.append(
-                        RefinedOption(
-                            option_number=opt_num,
-                            option_text=o.get("option_text", ""),
-                            option_text_hi=o.get("option_text_hi"),
-                            is_correct=is_c,
-                            image_url=o.get("image_url"),
-                        )
+        if not parsed_options and question.options:
+            for o in question.options:
+                opt_num = str(o.option_number).strip()
+                is_c = bool(target_correct and opt_num == target_correct)
+                orig_img = getattr(o, 'option_image_path', None) or getattr(o, 'image_url', None)
+                img_url = orig_img if diagram_needed else None
+                parsed_options.append(
+                    RefinedOption(
+                        option_number=opt_num,
+                        option_text=o.option_text,
+                        option_text_hi=None,
+                        is_correct=is_c,
+                        image_url=img_url,
                     )
-
-                if not parsed_options and question.options:
-                    for o in question.options:
-                        opt_num = str(o.option_number).strip()
-                        is_c = bool(target_correct and opt_num == target_correct)
-                        parsed_options.append(
-                            RefinedOption(
-                                option_number=opt_num,
-                                option_text=o.option_text,
-                                option_text_hi=None,
-                                is_correct=is_c,
-                                image_url=o.option_image_path,
-                            )
-                        )
-
-                stem_text = data.get("question_stem", question.question_text)
-                
-                # If diagram is not needed (because table or formula was transcribed),
-                # strip redundant Markdown image tags from the stem
-                if not diagram_needed:
-                    stem_text = re.sub(r'!\[.*?\]\(.*?\)', '', stem_text).strip()
-                    final_figures = []
-                else:
-                    final_figures = diagram_paths
-
-                return RefinedQuestion(
-                    question_number=str(data.get("question_number", question.question_number)),
-                    global_question_number=question.global_question_number,
-                    question_id=data.get("question_id") or question.question_id,
-                    subject=data.get("subject") or question.section_name,
-                    topic=data.get("topic"),
-                    question_stem=stem_text,
-                    question_stem_hi=data.get("question_stem_hi") or getattr(question, 'question_text_hi', None),
-                    language=data.get("language") or getattr(question, 'language', 'en') or "en",
-                    options=parsed_options,
-                    correct_option=target_correct if target_correct else None,
-                    figure_urls=final_figures,
-                    diagram_needed=diagram_needed,
-                    crop_image_url=question.crop_image_path if diagram_needed else None,
-                    provenance=question.source if question.source != "none" else "multimodal_vision_refiner",
                 )
 
-        except urllib.error.HTTPError as e:
-            if e.code == 429 and attempt < max_retries - 1:
-                time.sleep(2 ** (attempt + 1))
-                continue
-            break
-        except Exception:
-            break
+        stem_text = data.get("question_stem", question.question_text)
+        
+        # If diagram is not needed (because table or formula was transcribed),
+        # strip redundant Markdown image tags from the stem
+        if not diagram_needed:
+            stem_text = re.sub(r'!\[.*?\]\(.*?\)', '', stem_text).strip()
+            final_figures = []
+        else:
+            final_figures = diagram_paths
+
+        return RefinedQuestion(
+            question_number=str(data.get("question_number", question.question_number)),
+            global_question_number=question.global_question_number,
+            question_id=data.get("question_id") or question.question_id,
+            subject=data.get("subject") or question.section_name,
+            topic=data.get("topic"),
+            question_stem=stem_text,
+            question_stem_hi=data.get("question_stem_hi") or getattr(question, 'question_text_hi', None),
+            language=data.get("language") or getattr(question, 'language', 'en') or "en",
+            options=parsed_options,
+            correct_option=target_correct if target_correct else None,
+            figure_urls=final_figures,
+            diagram_needed=diagram_needed,
+            crop_image_url=question.crop_image_path if diagram_needed else None,
+            provenance=question.source if question.source != "none" else "multimodal_vision_refiner",
+        )
+
+    except Exception:
+        pass
 
     return _build_fallback_refined_question(question)
 
 
+def sanitize_option_text(text: str, has_image: bool = False) -> str:
+    """Cleans noisy UI artifacts, leaked section banners, page footers, and redundant image placeholders from option text."""
+    if not text:
+        return ""
+    # Strip UI buttons
+    text = re.sub(r"(?im)^\s*(?:Save\s*&\s*Print|Bookmark|Mark\s*for\s*Review|Question\s*ID\s*:\s*\d+|Chosen\s*Option\s*:\s*\d+)\s*$", "", text)
+    # Strip repeated all-caps section banners
+    text = re.sub(r"(?im)^\s*(?:BASIC\s*LAW|GENERAL\s*HINDI|NUMERICAL|MENTAL\s*APTITUDE|GENERAL\s*KNOWLEDGE|TEST\s*OF\s*REASONING)[^\n]*?(?:BASIC\s*LAW|GENERAL\s*HINDI|NUMERICAL|MENTAL\s*APTITUDE|GENERAL\s*KNOWLEDGE|TEST\s*OF\s*REASONING)[^\n]*$", "", text)
+    text = re.sub(r"(?im)^\s*(?:BASIC\s*LAW\s*-\s*CONSTITUTION\s*AND\s*GENERAL\s*KNOWLEDGE|MENTAL\s*APTITUDE\s*-\s*INTELLIGENCE\s*-\s*TEST\s*OF\s*REASONING|NUMERICAL\s*&\s*MENTAL\s*ABILITY|GENERAL\s*HINDI)\s*$", "", text)
+    # Strip swallowed Case Study / Directions headers
+    text = re.sub(r"(?im)\n\s*(?:Case\s*Study\s*-\s*\d+\s*to\s*\d+|Directions\s*:[\s\S]*)", "", text)
+
+    # If the option has an image, strip redundant label placeholders like "छवि (A)", "Figure A", "(A)"
+    if has_image:
+        text = re.sub(r"(?im)^\s*(?:छवि|आकृति|चित्र|चित्र\s*संख्या|Figure|Fig\.?|Image|Option|विकल्प)\s*[\(\[]?\s*[A-Da-d1-4]\s*[\)\]]?\s*$", "", text)
+        text = re.sub(r"(?im)^\s*[\(\[]?\s*[A-Da-d1-4]\s*[\)\]]?\s*$", "", text)
+
+    lines = [l.strip() for l in text.splitlines() if l.strip()]
+    return "\n".join(lines).strip()
+
+
 def _build_fallback_refined_question(question: QuestionBlock) -> RefinedQuestion:
-    """Builds a RefinedQuestion directly from local extracted QuestionBlock data without LLM."""
+    """Builds a RefinedQuestion directly from local extracted QuestionBlock data with deterministic Indic repair."""
     det_ans = str(question.detected_answer).strip() if question.detected_answer else None
     if not det_ans:
         for o in question.options:
@@ -329,18 +393,23 @@ def _build_fallback_refined_question(question: QuestionBlock) -> RefinedQuestion
     for o in question.options:
         opt_num = str(o.option_number).strip()
         is_c = bool(det_ans and opt_num == det_ans)
+        img_url = o.option_image_path
+        repaired_opt = repair_indic_text(o.option_text or "")
         opts.append(
             RefinedOption(
                 option_number=opt_num,
-                option_text=o.option_text,
+                option_text=sanitize_option_text(repaired_opt, has_image=bool(img_url)),
                 option_text_hi=None,
                 is_correct=is_c,
-                image_url=o.option_image_path,
+                image_url=img_url,
             )
         )
 
     diagram_paths = getattr(question, 'diagram_image_paths', getattr(question, 'diagram_paths', []))
     has_diag = bool(diagram_paths)
+
+    stem_clean = repair_indic_text(question.question_text or "")
+    stem_hi_clean = repair_indic_text(getattr(question, 'question_text_hi', None) or "") or None
 
     return RefinedQuestion(
         question_number=question.question_number,
@@ -348,8 +417,8 @@ def _build_fallback_refined_question(question: QuestionBlock) -> RefinedQuestion
         question_id=question.question_id,
         subject=question.section_name,
         topic=None,
-        question_stem=question.question_text,
-        question_stem_hi=getattr(question, 'question_text_hi', None),
+        question_stem=stem_clean,
+        question_stem_hi=stem_hi_clean,
         language=getattr(question, 'language', 'en') or "en",
         options=opts,
         correct_option=det_ans,
@@ -364,7 +433,8 @@ def refine_questions_batch(
     questions: List[QuestionBlock],
     api_key: Optional[str] = None,
     model_name: Optional[str] = None,
-    max_workers: int = 2,
+    max_workers: int = 6,
+    output_dir: Optional[Path] = None,
 ) -> List[RefinedQuestion]:
     """
     Batches questions through Math & Bilingual Vision Refinement in parallel with Rate-Limit protection.
@@ -375,7 +445,7 @@ def refine_questions_batch(
     def _process_one(idx_q: Tuple[int, QuestionBlock]) -> Tuple[int, RefinedQuestion]:
         idx, q = idx_q
         if needs_math_or_bilingual_refinement(q):
-            res = refine_question_with_vision(q, api_key=api_key, model_name=model_name)
+            res = refine_question_with_vision(q, api_key=api_key, model_name=model_name, output_dir=output_dir)
         else:
             res = _build_fallback_refined_question(q)
         return idx, res
