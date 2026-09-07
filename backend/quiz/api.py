@@ -113,7 +113,10 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
                 except queryset.model.DoesNotExist:
                     pass
 
-            obj = get_object_or_404(queryset, slug=lookup_str)
+            obj = queryset.filter(slug__iexact=lookup_str).first()
+            if not obj:
+                from django.http import Http404
+                raise Http404(f"Exam '{lookup_str}' not found")
             self.check_object_permissions(self.request, obj)
             return obj
 
@@ -156,7 +159,7 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
         if cached_data:
             return Response(cached_data)
             
-        questions = exam.questions.all().prefetch_related('community_comments', 'images')
+        questions = exam.questions.all().order_by('examquestion__order').prefetch_related('community_comments', 'images')
 
         serializer = QuestionSerializer(
             questions,
@@ -164,7 +167,8 @@ class ExamViewSet(SessionMixin, SummaryMixin, DashboardMixin, LeaderboardMixin, 
             context={
                 'request': request,
                 'hide_correct': hide_correct,
-                'lang': lang
+                'lang': lang,
+                'exam_slug': exam.slug,
             }
         )
         cache.set(cache_key, serializer.data, 300)
@@ -907,15 +911,10 @@ class TopicResourceViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
     def ai_summary(self, request, pk=None):
-        """Generate AI summary via Gemini and persist it."""
-        import os
-        import google.generativeai as genai
+        """Generate AI summary via Vertex AI and persist it."""
+        from quiz.ai.gemini_client import GeminiClient
 
         resource = self.get_object()
-        api_key = os.environ.get('GEMINI_API_KEY')
-        if not api_key:
-            return Response({'error': 'GEMINI_API_KEY not configured'}, status=500)
-
         content = (
             resource.markdown_content
             or resource.html_content
@@ -926,15 +925,14 @@ class TopicResourceViewSet(viewsets.ReadOnlyModelViewSet):
             return Response({'error': 'No content to summarize'}, status=400)
 
         try:
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            client = GeminiClient()
             prompt = (
                 f"Summarize the following educational resource in 2-3 concise sentences "
                 f"suitable for competitive exam preparation. "
-                f"Resource title: '{resource.title}'.\\n\\n{content[:3000]}"
+                f"Resource title: '{resource.title}'.\n\n{content[:3000]}"
             )
-            response = model.generate_content(prompt)
-            resource.ai_summary = response.text.strip()
+            response = client.generate_content(prompt)
+            resource.ai_summary = response.get('text', '').strip()
             resource.is_ai_generated = True
             resource.save(update_fields=['ai_summary', 'is_ai_generated'])
             return Response({'ai_summary': resource.ai_summary})
