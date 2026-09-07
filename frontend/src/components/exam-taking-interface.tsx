@@ -189,6 +189,26 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
     const secondsSpentRef = useRef(0)
     const [showSubmitConfirmModal, setShowSubmitConfirmModal] = useState(false)
 
+    const resolveAssetUrl = (rawUrl?: string): string => {
+        if (!rawUrl || typeof rawUrl !== 'string') return ''
+        const trimmed = rawUrl.trim()
+        if (!trimmed) return ''
+        if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+            return trimmed
+        }
+        const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api'
+        const backendBase = apiBase.replace(/\/api\/?$/, '')
+        const clean = trimmed.replace(/^\.?\//, '')
+        const effectiveSlug = exam?.slug || examId
+        if (clean.startsWith('assets/') || clean.startsWith('crops/')) {
+            return `${backendBase}/media/exam_assets/${effectiveSlug}/${clean}`
+        }
+        if (clean.startsWith('media/')) {
+            return `${backendBase}/${clean}`
+        }
+        return `${backendBase}/media/${clean}`
+    }
+
     const handleViewSummary = async () => {
         setIsSummaryModalOpen(true)
         setIsMobileMenuOpen(false)
@@ -1088,6 +1108,32 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                 : (currentQ.question_text || currentQ.content?.text || currentQ.question || currentQ.question_stem || "")
                             const parsed = parseQuestionAndPassage(rawQText, currentQ.shared_context || currentQ.passage || currentQ.content?.passage)
 
+                            // Deduplicate diagram images (avoid rendering identical images multiple times)
+                            const renderedUrls = new Set<string>()
+                            const diagramImages: { url: string; alt: string }[] = []
+
+                            if (currentQ.content_images && typeof currentQ.content_images === 'object') {
+                                Object.values(currentQ.content_images).forEach((imgObj: any) => {
+                                    const raw = imgObj?.url
+                                    const url = resolveAssetUrl(raw)
+                                    if (url && !renderedUrls.has(url)) {
+                                        renderedUrls.add(url)
+                                        diagramImages.push({ url, alt: imgObj.alt || "Question Diagram" })
+                                    }
+                                })
+                            }
+
+                            if (currentQ.image) {
+                                const url = resolveAssetUrl(currentQ.image)
+                                if (url && !renderedUrls.has(url)) {
+                                    renderedUrls.add(url)
+                                    diagramImages.push({ url, alt: "Question Diagram" })
+                                }
+                            }
+
+                            // Do not re-render images that are already embedded in the markdown text
+                            const imagesToDisplay = diagramImages.filter(img => !rawQText.includes(img.url))
+
                             return (
                                 <>
                                     {/* Dedicated Reading Comprehension / Passage Card */}
@@ -1128,25 +1174,35 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                                     <p className="mb-2 last:mb-0 leading-[1.65] font-medium text-foreground">
                                                         {children}
                                                     </p>
-                                                )
+                                                ),
+                                                img: ({ src, alt }) => {
+                                                    const resolved = resolveAssetUrl(src)
+                                                    return (
+                                                        <img
+                                                            src={resolved}
+                                                            alt={alt || "Question Diagram"}
+                                                            className="max-w-full h-auto rounded-lg mb-8 border border-border shadow-xs"
+                                                        />
+                                                    )
+                                                }
                                             }}
                                         >
                                             {parsed.questionStem || rawQText}
                                         </ReactMarkdown>
                                     </div>
+
+                                    {/* Deduplicated Diagram Images */}
+                                    {imagesToDisplay.map((img, idx) => (
+                                        <img
+                                            key={idx}
+                                            src={img.url}
+                                            alt={img.alt}
+                                            className="max-w-full h-auto rounded-lg mb-8 border border-border shadow-xs"
+                                        />
+                                    ))}
                                 </>
                             )
                         })()}
-
-                        {/* Image Support (Question Image or V2 content_images) */}
-                        {currentQ.image && (
-                            <img src={currentQ.image} alt="Question Diagram" className="max-w-full h-auto rounded-lg mb-8 border border-border" />
-                        )}
-                        {currentQ.content_images && typeof currentQ.content_images === 'object' && Object.values(currentQ.content_images).map((imgObj: any, idx: number) => (
-                            imgObj?.url && (
-                                <img key={idx} src={imgObj.url} alt={imgObj.alt || "Question Diagram"} className="max-w-full h-auto rounded-lg mb-8 border border-border" />
-                            )
-                        ))}
 
                         {/* Question Types: NAT Numerical Input */}
                         {currentQ.question_type === 'nat' && (
@@ -1230,7 +1286,10 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                     }
 
                                     const optText = (language === 'hi' && (ans.answer_text_hi || ans.text_hi) ? (ans.answer_text_hi || ans.text_hi) : (ans.answer_text || ans.text || ans.option_text)) || ""
-                                    const cleanOptText = optText.replace(/^[A-Z][).:-]\s*/i, '')
+                                    let cleanOptText = optText.replace(/^[A-Z][).:-]\s*/i, '')
+                                    if (ans.image_url && /^\s*(?:छवि|आकृति|चित्र|Figure|Fig\.?|Image|Option|विकल्प)?\s*[\(\[]?\s*[A-Da-d1-4]\s*[\)\]]?\s*$/i.test(cleanOptText.trim())) {
+                                        cleanOptText = ""
+                                    }
 
                                     return (
                                         <label 
@@ -1253,7 +1312,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                             </div>
                                             <div className="flex-1 flex flex-col gap-1">
                                                 {ans.image_url && (
-                                                    <img src={ans.image_url} alt="Option Diagram" className="max-h-24 object-contain rounded border border-border my-1" />
+                                                    <img src={resolveAssetUrl(ans.image_url)} alt="Option Diagram" className="max-h-24 object-contain rounded border border-border my-1" />
                                                 )}
                                                 {cleanOptText && (
                                                     <div className="text-sm md:text-base transition-colors font-medium prose dark:prose-invert max-w-none">
@@ -1312,7 +1371,10 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                     }
 
                                     const optText = (language === 'hi' && (ans.answer_text_hi || ans.text_hi) ? (ans.answer_text_hi || ans.text_hi) : (ans.answer_text || ans.text || ans.option_text)) || ""
-                                    const cleanOptText = optText.replace(/^[A-Z][).:-]\s*/i, '')
+                                    let cleanOptText = optText.replace(/^[A-Z][).:-]\s*/i, '')
+                                    if (ans.image_url && /^\s*(?:छवि|आकृति|चित्र|Figure|Fig\.?|Image|Option|विकल्प)?\s*[\(\[]?\s*[A-Da-d1-4]\s*[\)\]]?\s*$/i.test(cleanOptText.trim())) {
+                                        cleanOptText = ""
+                                    }
 
                                     return (
                                         <label 
@@ -1335,7 +1397,7 @@ export function ExamTakingInterface({ examId, onSubmit }: ExamTakingInterfacePro
                                             </div>
                                             <div className="flex-1 flex flex-col gap-1">
                                                 {ans.image_url && (
-                                                    <img src={ans.image_url} alt="Option Diagram" className="max-h-24 object-contain rounded border border-border my-1" />
+                                                    <img src={resolveAssetUrl(ans.image_url)} alt="Option Diagram" className="max-h-24 object-contain rounded border border-border my-1" />
                                                 )}
                                                 {cleanOptText && (
                                                     <div className="text-sm md:text-base transition-colors font-medium prose dark:prose-invert max-w-none">
