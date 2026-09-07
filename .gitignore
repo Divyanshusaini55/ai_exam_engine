@@ -26,6 +26,8 @@ backend/venv/
 backend/env/
 backend/.venv/
 backend/tmp/
+backend/output/
+backend/test_out/
 # ─── Node / Next.js (frontend) ─────────────────────────────────────────────────
 frontend/node_modules/
 frontend/.next/
@@ -34,6 +36,7 @@ frontend/.env*.local
 frontend/build/
 frontend/out/
 frontend/build_log*.txt
+frontend/test_lint.txt
 frontend/output.html
 frontend/tsconfig.tsbuildinfo
 
@@ -53,6 +56,10 @@ backend/make_logo.py
 backend/pib.html
 pib_test.png
 question_fromat.json
+backend/vertex-ai-key.json
+backend/*-key.json
+backend/*credentials*.json
+*.json.key
 
 # ─── Markdown files ────────────────────────────────────────────────────────────
 *.md
