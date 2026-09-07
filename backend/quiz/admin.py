@@ -108,18 +108,15 @@ def feature_resources(modeladmin, request, queryset):
     modeladmin.message_user(request, f"{count} resource(s) marked as featured.")
 
 
-@admin.action(description='Generate AI Summary via Gemini')
+@admin.action(description='Generate AI Summary via Vertex AI')
 def generate_ai_summary(modeladmin, request, queryset):
-    import google.generativeai as genai
-    import os
+    from quiz.ai.gemini_client import GeminiClient
 
-    api_key = os.environ.get('GEMINI_API_KEY')
-    if not api_key:
-        modeladmin.message_user(request, "GEMINI_API_KEY not set in environment.", level='ERROR')
+    try:
+        client = GeminiClient()
+    except Exception as e:
+        modeladmin.message_user(request, f"Failed to initialize Vertex AI client: {e}", level='ERROR')
         return
-
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-1.5-flash')
 
     for resource in queryset:
         content = resource.markdown_content or resource.html_content or resource.latex_content or resource.short_description
@@ -131,8 +128,8 @@ def generate_ai_summary(modeladmin, request, queryset):
                 f"competitive exam preparation. Resource title: '{resource.title}'. "
                 f"Content:\n\n{content[:3000]}"
             )
-            response = model.generate_content(prompt)
-            resource.ai_summary = response.text.strip()
+            response = client.generate_content(prompt)
+            resource.ai_summary = response.get('text', '').strip()
             resource.is_ai_generated = True
             resource.save(update_fields=['ai_summary', 'is_ai_generated'])
         except Exception as e:
