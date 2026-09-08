@@ -1,0 +1,4602 @@
+[
+  {
+    "question_number": "1",
+    "global_question_number": 1,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "What will come in place of the question mark (?) in the\nfollowing equation, if ‘+’ and ‘–’ are interchanged and ‘×’\nand ‘÷’ are interchanged?\n4515 × 5 – 431 ÷ 3 + 821 = ?",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_1_p1.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "1335",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "1775",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "1575",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "1375",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "2",
+    "global_question_number": 2,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "31 is related to 152 by certain logic. Following the same\nlogic, 47 is related to 168. To which of the following is 66\nrelated, following the same logic? (NOTE : Operations\nshould be performed on the whole numbers, without\nbreaking down the numbers into its constituent digits.\ne.g., 13 – Operations on 13 such as adding /deleting /\nmultiplying etc., to 13 can be performed. Breaking down\n13 into 1 and 3 and then performing mathematical\noperations on 1 and 3 is not allowed.)",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_2_p1.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "180",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "187",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "185",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "190",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "3",
+    "global_question_number": 3,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "Six letters Q, Z, V, T, L and A are written on different\nfaces of a dice. Two positions of this dice are shown in the\nfigures below. Find the letter on the face opposite to Q.\nQ\nZ\nV\nT\nL\nV",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_3_p1.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Z",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "T",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "V",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "A",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "4",
+    "global_question_number": 4,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "In the following number-pairs, the second number is\nobtained by applying certain mathematical operations\nto the first number. In three of the four pairs, the same\npattern is applied and hence they form a group. Select the\nnumber-pair that DOES NOT belong to this group.\n\u0007(NOTE: Operations should be performed on the whole\nnumbers, without breaking down the numbers into their\nconstituent digits. e.g., 13 – Operations on 13 such as\nadding/subtracting/multiplying to 13 can be performed.\nBreaking down 13 into 1 and 3 and then performing\nmathematical operations on 1 and 3 is not allowed.)",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_4_p1.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "335 - 119",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "358 - 152",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "317 - 101",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "308 - 92",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "5",
+    "global_question_number": 5,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "In a certain code language, ‘NAME’ is written as ‘FNBO’\nand ‘NANO’ is written as ‘POBO’. How will ‘NAIL’ be\nwritten in that language?",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_5_p1.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "MOBJ",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "MJOB",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "MOJB",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "MJBO",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "6",
+    "global_question_number": 6,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "The question contains pairs of words that are related to\neach other in a certain way. Three of the following four\nword pairs are alike as these have the same relationship\nand thus form a group. Which word pair is the one that\nDOES NOT belong to that group?\n(The words must be considered as meaningful English words\nand must not be related to each other based on the number of\nletters/number of consonants/vowels in the word.)",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_6_p1.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Pentagon - 5 sides",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Hexagon - 8 sides",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Triangle - 3 sides",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Square - 4 sides",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "7",
+    "global_question_number": 7,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "The position of how many letters will remain unchanged\nif each of the letters in the word ‘NIGHTMARES’ is\nre-arranged in the English alphabetical order from left to\nright?",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_7_p1.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "One",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Four",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Two",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Three",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "8",
+    "global_question_number": 8,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "What will come in the place of ‘?’ in the following\nequation, if ‘+’ and ‘–‘ are interchanged and ‘×’ and ‘÷’\nare interchanged?\n5 – 4 ÷ 9 + 80 × 10 = ?",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_8_p1.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "31",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "33",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "35",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "30",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "9",
+    "global_question_number": 9,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "Select the option in which the numbers share the same\nrelationship as that shared by the given pair of numbers.\n(149, 213)\n(168, 232)\n\u0007(NOTE: Operations should be performed on the whole\nnumbers, without breaking down the numbers into its\nconstituent digits. e.g., 13 – Operations on 13 such as adding/\ndeleting/multiplying etc. to 13 can be performed. Breaking\ndown 13 into 1 and 3 and then performing mathematical\noperations on 1 and 3 is not allowed.)",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_9_p1.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "(162, 222)",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "(153, 217)",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "(137, 211)",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "(144, 198)",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "10",
+    "global_question_number": 10,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "Select the correct mirror image of the given figure when\nthe mirror is placed at MN as shown below.\ny T f r 9 3 n\nM\nN",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_10_p7.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "y T f r 9 3 n",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "y\nT\nf r 9 3 n",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "y\nT\nf r\n9 3\nn",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "y\nT\nf\nr\n9 3\nn",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "11",
+    "global_question_number": 11,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "Select the option that is related to the fifth letter-cluster in\nthe same way as the second letter-cluster is related to the\nfirst letter-cluster and the fourth letter-cluster is related to\nthe third letter-cluster.\nMEK: NVP :: GYT: TBG :: JWH:?",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_11_p7.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "QDS",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "PCR",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "QDT",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "PCS",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "12",
+    "global_question_number": 12,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "Three statements are given followed by three conclusions\nnumbered I, II and III.\nAssuming the statements to be true, even if they seem to\nbe at variance with commonly known facts, decide which\nof the conclusions logically follow(s) from the statements.\nStatements:\nNo card is a parcel.\nAll cards are envelopes. Some envelopes are bags.\nConclusions:\nI.\t All envelopes can never be parcels.\nII. \tNo card is a bag.\nIII.\tAt least some bags are postcards.",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_12_p7.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Only I follows",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Only II follows",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Only I and III follow",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Only II and III follow",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "13",
+    "global_question_number": 13,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "Select the correct mirror image of the given figure when\nthe mirror is placed at MN as shown.\nb c F g l\nM\nN",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_13_p7.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "b c F g l",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "b\nc\nF\ng\nl",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "b\nc\nF g l",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "b\nc\nF\ng l\nMax Marks: 200\nSTAFF SELECTION COMMISSION\n\b\n(9th September 2024: Shift-1)\n30",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "14",
+    "global_question_number": 14,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "Identify the option figure that when put in place of the\nquestion mark (?) will logically complete the series.",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_14_p7.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "15",
+    "global_question_number": 15,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "Which of the four options will replace the question mark\n(?) in the following series? UE 88, VG 84, WI 80, XK76, ?",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_15_p7.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "ZM72",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "ZN71",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "YN73",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "YM72",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "16",
+    "global_question_number": 16,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "Select the option that represents the letters that when\nplaced from left to right in the blanks below will complete\nthe letter series.\nL_P_QS_K_P_S_KP_Q_L_ _PQS",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_16_p7.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "KPLPLQLSPK",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "PKLPQPLSKP",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "KPLPQQLPSK",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "KPLPQLPSKP",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "17",
+    "global_question_number": 17,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "Identify the figure from the given options, which when\nput in place of the question mark (?), will logically\ncomplete the series.\nA\nE\nD\nC\nB\nA\nE\nD\nD\nC\nB\nA\nC\nB\nA\nE\nE\nD\nC\nB",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_17_p7.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "D\nB\nC\nE\nA",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "B\nC\nE\nD\nA",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "D\nB\nC\nE\nA",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "E\nC\nA\nD\nB",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "18",
+    "global_question_number": 18,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "Six numbers 21, 22, 23, 24, 25 and 26 are written on\ndifferent faces of a dice. Three positions of this dice are\nshown in the figure. Find the number on the face opposite\nto 24.\n21\n23\n25\n21\n25\n22\n25\n24\n22",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_18_p7.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "26",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "25",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "22",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "21",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "19",
+    "global_question_number": 19,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "How many triangles are there in the given figure?",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_19_p7.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "21",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "20",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "18",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "19",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "20",
+    "global_question_number": 20,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "In a certain code language, ‘what where how’ is written\nas ‘aa dd ff’; ‘where there that’ is written as ‘dd zz pp’\nand ‘which what here’ is written as ‘ff kk ll’. How is ‘how’\nwritten in that language?",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_20_p7.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "aa",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "kk",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "zz",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "ff",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "21",
+    "global_question_number": 21,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "Three statements are given followed by three conclusions\nnumbered I, II and III.\nAssuming the statements to be true, even if they seem to\nbe at variance with commonly known facts, decide which\nof the conclusions logically follow(s) from the statements.\nStatements:\nSome tears are drops.\nSome drops are streams.\nAll streams are rivers.\nConclusions:\nI. \t All tears can never be rivers.\nII.\t Some drops are rivers.\nIII. \tAll tears being streams is a possibility.",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_21_p7.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Only conclusion I follows",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Both II and III conclusion follow",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Only conclusion III follows",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Both I and II conclusion follow",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "22",
+    "global_question_number": 22,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "Which of the following terms will replace the question\nmark (?) in the given series?\nYZUW, ?, QTQU, MQOT, INMS",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_22_p7.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "UWSV",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "UWVS",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "USWV",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "WUSV",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "23",
+    "global_question_number": 23,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "In a certain code language,\n‘A + B’ means ‘A is the mother of B’,\n‘A – B’ means ‘A is the father of B’,\n‘A $ B’ means ‘A is the son of B’,\n‘A % B’ means ‘A is the sister of B’,\n‘A / B’ means ‘A is the wife of B’ and\n‘A = B’ means ‘A is the brother of B’.\nWhich of the following means A is the daughter of K?\ni.\t \t A + K / J – P = D\nii.\t J % P = K + A = D\niii.\tK + A / P – D % J\niv. \t D + K = A / P – J",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_23_p7.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "i",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "iii",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "ii",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "iv",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "24",
+    "global_question_number": 24,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "19 is related to 209 following a certain logic. Following the\nsame logic, 27 is related to 297. To which of the following\nis 61 related, following the same logic?\n(NOTE: Operations should be performed on the whole\nnumbers, without breaking down the numbers into its\nconstituent digits. e.g., 13 – Operations on 13 such as\nadding /deleting /multiplying etc. to 13 can be performed.\nBreaking down 13 into 1 and 3 and then performing\nmathematical operations on 1 and 3 is not allowed)",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_24_p8.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "653",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "600",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "571",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "671",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "25",
+    "global_question_number": 25,
+    "question_id": null,
+    "section_name": "General Intelligence and Reasoning",
+    "question_text": "Which of the following numbers will replace the question\nmark (?) in the given series?\n1, 3, 10, 41, ?, 1237",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_25_p8.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "202",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "210",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "200",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "206\nGeneral Awareness",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "26",
+    "global_question_number": 26,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "In which year was Project Tiger launched in India?",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_26_p8.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "1973",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "1970",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "1972",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "1985",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "27",
+    "global_question_number": 27,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "Lathmar Holi is primarily celebrated in the state of:",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_27_p8.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Karnataka",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Himachal Pradesh",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Arunachal Pradesh",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Uttar Pradesh",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "28",
+    "global_question_number": 28,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "Which of the following awards was won by Lata\nMangeshkar in the year 2001?",
+    "detected_answer": "3",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_28_p8.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Dadasaheb Phalke Award",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Padma Vibhushan",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Bharat Ratna",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Filmfare Lifetime Achievement Award",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "29",
+    "global_question_number": 29,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "Details about Sudarshana lake is given in a rock inscription\nat Girnar (Junagarh), which was composed to record the\nachievements of the Shaka ruler.",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_29_p8.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Chashtana",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Rudradaman I",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Rudrasimha III",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Maues",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "30",
+    "global_question_number": 30,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "_____is an industry association and self-regulatory organisation\n(SRO) whose primary objective is to work towards the robust\ndevelopment of the microfinance sector.",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_30_p8.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "NABARD",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Self-help Group Association",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Microfinance and Investments Regulatory Authority",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Microfinance Institutions Network",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "31",
+    "global_question_number": 31,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "Which article has a similar provision to that of Article 32\nand deals with writ jurisdiction?",
+    "detected_answer": "3",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_31_p8.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Article 228",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Article 227",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Article 226",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Article 225\n31",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "32",
+    "global_question_number": 32,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "Which of the following is NOT a condition for the\nPresident’s office in India?",
+    "detected_answer": "3",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_32_p8.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "He shall not hold any office of profit",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "The allowances shall not be diminished during his term\nof office.",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "He shall not be entitled, without payment of rent, to\nuse his official residence.",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "He shall not be a member of either House of the\nParliament.",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "33",
+    "global_question_number": 33,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "Which of the following statements best defines the\nmonoecious?",
+    "detected_answer": "3",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_33_p8.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "A flower with gynoecium only",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "A flower with androecium only",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "A flower with both androecium and gynoecium",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "A flower with dithecous",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "34",
+    "global_question_number": 34,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "Mohan Veena player, Pandit Vishwa Mohan Bhatt won\nthe____________ Award in the year 1994.",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_34_p8.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Grammy",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Sangita Kalanidhi",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Oscar",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Sangeet Natak Akademi",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "35",
+    "global_question_number": 35,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "Who is the Union Minister of State (Independent Charge)\nfor Science and Technology as of July 2023?",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_35_p8.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Dharmendra Pradhan",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Jitendra Singh",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Ashwini Vaishnaw",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Ramesh Pokhriyal",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "36",
+    "global_question_number": 36,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "Which of the following decomposition reactions is NOT a\nredox reaction?",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_36_p8.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Decomposition of sodium hydride",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Decomposition of calcium carbonate",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Decomposition of potassium chlorate",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Decomposition of dihydrogen monoxide",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "37",
+    "global_question_number": 37,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "Who among the following has authored the play ‘Nil\nDarpan’?",
+    "detected_answer": "3",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_37_p8.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Chittaranjan Das",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Motilal Nehru",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Dinabandhu Mitra",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Sarojini Naidu",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "38",
+    "global_question_number": 38,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "Who among the following formed the Bihar Provincial\nKisan Sabha in 1929?",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_38_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Jayprakash Narayan",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "JM Sengupta",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Kunwar Singh",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Swami Sahajanand Saraswati",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "39",
+    "global_question_number": 39,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "Which plateau is very fertile because they are rich in black\nsoil that is very good for farming?",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_39_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Deccan lava plateau",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "African plateau",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Ethiopian plateau",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Katanga plateau",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "40",
+    "global_question_number": 40,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "Which of the following is a correct order of basicity?",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_40_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "LiOH>NaOH>KOH>CsOH",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "KOH>CsOH>NaOH>LiOH",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "LiOH>KOH>CsOH>NaOH",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "CsOH>KOH>NaOH>LiOH",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "41",
+    "global_question_number": 41,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "Which of the following pairs is INCORRECT regarding\nthe grade of organisation and its example?",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_41_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Cell-tissue grade organisation - Jellyfish",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Cellular grade organisation - Sycon",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Protoplasmic grade organisation - Paramecium",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Tissue-organ grade organisation - Euplectella",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "42",
+    "global_question_number": 42,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "The head office of Board of Control for Cricket in India\n(BCCI) is located in ............. .",
+    "detected_answer": "3",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_42_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Kolkata",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Chennai",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Mumbai",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "New Delhi",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "43",
+    "global_question_number": 43,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "When the analysis of population density is done by\ncalculating it through net cultivated area, then the\nmeasure is termed as:",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_43_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Net density",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Gross density",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Agricultural density",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Physiological density",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "44",
+    "global_question_number": 44,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "Mahendravarman I was the ruler of which of the following\ndynasties?",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_44_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Pallava",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Pandya",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Chalukya",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Chola",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "45",
+    "global_question_number": 45,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "What challenge does foreign investment often face in India?",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_45_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Excessive foreign competition",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Lack of skilled labour",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Lack of consumer base",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Inconsistent regulatory environment",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "46",
+    "global_question_number": 46,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "Which of the following states is the biggest producer of\nPulses?",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_46_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Bihar",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Madhya Pradesh",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Punjab",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Haryana",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "47",
+    "global_question_number": 47,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "Who founded the Prarthana Samaj in Mumbai in 1867?",
+    "detected_answer": "3",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_47_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Gopal Krishna Gokhale",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Shri Ram Bajpai",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Atmaram Pandurang",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Raja Ram Mohan Roy",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "48",
+    "global_question_number": 48,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "Who is the Chief Minister of Tamil Nadu as of July 2023?",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_48_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "KN Nehru",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Pinarayi Vijayan",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "M Yediyurappa",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "MK Stalin",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "49",
+    "global_question_number": 49,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "In which city was the first golf club of India situated?",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_49_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Kolkata",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Mysore",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Shimla",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Gulmarg",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "50",
+    "global_question_number": 50,
+    "question_id": null,
+    "section_name": "General Awareness",
+    "question_text": "Which Indian among the following has his name in Time\nMagazine’s list of ‘100 most influential people of 2021’?",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_50_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Amit Shah",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Narendra Modi",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Neeraj Chopra",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Virat Kohli\nQuantitative Aptitude",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "51",
+    "global_question_number": 51,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "A grocer professes to sell rice at the cost price, but uses a\nfake weight of 870 g for 1 kg. Find his profit percentage\n(correct to two decimal places).",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_51_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "11.11%",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "14.94%",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "15.11%",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "18.21%",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "52",
+    "global_question_number": 52,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "The value of cos229° + cos261° is:",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_52_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "2",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "0.",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "1",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "53",
+    "global_question_number": 53,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "In a circular race of 840 m, A and B start running in the\nsame direction at the same time from the same point at\nthe speeds of 6 m/s and 12 m/s, respectively. After how\nmuch time will they meet next?",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_53_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "140 s",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "40 s",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "70 s",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "20 s",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "54",
+    "global_question_number": 54,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "Let O be the centre of the circle and AB and CD are\ntwo parallel chords on the same side of the radius. OP\nis perpendicular to AB and OQ is perpendicular to CD.\nIf AB = 10 cm, CD = 24 cm and PQ = 7 cm, then the\ndiameter (in cm) of the circle is equal to:",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_54_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "24",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "13",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "12",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "26",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "55",
+    "global_question_number": 55,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "Which of the following statements is sufficient to conclude\nthat two triangles are congruent?",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_55_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "One side and one angle of both triangles are equal.",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "These have two equal sides and the same perimeter.",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "These have the same area and the same base.",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "These have the same base and the same height.",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "56",
+    "global_question_number": 56,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "The given table shows the percentage of marks obtained\nby three students in three different subjects in an institute.\n(maximum marks are given in brackets)\nSubject→\nStudent¯\nHistory\n(175)\nGeography\n(200)\nBotany\n(125)\nRam\n54\n87\n71\nMohan\n51\n79\n78\nShyam\n75\n49\n76\nIf in order to pass the exam, the minimum of 105 marks are\nneededs in History, how many students pass in the exam?",
+    "detected_answer": "3",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_56_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "2",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "3",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "1",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "0\n32",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "57",
+    "global_question_number": 57,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "Fill pipe P is 21 times faster than fill pipe Q. If Q can fill a cistern in 110 minutes, find the time it takes to fill the cistern when\nboth fill pipes are opened together.",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_57_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "3 minutes",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "5 minutes",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "4 minutes",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "6 minutes",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "58",
+    "global_question_number": 58,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "The following tables shows the marks (out of 100) obtained by five students in five different subjects.\nStudent ¯\nSubject →\nMaths\nPhysics\nChemistry\nEnglish\nPhysical Education\nTarun\n65\n80\n75\n85\n90\nRohit\n69\n76\n80\n88\n94\nMohit\n76\n84\n77\n90\n95\nShobhit\n76\n85\n76\n86\n78\nSumit\n90\n88\n78\n82\n68\nWho obtained 79 % marks in all the subject taken together?",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_58_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Rohit",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Tarun",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Mohit",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Sumit",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "59",
+    "global_question_number": 59,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "R pays ` 100 to P with ` 5, ` 2 and ` 1 coins. The total\nnumber of coins used for paying are 40. What is the\nnumber of coins of denomination ` 5 in the payment?",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_59_p9.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "13",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "17",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "16",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "18",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "60",
+    "global_question_number": 60,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "The radii of the two cones are in the ratio of 2 : 5 and their\nvolumes are in the ratio of 3 : 5. What is the ratio of their\nheights?",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_60_p10.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "13 : 11",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "4 : 11",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "11 : 15",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "15 : 4",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "61",
+    "global_question_number": 61,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "Which of the following can be the value of ‘k’ so that the\nnumber 217924k is divisible by 6?",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_61_p10.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "2",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "6",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "0",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "4",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "62",
+    "global_question_number": 62,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "In an election between two candidates, y% of the voters\ndid not vote. 10% of the votes cast were declared invalid,\nwhile all the valid votes were cast in favour of either of\nthe two candidates. The candidate who got 59.375% of\nthe valid votes cast was declared elected by 2484 votes. If\nthe number of people eligible to vote in that election was\n16,000, what is the value of y?",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_62_p10.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "8",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "8.4",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "7.5",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "7.2",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "63",
+    "global_question_number": 63,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "An article is marked at ` 550. If it is sold at a discount\nof 40%, then the selling price becomes 10% more than its\ncost price. What is the cost price (in `)?",
+    "detected_answer": "3",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_63_p10.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "330",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "220",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "300",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "200",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "64",
+    "global_question_number": 64,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "If the sum of two sides of an equilateral triangle is 16 cm,\nthen find the third side.",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_64_p10.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Cannot be found",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "16 cm",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "4 cm",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "8 cm",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "65",
+    "global_question_number": 65,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "Simplify: x\nx\n−\n(\n)\n+",
+    "detected_answer": "3",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_65_p10.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "x – 9",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "x + 3",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "x – 3",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "x2\n−",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "66",
+    "global_question_number": 66,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "The following table shows the total candidates appeared\nand number of candidates present, in different exam\ncentres – P, Q and R.\nStudy the table and answer the question that follows.\nYear\nP\nQ\nR\nTotal Present Total Present Total\nPresent\n2016\n45\n42\n56\n45\n55\n50\n2017\n50\n45\n75\n55\n45\n40\n2018\n64\n60\n65\n45\n65\n55\n2019\n80\n69\n84\n72\n70\n62\n2020\n55\n44\n80\n66\n90\n85\n‘Total’\ndenotes\ntotal\ncandidates\napplied\nfor\nthe\ncentre,‘Present’ denotes the candidates appeared.\nIn which year was the number of absentees the second\nhighest in total across all centres?",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_66_p10.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "2018",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "2019",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "2020",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "2017",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "67",
+    "global_question_number": 67,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "The distance between the centres of two circles of radii 22\ncm and 10 cm is 37 cm. If the points of contact of a direct\ncommon tangent to these circles are M and Q, then find\nthe length of the line segment MQ.",
+    "detected_answer": "3",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_67_p10.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "39 cm",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "29 cm",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "35 cm",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "25 cm",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "68",
+    "global_question_number": 68,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "The value of\nsin230 – sin240 + sin245 – sin255 – sin235 + sin245 – sin250 +\nsin260 is:",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_68_p10.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "4",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "0",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "1",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "2",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "69",
+    "global_question_number": 69,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "The average marks (out of 100) of boys and girls in an\nexamination are 75 and 80, respectively. If the average\nmarks of all the students in that examination are 78. Find\nthe ratio of the number of boys to the number of girls.",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_69_p10.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "1 : 3",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "2 : 3",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "1 : 2",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "3 : 4",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "70",
+    "global_question_number": 70,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "Rajesh, in his printing press, got an order to print some\nbooks, out of which be completed\n27\nof the order in 34\ndays. In how many days did he completed the entire\norder of printings?",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_70_p11.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "54",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "60",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "56",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "20",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "71",
+    "global_question_number": 71,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "Simplify:\nx\nx\nx\nx\n75\n125\n25\n+\n+\n+\n−\n× (x – 5)",
+    "detected_answer": "3",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_71_p11.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "x2 + 5x + 25",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "x2 – 25",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "x2 + 10x + 25",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "x2 + 25",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "72",
+    "global_question_number": 72,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "If cosecq = 5\n, then evaluate (sec2q –1) × cot2q × (1+cot2q)",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_72_p11.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "25",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "25",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "73",
+    "global_question_number": 73,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "Which of the following can be the value of k, if\n88\n3 3\n÷ × −×\n(\n)\n−× +\n(\n)\nk\nk\n= 1?",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_73_p11.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "2, 7",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "4, 7",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "3, 10",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "1, 10\n33",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "74",
+    "global_question_number": 74,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "Read the given information and answer the question that follows.\nThe following table given the percentage of marks obtained by seven students in six different subject in an examination.\nThe number in the brackets give the maximum marks in each subject.\nStudent\nSubject (Max. Marks)\nMaths\nChemistry\nPhysics\nGeography\nHistory\nComputer science\n(150)\n(130)\n(120)\n(100)\n(60)\n(40)\nAyush\n90\n50\n90\n60\n70\n80\nAman\n100\n80\n80\n40\n80\n70\nSajal\n90\n60\n70\n70\n90\n70\nRohit\n80\n65\n80\n80\n60\n60\nMuskan\n80\n65\n85\n95\n50\n90\nTanvi\n70\n75\n65\n85\n40\n60\nTarun\n65\n35\n50\n77\n80\n80\nIf someone secured all the highest scores that have been obtained by some student or their in the six subject as given in the\ntable above. what would be the exact overall percentage score cotained by that student",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_74_p11.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "90 5\n6%",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "91 1\n6%",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "95.16 %",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "91 %",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "75",
+    "global_question_number": 75,
+    "question_id": null,
+    "section_name": "Quantitative Aptitude",
+    "question_text": "Mohan borrows a sum of ` 4,22,092 at the rate of 20%\nper annum simple interest. At the end of the first year,\nhe repays ` 21,679 towards return of principal amount\nborrowed. If Mohan clears all pending dues at the end of\nthe second year, including interest payment that accrued\nduring the first year, how much does he pay (in `) at the\nend of the second year?",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_75_p11.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "5,61,347",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "5,64,914",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "5,58,380",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "5,56,367\nEnglish Comprehension",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "76",
+    "global_question_number": 76,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the most appropriate synonym of the given word.\nFatal",
+    "detected_answer": "3",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_76_p11.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Additional",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Easy",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Deadly",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Jovial",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "77",
+    "global_question_number": 77,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the option that expresses the given sentence in\nactive voice.\nLovely tunes are composed by Domnica.",
+    "detected_answer": "3",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_77_p11.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Domnica composes tunes lovely.",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Domnica will compose lovely tunes.",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Domnica composes lovely tunes.",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Domnica composed lovely tunes.",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "78",
+    "global_question_number": 78,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the option that expresses the opposite meaning of\nthe underlined word.\nThe explosive used is of my own formulation and I can\nvouch for its efficiency.",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_78_p11.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "invalidate",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "maintain",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "witness",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "certify",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "79",
+    "global_question_number": 79,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "The following sentence has been divided into four\nsegments. Identify the segment that contains an error.\nMr. Abhilash and his family / have received / no\ninformations / about the incident.",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_79_p11.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "about the incident.",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Mr. Abhilash and his family",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "have received",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "no informations",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "80",
+    "global_question_number": 80,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the most appropriate synonym of the given word.\nToxic",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_80_p11.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Lethal",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Licit",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Laudatory",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Lanky",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "81",
+    "global_question_number": 81,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the word which means the same as the group of\nwords given.\nUnit of weight for precious stones",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_81_p11.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Pure",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Accurate",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Reliable",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Carat",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "82",
+    "global_question_number": 82,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the option that can be used as a one-word substitute\nfor the underlined group of words.\nShe is proficient in speaking many languages.",
+    "detected_answer": "3",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_82_p11.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "heterolinguistic",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "bilingual",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "multilingual",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "monolithic",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "83",
+    "global_question_number": 83,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the option that expresses the given sentence in\npassive voice.\nIshika saw the tiger in the forest.",
+    "detected_answer": "3",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_83_p11.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "The tiger saw by Ishika in the forest.",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "The tiger sees Ishika in the forest.",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "The tiger was seen by Ishika in the forest.",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "The tiger was seen by the forest in Ishika.",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "84",
+    "global_question_number": 84,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the option that can be used as a one-word substitute\nfor the given group of words.\nA person who likes to argue about anything",
+    "detected_answer": "3",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_84_p11.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Veracious",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Reticent",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Contentious",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Coward",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "85",
+    "global_question_number": 85,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the most appropriate option that can substitute the\nunderlined segment in the given sentence.\n‘Spy Family’ is a graphic novel that is a narrative work\nin which the story is conveyed to the reader using\nuninterrupted art in a traditional comics format.",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_85_p11.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "sedimental art in a traditional",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "longitudinal art in a traditional",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "existential art in a traditional",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "sequential art in a traditional",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "86",
+    "global_question_number": 86,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "The following sentence has been split into four segments.\nIdentify the segment that contains a grammatical error.\nMy brother performed / extremely good / in the class test\n/ held yesterday.",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_86_p12.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "held yesterday",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "extremely good",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "in the class test",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "My brother performed",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "87",
+    "global_question_number": 87,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the INCORRECTLY spelt word.",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_87_p12.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Bureaucracy",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Embarrass",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Connoisseur",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Relevent",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "88",
+    "global_question_number": 88,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the most appropriate synonym to replace the\nunderlined word in the given sentence.\nNo altruistic act is truly sincere.",
+    "detected_answer": "3",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_88_p12.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "phenomenal",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "phonotypical",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "philanthropic",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "phantasmal",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "89",
+    "global_question_number": 89,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the most appropriate synonym of the given word.\nInnuendo",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_89_p12.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Crude",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Prose",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Ragged",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Insinuation\n34",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "90",
+    "global_question_number": 90,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the most appropriate option to fill in the blank.\nVinod had a ______  escape in the car accident.",
+    "detected_answer": "3",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_90_p12.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "comfortable",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "full",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "narrow",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "wide",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "91",
+    "global_question_number": 91,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the option that can be used as a one-word substitute\nfor the given phrase.\nA short interesting story about a real person or event",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_91_p12.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Anecdote",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Sketch",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Poem",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Narrative",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "92",
+    "global_question_number": 92,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the most appropriate synonym of the word in bold.\nWe’d better watch our step and not give him any excuse\nto harass us further.",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_92_p12.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "betray",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "intimidate",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "relish",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "soothe",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "93",
+    "global_question_number": 93,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the most appropriate meaning of the given idiom.\nTo have bigger fish to fry",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_93_p12.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "To have bigger things to take care of than the menial\ntask at hand",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "To take calculated risks",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "To know different kinds of fishing techniques",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "To have an interest in cooking",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "94",
+    "global_question_number": 94,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "In the following sentence, four words are underlined out of\nwhich one word is misspelt. Identify the INCORRECTLY\nspelt word.\nAfter the recapture (A) of Tololing and the adjacent\nfeatures, evacting (B) the enemy from this well-fortified C. position became a priority. (D)",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_94_p12.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "B",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "D",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "C",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "A",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "95",
+    "global_question_number": 95,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the most appropriate option to substitute the\nunderlined segment in the given sentence.\nShe has been studying for two O’clock .",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_95_p12.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "study from two O’clock",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "studying since two O’clock",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "studying two O’clock",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "study for two O’clock\nComprehension:\nIn the following passage, some words have been deleted.\nSelect the most appropriate option to fill in each blank.\nThere is a saying that coming events cast their shadows\nbefore. (1) ______ it is not universally true. Something\ncan happen within a second, and one may not (2) ______\nit. (3) ______ some instances show that predictions based\non certain signs have gone wrong. People generally say\nthat natural calamities can be predicted by observing the\nanimals. But what if animals are suffering from some\ndisease and don’t show any signs before the event appears?\nThey may fail to make peculiar sounds or actions about\nthe events which are going to take place. (4) ______ some\nunnatural calamities that are likely to appear may forecast\ntheir shadows by some bad omens. (5) ______ we should not\ncompletely cancel out the possibilities that animals can sense\ncertain unnatural happenings.",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "96",
+    "global_question_number": 96,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the most appropriate option to fill in blank  number 1.",
+    "detected_answer": "4",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_96_p12.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Therefore",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Furthermore",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Moreover",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "However",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      }
+    ]
+  },
+  {
+    "question_number": "97",
+    "global_question_number": 97,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the most appropriate option to fill in blank number 2.",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_97_p12.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "rescind",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "foresee",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "legalise",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "affect",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "98",
+    "global_question_number": 98,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the most appropriate option to fill in blank number 3.",
+    "detected_answer": "2",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_98_p12.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Therefore",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Moreover",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "However",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Nevertheless",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "99",
+    "global_question_number": 99,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the most appropriate option to fill in blank number 4.",
+    "detected_answer": "3",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_99_p12.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Therefore",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "Secondly",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Besides",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Despite",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  },
+  {
+    "question_number": "100",
+    "global_question_number": 100,
+    "question_id": null,
+    "section_name": "English Comprehension",
+    "question_text": "Select the most appropriate option to fill in blank number 5.",
+    "detected_answer": "1",
+    "source": "answer_key_section",
+    "confidence": "high",
+    "source_page": 1,
+    "crop_image_path": "assets/crops/q_100_p12.png",
+    "shared_context": null,
+    "diagram_paths": [],
+    "question_text_hi": null,
+    "language": "en",
+    "options": [
+      {
+        "option_number": "1",
+        "option_text": "Therefore",
+        "option_image_path": null,
+        "is_correct": true,
+        "color_bucket": "green_family"
+      },
+      {
+        "option_number": "2",
+        "option_text": "However",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "3",
+        "option_text": "Nevertheless",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      },
+      {
+        "option_number": "4",
+        "option_text": "Moreover",
+        "option_image_path": null,
+        "is_correct": false,
+        "color_bucket": "red_family"
+      }
+    ]
+  }
+]

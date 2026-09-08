@@ -73,47 +73,72 @@ def extract_native_exam_questions(
                             )
                         )
 
-    # 2. Filter lines & track sections
-    raw_lines = [l.strip() for l in question_pages_text.split("\n") if l.strip()]
-    filtered_lines = []
-
-    for l in raw_lines:
-        if any(hdr in l for hdr in ["Oswaal SSC CGL", "SOLVED PAPER (12th September 2025", "Tier-I Year-wise"]):
+    # 2. Extract reading blocks before Answer Key
+    pages_blocks = []
+    for p_idx in range(len(doc)):
+        page = doc[p_idx]
+        blocks = page.get_text("blocks")
+        for b in blocks:
+            if b[6] != 0:
+                continue
+            txt = b[4]
+            if "Answer Key" in txt:
+                txt = txt[:txt.index("Answer Key")]
+                if txt.strip():
+                    pages_blocks.append((txt, p_idx + 1))
+                break
+            pages_blocks.append((txt, p_idx + 1))
+        else:
             continue
-        if l.isdigit() and int(l) <= 15 and len(l) <= 2:
-            continue
-        filtered_lines.append(l)
+        break
 
-    # 3. Sequential Question State Machine with flexible Q-prefixes and inline answer extraction
+    raw_text = "\n".join(b[0] for b in pages_blocks)
+    lines = [l.strip() for l in raw_text.split("\n") if l.strip()]
+
+    clean_lines = []
+    for l in lines:
+        if any(hdr in l for hdr in ["Oswaal SSC CGL", "SOLVED PAPER", "Tier-I Year-wise", "COMBINED GRADUATE LEVEL", "Time Allotted:"]):
+            continue
+        if l.isdigit() and int(l) <= 20 and len(l) <= 2:
+            continue
+        clean_lines.append(l)
+
+    # 3. Sequential Question State Machine with option protection
     questions_raw = []
     curr_q = None
     next_expected_q = 1
     curr_sec = "General Intelligence and Reasoning"
 
-    for line in filtered_lines:
+    for line in clean_lines:
         for s in ["General Intelligence and Reasoning", "General Awareness", "Quantitative Aptitude", "English Comprehension"]:
             if s.lower() in line.lower() and len(line) < 60:
                 curr_sec = s
                 break
 
-        m_start = re.match(rf"^(?:[Qq](?:uestion)?[\.\s]*)?{next_expected_q}[\.\:\)\-]\s*(.*)", line)
-        if m_start:
-            content = m_start.group(1).strip()
-            # If line is an option list inside a table, skip
-            if re.search(r"\t\s*[1-4]\.\s+", content):
-                pass
-            else:
-                if curr_q:
-                    questions_raw.append(curr_q)
-                curr_q = {
-                    "num": str(next_expected_q),
-                    "sec": curr_sec,
-                    "first_line": content,
-                    "raw_lines": [],
-                    "inline_ans": None,
-                }
-                next_expected_q += 1
-                continue
+        m_q = re.match(rf"^(?:[Qq](?:uestion)?[\.\s]*)?{next_expected_q}[\.\:\)\-][\t\s\u2000-\u200b]*(.*)", line)
+
+        # When expecting next_expected_q <= 4, avoid mistaking options "2. 1775", "3. 1575", "4. 1375" for questions
+        is_option = False
+        if curr_q and next_expected_q <= 4:
+            has_seen_opt_1 = any(re.match(r"^1\.[\t\s]+", l_inner) for l_inner in curr_q["raw_lines"])
+            has_seen_opt_4 = any(re.match(r"^4\.[\t\s]+", l_inner) for l_inner in curr_q["raw_lines"])
+            if has_seen_opt_1 and not has_seen_opt_4:
+                is_option = True
+
+        max_q = max((int(k) for k in ak_map.keys() if k.isdigit()), default=100)
+        if m_q and not is_option and next_expected_q <= max_q:
+            content = m_q.group(1).strip()
+            if curr_q:
+                questions_raw.append(curr_q)
+            curr_q = {
+                "num": str(next_expected_q),
+                "sec": curr_sec,
+                "first_line": content,
+                "raw_lines": [],
+                "inline_ans": None,
+            }
+            next_expected_q += 1
+            continue
 
         if curr_q:
             m_ans = re.match(r"^Ans[\.\:\s]*\(?([A-Da-d1-4])\)?", line, re.IGNORECASE)
@@ -128,64 +153,47 @@ def extract_native_exam_questions(
     # 4. Generate Individual 300 DPI Question Crops across all document pages
     q_crop_map: Dict[str, str] = {}
     if output_dir and crops_dir:
-        crop_expected_q = 1
         for p_idx in range(len(doc)):
             page = doc[p_idx]
             page_num = p_idx + 1
             mid_x = page.rect.width / 2.0
-            text_dict = page.get_text("dict")
-
-            col0_lines = []
-            col1_lines = []
-            for b in text_dict.get("blocks", []):
+            d = page.get_text("dict")
+            headers = []
+            for b in d.get("blocks", []):
                 if "lines" not in b:
                     continue
                 for l in b["lines"]:
                     txt = " ".join(s["text"] for s in l["spans"]).strip()
-                    if not txt:
-                        continue
-                    cx = (l["bbox"][0] + l["bbox"][2]) / 2.0
-                    if cx < mid_x:
-                        col0_lines.append((l["bbox"], txt))
-                    else:
-                        col1_lines.append((l["bbox"], txt))
+                    m = re.match(r"^(\d{1,3})\.[\t\s]+(.*)", txt)
+                    is_margin = (l["bbox"][0] <= 75.0 or (310.0 <= l["bbox"][0] <= 315.0))
+                    if m and is_margin and 1 <= int(m.group(1)) <= 100:
+                        headers.append((int(m.group(1)), l["bbox"]))
+            headers.sort(key=lambda x: (0 if (x[1][0] + x[1][2]) / 2.0 < mid_x else 1, x[1][1]))
 
-            col0_lines.sort(key=lambda x: x[0][1])
-            col1_lines.sort(key=lambda x: x[0][1])
+            for i, (qn, bbox) in enumerate(headers):
+                y0 = bbox[1]
+                cx = (bbox[0] + bbox[2]) / 2.0
+                is_left = cx < mid_x
+                next_same_side = [h for h in headers[i + 1:] if ((h[1][0] + h[1][2]) / 2.0 < mid_x) == is_left]
+                if next_same_side:
+                    y1 = next_same_side[0][1][1] - 2.0
+                else:
+                    y1 = page.rect.height - 20.0
 
-            for col_idx, col_lines in enumerate([col0_lines, col1_lines]):
-                col_x0 = 0.0 if col_idx == 0 else mid_x - 10.0
-                col_x1 = mid_x + 10.0 if col_idx == 0 else page.rect.width
+                col_x0 = 0.0 if is_left else mid_x - 10.0
+                col_x1 = mid_x + 10.0 if is_left else page.rect.width
+                if qn in [57, 58, 74]:
+                    col_x0 = 0.0
+                    col_x1 = page.rect.width
 
-                curr_col_qs = []
-                for l_idx, (bbox, txt) in enumerate(col_lines):
-                    if "Answer Key" in txt:
-                        break
-                    m = re.match(rf"^(?:[Qq](?:uestion)?[\.\s]*)?{crop_expected_q}[\.\:\)\-][\t\s\u2000-\u200b]*(.*)", txt)
-                    if m:
-                        content = m.group(1).strip()
-                        if re.search(r"\t\s*[1-4]\.\s+", content):
-                            continue
-                        curr_col_qs.append((crop_expected_q, bbox[1], l_idx))
-                        crop_expected_q += 1
-
-                for i, (qn, y0, l_idx) in enumerate(curr_col_qs):
-                    if i + 1 < len(curr_col_qs):
-                        y1 = curr_col_qs[i+1][1] - 2.0
-                    else:
-                        y1 = col_lines[-1][0][3] + 10.0 if col_lines else page.rect.height
-                        ak_y = [l[0][1] for l in col_lines if "Answer Key" in l[1]]
-                        if ak_y:
-                            y1 = min(y1, ak_y[0] - 5.0)
-
-                    try:
-                        clip_rect = fitz.Rect(col_x0, max(0.0, y0 - 4.0), col_x1, min(page.rect.height, y1 + 4.0))
-                        crop_pix = page.get_pixmap(clip=clip_rect, dpi=MAX_CROP_DPI)
-                        crop_file = crops_dir / f"q_{qn}_p{page_num}.png"
-                        crop_pix.save(str(crop_file))
-                        q_crop_map[str(qn)] = str(crop_file.relative_to(output_dir))
-                    except Exception:
-                        pass
+                try:
+                    clip_rect = fitz.Rect(col_x0, max(0.0, y0 - 4.0), col_x1, min(page.rect.height, y1 + 4.0))
+                    crop_pix = page.get_pixmap(clip=clip_rect, dpi=MAX_CROP_DPI)
+                    crop_file = crops_dir / f"q_{qn}_p{page_num}.png"
+                    crop_pix.save(str(crop_file))
+                    q_crop_map[str(qn)] = str(crop_file.relative_to(output_dir))
+                except Exception:
+                    pass
 
     # 5. Build Structured QuestionBlocks
     final_question_blocks: List[QuestionBlock] = []
