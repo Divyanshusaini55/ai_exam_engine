@@ -147,8 +147,12 @@ def run_pipeline_till_markdown(pdf_path: str, custom_output_dir: str = None, ref
     verified_count = sum(1 for q in intermediate_qs if q.get("detected_answer"))
     total_options = sum(len(q.get("options", [])) for q in intermediate_qs)
 
+    from quiz.ai.examintel.quality_gate import evaluate_ingestion_quality
+    quality_report = evaluate_ingestion_quality(questions)
+
     print(f"   ✅ Stage 3 Complete in {sr3.duration_seconds}s")
     print(f"   📊 Questions: {len(intermediate_qs)} | Options: {total_options} | Verified Answers: {verified_count}/{len(intermediate_qs)}")
+    print(quality_report.summary_badge())
     print(f"   💾 Saved Chunks: {stage3_json}\n")
 
     # ── STAGE 4: Vision KaTeX Math Refinement (Optional / On-Demand) ─────────
