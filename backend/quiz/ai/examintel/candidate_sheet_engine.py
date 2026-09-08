@@ -145,16 +145,19 @@ def extract_candidate_response_questions(
     # Cleanly detach trailing Case Study / Directions blocks from question i and prepend them to question i+1
     cs_split_pattern = r"\n(?=(?:Case\s*Study\s*-\s*\d+\s*to\s*\d+|Directions\s*:[^\n]*?(?:graph|carefully|questions|नीचे\s*दिए|आरेख)|(?:नीचे\s*दिए\s*गए\s*)?अनुच्छेद\s*प[ढ़ढ़]कर\s*दिए\s*गए\s*प्रश्नों))"
     for i in range(len(q_blocks) - 1):
-        m_cs = re.search(cs_split_pattern, q_blocks[i], re.IGNORECASE)
+        q_header = re.search(r"Question\s*No\.?\s*\d+", q_blocks[i], re.IGNORECASE)
+        search_start = q_header.end() if q_header else 0
+        m_cs = re.search(cs_split_pattern, q_blocks[i][search_start:], re.IGNORECASE)
         if m_cs:
-            trailing_cs = q_blocks[i][m_cs.start():].strip()
-            q_blocks[i] = q_blocks[i][:m_cs.start()].strip()
+            actual_start = search_start + m_cs.start()
+            trailing_cs = q_blocks[i][actual_start:].strip()
+            q_blocks[i] = q_blocks[i][:actual_start].strip()
             q_blocks[i + 1] = trailing_cs + "\n\n" + q_blocks[i + 1]
 
     parsed_blocks: List[QuestionBlock] = []
 
     for idx, b in enumerate(q_blocks):
-        m_num = re.search(r"^\s*(?:Question\s*No\.?\s*|Question\s*ID\s*:\s*|Q(?:uestion)?[\.\s]+|)(\d+)", b, flags=re.IGNORECASE)
+        m_num = re.search(r"(?:Question\s*No\.?\s*|Question\s*ID\s*:\s*|Q(?:uestion)?[\.\s]+)(\d+)", b, flags=re.IGNORECASE)
         q_num = m_num.group(1) if m_num else str(idx + 1)
 
         # Get spatial metadata
@@ -180,8 +183,14 @@ def extract_candidate_response_questions(
                 break
 
         # If previous question handed over a Case Study to this question, expand start_y0 to cover it
+        prev_q_pos = q_positions[idx - 1] if idx > 0 else None
         for cs in case_study_markers:
-            if cs["page_num"] == start_page and cs["y0"] < start_y0 and (idx == 0 or cs["y0"] > q_positions[idx - 1]["y0"]):
+            is_after_prev_q = (
+                prev_q_pos is None
+                or prev_q_pos["page_num"] < start_page
+                or (prev_q_pos["page_num"] == start_page and cs["y0"] > prev_q_pos["y0"])
+            )
+            if cs["page_num"] == start_page and cs["y0"] < start_y0 and is_after_prev_q:
                 start_y0 = cs["y0"]
                 break
 
@@ -228,8 +237,7 @@ def extract_candidate_response_questions(
         stem_lines = [l.strip() for l in stem_part.split("\n") if l.strip()]
         
         # Clean header noise from stem
-        if stem_lines and re.search(r"Question\s*(?:No|ID)", stem_lines[0], re.IGNORECASE):
-            stem_lines = stem_lines[1:]
+        stem_lines = [l for l in stem_lines if not re.match(r"^\s*Question\s*(?:No|ID)\.?\s*\d+\s*$", l, re.IGNORECASE)]
 
         unique_stem = []
         for l in stem_lines:
@@ -431,5 +439,8 @@ def extract_candidate_response_questions(
                 crop_image_path=crop_path,
             )
         )
+
+    from quiz.ai.examintel.context_propagation import propagate_shared_contexts
+    parsed_blocks = propagate_shared_contexts(parsed_blocks)
 
     return parsed_blocks, doc_title
