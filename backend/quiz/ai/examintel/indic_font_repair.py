@@ -150,7 +150,6 @@ SUB_GLYPH_REPLACEMENTS: List[tuple[str, str]] = [
     ("Í", "\u092c\u094d"),     # ब्
     ("·", "\u0915\u094d"),     # क्
     ("É", "\u0927\u094d"),     # ध्
-    ("×", "\u0938\u094d"),     # स्
     ("Ê", "\u0928\u094d"),     # न्
     ("Æ", "\u0924\u094d"),     # त्
     ("Î", "\u0923\u094d"),     # ण्
@@ -215,7 +214,7 @@ SUB_GLYPH_REPLACEMENTS: List[tuple[str, str]] = [
 
 # Regex detecting any corrupted legacy glyphs in text
 CORRUPTED_INDIC_REGEX = re.compile(
-    r"[ȱȲ¼Í·É×ȃƶÖǯÊÆµÎÝᱫʉȄǻÏȊɑɇʅǐƭþ¾ËÕÇ¸³čǼÛÌÒĔēȵȶȮȯȳɟɣǄǣȅƝƤƠɥɡǗǂǓĒ¿ÀÁÂÃÄÅ]"
+    r"[ȱȲ¼Í·ÉȃƶÖǯÊÆµÎÝᱫʉȄǻÏȊɑɇʅǐƭþ¾ËÕÇ¸³čǼÛÌÒĔēȵȶȮȯȳɟɣǄǣȅƝƤƠɥɡǗǂǓĒ¿ÀÁÂÃÄÅ]"
 )
 
 
@@ -229,19 +228,61 @@ def has_corrupted_indic_glyphs(text: str) -> bool:
     return bool(CORRUPTED_INDIC_REGEX.search(text))
 
 
+def repair_math_glyphs(text: str) -> str:
+    """
+    Normalizes common mathematical font encoding substitutions in PDF text streams:
+    - Corrupted multiplication glyph 'स्' in equations (e.g. '4515 स् 5' -> '4515 × 5', '‘स्’' -> '‘×’')
+    - Corrupted Greek theta 'q' in trigonometric equations (e.g. 'cosec q' -> 'cosec θ', 'sec2q' -> 'sec² θ')
+    - Squaring powers separated by space (e.g. 'cos 2 29°' -> 'cos² 29°')
+    """
+    if not text:
+        return ""
+
+    repaired = text
+
+    # 1. Multiplication operator 'स्' in operator quotes: ‘स्’ -> ‘×’
+    repaired = re.sub(r"([‘'\"“`´])स्([’'\"”`´])", r"\1×\2", repaired)
+
+    # 2. Arithmetic equation context: digit/variable/bracket स् digit/variable/bracket or leading operator
+    repaired = re.sub(r"(\d+|[A-Za-z\?\)]|\))\s*स्\s*(\d+|[A-Za-z\(]|\()", r"\1 × \2", repaired)
+    repaired = re.sub(r"(^|[\s\+\-\—\–\=])स्\s*([\(A-Za-z0-9])", r"\1× \2", repaired)
+
+    # 3. Trigonometric angles and powers: cosecq -> cosec θ, sec2q -> sec² θ, cot2q -> cot² θ, etc.
+    def _trig_replace(m: re.Match) -> str:
+        func = m.group(1)
+        pwr = m.group(2)
+        pwr_str = ""
+        if pwr == "2":
+            pwr_str = "²"
+        elif pwr == "3":
+            pwr_str = "³"
+        elif pwr:
+            pwr_str = f"^{pwr}"
+        return f"{func}{pwr_str} θ"
+
+    repaired = re.sub(r"\b(sin|cos|tan|cosec|sec|cot)\s*(\d+)?\s*q\b", _trig_replace, repaired, flags=re.IGNORECASE)
+
+    # 4. Trigonometric powers separated by space: cos 2 29° -> cos² 29°
+    repaired = re.sub(r"\b(sin|cos|tan|cosec|sec|cot)\s+2\s+(\d+°)", r"\1² \2", repaired, flags=re.IGNORECASE)
+
+    return repaired
+
+
 def repair_indic_text(text: str) -> str:
     """
-    Normalizes legacy font encodings in Devanagari text to standard Unicode.
+    Normalizes legacy font encodings in Devanagari text to standard Unicode,
+    and repairs font-glitched mathematical operators and symbols.
     Applies whole-word substitutions followed by sub-glyph ligature transformations
     and Chhoti 'I' / Reph transpositions.
     """
     if not text:
         return ""
 
-    if not CORRUPTED_INDIC_REGEX.search(text):
-        return text
+    # Always normalize math glyph glitches first
+    repaired = repair_math_glyphs(text)
 
-    repaired = text
+    if not CORRUPTED_INDIC_REGEX.search(repaired):
+        return repaired
 
     # Step 1: Whole-word substitutions
     for bad_w, good_w in sorted(KNOWN_CORRUPTED_WORDS.items(), key=lambda x: len(x[0]), reverse=True):
@@ -266,8 +307,14 @@ def repair_indic_text(text: str) -> str:
         if bad_g in repaired:
             repaired = repaired.replace(bad_g, good_g)
 
+    # Contextual legacy half-sa conversion: '×' followed directly by a Devanagari consonant
+    repaired = re.sub(r"×(?=[\u0904-\u0939])", "\u0938\u094d", repaired)
+
     # Step 5: Clean up intra-word matra spacing artifacts (consonant + space + matra within a word)
     dev_matras = r"[\u093e-\u094c\u0901-\u0903\u094d]"
     repaired = re.sub(rf"([\u0904-\u0939])\s+({dev_matras})", r"\1\2", repaired)
+
+    # Re-normalize any math glyph glitches that may have been touched
+    repaired = repair_math_glyphs(repaired)
 
     return repaired
