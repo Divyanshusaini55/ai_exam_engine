@@ -13,6 +13,7 @@ from quiz.ai.examintel.models import (
     AnswerSignalConfidence,
     ColorBucketType,
 )
+from quiz.ai.examintel.indic_font_repair import repair_indic_text, repair_math_glyphs
 
 
 MAX_CROP_DPI: int = 300
@@ -35,10 +36,12 @@ def extract_native_exam_questions(
     ak_map: Dict[str, str] = {}
     ak_entries: List[AnswerKeyEntry] = []
     question_pages_text = ""
+    ak_page_idx = len(doc) - 1
 
     for p_idx in range(len(doc)):
         page_text = doc[p_idx].get_text()
         if "Answer Key" in page_text:
+            ak_page_idx = p_idx
             ak_section = page_text[page_text.index("Answer Key"):]
             matches = re.findall(r"(\d{1,3})\.\s*\((\d|[A-Da-d])\)", ak_section)
             for q_num, ans_val in matches:
@@ -150,14 +153,50 @@ def extract_native_exam_questions(
     if curr_q:
         questions_raw.append(curr_q)
 
-    # 4. Generate Individual 300 DPI Question Crops across all document pages
+    # 4. Generate 300 DPI Question Crops ONLY for visual, graphical, and diagram-based questions
+    VISUAL_KEYWORDS = [
+        "figure", "diagram", "mirror image", "paper fold", "folding", "folded",
+        "dice", "cube", "pattern", "venn", "how many triangle", "how many square",
+        "embedded figure", "hidden figure", "water image", "punched", "unfolded",
+        "चित्र", "आकृति", "दर्पण", "पासा",
+    ]
+
+    q_text_map: Dict[int, str] = {
+        int(q["num"]): (q["first_line"] + " " + " ".join(q["raw_lines"])).lower()
+        for q in questions_raw
+        if q["num"].isdigit()
+    }
+
     q_crop_map: Dict[str, str] = {}
     if output_dir and crops_dir:
-        for p_idx in range(len(doc)):
+        # Clean obsolete crops from previous runs so only genuine visual crops exist
+        if crops_dir.exists():
+            for old_f in crops_dir.glob("*.png"):
+                try:
+                    old_f.unlink()
+                except Exception:
+                    pass
+
+        max_page_to_crop = ak_page_idx if ak_map else len(doc) - 1
+        for p_idx in range(max_page_to_crop + 1):
             page = doc[p_idx]
             page_num = p_idx + 1
             mid_x = page.rect.width / 2.0
             d = page.get_text("dict")
+
+            # Check if page contains Answer Key to bound question bottom margin
+            ak_y0 = None
+            for b in d.get("blocks", []):
+                if "lines" not in b:
+                    continue
+                for l in b["lines"]:
+                    txt = " ".join(s["text"] for s in l["spans"]).strip()
+                    if "answer key" in txt.lower():
+                        ak_y0 = l["bbox"][1]
+                        break
+                if ak_y0:
+                    break
+
             headers = []
             for b in d.get("blocks", []):
                 if "lines" not in b:
@@ -170,6 +209,13 @@ def extract_native_exam_questions(
                         headers.append((int(m.group(1)), l["bbox"]))
             headers.sort(key=lambda x: (0 if (x[1][0] + x[1][2]) / 2.0 < mid_x else 1, x[1][1]))
 
+            # If this page has no questions from the question section, skip
+            if not headers:
+                continue
+
+            page_drawings = page.get_drawings()
+            page_images = page.get_image_info(xrefs=True)
+
             for i, (qn, bbox) in enumerate(headers):
                 y0 = bbox[1]
                 cx = (bbox[0] + bbox[2]) / 2.0
@@ -178,7 +224,7 @@ def extract_native_exam_questions(
                 if next_same_side:
                     y1 = next_same_side[0][1][1] - 2.0
                 else:
-                    y1 = page.rect.height - 20.0
+                    y1 = (ak_y0 - 5.0) if ak_y0 else (page.rect.height - 20.0)
 
                 col_x0 = 0.0 if is_left else mid_x - 10.0
                 col_x1 = mid_x + 10.0 if is_left else page.rect.width
@@ -186,8 +232,40 @@ def extract_native_exam_questions(
                     col_x0 = 0.0
                     col_x1 = page.rect.width
 
+                clip_rect = fitz.Rect(col_x0, max(0.0, y0 - 4.0), col_x1, min(page.rect.height, y1 + 4.0))
+
+                # Determine if question is genuinely visual / diagram-based
+                full_stem = q_text_map.get(qn, "")
+                is_visual = any(kw in full_stem for kw in VISUAL_KEYWORDS)
+
+                # Check for embedded raster images (excluding page background watermark)
+                if not is_visual:
+                    for im in page_images:
+                        im_r = fitz.Rect(im["bbox"])
+                        if im_r.width > page.rect.width * 0.5 and im_r.height > page.rect.height * 0.3:
+                            continue
+                        inter_im = im_r & clip_rect
+                        if not inter_im.is_empty and inter_im.width > 12 and inter_im.height > 12:
+                            is_visual = True
+                            break
+
+                # Check for vector drawings (excluding thin dividing lines and page borders)
+                if not is_visual:
+                    meaningful_drws = 0
+                    for drw in page_drawings:
+                        drw_r = fitz.Rect(drw["rect"])
+                        inter_drw = drw_r & clip_rect
+                        if not inter_drw.is_empty and inter_drw.width > 8 and inter_drw.height > 8:
+                            if not (inter_drw.width > 180 and inter_drw.height <= 2):
+                                meaningful_drws += 1
+                    if meaningful_drws >= 2:
+                        is_visual = True
+
+                # Skip cropping if question is pure text
+                if not is_visual:
+                    continue
+
                 try:
-                    clip_rect = fitz.Rect(col_x0, max(0.0, y0 - 4.0), col_x1, min(page.rect.height, y1 + 4.0))
                     crop_pix = page.get_pixmap(clip=clip_rect, dpi=MAX_CROP_DPI)
                     crop_file = crops_dir / f"q_{qn}_p{page_num}.png"
                     crop_pix.save(str(crop_file))
@@ -225,6 +303,7 @@ def extract_native_exam_questions(
             raw_options = raw_options[-4:]
 
         clean_stem = " ".join(stem_parts).strip()
+        clean_stem = repair_indic_text(clean_stem)
         correct_val = (ak_map.get(q_num_str) or q_data.get("inline_ans") or "").upper()
 
         q_options: List[QuestionOption] = []
@@ -241,7 +320,7 @@ def extract_native_exam_questions(
             q_options.append(
                 QuestionOption(
                     option_number=opt_lbl,
-                    option_text=opt_text,
+                    option_text=repair_indic_text(opt_text),
                     color_bucket=col_b,
                     is_correct_signal=is_correct,
                 )
@@ -265,4 +344,8 @@ def extract_native_exam_questions(
         )
 
     doc.close()
+
+    from quiz.ai.examintel.context_propagation import propagate_shared_contexts
+    final_question_blocks = propagate_shared_contexts(final_question_blocks)
+
     return final_question_blocks, doc_title, ak_entries
