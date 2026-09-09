@@ -1,10 +1,3 @@
-"""
-Management command: recalculate_contributor_stats
-Populates denormalized counters, XP, ranks, and seeds default badges
-for all existing users from historical data.
-
-Usage: python manage.py recalculate_contributor_stats
-"""
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from django.db.models import Count, Sum
