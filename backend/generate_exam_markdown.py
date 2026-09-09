@@ -24,6 +24,11 @@ from quiz.ai.examintel.audit import (
     audit_stage2_markdown,
     audit_stage3_chunks,
 )
+from quiz.ai.examintel.pipeline_monitor import (
+    PipelineStage,
+    set_pipeline_stage,
+    is_pipeline_aborted,
+)
 from quiz.ai.examintel.layout_extraction import extract_text_layout
 from quiz.ai.examintel.tcs_cbt_engine import is_tcs_cbt_paper, extract_tcs_cbt_questions
 from quiz.ai.examintel.candidate_sheet_engine import is_candidate_response_sheet, extract_candidate_response_questions
@@ -35,7 +40,12 @@ from quiz.ai.examintel.llm_refiner import refine_questions_batch
 from quiz.ai.langgraph.exam_ingestion_graph import _select_engine, _questionblock_to_dict
 
 
-def run_pipeline_till_markdown(pdf_path: str, custom_output_dir: str = None, refine: bool = False) -> dict:
+def run_pipeline_till_markdown(
+    pdf_path: str,
+    custom_output_dir: str = None,
+    refine: bool = False,
+    run_id: str = None,
+) -> dict:
     start_total_time = time.time()
     pdf_path = os.path.abspath(pdf_path)
 
@@ -56,10 +66,18 @@ def run_pipeline_till_markdown(pdf_path: str, custom_output_dir: str = None, ref
     print("=" * 65)
     print(f"📄 Source PDF:       {pdf_path}")
     print(f"📁 Output Directory: {stages_dir}")
+    if run_id:
+        print(f"🆔 Pipeline Run ID:  {run_id}")
     print("=" * 65 + "\n")
+
+    if is_pipeline_aborted(run_id):
+        set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Pipeline aborted before start.")
+        return {"status": "aborted", "pdf_path": pdf_path}
 
     # ── STAGE 1: Layout & Text Extraction ────────────────────────────────────
     print("⏳ [STAGE 1/3] Extracting text layout, styled spans, and geometry...")
+    set_pipeline_stage(run_id, PipelineStage.LAYOUT_EXTRACTION, progress=0.15, details={"pdf": Path(pdf_path).name})
+
     sr1 = StageReport(1, "Layout & Text Extraction")
     layouts = extract_text_layout(pdf_path)
     spans_count = sum(len(pl.spans) for pl in layouts)
@@ -74,6 +92,10 @@ def run_pipeline_till_markdown(pdf_path: str, custom_output_dir: str = None, ref
     print(f"   ✅ Stage 1 Complete in {sr1.duration_seconds}s")
     print(f"   📊 Pages: {len(layouts)} | Text Spans: {spans_count:,}")
     print(f"   💾 Saved: {stage1_json}\n")
+
+    if is_pipeline_aborted(run_id):
+        set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Aborted after layout extraction.")
+        return {"status": "aborted", "pdf_path": pdf_path}
 
     # ── STAGE 2: Engine Selection & Question Extraction ───────────────────────
     ak_entries = []
@@ -101,6 +123,8 @@ def run_pipeline_till_markdown(pdf_path: str, custom_output_dir: str = None, ref
                 pass
         else:
             questions, doc_title, ak_entries = extract_native_exam_questions(pdf_path, output_dir)
+
+    set_pipeline_stage(run_id, PipelineStage.MARKDOWN_GENERATION, progress=0.45, details={"engine": engine, "questions_count": len(questions)})
 
     sr2 = StageReport(2, "Markdown Document Generation")
     full_md = generate_exam_markdown(
@@ -133,8 +157,14 @@ def run_pipeline_till_markdown(pdf_path: str, custom_output_dir: str = None, ref
     print(f"   📊 Markdown Length: {len(full_md):,} characters | Title: '{doc_title}'")
     print(f"   💾 Saved Markdown: {stage2_md}\n")
 
+    if is_pipeline_aborted(run_id):
+        set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Aborted after markdown generation.")
+        return {"status": "aborted", "pdf_path": pdf_path}
+
     # ── STAGE 3: Chunking & Boundary Segmentation ─────────────────────────────
     print("⏳ [STAGE 3/3] Segmenting question chunks & validating options...")
+    set_pipeline_stage(run_id, PipelineStage.QUESTION_CHUNKING, progress=0.70, details={"chunks_count": len(questions)})
+
     intermediate_qs = [_questionblock_to_dict(q) for q in questions]
     sr3 = StageReport(3, "Question Chunking & Boundary Segmentation")
     audit_stage3_chunks(intermediate_qs, sr3)
@@ -155,11 +185,16 @@ def run_pipeline_till_markdown(pdf_path: str, custom_output_dir: str = None, ref
     print(quality_report.summary_badge())
     print(f"   💾 Saved Chunks: {stage3_json}\n")
 
+    if is_pipeline_aborted(run_id):
+        set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Aborted after chunking.")
+        return {"status": "aborted", "pdf_path": pdf_path}
+
     # ── STAGE 4: Vision KaTeX Math Refinement (Optional / On-Demand) ─────────
     stage4_md = None
     stage4_json = None
     if refine:
         print("⏳ [STAGE 4/4] Refining mathematical formulas & pseudo-images into KaTeX...")
+        set_pipeline_stage(run_id, PipelineStage.KATEX_VISION_REFINE, progress=0.85, details={"workers": 6})
         sr4 = StageReport(4, "Vision KaTeX Math Refinement")
         refined_qs = refine_questions_batch(
             questions=questions,
@@ -187,6 +222,13 @@ def run_pipeline_till_markdown(pdf_path: str, custom_output_dir: str = None, ref
 
     total_elapsed = round(time.time() - start_total_time, 2)
 
+    set_pipeline_stage(
+        run_id,
+        PipelineStage.COMPLETED,
+        progress=1.0,
+        details={"questions_count": len(intermediate_qs), "duration_seconds": total_elapsed}
+    )
+
     # ── Summary Box ─────────────────────────────────────────────────────────
     print("=" * 65)
     print(f"🎉 PIPELINE EXECUTION SUCCESSFUL (Total Time: {total_elapsed}s)")
@@ -198,16 +240,13 @@ def run_pipeline_till_markdown(pdf_path: str, custom_output_dir: str = None, ref
 
     return {
         "pdf_path": pdf_path,
-        "engine": engine,
+        "stages_dir": str(stages_dir),
         "doc_title": doc_title,
-        "total_questions": len(intermediate_qs),
-        "total_options": total_options,
-        "markdown_char_length": len(refined_md) if refine else len(full_md),
-        "markdown_file_path": stage4_md or stage2_md,
-        "chunks_file_path": stage4_json or stage3_json,
-        "layout_file_path": stage1_json,
-        "stages_directory": str(stages_dir),
-        "elapsed_seconds": total_elapsed,
+        "engine": engine,
+        "markdown_path": str(stage4_md or stage2_md),
+        "chunks_path": str(stage4_json or stage3_json),
+        "questions_count": len(intermediate_qs),
+        "total_time": total_elapsed,
     }
 
 
@@ -232,6 +271,12 @@ def main():
         action="store_true",
         help="Run Stage 4 Vision KaTeX Refinement for mathematical formulas and pseudo-images",
     )
+    parser.add_argument(
+        "--run-id",
+        type=str,
+        default=None,
+        help="Optional pipeline run ID for live tracking and abort signals",
+    )
     args = parser.parse_args()
 
     # Find default PDF if none provided
@@ -254,7 +299,12 @@ def main():
         sys.exit(1)
 
     try:
-        run_pipeline_till_markdown(target_pdf, custom_output_dir=args.output_dir, refine=args.refine)
+        run_pipeline_till_markdown(
+            target_pdf,
+            custom_output_dir=args.output_dir,
+            refine=args.refine,
+            run_id=args.run_id,
+        )
     except Exception as e:
         print(f"\n[-] Fatal Pipeline Error: {e}")
         import traceback

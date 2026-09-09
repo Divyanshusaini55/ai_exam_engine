@@ -47,6 +47,11 @@ from quiz.ai.examintel.audit import (
     audit_stage8_canonical_v2,
     generate_pipeline_audit_report,
 )
+from quiz.ai.examintel.pipeline_monitor import (
+    PipelineStage,
+    set_pipeline_stage,
+    is_pipeline_aborted,
+)
 from quiz.ai import extract_json_from_text
 from quiz.ai.langfuse_client import observe, update_trace_metadata
 
@@ -55,6 +60,7 @@ logger = logging.getLogger("quiz.ai.langgraph.exam_ingestion_graph")
 
 class ExamIngestionState(TypedDict):
     pdf_path: str
+    pipeline_run_id: Optional[str]
     stages_dir: Optional[str]
     gemini_file_name: Optional[str]
     markdown_text: str
@@ -131,6 +137,13 @@ def node_examintel_extraction(state: ExamIngestionState) -> dict:
       - stage2_raw_exam.md
       - stage3_question_chunks.json
     """
+    run_id = state.get("pipeline_run_id")
+    if is_pipeline_aborted(run_id) or state.get("errors"):
+        if is_pipeline_aborted(run_id):
+            set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Pipeline manually aborted.")
+            return {"errors": ["Pipeline manually aborted."]}
+        return {}
+
     pdf_path = state.get("pdf_path")
     stages_dir = Path(state.get("stages_dir") or get_pipeline_stages_dir(pdf_path, getattr(settings, "MEDIA_ROOT", None)))
     reports = list(state.get("stage_reports", []))
@@ -145,6 +158,13 @@ def node_examintel_extraction(state: ExamIngestionState) -> dict:
         engine = _select_engine(pdf_path)
 
         # Stage 1: Layout & Text Extraction
+        set_pipeline_stage(
+            run_id,
+            PipelineStage.LAYOUT_EXTRACTION,
+            progress=0.10,
+            details={"pdf": Path(pdf_path).name, "engine": engine}
+        )
+
         sr1 = StageReport(1, "Layout & Text Extraction")
         layouts = extract_text_layout(pdf_path)
         spans_count = sum(len(pl.spans) for pl in layouts)
@@ -153,6 +173,18 @@ def node_examintel_extraction(state: ExamIngestionState) -> dict:
         sr1.complete()
         reports.append(sr1)
         print(f"    [+] Saved Stage 1: {sr1.artifact_path}")
+
+        if is_pipeline_aborted(run_id):
+            set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Pipeline manually aborted after layout extraction.")
+            return {"stages_dir": str(stages_dir), "errors": ["Pipeline manually aborted."]}
+
+        # Stage 2: Markdown Generation
+        set_pipeline_stage(
+            run_id,
+            PipelineStage.MARKDOWN_GENERATION,
+            progress=0.20,
+            details={"pages": len(layouts), "spans": spans_count, "engine": engine}
+        )
 
         if engine == "tcs_cbt":
             print(f"    [*] Engine: tcs_cbt (high-speed TCS iON / RRB / SSC CBT extraction)")
@@ -174,7 +206,6 @@ def node_examintel_extraction(state: ExamIngestionState) -> dict:
             print(f"    [*] Engine: native_vector (standard / solved exam paper)")
             questions, doc_title, ak_entries = extract_native_exam_questions(pdf_path, output_dir)
 
-        # Stage 2: Markdown Generation
         sr2 = StageReport(2, "Markdown Document Generation")
         full_md = generate_exam_markdown(
             title=doc_title,
@@ -188,8 +219,19 @@ def node_examintel_extraction(state: ExamIngestionState) -> dict:
         reports.append(sr2)
         print(f"    [+] Saved Stage 2: {sr2.artifact_path}")
 
+        if is_pipeline_aborted(run_id):
+            set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Pipeline manually aborted after markdown generation.")
+            return {"stages_dir": str(stages_dir), "errors": ["Pipeline manually aborted."]}
+
         # Stage 3: Question Chunking
         intermediate_qs = [_questionblock_to_dict(q) for q in questions]
+        set_pipeline_stage(
+            run_id,
+            PipelineStage.QUESTION_CHUNKING,
+            progress=0.30,
+            details={"chunks_count": len(intermediate_qs), "engine": engine}
+        )
+
         sr3 = StageReport(3, "Question Chunking & Boundary Segmentation")
         audit_stage3_chunks(intermediate_qs, sr3)
         sr3.artifact_path = save_stage_artifact(stages_dir, "stage3_question_chunks.json", intermediate_qs)
@@ -207,6 +249,7 @@ def node_examintel_extraction(state: ExamIngestionState) -> dict:
     except Exception as e:
         err = f"[node_examintel_extraction] Fatal extraction error: {e}"
         logger.error(err, exc_info=True)
+        set_pipeline_stage(run_id, PipelineStage.FAILED, error=err)
         return {
             "stages_dir": str(stages_dir),
             "extracted_questions": [],
@@ -222,13 +265,27 @@ def node_indic_matra_clean(state: ExamIngestionState) -> dict:
     Node 4: Devanagari / Indic Script Spacing & Ligature Repair.
     Saves: stage4_indic_matra_cleaned.json
     """
+    run_id = state.get("pipeline_run_id")
+    if is_pipeline_aborted(run_id) or state.get("errors"):
+        if is_pipeline_aborted(run_id):
+            set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Pipeline manually aborted.")
+            return {"errors": ["Pipeline manually aborted."]}
+        return {}
+
+    raw_qs = state.get("extracted_questions", [])
+    set_pipeline_stage(
+        run_id,
+        PipelineStage.INDIC_FONT_REPAIR,
+        progress=0.45,
+        details={"questions_count": len(raw_qs)}
+    )
+
     print(f"\n>>> [STAGE 4] Indic Matra & Ligature Repair")
     stages_dir = Path(state.get("stages_dir"))
     reports = list(state.get("stage_reports", []))
 
     sr4 = StageReport(4, "Indic Matra & Ligature Repair")
     parser = _INDIC_PARSER
-    raw_qs = state.get("extracted_questions", [])
 
     for q in raw_qs:
         q_text = q.get("question_text", "")
@@ -258,6 +315,13 @@ def node_katex_vision_refine(state: ExamIngestionState) -> dict:
     Node 5: Multimodal Vision KaTeX Normalizer for Complex Math/Science Questions.
     Saves: stage5_katex_vision_refined.json
     """
+    run_id = state.get("pipeline_run_id")
+    if is_pipeline_aborted(run_id) or state.get("errors"):
+        if is_pipeline_aborted(run_id):
+            set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Pipeline manually aborted.")
+            return {"errors": ["Pipeline manually aborted."]}
+        return {}
+
     print(f"\n>>> [STAGE 5] KaTeX Math & Multimodal Vision Refine")
     stages_dir = Path(state.get("stages_dir"))
     reports = list(state.get("stage_reports", []))
@@ -274,6 +338,13 @@ def node_katex_vision_refine(state: ExamIngestionState) -> dict:
 
     math_count = sum(1 for q in extracted_objects if needs_math_refinement(q))
     print(f"    [*] Detected {math_count}/{len(extracted_objects)} questions requiring KaTeX math refinement.")
+
+    set_pipeline_stage(
+        run_id,
+        PipelineStage.KATEX_VISION_REFINE,
+        progress=0.60,
+        details={"math_questions_count": math_count, "total_questions": len(extracted_objects)}
+    )
 
     # Refine questions concurrently
     refined_objects = refine_questions_batch(extracted_objects, max_workers=16)
@@ -331,12 +402,26 @@ def node_bilingual_align(state: ExamIngestionState) -> dict:
       - options have separated text and text_hi
     Saves: stage6_bilingual_aligned.json
     """
+    run_id = state.get("pipeline_run_id")
+    if is_pipeline_aborted(run_id) or state.get("errors"):
+        if is_pipeline_aborted(run_id):
+            set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Pipeline manually aborted.")
+            return {"errors": ["Pipeline manually aborted."]}
+        return {}
+
+    questions = state.get("fused_json", [])
+    set_pipeline_stage(
+        run_id,
+        PipelineStage.BILINGUAL_ALIGNMENT,
+        progress=0.75,
+        details={"input_questions": len(questions)}
+    )
+
     print(f"\n>>> [STAGE 6] Bilingual Alignment & Language Separation")
     stages_dir = Path(state.get("stages_dir"))
     reports = list(state.get("stage_reports", []))
 
     sr6 = StageReport(6, "Bilingual Alignment & Separation")
-    questions = state.get("fused_json", [])
     cleaned_questions = []
     seen_stems = set()
 
@@ -396,6 +481,13 @@ def node_agentic_solve(state: ExamIngestionState) -> dict:
     Node 7: Batched Agentic Reasoning Solver for Unmarked Answer Keys (Safety Fallback).
     Saves: stage7_agentic_solved.json
     """
+    run_id = state.get("pipeline_run_id")
+    if is_pipeline_aborted(run_id) or state.get("errors"):
+        if is_pipeline_aborted(run_id):
+            set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Pipeline manually aborted.")
+            return {"errors": ["Pipeline manually aborted."]}
+        return {}
+
     print(f"\n>>> [STAGE 7] Answer Key Resolution & Ground-Truth Verification")
     stages_dir = Path(state.get("stages_dir"))
     reports = list(state.get("stage_reports", []))
@@ -412,12 +504,21 @@ def node_agentic_solve(state: ExamIngestionState) -> dict:
         else:
             unresolved.append((idx, q))
 
+    set_pipeline_stage(
+        run_id,
+        PipelineStage.AGENTIC_SOLVE,
+        progress=0.85,
+        details={"unresolved_count": len(unresolved), "total_questions": len(questions)}
+    )
+
     if unresolved:
         print(f"    [*] Found {len(unresolved)} questions with missing answers. Solving in batched groups of 10...")
         batch_size = 10
         batches = [unresolved[i:i + batch_size] for i in range(0, len(unresolved), batch_size)]
 
         def process_solver_batch(batch):
+            if is_pipeline_aborted(run_id):
+                return
             batch_items = []
             for local_idx, (orig_idx, q) in enumerate(batch):
                 opts_summary = [f"{o.get('id', chr(65+j))}: {o.get('answer_text', '')}" for j, o in enumerate(q.get("options", []))]
@@ -473,14 +574,28 @@ def node_pydantic_validate(state: ExamIngestionState) -> dict:
       - pipeline_audit_report.json
       - pipeline_audit_report.md
     """
+    run_id = state.get("pipeline_run_id")
+    if is_pipeline_aborted(run_id) or state.get("errors"):
+        if is_pipeline_aborted(run_id):
+            set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Pipeline manually aborted.")
+            return {"errors": ["Pipeline manually aborted."]}
+        return {}
+
     pdf_path = state.get("pdf_path")
     stages_dir = Path(state.get("stages_dir"))
     reports = list(state.get("stage_reports", []))
 
     print(f"\n>>> [STAGE 8] Canonical V2 Validation & Full Pipeline Audit Report")
 
-    sr8 = StageReport(8, "Canonical V2 Schema Validation")
     fused_data = state.get("fused_json", [])
+    set_pipeline_stage(
+        run_id,
+        PipelineStage.CANONICAL_V2_ASSEMBLY,
+        progress=0.95,
+        details={"canonical_candidates": len(fused_data)}
+    )
+
+    sr8 = StageReport(8, "Canonical V2 Schema Validation")
     v2_payloads = []
     pos_marks, neg_marks = detect_exam_marking_scheme(pdf_path)
 
@@ -592,13 +707,29 @@ def node_pydantic_validate(state: ExamIngestionState) -> dict:
 
 @observe(name="node_cleanup")
 def node_cleanup(state: ExamIngestionState) -> dict:
-    logger.info("Universal Pipeline Execution and Audit Complete.")
+    run_id = state.get("pipeline_run_id")
+    errors = state.get("errors", [])
+    if is_pipeline_aborted(run_id):
+        set_pipeline_stage(run_id, PipelineStage.ABORTED, progress=1.0, error="Pipeline execution aborted by user.")
+        logger.warning(f"Pipeline {run_id} aborted by user.")
+    elif errors:
+        set_pipeline_stage(run_id, PipelineStage.FAILED, progress=1.0, error="; ".join(errors))
+        logger.error(f"Pipeline {run_id} failed: {errors}")
+    else:
+        payloads = state.get("final_payloads", [])
+        set_pipeline_stage(
+            run_id,
+            PipelineStage.COMPLETED,
+            progress=1.0,
+            details={"canonical_questions": len(payloads)}
+        )
+        logger.info(f"Pipeline {run_id} execution and audit completed successfully.")
     return {}
 
 
 class ExamIngestionGraph:
     """
-    Unified LangGraph StateGraph Orchestrator with Multi-Stage Auditing and Intermediate Disk Persistence.
+    Unified LangGraph StateGraph Orchestrator with Multi-Stage Auditing, Stage Monitoring, and Disk Persistence.
     """
     def __init__(self):
         g = StateGraph(ExamIngestionState)
@@ -622,14 +753,15 @@ class ExamIngestionGraph:
         self.graph = g.compile()
 
     @observe(name="exam_ingestion_pipeline")
-    def run(self, pdf_path: str) -> dict:
+    def run(self, pdf_path: str, run_id: Optional[str] = None) -> dict:
         stages_dir = str(get_pipeline_stages_dir(pdf_path, getattr(settings, "MEDIA_ROOT", None)))
         update_trace_metadata(
             tags=["exam_ingestion", "universal_audited_pipeline"],
-            input={"pdf_path": pdf_path, "stages_dir": stages_dir}
+            input={"pdf_path": pdf_path, "stages_dir": stages_dir, "run_id": run_id}
         )
         initial_state = {
             "pdf_path": pdf_path,
+            "pipeline_run_id": run_id,
             "stages_dir": stages_dir,
             "gemini_file_name": None,
             "markdown_text": "",

@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from "react"
 import { jobsAdminApi } from "@/lib/api"
-import { Activity, RefreshCw, XCircle, Clock, CheckCircle, AlertCircle } from "lucide-react"
+import { Activity, RefreshCw, XCircle, Clock, CheckCircle, AlertCircle, Sparkles, Layers } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { PipelineProgressDrawer } from "@/components/admin/PipelineProgressDrawer"
 
 export default function AdminJobsPage() {
   const [jobs, setJobs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedRunId, setSelectedRunId] = useState<string | null>(null)
 
   async function fetchJobs(isPolling = false) {
     if (!isPolling) setLoading(true)
@@ -37,10 +39,27 @@ export default function AdminJobsPage() {
     if (!confirm("Are you sure you want to cancel this background job?")) return
     try {
       await jobsAdminApi.cancelJob(id)
-      fetchJobs()
+      fetchJobs(true)
     } catch (err) {
       console.error("Failed to cancel job:", err)
     }
+  }
+
+  const getStageLabel = (stage?: string) => {
+    if (!stage) return null
+    const stageMap: Record<string, string> = {
+      INITIALIZING: '1. Initialization',
+      LAYOUT_EXTRACTION: '2. Layout & Text Extraction',
+      MARKDOWN_GENERATION: '3. Markdown Generation',
+      QUESTION_CHUNKING: '4. Boundary Chunking',
+      INDIC_FONT_REPAIR: '5. Indic Matra Repair',
+      KATEX_VISION_REFINE: '6. KaTeX Vision Refinement',
+      BILINGUAL_ALIGNMENT: '7. Bilingual Alignment',
+      AGENTIC_SOLVE: '8. Answer Verification',
+      CANONICAL_V2_ASSEMBLY: '9. Canonical V2 Assembly',
+      DB_PERSISTENCE: '10. Database Persistence',
+    }
+    return stageMap[stage] || stage
   }
 
   const getStatusIcon = (status: string) => {
@@ -100,7 +119,14 @@ export default function AdminJobsPage() {
                   <tr key={job.id} className="hover:bg-muted/20 transition-colors">
                     <td className="p-4 font-semibold text-foreground">
                       <div className="font-mono text-[10px] text-muted-foreground mb-1">{job.id.substring(0, 8)}...</div>
-                      <div>{job.type}</div>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span>{job.type}</span>
+                        {job.type === 'PARSE_EXAM_PDF' && (
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-primary/10 text-primary border border-primary/20 flex items-center gap-1">
+                            <Sparkles className="size-2.5" /> Pipeline
+                          </span>
+                        )}
+                      </div>
                       {job.username && <div className="text-[10px] text-muted-foreground mt-1 font-normal">by {job.username}</div>}
                     </td>
                     <td className="p-4">
@@ -110,7 +136,11 @@ export default function AdminJobsPage() {
                           {job.status}
                         </span>
                       </div>
-                      {job.stage && <div className="text-[11px] text-muted-foreground">Stage: {job.stage}</div>}
+                      {job.stage && (
+                        <div className="text-[11px] text-muted-foreground">
+                          <span className="font-medium text-foreground/80">Stage:</span> {getStageLabel(job.stage)}
+                        </div>
+                      )}
                     </td>
                     <td className="p-4">
                       <div className="w-full bg-muted rounded-full h-2.5 mb-1 dark:bg-muted/50 overflow-hidden">
@@ -125,9 +155,22 @@ export default function AdminJobsPage() {
                       <div>{job.started_at ? new Date(job.started_at).toLocaleString() : 'Not started'}</div>
                       <div className="text-[10px] mt-1">Updated: {new Date(job.updated_at).toLocaleTimeString()}</div>
                     </td>
-                    <td className="p-4 text-right space-x-1">
+                    <td className="p-4 text-right space-x-1.5">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedRunId(job.id)}
+                        className="h-7 px-2.5 text-[11px] gap-1 border-border/80 hover:border-primary/50 hover:bg-primary/5 transition-colors"
+                      >
+                        <Layers className="size-3 text-primary" /> Stages
+                      </Button>
                       {['QUEUED', 'RUNNING'].includes(job.status) && (
-                        <Button variant="destructive" size="sm" onClick={() => handleCancelJob(job.id)} className="h-7 px-2 text-[11px] gap-1 bg-rose-500/10 text-rose-600 hover:bg-rose-500/20 hover:text-rose-700 border-0">
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleCancelJob(job.id)}
+                          className="h-7 px-2 text-[11px] gap-1 bg-rose-500/10 text-rose-600 hover:bg-rose-500/20 hover:text-rose-700 border-0"
+                        >
                           <XCircle className="size-3" /> Cancel
                         </Button>
                       )}
@@ -139,6 +182,13 @@ export default function AdminJobsPage() {
           </div>
         )}
       </Card>
+
+      <PipelineProgressDrawer
+        runId={selectedRunId}
+        isOpen={Boolean(selectedRunId)}
+        onClose={() => setSelectedRunId(null)}
+        onJobCancelled={() => fetchJobs(true)}
+      />
     </div>
   )
 }

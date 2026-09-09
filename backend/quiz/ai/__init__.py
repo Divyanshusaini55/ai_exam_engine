@@ -1,6 +1,7 @@
 import logging
 import json
 import re
+from typing import Optional, List, Dict, Any
 from quiz.models import Exam, Question, ExamQuestion
 
 logger = logging.getLogger(__name__)
@@ -46,15 +47,27 @@ def extract_json_from_text(text: str):
                     pass
     return None
 
-def parse_exam_paper_with_ai(exam: Exam):
+def parse_exam_paper_with_ai(exam: Exam, run_id: Optional[str] = None):
+    from quiz.ai.examintel.pipeline_monitor import (
+        PipelineStage,
+        set_pipeline_stage,
+        is_pipeline_aborted,
+    )
+
     if not exam.pdf_file:
         logger.error("Exam has no pdf_file")
+        if run_id:
+            set_pipeline_stage(run_id, PipelineStage.FAILED, error="Exam has no PDF file.")
         return 0
         
     import os, tempfile
     from django.conf import settings
     temp_pdf = None
     try:
+        if is_pipeline_aborted(run_id):
+            set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Pipeline manually aborted.")
+            return 0
+
         pdf_path = None
         if hasattr(exam.pdf_file, 'name'):
             media_candidate = os.path.join(settings.MEDIA_ROOT, str(exam.pdf_file.name))
@@ -81,8 +94,12 @@ def parse_exam_paper_with_ai(exam: Exam):
         from .langgraph.exam_ingestion_graph import ExamIngestionGraph
         
         graph = ExamIngestionGraph()
-        result = graph.run(pdf_path)
+        result = graph.run(pdf_path, run_id=run_id)
         
+        if is_pipeline_aborted(run_id):
+            print(f"[*] Pipeline {run_id} aborted before DB persistence.")
+            return 0
+
         payloads = result.get("final_payloads", [])
         stages_dir = result.get("stages_dir")
         print(f"[*] Graph execution finished. Extracted {len(payloads)} questions.")
@@ -90,9 +107,21 @@ def parse_exam_paper_with_ai(exam: Exam):
             print(f"[*] Pipeline Stage Artifacts & Audit Report saved in: {stages_dir}")
     
         # Save to database
+        set_pipeline_stage(
+            run_id,
+            PipelineStage.DB_PERSISTENCE,
+            progress=0.97,
+            details={"questions_to_save": len(payloads)}
+        )
+
         count = 0
         import uuid
         for idx, payload in enumerate(payloads):
+            if is_pipeline_aborted(run_id):
+                set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Pipeline aborted during database persistence.")
+                print(f"[*] Pipeline {run_id} aborted during database persistence at question {idx+1}.")
+                break
+
             try:
                 q_id = payload.get("id") or str(uuid.uuid4())[:8]
                 q = Question.objects.create(
@@ -110,6 +139,13 @@ def parse_exam_paper_with_ai(exam: Exam):
                     order=idx
                 )
                 count += 1
+                if (idx + 1) % 10 == 0 or idx == len(payloads) - 1:
+                    set_pipeline_stage(
+                        run_id,
+                        PipelineStage.DB_PERSISTENCE,
+                        progress=round(0.97 + (0.02 * (idx + 1) / max(len(payloads), 1)), 4),
+                        details={"saved_count": count, "total": len(payloads)}
+                    )
                 print(f"  [+] Saved question {idx+1}/{len(payloads)}: {q.id}")
             except Exception as e:
                 print(f"  [-] Failed to save question {idx+1}: {e}")
@@ -124,6 +160,13 @@ def parse_exam_paper_with_ai(exam: Exam):
             current_langs.add("hi")
         exam.supported_languages = sorted(list(current_langs))
         exam.save(update_fields=["supported_languages"])
+
+        set_pipeline_stage(
+            run_id,
+            PipelineStage.COMPLETED,
+            progress=1.0,
+            details={"exam_id": exam.id, "questions_created": count}
+        )
 
         print(f"[*] Done. Total saved: {count}. Supported languages: {exam.supported_languages}")
         return count

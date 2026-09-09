@@ -434,6 +434,9 @@ export const jobsAdminApi = {
   getJobs: () => legacyFetch('get', '/jobs/admin/jobs/'),
   getJob: (id: string) => legacyFetch('get', `/jobs/admin/jobs/${id}/`),
   cancelJob: (id: string) => legacyFetch('delete', `/jobs/admin/jobs/${id}/`),
+  getPipelineStatus: (runId: string) => legacyFetch('get', `/jobs/pipeline/${runId}/status/`),
+  abortPipeline: (runId: string, reason?: string) => legacyFetch('post', `/jobs/pipeline/${runId}/abort/`, { reason }),
+  getActivePipelines: () => legacyFetch('get', `/jobs/pipeline/active/`),
 };
 
 export const resourceHubApi = {

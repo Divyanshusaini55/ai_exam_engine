@@ -46,12 +46,25 @@ def parse_question_paper(self, job_id, upload_id, dedup_key=None):
                         message='Saving questions to database')
                         
         from quiz.models import Exam
+        from quiz.ai.examintel.pipeline_monitor import is_pipeline_aborted, set_pipeline_stage, PipelineStage
+        
+        if is_pipeline_aborted(job_id):
+            logger.info(f"parse_question_paper: job {job_id} aborted before start.")
+            fail_job(job_id, error="Task aborted by user.")
+            return
+
         exam = Exam.objects.create(
             title=f"{upload.subject} ({upload.exam_date})",
             pdf_file=upload.file,
             status='draft'
         )
-        count = parse_exam_paper_with_ai(exam)
+        count = parse_exam_paper_with_ai(exam, run_id=job_id)
+        
+        if is_pipeline_aborted(job_id):
+            logger.info(f"parse_question_paper: job {job_id} aborted during execution.")
+            fail_job(job_id, error="Task aborted by user.")
+            return
+
         upload.status = 'processed'
         upload.save(update_fields=['status'])
 

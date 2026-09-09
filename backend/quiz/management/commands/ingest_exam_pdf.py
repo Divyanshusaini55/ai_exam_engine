@@ -42,6 +42,11 @@ from quiz.ai.examintel.audit import (
     audit_stage2_markdown,
     generate_pipeline_audit_report,
 )
+from quiz.ai.examintel.pipeline_monitor import (
+    PipelineStage,
+    set_pipeline_stage,
+    is_pipeline_aborted,
+)
 
 
 def _route_pdf_engine(pdf_path: str) -> str:
@@ -162,12 +167,19 @@ class Command(BaseCommand):
             default=None,
             help="Custom output directory for pipeline stages and local asset artifacts.",
         )
+        parser.add_argument(
+            "--run-id",
+            type=str,
+            default=None,
+            help="Optional pipeline tracking run ID for real-time monitoring and abort checks.",
+        )
 
     def handle(self, *args, **options):
         pdf_path = Path(options["pdf_file"])
         if not pdf_path.exists():
             raise CommandError(f"Exam PDF file does not exist: {pdf_path}")
 
+        run_id = options.get("run_id")
         dry_run = options["dry_run"]
         do_enrich = options["enrich"]
         do_refine = options["refine"]
@@ -182,7 +194,14 @@ class Command(BaseCommand):
         self.stdout.write(self.style.NOTICE(f"    Multimodal Refinement: {'ENABLED (Gemini 3.8 Flash)' if do_refine else 'FAST DETERMINISTIC PATH'}"))
         self.stdout.write(self.style.NOTICE(f"    Enrichment LLM: {'ENABLED' if do_enrich else 'HEURISTIC FAST PATH'}"))
         self.stdout.write(self.style.NOTICE(f"    Object Storage Upload: {'ENABLED' if upload_assets else 'SKIPPED'}"))
+        if run_id:
+            self.stdout.write(self.style.NOTICE(f"    Pipeline Run ID: {run_id}"))
         self.stdout.write(self.style.NOTICE("======================================================="))
+
+        if is_pipeline_aborted(run_id):
+            self.stdout.write(self.style.WARNING(f"[-] Pipeline {run_id} aborted before initiation."))
+            set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Pipeline manually aborted.")
+            return
 
         # 1. Route Engine & Detect Dynamic Marking Scheme
         engine = _route_pdf_engine(str(pdf_path))
@@ -211,6 +230,13 @@ class Command(BaseCommand):
         stage_reports: List[StageReport] = []
 
         # Stage 1: Layout Extraction & Text Analysis
+        set_pipeline_stage(
+            run_id,
+            PipelineStage.LAYOUT_EXTRACTION,
+            progress=0.10,
+            details={"pdf": pdf_path.name, "engine": engine}
+        )
+
         sr1 = StageReport(1, "Layout & Text Extraction")
         layouts = extract_text_layout(str(pdf_path))
         spans_count = sum(len(pl.spans) for pl in layouts)
@@ -222,6 +248,11 @@ class Command(BaseCommand):
         )
         sr1.complete()
         stage_reports.append(sr1)
+
+        if is_pipeline_aborted(run_id):
+            self.stdout.write(self.style.WARNING("[-] Pipeline manually aborted after layout extraction."))
+            set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Aborted after layout extraction.")
+            return
 
         # Stage 2: Question Extraction via Selected Engine
         self.stdout.write(self.style.HTTP_INFO(f"\n[2/7] Extracting questions with '{engine}' engine..."))
@@ -244,6 +275,12 @@ class Command(BaseCommand):
             questions, doc_title, ak_entries = extract_native_exam_questions(str(pdf_path), output_dir)
 
         # Clean corrupted legacy Indic font encodings deterministically across all questions
+        set_pipeline_stage(
+            run_id,
+            PipelineStage.INDIC_FONT_REPAIR,
+            progress=0.25,
+            details={"questions_extracted": len(questions)}
+        )
         for q in questions:
             q.question_text = repair_indic_text(q.question_text)
             if q.shared_context:
@@ -271,8 +308,20 @@ class Command(BaseCommand):
             f"    [+] Extracted {len(questions)} questions for '{exam_title}' (Duration: {duration_minutes}m)"
         ))
 
+        if is_pipeline_aborted(run_id):
+            self.stdout.write(self.style.WARNING("[-] Pipeline manually aborted after text extraction."))
+            set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Aborted after text extraction.")
+            return
+
         # Stage 3: Markdown Generation & Structure Parsing
         self.stdout.write(self.style.HTTP_INFO("\n[3/7] Generating standardized Markdown document..."))
+        set_pipeline_stage(
+            run_id,
+            PipelineStage.MARKDOWN_GENERATION,
+            progress=0.40,
+            details={"title": exam_title, "questions": len(questions)}
+        )
+
         sr2 = StageReport(2, "Markdown Document Generation")
         full_md = generate_exam_markdown(
             title=exam_title,
@@ -287,7 +336,17 @@ class Command(BaseCommand):
 
         # Stage 3.5: Multimodal KaTeX & Math Refinement (if requested)
         if do_refine:
+            if is_pipeline_aborted(run_id):
+                set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Aborted before KaTeX refinement.")
+                return
+
             self.stdout.write(self.style.HTTP_INFO("\n[3.5/7] Running Multimodal KaTeX & Math Refinement (Gemini 3.8 Flash)..."))
+            set_pipeline_stage(
+                run_id,
+                PipelineStage.KATEX_VISION_REFINE,
+                progress=0.55,
+                details={"workers": refine_workers}
+            )
             sr_refine = StageReport(3, "Multimodal KaTeX & Math Refinement")
             refined_questions = refine_questions_batch(
                 questions=questions,
@@ -317,18 +376,39 @@ class Command(BaseCommand):
         ))
 
         if not parsed_doc.questions:
+            set_pipeline_stage(run_id, PipelineStage.FAILED, error="Failed to extract or parse any questions from the PDF.")
             raise CommandError("Failed to extract or parse any questions from the PDF.")
+
+        if is_pipeline_aborted(run_id):
+            set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Aborted after parsing Markdown.")
+            return
 
         # Stage 4: Visual Asset Storage & CDN URL Rewriting
         if upload_assets:
             self.stdout.write(self.style.HTTP_INFO("\n[4/7] Ingesting visual assets into Object Storage / CDN..."))
+            set_pipeline_stage(
+                run_id,
+                PipelineStage.ASSET_EXTRACTION,
+                progress=0.65,
+                details={"questions_count": len(parsed_doc.questions)}
+            )
             url_map = AssetStorageAgent.ingest_exam_assets(exam_slug, output_dir, parsed_doc.questions)
             self.stdout.write(self.style.SUCCESS(f"    [+] Uploaded & mapped {len(url_map)} assets to public CDN URLs."))
         else:
             self.stdout.write(self.style.HTTP_INFO("\n[4/7] Visual asset upload skipped (--no-upload-assets)."))
 
+        if is_pipeline_aborted(run_id):
+            set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Aborted before bilingual alignment.")
+            return
+
         # Stage 5: Bilingual Separation Agent
         self.stdout.write(self.style.HTTP_INFO("\n[5/7] Running Bilingual Separation Agent..."))
+        set_pipeline_stage(
+            run_id,
+            PipelineStage.BILINGUAL_ALIGNMENT,
+            progress=0.75,
+            details={"questions_count": len(parsed_doc.questions)}
+        )
         bilingual_payloads = []
         lang_counts: Dict[str, int] = {}
         for q in parsed_doc.questions:
@@ -341,8 +421,18 @@ class Command(BaseCommand):
             f"{lang_counts.get('en', 0)} English, {lang_counts.get('bilingual', 0)} Bilingual."
         ))
 
+        if is_pipeline_aborted(run_id):
+            set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Aborted before academic enrichment.")
+            return
+
         # Stage 6: Academic Classification & Tutor Agent
         self.stdout.write(self.style.HTTP_INFO("\n[6/7] Running Academic Classification & Tutor Agent..."))
+        set_pipeline_stage(
+            run_id,
+            PipelineStage.ACADEMIC_ENRICHMENT,
+            progress=0.85,
+            details={"enrich_enabled": do_enrich, "count": len(parsed_doc.questions)}
+        )
         academic_agent = AcademicTutorAgent()
         questions_to_enrich = []
         for idx, q in enumerate(parsed_doc.questions):
@@ -364,8 +454,18 @@ class Command(BaseCommand):
             self.stdout.write(self.style.HTTP_INFO("    [*] Generating fast deterministic academic metadata..."))
             enriched_academic_data = [academic_agent.generate_heuristics_enrichment(it) for it in questions_to_enrich]
 
+        if is_pipeline_aborted(run_id):
+            set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Aborted before Canonical V2 Assembly.")
+            return
+
         # Stage 7: Canonical V2 Assembler & Database Persistence
         self.stdout.write(self.style.HTTP_INFO("\n[7/7] Assembling Canonical V2 Schema & Persisting..."))
+        set_pipeline_stage(
+            run_id,
+            PipelineStage.CANONICAL_V2_ASSEMBLY,
+            progress=0.92,
+            details={"questions_count": len(parsed_doc.questions)}
+        )
         canonical_questions = []
         year_match = re.search(r"\b(202[0-9])\b", exam_title)
         year_val = int(year_match.group(1)) if year_match else 2024
@@ -398,8 +498,18 @@ class Command(BaseCommand):
         rep_json, rep_md = generate_pipeline_audit_report(str(pdf_path), stage_reports, stages_dir)
         self.stdout.write(self.style.SUCCESS(f"    [+] Generated Audit Report: {rep_md}"))
 
+        if is_pipeline_aborted(run_id):
+            set_pipeline_stage(run_id, PipelineStage.ABORTED, error="Aborted before database persistence.")
+            return
+
         # Database Ingestion
         if not dry_run:
+            set_pipeline_stage(
+                run_id,
+                PipelineStage.DB_PERSISTENCE,
+                progress=0.97,
+                details={"canonical_questions": len(canonical_payloads)}
+            )
             exam = DBIngestionService.ingest_canonical_exam(
                 exam_title=exam_title,
                 canonical_questions=canonical_payloads,
@@ -410,6 +520,17 @@ class Command(BaseCommand):
                 positive_marks=pos_marks,
                 negative_marks=neg_marks,
                 is_active=is_publish,
+            )
+            set_pipeline_stage(
+                run_id,
+                PipelineStage.COMPLETED,
+                progress=1.0,
+                details={
+                    "exam_id": exam.id,
+                    "slug": exam.slug,
+                    "total_questions": exam.total_questions,
+                    "duration_seconds": round(time.time() - start_time, 2)
+                }
             )
             self.stdout.write(self.style.SUCCESS(
                 f"\n🎉 EXAM INGESTION COMPLETED SUCCESSFULLY!\n"
@@ -426,6 +547,12 @@ class Command(BaseCommand):
                 f"    Time Elapsed:   {time.time() - start_time:.2f}s\n"
             ))
         else:
+            set_pipeline_stage(
+                run_id,
+                PipelineStage.COMPLETED,
+                progress=1.0,
+                details={"dry_run": True, "questions": len(canonical_payloads)}
+            )
             self.stdout.write(self.style.WARNING(
                 f"\n[DRY RUN COMPLETE] Validated {len(canonical_payloads)} canonical questions.\n"
                 f"    Exam Title:     {exam_title}\n"
