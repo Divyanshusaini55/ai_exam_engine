@@ -98,8 +98,14 @@ class Command(BaseCommand):
         parser.add_argument(
             "--refine",
             action="store_true",
-            default=False,
-            help="Run multimodal LLM refinement (Gemini 3.8 Flash) for questions with complex math, KaTeX formulas, tables, and vision-verified diagrams.",
+            default=True,
+            help="Run multimodal LLM refinement (Gemini 2.5 Flash) for questions with complex math, KaTeX formulas, tables, and vision-verified diagrams (default: True).",
+        )
+        parser.add_argument(
+            "--no-refine",
+            dest="refine",
+            action="store_false",
+            help="Skip multimodal LLM refinement (fast deterministic path only).",
         )
         parser.add_argument(
             "--refine-workers",

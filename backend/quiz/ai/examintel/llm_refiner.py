@@ -2,6 +2,7 @@ from __future__ import annotations
 import base64
 import concurrent.futures
 import json
+import logging
 import os
 import re
 import time
@@ -15,6 +16,8 @@ from pydantic import BaseModel, Field
 from quiz.ai.examintel.models import QuestionBlock, QuestionOption
 from quiz.ai.examintel.indic_font_repair import repair_indic_text, has_corrupted_indic_glyphs
 from quiz.ai.langfuse_client import observe
+
+logger = logging.getLogger(__name__)
 
 
 MATH_COMPLEXITY_REGEX = re.compile(
@@ -179,19 +182,41 @@ def refine_question_with_vision(
             Path(settings.BASE_DIR) / question.crop_image_path,
             Path(settings.BASE_DIR) / "output" / question.crop_image_path,
         ]
+        if hasattr(settings, 'MEDIA_ROOT') and settings.MEDIA_ROOT:
+            candidates.append(Path(settings.MEDIA_ROOT) / question.crop_image_path)
+            candidates.append(Path(settings.MEDIA_ROOT) / "exam_assets" / question.crop_image_path)
         if output_dir:
-            candidates.insert(0, Path(output_dir) / question.crop_image_path)
-            candidates.insert(1, Path(output_dir) / p.name)
+            out_p = Path(output_dir)
+            candidates.insert(0, out_p / question.crop_image_path)
+            candidates.insert(1, out_p / p.name)
+            candidates.insert(2, out_p / "assets" / "crops" / p.name)
         for cand in candidates:
             if cand.is_file():
                 crop_file = cand
                 break
         if not crop_file:
-            matches = list(Path(settings.BASE_DIR).glob(f"output/**/{p.name}"))
-            if matches:
-                crop_file = matches[0]
+            # Deep search in media and output folders
+            search_roots = []
+            if hasattr(settings, 'MEDIA_ROOT') and settings.MEDIA_ROOT:
+                search_roots.append(Path(settings.MEDIA_ROOT))
+            search_roots.append(Path(settings.BASE_DIR) / "output")
+            for root in search_roots:
+                if root.exists():
+                    matches = list(root.glob(f"**/{p.name}"))
+                    if matches:
+                        crop_file = matches[0]
+                        break
+
+    if not crop_file and not (question.question_text and question.question_text.strip()):
+        logger.warning(f"Q{question.question_number}: Neither crop image nor draft text available. Skipping LLM call.")
+        return _build_fallback_refined_question(question)
 
     prompt = f"""{VISION_BILINGUAL_MATH_INSTRUCTION}
+
+STRICT QUESTION INTEGRITY RULES (CRITICAL):
+1. You MUST transcribe and refine the EXACT question given in DRAFT TEXT and the attached CROP image.
+2. Under NO circumstances should you invent, hallucinate, or substitute a different question.
+3. If DRAFT TEXT contains the question statement and options, PRESERVE its exact content, wording, names, and logic, converting mathematical formulas/equations into KaTeX ($...$).
 
 METADATA & GROUND TRUTH:
 - Question Number: {question.question_number}
@@ -352,8 +377,8 @@ Respond ONLY with a JSON object:
             provenance=question.source if question.source != "none" else "multimodal_vision_refiner",
         )
 
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning(f"Multimodal vision refinement failed for Q{question.question_number}: {e}")
 
     return _build_fallback_refined_question(question)
 

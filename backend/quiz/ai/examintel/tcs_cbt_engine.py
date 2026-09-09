@@ -101,6 +101,7 @@ def extract_tcs_cbt_questions(
     answers from a TCS iON / CBT response sheet PDF.
     """
     doc = fitz.open(pdf_path)
+    output_dir = Path(output_dir)
     assets_dir = output_dir / "assets"
     crops_dir = assets_dir / "crops"
     assets_dir.mkdir(parents=True, exist_ok=True)

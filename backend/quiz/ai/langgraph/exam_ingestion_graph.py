@@ -347,7 +347,8 @@ def node_katex_vision_refine(state: ExamIngestionState) -> dict:
     )
 
     # Refine questions concurrently
-    refined_objects = refine_questions_batch(extracted_objects, max_workers=16)
+    output_dir = stages_dir.parent
+    refined_objects = refine_questions_batch(extracted_objects, max_workers=8, output_dir=output_dir)
 
     fused_list = []
     for r in refined_objects:
