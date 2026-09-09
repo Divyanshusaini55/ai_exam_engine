@@ -164,7 +164,7 @@ class QuestionSerializer(serializers.ModelSerializer):
                     'option_label': opt.get('id', chr(65 + idx)),
                     'answer_text': answer_text,
                     'answer_text_hi': opt.get('answer_text_hi') or opt.get('text_hi') or '',
-                    'image_url': self._resolve_image_url(opt.get('image_url'), obj),
+                    'image_url': self._resolve_image_url(opt.get('image_url') or opt.get('option_image_path'), obj),
                     'order': idx,
                 }
                 if not hide_correct:
@@ -210,21 +210,33 @@ class QuestionSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         backend_base = (request.build_absolute_uri('/')[:-1] if request else getattr(settings, 'BACKEND_PUBLIC_URL', 'http://127.0.0.1:8000')).rstrip('/')
 
-        # 1. If local file exists on disk in media/exam_assets/<exam_slug>/<clean_subpath>
+        # 1. Cloudflare R2 / AWS S3 custom domain resolution
+        use_r2 = getattr(settings, 'USE_R2_STORAGE', False)
+        s3_domain = getattr(settings, 'AWS_S3_CUSTOM_DOMAIN', None) or getattr(settings, 'R2_CUSTOM_DOMAIN', None) or os.environ.get('R2_CUSTOM_DOMAIN', '').replace('https://', '').replace('http://', '').strip('/')
+        if use_r2 and s3_domain:
+            domain = f"https://{s3_domain.rstrip('/')}"
+            if clean_subpath.startswith("exams/"):
+                return f"{domain}/{clean_subpath}"
+            if exam_slug:
+                return f"{domain}/exams/{exam_slug}/{clean_subpath}"
+            return f"{domain}/{clean_subpath}"
+
+        # 2. If local file exists on disk in media/exam_assets/<exam_slug>/<clean_subpath>
         if exam_slug:
             local_disk_path = Path(settings.MEDIA_ROOT) / "exam_assets" / exam_slug / clean_subpath
             if local_disk_path.exists():
                 return f"{backend_base}/media/exam_assets/{exam_slug}/{clean_subpath}"
 
-        # 2. Check Cloudflare R2 custom domain
-        r2_domain = getattr(settings, 'R2_CUSTOM_DOMAIN', None)
-        if r2_domain and ("r2.dev" in r2_domain or "cloudfront" in r2_domain or "cdn" in r2_domain):
-            domain = r2_domain.rstrip('/')
-            if exam_slug and not clean_subpath.startswith(f"exams/{exam_slug}"):
+        # 3. Check Cloudflare R2 domain even if USE_R2_STORAGE is not True (e.g. read-only fallback)
+        if s3_domain and ("r2.dev" in s3_domain or "cloudfront" in s3_domain or "cdn" in s3_domain):
+            domain = f"https://{s3_domain.rstrip('/')}"
+            if clean_subpath.startswith("exams/"):
+                return f"{domain}/{clean_subpath}"
+            if exam_slug:
                 return f"{domain}/exams/{exam_slug}/{clean_subpath}"
             return f"{domain}/{clean_subpath}"
 
-        # 3. Fallback to local media URL
+        # 4. Fallback to local media URL
         if exam_slug and not clean_subpath.startswith(f"exam_assets/{exam_slug}"):
             return f"{backend_base}/media/exam_assets/{exam_slug}/{clean_subpath}"
         return f"{backend_base}/media/{clean_subpath}"
@@ -234,13 +246,38 @@ class QuestionSerializer(serializers.ModelSerializer):
         payload = obj.schema_payload or {}
         images_dict = (payload.get('content') or {}).get('images', {})
         if images_dict and isinstance(images_dict, dict):
-            first_img = next(iter(images_dict.values()), None)
+            first_img = None
+            if images_dict.get('crop_image'):
+                first_img = images_dict['crop_image']
+            elif images_dict.get('IMAGE_1'):
+                first_img = images_dict['IMAGE_1']
+            elif images_dict.get('diagrams'):
+                diags = images_dict['diagrams']
+                if isinstance(diags, list) and len(diags) > 0:
+                    first_img = diags[0]
+                elif isinstance(diags, str):
+                    first_img = diags
+            else:
+                first_img = next(iter(images_dict.values()), None)
+
             if isinstance(first_img, dict) and first_img.get('url'):
                 return self._resolve_image_url(first_img.get('url'), obj)
             elif isinstance(first_img, str):
                 return self._resolve_image_url(first_img, obj)
+            elif isinstance(first_img, list) and len(first_img) > 0:
+                item = first_img[0]
+                if isinstance(item, dict) and item.get('url'):
+                    return self._resolve_image_url(item.get('url'), obj)
+                elif isinstance(item, str):
+                    return self._resolve_image_url(item, obj)
 
-        # 2. Check prefetched QuestionImage model
+        # 2. Check diagram_paths or crop_image_url in payload directly
+        if payload.get('diagram_paths') and isinstance(payload['diagram_paths'], list) and len(payload['diagram_paths']) > 0:
+            return self._resolve_image_url(payload['diagram_paths'][0], obj)
+        if payload.get('crop_image_url'):
+            return self._resolve_image_url(payload['crop_image_url'], obj)
+
+        # 3. Check prefetched QuestionImage model
         request = self.context.get('request')
         all_imgs = getattr(obj, '_prefetched_objects_cache', {}).get('images')
         if all_imgs is not None:
@@ -273,6 +310,7 @@ class QuestionSerializer(serializers.ModelSerializer):
         # Expose rich V2 properties
         data['schema_version'] = instance.schema_version
         data['passage_id'] = payload.get('passage_id')
+        data['shared_context'] = payload.get('shared_context') or payload.get('passage_text') or ''
         data['marking'] = payload.get('marking', {})
         data['classification'] = payload.get('classification', {})
         raw_content_images = (payload.get('content') or {}).get('images', {})
@@ -286,6 +324,11 @@ class QuestionSerializer(serializers.ModelSerializer):
                     }
                 elif isinstance(img_val, str):
                     resolved_content_images[k] = self._resolve_image_url(img_val, instance)
+                elif isinstance(img_val, list):
+                    resolved_content_images[k] = [
+                        self._resolve_image_url(sub_img, instance) if isinstance(sub_img, str) else sub_img
+                        for sub_img in img_val
+                    ]
         data['content_images'] = resolved_content_images
         data['exam_history'] = payload.get('exam_history', [])
         data['question_text_hi'] = payload.get('question_text_hi', '')

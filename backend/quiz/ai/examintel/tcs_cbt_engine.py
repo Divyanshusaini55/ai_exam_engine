@@ -230,11 +230,20 @@ def extract_tcs_cbt_questions(
         # Find questions starting with Q.<number>
         q_block_groups: List[Dict[str, Any]] = []
         curr_group: Optional[Dict[str, Any]] = None
+        pending_comprehension: Optional[str] = None
 
         for b in text_blocks:
             txt = b[4].strip()
             # Ignore page footer notes
             if "Correct Answer will carry" in txt or "Chosen option on the right" in txt:
+                continue
+
+            # Check if this block is a Comprehension passage or Directions header
+            if re.search(r"^(?:Comprehension\s*:|Directions\s*(?:\([^\)]*\))?\s*:|SubQuestion\s*No\s*:|Case\s*Study)", txt, re.IGNORECASE):
+                if curr_group:
+                    q_block_groups.append(curr_group)
+                    curr_group = None
+                pending_comprehension = txt
                 continue
 
             q_match = re.match(r"^Q\.(\d+)", txt)
@@ -249,6 +258,7 @@ def extract_tcs_cbt_questions(
                     "x0": b[0],
                     "x1": b[2],
                     "blocks": [b],
+                    "shared_context": pending_comprehension,
                 }
             elif curr_group:
                 curr_group["blocks"].append(b)
@@ -299,6 +309,9 @@ def extract_tcs_cbt_questions(
                 l_strip = line.strip()
                 if not l_strip:
                     continue
+                # If a leaked comprehension header is encountered in ans_raw, break immediately!
+                if re.match(r"^(?:Comprehension\s*:|Directions\s*(?:\([^\)]*\))?\s*:|SubQuestion\s*No\s*:|Case\s*Study)", l_strip, re.IGNORECASE):
+                    break
                 m = re.match(r"^([1-4])\.\s*(.*)", l_strip)
                 if m:
                     if curr_opt is not None:
@@ -326,6 +339,8 @@ def extract_tcs_cbt_questions(
                 # Clean any accidental leading "Option X" or "X." text
                 clean_opt_txt = re.sub(rf"^(?:Option\s*)?{num_val}[\.\:\s]*", "", raw_opt_txt, flags=re.IGNORECASE).strip()
                 clean_opt_txt = re.sub(r"^Option\s*\d+[\.\:\s]*", "", clean_opt_txt, flags=re.IGNORECASE).strip()
+                clean_opt_txt = re.sub(r"(?im)(?:\n\s*|\s+)(?:Comprehension\s*:|Directions\s*(?:\([^\)]*\))?\s*:|SubQuestion\s*No\s*:|Case\s*Study)[\s\S]*", "", clean_opt_txt).strip()
+                clean_opt_txt = re.sub(r"(?im)\bComprehension\s*:[\s\S]*", "", clean_opt_txt).strip()
 
                 opt_y_center = (ow[1] + ow[3]) / 2.0
 
@@ -438,6 +453,7 @@ def extract_tcs_cbt_questions(
                 question_number=str(q_num),
                 global_question_number=global_q_counter,
                 section_name=current_section,
+                shared_context=qg.get("shared_context"),
                 question_text=stem,
                 options=options,
                 detected_answer=detected_answer,

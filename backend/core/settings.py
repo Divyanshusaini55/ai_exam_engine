@@ -199,6 +199,7 @@ if USE_R2_STORAGE:
     AWS_S3_ENDPOINT_URL = os.environ.get('R2_ENDPOINT_URL')  # e.g., https://<account_id>.r2.cloudflarestorage.com
     custom_domain = os.environ.get('R2_CUSTOM_DOMAIN', '').replace('https://', '').replace('http://', '').strip('/')
     AWS_S3_CUSTOM_DOMAIN = custom_domain or None
+    R2_CUSTOM_DOMAIN = custom_domain or None
 
     AWS_S3_SIGNATURE_VERSION = 's3v4'
     AWS_S3_FILE_OVERWRITE = False

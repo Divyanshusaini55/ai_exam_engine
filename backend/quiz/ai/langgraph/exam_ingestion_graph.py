@@ -54,6 +54,8 @@ from quiz.ai.examintel.pipeline_monitor import (
 )
 from quiz.ai import extract_json_from_text
 from quiz.ai.langfuse_client import observe, update_trace_metadata
+from django.utils.text import slugify
+from quiz.ai.examintel.asset_storage_agent import AssetStorageAgent
 
 logger = logging.getLogger("quiz.ai.langgraph.exam_ingestion_graph")
 
@@ -359,6 +361,7 @@ def node_katex_vision_refine(state: ExamIngestionState) -> dict:
                 "answer_text": opt.option_text,
                 "answer_text_hi": opt.option_text_hi,
                 "is_correct": opt.is_correct,
+                "image_url": getattr(opt, "image_url", None),
             })
 
         fused_list.append({
@@ -378,6 +381,7 @@ def node_katex_vision_refine(state: ExamIngestionState) -> dict:
             "solution_steps": [],
             "crop_image_url": r.crop_image_url,
             "diagram_paths": r.figure_urls,
+            "shared_context": getattr(r, "shared_context", None),
             "provenance": r.provenance,
         })
 
@@ -609,11 +613,12 @@ def node_pydantic_validate(state: ExamIngestionState) -> dict:
         for o_idx, opt in enumerate(raw_options):
             opt_id = str(opt.get("id") or chr(65 + o_idx))
             is_c = bool(opt.get("is_correct", False))
+            opt_img = opt.get("image_url") or opt.get("option_image_path") or None
             v2_options.append({
                 "id": opt_id,
                 "text": opt.get("answer_text") or opt.get("text") or "",
                 "text_hi": opt.get("answer_text_hi") or opt.get("text_hi"),
-                "image_url": None,
+                "image_url": opt_img,
                 "explanation": None,
                 "is_correct": is_c
             })
@@ -629,18 +634,31 @@ def node_pydantic_validate(state: ExamIngestionState) -> dict:
         difficulty = item.get("difficulty") or "Medium"
         lang = item.get("language") or "en"
 
+        diagram_paths = item.get("diagram_paths", []) or []
+        crop_image_url = item.get("crop_image_url")
+        content_images = {}
+        if crop_image_url:
+            content_images["crop_image"] = crop_image_url
+        if diagram_paths:
+            content_images["diagrams"] = diagram_paths
+            for d_idx, d_path in enumerate(diagram_paths):
+                content_images[f"IMAGE_{d_idx + 1}"] = {
+                    "url": d_path,
+                    "alt": f"Question Diagram {d_idx + 1}"
+                }
+
+        shared_ctx = item.get("shared_context")
+
         v2_item = {
             "id": q_id,
             "schema_version": "v2",
             "origin": "pyq_extracted",
             "question_type": "mcq_single" if len(correct_ids) <= 1 else "mcq_multi",
             "passage_id": None,
+            "shared_context": shared_ctx,
             "content": {
                 "text": item.get("question_text", ""),
-                "images": {
-                    "crop_image": item.get("crop_image_url"),
-                    "diagrams": item.get("diagram_paths", [])
-                }
+                "images": content_images
             },
             "question_text_hi": item.get("question_text_hi"),
             "options": v2_options,
@@ -685,6 +703,16 @@ def node_pydantic_validate(state: ExamIngestionState) -> dict:
             }
         }
         v2_payloads.append(v2_item)
+
+    exam_slug = slugify(Path(pdf_path).stem)
+    try:
+        AssetStorageAgent.ingest_exam_assets(
+            exam_slug=exam_slug,
+            base_dir=stages_dir.parent,
+            questions=v2_payloads,
+        )
+    except Exception as e:
+        logger.error(f"AssetStorageAgent failed during canonical v2 assembly: {e}")
 
     audit_stage8_canonical_v2(v2_payloads, sr8)
     sr8.artifact_path = save_stage_artifact(stages_dir, "stage8_canonical_v2_payloads.json", v2_payloads)

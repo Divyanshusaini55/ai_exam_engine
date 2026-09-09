@@ -59,6 +59,7 @@ class RefinedQuestion(BaseModel):
     figure_urls: List[str] = Field(default_factory=list, description="Extracted diagram figure image paths")
     diagram_needed: bool = Field(default=False, description="True only if a genuine graphical chart/geometry figure is required that cannot be represented as text/KaTeX/table.")
     crop_image_url: Optional[str] = Field(default=None, description="Path to 300 DPI question crop image")
+    shared_context: Optional[str] = Field(default=None, description="Shared reading comprehension passage or cloze test text")
     provenance: str = Field(default="deterministic_signal", description="Origin of ground truth answer")
 
 
@@ -374,6 +375,7 @@ Respond ONLY with a JSON object:
             figure_urls=final_figures,
             diagram_needed=diagram_needed,
             crop_image_url=question.crop_image_path if diagram_needed else None,
+            shared_context=getattr(question, 'shared_context', None),
             provenance=question.source if question.source != "none" else "multimodal_vision_refiner",
         )
 
@@ -392,8 +394,9 @@ def sanitize_option_text(text: str, has_image: bool = False) -> str:
     # Strip repeated all-caps section banners
     text = re.sub(r"(?im)^\s*(?:BASIC\s*LAW|GENERAL\s*HINDI|NUMERICAL|MENTAL\s*APTITUDE|GENERAL\s*KNOWLEDGE|TEST\s*OF\s*REASONING)[^\n]*?(?:BASIC\s*LAW|GENERAL\s*HINDI|NUMERICAL|MENTAL\s*APTITUDE|GENERAL\s*KNOWLEDGE|TEST\s*OF\s*REASONING)[^\n]*$", "", text)
     text = re.sub(r"(?im)^\s*(?:BASIC\s*LAW\s*-\s*CONSTITUTION\s*AND\s*GENERAL\s*KNOWLEDGE|MENTAL\s*APTITUDE\s*-\s*INTELLIGENCE\s*-\s*TEST\s*OF\s*REASONING|NUMERICAL\s*&\s*MENTAL\s*ABILITY|GENERAL\s*HINDI)\s*$", "", text)
-    # Strip swallowed Case Study / Directions headers
-    text = re.sub(r"(?im)\n\s*(?:Case\s*Study\s*-\s*\d+\s*to\s*\d+|Directions\s*:[\s\S]*)", "", text)
+    # Strip swallowed Case Study / Comprehension / Directions headers
+    text = re.sub(r"(?im)(?:\n\s*|\s+)(?:Comprehension\s*:|Case\s*Study\s*-\s*\d+\s*to\s*\d+|Directions\s*(?:\([^\)]*\))?\s*:|SubQuestion\s*No\s*:)[\s\S]*", "", text)
+    text = re.sub(r"(?im)\bComprehension\s*:[\s\S]*", "", text)
 
     # If the option has an image, strip redundant label placeholders like "छवि (A)", "Figure A", "(A)"
     if has_image:
@@ -450,6 +453,7 @@ def _build_fallback_refined_question(question: QuestionBlock) -> RefinedQuestion
         figure_urls=diagram_paths,
         diagram_needed=has_diag,
         crop_image_url=question.crop_image_path,
+        shared_context=getattr(question, 'shared_context', None),
         provenance=question.source if question.source != "none" else "deterministic_signal",
     )
 
