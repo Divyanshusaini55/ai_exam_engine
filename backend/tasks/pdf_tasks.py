@@ -53,11 +53,25 @@ def parse_question_paper(self, job_id, upload_id, dedup_key=None):
             fail_job(job_id, error="Task aborted by user.")
             return
 
-        exam = Exam.objects.create(
-            title=f"{upload.subject} ({upload.exam_date})",
-            pdf_file=upload.file,
-            status='draft'
-        )
+        exam = None
+        try:
+            from jobs.models import BackgroundJob
+            bjob = BackgroundJob.objects.filter(pk=job_id).first()
+            if bjob and bjob.payload and bjob.payload.get('exam_id'):
+                exam = Exam.objects.filter(pk=bjob.payload['exam_id']).first()
+        except Exception as e:
+            logger.warning(f"Could not retrieve target exam from job payload: {e}")
+
+        if exam:
+            if upload.file:
+                exam.pdf_file = upload.file
+                exam.save(update_fields=['pdf_file'])
+        else:
+            exam = Exam.objects.create(
+                title=f"{upload.subject} ({upload.exam_date})",
+                pdf_file=upload.file,
+                status='draft'
+            )
         count = parse_exam_paper_with_ai(exam, run_id=job_id)
         
         if is_pipeline_aborted(job_id):

@@ -1,3 +1,4 @@
+from __future__ import annotations
 
 from pathlib import Path
 from django.conf import settings
@@ -578,11 +579,54 @@ class ContactMessageSerializer(serializers.ModelSerializer):
 class QuestionPaperUploadSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True)
+    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), required=False, allow_null=True)
+    exam_date = serializers.DateField(required=False, allow_null=True)
+    exam = serializers.IntegerField(write_only=True, required=False, allow_null=True)
 
     class Meta:
         model = QuestionPaperUpload
-        fields = ['id', 'user', 'username', 'category', 'category_name', 'subject', 'exam_date', 'file', 'status', 'created_at']
+        fields = [
+            'id', 'user', 'username', 'category', 'category_name',
+            'subject', 'exam_date', 'file', 'status', 'created_at', 'exam'
+        ]
         read_only_fields = ['id', 'user', 'status', 'created_at']
+
+    def validate(self, attrs):
+        import django.utils.timezone
+        exam_id = attrs.get('exam')
+        target_exam = None
+        if exam_id:
+            from quiz.models import Exam
+            target_exam = Exam.objects.filter(pk=exam_id).first()
+
+        if not attrs.get('category'):
+            if target_exam and target_exam.subcategory and target_exam.subcategory.category:
+                attrs['category'] = target_exam.subcategory.category
+            else:
+                from quiz.models import Category
+                default_cat = Category.objects.first()
+                if not default_cat:
+                    default_cat = Category.objects.create(name='General', slug='general')
+                attrs['category'] = default_cat
+
+        if not attrs.get('exam_date'):
+            attrs['exam_date'] = django.utils.timezone.now().date()
+
+        if not attrs.get('subject') or attrs.get('subject') == 'General':
+            if target_exam:
+                attrs['subject'] = target_exam.title
+            elif not attrs.get('subject'):
+                attrs['subject'] = 'General Question Paper'
+
+        return attrs
+
+    def create(self, validated_data):
+        validated_data.pop('exam', None)
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        validated_data.pop('exam', None)
+        return super().update(instance, validated_data)
 
 class CorrectionSuggestionSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)

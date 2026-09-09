@@ -60,7 +60,13 @@ export default function AdminAiToolsPage() {
       const formData = new FormData()
       formData.append("file", file)
       formData.append("exam", selectedExam)
-      formData.append("subject", "General")
+
+      const targetExam = exams.find((e) => e.id.toString() === selectedExam)
+      formData.append("subject", targetExam?.title || "General")
+      if (targetExam?.category) {
+        formData.append("category", targetExam.category.toString())
+      }
+      formData.append("exam_date", new Date().toISOString().split("T")[0])
 
       const res = await adminApi.uploadPdf(formData)
       if (res.status >= 200 && res.status < 300) {
@@ -71,7 +77,23 @@ export default function AdminAiToolsPage() {
         setError(res.data?.error || "Failed to process PDF file.")
       }
     } catch (err: any) {
-      setError(err.message || "Upload failed.")
+      const serverData = err.response?.data
+      let message = err.message || "Upload failed."
+      if (serverData) {
+        if (typeof serverData === "string") {
+          message = serverData
+        } else if (serverData.error) {
+          message = serverData.error
+        } else if (serverData.detail) {
+          message = serverData.detail
+        } else if (typeof serverData === "object") {
+          const fieldMsgs = Object.entries(serverData)
+            .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
+            .join(' | ')
+          if (fieldMsgs) message = fieldMsgs
+        }
+      }
+      setError(message)
     } finally {
       setUploading(false)
     }
@@ -166,9 +188,14 @@ export default function AdminAiToolsPage() {
         {result && (
           <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs flex items-start gap-3">
             <CheckCircle2 className="size-5 shrink-0 mt-0.5" />
-            <div>
-              <p className="font-bold">Extraction Started / Complete!</p>
-              <p className="text-[11px] mt-0.5">{result.message || "Questions extracted and added to exam questions bank."}</p>
+            <div className="space-y-1">
+              <p className="font-bold">Extraction Started / Queued!</p>
+              <p className="text-[11px] leading-relaxed">{result.message || "Questions extraction queued into the target exam bank."}</p>
+              {result.job_id && (
+                <p className="text-[10px] text-muted-foreground pt-1">
+                  Job ID: <span className="font-mono text-foreground font-semibold">{result.job_id}</span> • You can monitor extraction in <a href="/admin/jobs" className="underline text-primary font-medium hover:text-primary/80">System Jobs</a>
+                </p>
+              )}
             </div>
           </div>
         )}

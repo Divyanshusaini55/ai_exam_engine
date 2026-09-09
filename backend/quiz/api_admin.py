@@ -645,6 +645,50 @@ class AdminPdfUploadViewSet(viewsets.ModelViewSet):
     lookup_field = 'id'
     pagination_class = None
 
+    def perform_create(self, serializer):
+        import logging
+        logger = logging.getLogger(__name__)
+
+        exam_id = self.request.data.get('exam')
+        try:
+            exam_id = int(exam_id) if exam_id else None
+        except (ValueError, TypeError):
+            exam_id = None
+
+        upload = serializer.save(user=self.request.user)
+
+        from jobs.services import create_job
+        from tasks.pdf_tasks import parse_question_paper
+
+        job = create_job(
+            type='ai.parse_pdf',
+            payload={
+                'upload_id': upload.id,
+                'exam_id': exam_id,
+            },
+            user=self.request.user if self.request.user.is_authenticated else None
+        )
+
+        try:
+            parse_question_paper.delay(str(job.id), upload.id)
+            logger.info(f"Queued parse_question_paper for upload {upload.id}, job {job.id}")
+        except Exception as e:
+            logger.warning(f"Failed to queue Celery parse_question_paper: {e}")
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+
+        data = dict(serializer.data)
+        from jobs.models import BackgroundJob
+        job = BackgroundJob.objects.filter(payload__upload_id=data.get('id')).order_by('-created_at').first()
+        if job:
+            data['job_id'] = str(job.id)
+        data['message'] = "AI Question extraction queued successfully! Questions will be extracted into the target exam."
+        return Response(data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 class AdminMessageViewSet(viewsets.ModelViewSet):
     queryset = ContactMessage.objects.all().order_by('-created_at')
