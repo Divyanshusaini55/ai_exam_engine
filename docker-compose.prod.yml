@@ -21,7 +21,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: /app/entrypoint.sh gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    command: gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3
     volumes:
       - /var/www/examintel/media:/app/media
       - django_prod_static:/app/staticfiles
