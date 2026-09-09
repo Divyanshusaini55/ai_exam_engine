@@ -70,15 +70,14 @@ export function PerformanceAnalysisDashboard({ examId, onRetake }: PerformanceAn
       // Find the question id and scroll to it
       const element = document.getElementById(`question-${qParam}`);
       if (element) {
-        setTimeout(() => {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          // Highlight it briefly
-          element.style.transition = 'background-color 0.5s ease';
-          element.style.backgroundColor = 'rgba(var(--primary), 0.1)';
-          setTimeout(() => {
-             element.style.backgroundColor = '';
-          }, 2000);
-        }, 500);
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Highlight it briefly
+        element.style.transition = 'background-color 0.5s ease';
+        element.style.backgroundColor = 'rgba(var(--primary), 0.1)';
+        const timer = setTimeout(() => {
+          element.style.backgroundColor = '';
+        }, 2000);
+        return () => clearTimeout(timer);
       }
     }
   }, [loading, qParam, questions]);

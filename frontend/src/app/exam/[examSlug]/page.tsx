@@ -110,7 +110,6 @@ export default function ExamPage() {
         router.replace(`/dashboard/${slug}`)
         return
       } catch (error) { }
-      await new Promise(resolve => setTimeout(resolve, 500))
       handleStart()
     } catch (error) {
       console.error("Failed to start exam:", error)

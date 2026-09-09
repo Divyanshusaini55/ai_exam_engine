@@ -272,7 +272,7 @@ export default function AnalysisPage() {
                                                 btn.classList.add('cursor-not-allowed', 'opacity-90');
 
                                                 setTimeout(() => {
-                                                    router.push('/exams');
+                                            router.push('/exams');
                                                 }, 1500);
                                             }
                                         }}
